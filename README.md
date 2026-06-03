@@ -1,6 +1,6 @@
 # Ramesses' Curse
 
-Ramesses' Curse is a Minecraft Forge mod for 1.20.1 built around a custom Curios slot, dynastic curses, and a dark Egyptian-themed progression centered on the Seal of Kadesh.
+"The Curse of Ramses II," created by Eldren & WuTao, ​​is an open-source mod for Minecraft version 1.20.1. You are welcome to playtest this mod; should you encounter any bugs, please report them via GitHub Issues, and I will address them promptly. Additionally, I would like to express my sincere gratitude to Codex for their invaluable assistance in resolving bugs and fixing errors.
 
 ## What the mod currently includes
 
