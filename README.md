@@ -2,7 +2,7 @@
 
 "The Curse of Ramses II," created by Eldren & WuTao, ​​is an open-source mod for Minecraft version 1.20.1. You are welcome to playtest this mod; should you encounter any bugs, please report them via GitHub Issues, and I will address them promptly. Additionally, I would like to express my sincere gratitude to Codex for their invaluable assistance in resolving bugs and fixing errors.
 
-## What the mod currently includes
+## Current features
 
 - A dedicated `curse` Curios slot
 - The `Seal of Kadesh` as the core relic of the mod
@@ -11,7 +11,11 @@
 - Curse systems tied to combat, hunger debt, guilt, trade pressure, dimension triggers, and item locking
 - Supporting items such as the `Purification Scroll` and `Satiety Crystal`
 
-## Design direction
+## Mod summary
+
+At its center is the Seal of Kadesh, a relic that binds itself to the player and unfolds a chain of escalating punishments. The current design blends custom Curios integration, curse-driven survival pressure, configurable punishment systems, and myth-inspired flavor rooted in a darker retelling of Ramesses-era grandeur.
+
+## Roadmap
 
 The project aims to build a themed curse-and-relic experience rather than a generic equipment expansion. Future development is planned around:
 
@@ -20,6 +24,7 @@ The project aims to build a themed curse-and-relic experience rather than a gene
 - More items, blocks, food, and rituals tied to the same mythic tone
 - Stronger data/config support for pack makers
 - More advancement chains and long-term progression hooks
+- Better repository automation for releases and testing
 
 ## Development
 
@@ -40,11 +45,21 @@ The project aims to build a themed curse-and-relic experience rather than a gene
 .\gradlew.bat runClient
 ```
 
+### Helpful commands
+
+```powershell
+.\gradlew.bat compileJava
+.\gradlew.bat processResources
+.\gradlew.bat build
+```
+
 ## Repository structure
 
 - `src/main/java` - mod source code
 - `src/main/resources` - assets, language files, metadata, advancements
 - `src/generated/resources` - generated data output
+- `.github` - issue templates and repository defaults
+- `tools` - local helper tools, ignored by Git
 
 ## License
 

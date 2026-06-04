@@ -8,6 +8,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -32,6 +33,7 @@ public class RamessesCurseMod {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+    public static final DeferredRegister<MobEffect> MOB_EFFECTS = ModMobEffects.MOB_EFFECTS;
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
@@ -43,6 +45,7 @@ public class RamessesCurseMod {
                         output.accept(ModItems.SEAL_OF_KADESH.get());
                         output.accept(ModItems.PURIFICATION_SCROLL.get());
                         output.accept(ModItems.SATIETY_CRYSTAL.get());
+                        output.accept(ModItems.EMBER_OF_DUAT.get());
                     })
                     .build());
 
@@ -51,6 +54,7 @@ public class RamessesCurseMod {
         modEventBus.addListener(this::commonSetup);
 
         ITEMS.register(modEventBus);
+        MOB_EFFECTS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
 

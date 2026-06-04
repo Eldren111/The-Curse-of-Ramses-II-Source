@@ -30,6 +30,9 @@
   "item.ramesses_curse.seal_of_kadesh.story_5": "So what it truly binds is not the wrist, but a life standing before the dying embers of power.",
   "item.ramesses_curse.purification_scroll": "Purification Scroll",
   "item.ramesses_curse.satiety_crystal": "Satiety Crystal",
+  "item.ramesses_curse.ember_of_duat": "Ember of Duat",
+  "item.ramesses_curse.ember_of_duat.chance": "Spawn chance is only 5%",
+  "effect.ramesses_curse.inversion": "Inversion",
   "item.ramesses_curse.purification_scroll.desc": "A single-use rite of pardon that burns away part of the King's Guilt.",
   "item.ramesses_curse.purification_scroll.effect": "Golden purification effect: removes %s King's Guilt",
   "item.ramesses_curse.requires_seal": "Only a bearer wearing the Seal of Kadesh can awaken this rite.",
@@ -47,5 +50,15 @@
   "command.ramesses_curse.guilt.multiple": "Adjusted King's Guilt for %s players. Current maximum is %s",
   "curios.identifier.curse": "Curse",
   "advancement.ramesses_curse.wear_seal_of_kadesh.title": "Curse Bearer",
-  "advancement.ramesses_curse.wear_seal_of_kadesh.description": "Wear the Seal of Kadesh"
+  "advancement.ramesses_curse.wear_seal_of_kadesh.description": "Wear the Seal of Kadesh",
+  "jei.ramesses_curse.seal_of_kadesh.line1": "A dynastic relic that binds itself to the wearer.",
+  "jei.ramesses_curse.seal_of_kadesh.line2": "Unlocks the curse-centered core of the mod.",
+  "jei.ramesses_curse.seal_of_kadesh.line3": "Its curses reshape hunger, combat, trade, and survival.",
+  "jei.ramesses_curse.purification_scroll.line1": "A single-use rite that burns away King's Guilt.",
+  "jei.ramesses_curse.purification_scroll.line2": "Consumes itself when its pardon is invoked.",
+  "jei.ramesses_curse.satiety_crystal.line1": "A crystal that stores hunger debt until reclaimed.",
+  "jei.ramesses_curse.satiety_crystal.line2": "Recovering it returns what it has taken.",
+  "jei.ramesses_curse.ember_of_duat.line1": "Found only in Nether containers such as fortress chests and bastion stores.",
+  "jei.ramesses_curse.ember_of_duat.line2": "A ritual-grade cinder steeped in Nether heat and graveweight.",
+  "jei.ramesses_curse.ember_of_duat.line3": "A rare cursed material prized for forbidden rites."
 }

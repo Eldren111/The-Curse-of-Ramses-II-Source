@@ -49,6 +49,8 @@ public class ModItems {
             ITEMS.register("purification_scroll", PurificationScroll::new);
     public static final RegistryObject<Item> SATIETY_CRYSTAL =
             ITEMS.register("satiety_crystal", SatietyCrystal::new);
+    public static final RegistryObject<Item> EMBER_OF_DUAT =
+            ITEMS.register("ember_of_duat", EmberOfDuat::new);
 
     public static class SealOfKadesh extends Item implements ICurioItem {
         private static final String WARNING_KEY = "message.ramesses_curse.curse_wrapping";
@@ -328,6 +330,18 @@ public class ModItems {
 
         public SatietyCrystal() {
             super(new Item.Properties().stacksTo(64).rarity(Rarity.RARE));
+        }
+    }
+
+    public static class EmberOfDuat extends Item {
+
+        public EmberOfDuat() {
+            super(new Item.Properties().stacksTo(64).rarity(Rarity.UNCOMMON));
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.ember_of_duat.chance").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
         }
     }
 }

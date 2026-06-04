@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.Input;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -44,11 +45,19 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.event.MovementInputUpdateEvent;
+import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -81,6 +90,12 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 @Mod.EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModEvents {
+    private static final ResourceLocation NETHER_BRIDGE_CHEST = new ResourceLocation("minecraft", "chests/nether_bridge");
+    private static final ResourceLocation BASTION_BRIDGE_CHEST = new ResourceLocation("minecraft", "chests/bastion_bridge");
+    private static final ResourceLocation BASTION_HOGLIN_STABLE_CHEST = new ResourceLocation("minecraft", "chests/bastion_hoglin_stable");
+    private static final ResourceLocation BASTION_OTHER_CHEST = new ResourceLocation("minecraft", "chests/bastion_other");
+    private static final ResourceLocation BASTION_TREASURE_CHEST = new ResourceLocation("minecraft", "chests/bastion_treasure");
+    private static final ResourceLocation RUINED_PORTAL_CHEST = new ResourceLocation("minecraft", "chests/ruined_portal");
 
     private static final String CURSE_DATA = "RamessesCurseData";
     private static final String EQUIP_TICKS = "EquipTicks";
@@ -95,6 +110,10 @@ public class ModEvents {
     private static final String GUILT_LOCK_UNTIL = "GuiltLockUntil";
     private static final String SATIETY_CRYSTAL_OWNER = "SatietyCrystalOwner";
     private static final String SATIETY_CRYSTAL_COUNT = "SatietyCrystalCount";
+    private static final String SATIETY_CRYSTAL_DIMENSION = "SatietyCrystalDimension";
+    private static final String SATIETY_CRYSTAL_X = "SatietyCrystalX";
+    private static final String SATIETY_CRYSTAL_Y = "SatietyCrystalY";
+    private static final String SATIETY_CRYSTAL_Z = "SatietyCrystalZ";
     private static final String LAST_SYNC_GUILT = "LastSyncGuilt";
     private static final String LAST_SYNC_SEAL = "LastSyncSeal";
     private static final String LAST_SYNC_LOCK_SECONDS = "LastSyncLockSeconds";
@@ -126,6 +145,12 @@ public class ModEvents {
 
         if (player.level() instanceof ServerLevel serverLevel) {
             updateCurseNineHunger(serverLevel, player);
+        }
+
+        if (isHoldingEmberOfDuat(player)) {
+            player.addEffect(new MobEffectInstance(ModMobEffects.INVERSION.get(), 10, 0, false, false, true));
+        } else if (player.hasEffect(ModMobEffects.INVERSION.get())) {
+            player.removeEffect(ModMobEffects.INVERSION.get());
         }
 
         if (!sealEquipped) {
@@ -233,6 +258,23 @@ public class ModEvents {
                 syncClientState(player, true);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onLootTableLoad(LootTableLoadEvent event) {
+        if (!isNetherContainerLoot(event.getName())) {
+            return;
+        }
+
+        LootPool pool = LootPool.lootPool()
+                .name("ramesses_curse_ember_of_duat")
+                .setRolls(ConstantValue.exactly(1.0F))
+                .when(LootItemRandomChanceCondition.randomChance(0.05F))
+                .add(LootItem.lootTableItem(ModItems.EMBER_OF_DUAT.get())
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F))))
+                .build();
+
+        event.getTable().addPool(pool);
     }
 
     @SubscribeEvent
@@ -610,6 +652,7 @@ public class ModEvents {
         crystal.setGlowingTag(true);
         crystal.getPersistentData().putUUID(SATIETY_CRYSTAL_OWNER, player.getUUID());
         player.level().addFreshEntity(crystal);
+        rememberSatietyCrystal(player, crystal);
     }
 
     private static void updateCurseNineHunger(ServerLevel level, Player player) {
@@ -624,6 +667,20 @@ public class ModEvents {
             player.getFoodData().setFoodLevel(maxFoodLevel);
         }
         player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 220, 1, false, false, true));
+    }
+
+    private static boolean isNetherContainerLoot(ResourceLocation lootTableId) {
+        return NETHER_BRIDGE_CHEST.equals(lootTableId)
+                || BASTION_BRIDGE_CHEST.equals(lootTableId)
+                || BASTION_HOGLIN_STABLE_CHEST.equals(lootTableId)
+                || BASTION_OTHER_CHEST.equals(lootTableId)
+                || BASTION_TREASURE_CHEST.equals(lootTableId)
+                || RUINED_PORTAL_CHEST.equals(lootTableId);
+    }
+
+    private static boolean isHoldingEmberOfDuat(Player player) {
+        return player.getMainHandItem().is(ModItems.EMBER_OF_DUAT.get())
+                || player.getOffhandItem().is(ModItems.EMBER_OF_DUAT.get());
     }
 
     private static boolean isSatietyCrystalOwner(ItemEntity itemEntity, Player player) {
@@ -654,11 +711,51 @@ public class ModEvents {
         CompoundTag data = getCurseData(player);
         int next = Math.max(0, data.getInt(SATIETY_CRYSTAL_COUNT) + delta);
         data.putInt(SATIETY_CRYSTAL_COUNT, next);
+        if (next == 0) {
+            clearRememberedSatietyCrystal(player);
+        }
+    }
+
+    private static void rememberSatietyCrystal(Player player, ItemEntity crystal) {
+        CompoundTag data = getCurseData(player);
+        data.putString(SATIETY_CRYSTAL_DIMENSION, crystal.level().dimension().location().toString());
+        data.putInt(SATIETY_CRYSTAL_X, crystal.blockPosition().getX());
+        data.putInt(SATIETY_CRYSTAL_Y, crystal.blockPosition().getY());
+        data.putInt(SATIETY_CRYSTAL_Z, crystal.blockPosition().getZ());
+    }
+
+    private static void clearRememberedSatietyCrystal(Player player) {
+        CompoundTag data = getCurseData(player);
+        data.remove(SATIETY_CRYSTAL_DIMENSION);
+        data.remove(SATIETY_CRYSTAL_X);
+        data.remove(SATIETY_CRYSTAL_Y);
+        data.remove(SATIETY_CRYSTAL_Z);
+    }
+
+    private static BlockPos getRememberedSatietyCrystalPos(Player player) {
+        CompoundTag data = getCurseData(player);
+        if (!data.contains(SATIETY_CRYSTAL_DIMENSION) || !data.contains(SATIETY_CRYSTAL_X) || !data.contains(SATIETY_CRYSTAL_Y) || !data.contains(SATIETY_CRYSTAL_Z)) {
+            return null;
+        }
+        return new BlockPos(data.getInt(SATIETY_CRYSTAL_X), data.getInt(SATIETY_CRYSTAL_Y), data.getInt(SATIETY_CRYSTAL_Z));
+    }
+
+    private static ResourceKey<Level> getRememberedSatietyCrystalDimension(Player player) {
+        CompoundTag data = getCurseData(player);
+        if (!data.contains(SATIETY_CRYSTAL_DIMENSION)) {
+            return null;
+        }
+        return ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, new ResourceLocation(data.getString(SATIETY_CRYSTAL_DIMENSION)));
     }
 
     private static int locateSatietyCrystal(CommandSourceStack source, ServerPlayer target) {
         ItemEntity crystal = findOwnedSatietyCrystal(source.getServer().getAllLevels(), target.getUUID());
-        if (crystal == null) {
+        if (crystal != null) {
+            rememberSatietyCrystal(target, crystal);
+        }
+        BlockPos crystalPos = crystal != null ? crystal.blockPosition() : getRememberedSatietyCrystalPos(target);
+
+        if (crystalPos == null) {
             source.sendFailure(Component.translatable("command.ramesses_curse.locate.none", target.getDisplayName()));
             return 0;
         }
@@ -666,9 +763,9 @@ public class ModEvents {
         MutableComponent clickable = Component.translatable(
                         "command.ramesses_curse.locate.found",
                         target.getDisplayName(),
-                        crystal.blockPosition().getX(),
-                        crystal.blockPosition().getY(),
-                        crystal.blockPosition().getZ())
+                        crystalPos.getX(),
+                        crystalPos.getY(),
+                        crystalPos.getZ())
                 .withStyle(style -> style
                         .withColor(0xF6D365)
                         .withClickEvent(new ClickEvent(
@@ -682,12 +779,16 @@ public class ModEvents {
 
     private static int teleportToSatietyCrystal(CommandSourceStack source, ServerPlayer target) throws CommandSyntaxException {
         ItemEntity crystal = findOwnedSatietyCrystal(source.getServer().getAllLevels(), target.getUUID());
-        if (crystal == null) {
+        if (crystal != null) {
+            rememberSatietyCrystal(target, crystal);
+        }
+        ResourceKey<Level> dimension = crystal != null ? crystal.level().dimension() : getRememberedSatietyCrystalDimension(target);
+        BlockPos crystalPos = crystal != null ? crystal.blockPosition() : getRememberedSatietyCrystalPos(target);
+        if (dimension == null || crystalPos == null) {
             source.sendFailure(Component.translatable("command.ramesses_curse.locate.none", target.getDisplayName()));
             return 0;
         }
 
-        ResourceKey<Level> dimension = crystal.level().dimension();
         ServerLevel destination = source.getServer().getLevel(dimension);
         if (destination == null) {
             source.sendFailure(Component.translatable("command.ramesses_curse.locate.none", target.getDisplayName()));
@@ -695,7 +796,7 @@ public class ModEvents {
         }
 
         ServerPlayer playerToMove = source.getPlayerOrException();
-        playerToMove.teleportTo(destination, crystal.getX(), crystal.getY(), crystal.getZ(), playerToMove.getYRot(), playerToMove.getXRot());
+        playerToMove.teleportTo(destination, crystalPos.getX() + 0.5D, crystalPos.getY(), crystalPos.getZ() + 0.5D, playerToMove.getYRot(), playerToMove.getXRot());
         return 1;
     }
 
@@ -976,6 +1077,29 @@ public class ModEvents {
             float seconds = clientLockTicks / 20.0F;
             event.getToolTip().add(Component.translatable("hud.ramesses_curse.guilt_lock", String.format("%.1f", seconds))
                     .withStyle(net.minecraft.ChatFormatting.GOLD));
+        }
+
+        @SubscribeEvent
+        public static void onMovementInputUpdate(MovementInputUpdateEvent event) {
+            if (!event.getEntity().hasEffect(ModMobEffects.INVERSION.get())) {
+                return;
+            }
+
+            Input input = event.getInput();
+            input.forwardImpulse = -input.forwardImpulse;
+            input.leftImpulse = -input.leftImpulse;
+
+            boolean up = input.up;
+            input.up = input.down;
+            input.down = up;
+
+            boolean left = input.left;
+            input.left = input.right;
+            input.right = left;
+
+            boolean jumping = input.jumping;
+            input.jumping = input.shiftKeyDown;
+            input.shiftKeyDown = jumping;
         }
 
         private static void renderGuiltBar(net.minecraft.client.gui.GuiGraphics guiGraphics, Minecraft minecraft, int guilt, int max) {

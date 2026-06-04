@@ -47,5 +47,25 @@
   "command.ramesses_curse.guilt.multiple": "已调整 %s 名玩家的王罪，当前最大值为 %s",
   "curios.identifier.curse": "诅咒",
   "advancement.ramesses_curse.wear_seal_of_kadesh.title": "咒印之主",
-  "advancement.ramesses_curse.wear_seal_of_kadesh.description": "佩戴卡迭石咒印"
+  "advancement.ramesses_curse.wear_seal_of_kadesh.description": "佩戴卡迭石咒印",
+  "jei.ramesses_curse.seal_of_kadesh.line1": "一件会自行缠上佩戴者的王朝遗印。",
+  "jei.ramesses_curse.seal_of_kadesh.line2": "它会开启整个诅咒体系的核心内容。",
+  "jei.ramesses_curse.seal_of_kadesh.line3": "往后的多数诅咒饰品都将以它为前提。",
+  "jei.ramesses_curse.purification_scroll.line1": "使用后消耗自身，并削减王罪值。",
+  "jei.ramesses_curse.purification_scroll.line2": "只有佩戴卡迭石咒印者才能令其回应。",
+  "jei.ramesses_curse.satiety_crystal.line1": "当咒印借死亡索取饱食时生成的结晶。",
+  "jei.ramesses_curse.satiety_crystal.line2": "取回它，便能收回被封存的饱食债。"
+  ,
+  "item.ramesses_curse.ember_of_duat": "杜阿特余烬",
+  "item.ramesses_curse.ember_of_duat.chance": "出现概率仅为5%",
+  "effect.ramesses_curse.inversion": "颠倒",
+  "jei.ramesses_curse.ember_of_duat.line1": "仅会出现在地狱容器中，如下界要塞与堡垒遗迹的箱子或木桶。",
+  "jei.ramesses_curse.ember_of_duat.line2": "一枚浸满地狱热息与墓火余威的仪式余烬。",
+  "jei.ramesses_curse.ember_of_duat.line3": "一种稀有而危险的诅咒材料。",
+  "jei.ramesses_curse.seal_of_kadesh.line3": "它的诅咒会一并扭曲饱食、战斗、交易与生存。"
+  ,
+  "jei.ramesses_curse.purification_scroll.line1": "一卷只能使用一次的赦免仪式卷轴。",
+  "jei.ramesses_curse.purification_scroll.line2": "启用后会燃尽自身，并削减王罪值。",
+  "jei.ramesses_curse.satiety_crystal.line1": "一枚会暂时封存饱食债的结晶。",
+  "jei.ramesses_curse.satiety_crystal.line2": "取回它，便能收回它所扣走的部分。"
 }
