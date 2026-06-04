@@ -130,6 +130,54 @@ public class Config {
                 .comment("[General] If true, new players start with the Seal of Kadesh already equipped in the curse slot. When enabled, the seal is not also placed into the starting inventory.")
                 .define("startWithSealEquipped", false);
 
+        HEART_TRIGGER_HOSTILE_COUNT = BUILDER
+                .comment("[Heart of Duat] Hostile entity count required within range before the active awakening can be used.")
+                .defineInRange("heartTriggerHostileCount", 6, 1, 256);
+
+        HEART_TRIGGER_RADIUS = BUILDER
+                .comment("[Heart of Duat] Detection radius in blocks for counting nearby hostile entities.")
+                .defineInRange("heartTriggerRadius", 16, 1, 128);
+
+        HEART_ACTIVE_DURATION = BUILDER
+                .comment("[Heart of Duat] Active awakening duration in ticks. 600 ticks = 30 seconds.")
+                .defineInRange("heartActiveDuration", 600, 20, 72000);
+
+        HEART_ACTIVE_XP_COST = BUILDER
+                .comment("[Heart of Duat] Experience level cost paid whenever the active awakening is triggered.")
+                .defineInRange("heartActiveXpCost", 3, 0, 100);
+
+        HEART_PROMPT_INTERVAL = BUILDER
+                .comment("[Heart of Duat] Prompt interval in ticks before the ready message can appear again.")
+                .defineInRange("heartPromptInterval", 40, 1, 72000);
+
+        HEART_BATTLE_STACK_LIMIT = BUILDER
+                .comment("[Heart of Duat] Maximum number of battle stacks gained from killing hostile mobs.")
+                .defineInRange("heartBattleStackLimit", 10, 1, 100);
+
+        HEART_BATTLE_STACK_TIMEOUT = BUILDER
+                .comment("[Heart of Duat] Stack timeout in ticks. If the player does not kill another hostile mob before this expires, stacks reset. 100 ticks = 5 seconds.")
+                .defineInRange("heartBattleStackTimeout", 100, 1, 72000);
+
+        HEART_BATTLE_DAMAGE_PER_STACK = BUILDER
+                .comment("[Heart of Duat] Bonus attack damage granted by each battle stack.")
+                .defineInRange("heartBattleDamagePerStack", 3.0D, 0.0D, 1000.0D);
+
+        HEART_WARD_COOLDOWN = BUILDER
+                .comment("[Heart of Duat] Cooldown in ticks after the full battle stack ward is triggered. 7200 ticks = 360 seconds.")
+                .defineInRange("heartWardCooldown", 7200, 20, 720000);
+
+        HEART_WARD_INVULNERABILITY = BUILDER
+                .comment("[Heart of Duat] Invulnerability duration in ticks granted when the ward is triggered. 100 ticks = 5 seconds.")
+                .defineInRange("heartWardInvulnerability", 100, 1, 72000);
+
+        HEART_WARD_MANUAL_TRIGGER = BUILDER
+                .comment("[Heart of Duat] If true, a full battle stack waits for the player to press the ward key before triggering. If false, the ward triggers immediately when the stack is filled.")
+                .define("heartWardManualTrigger", true);
+
+        HEART_DESERT_REACH_BONUS = BUILDER
+                .comment("[Heart of Duat] Reach bonus granted while the wearer is in desert or badlands biomes.")
+                .defineInRange("heartDesertReachBonus", 5.0D, 0.0D, 64.0D);
+
         BUILDER.pop();
     }
 
@@ -162,6 +210,18 @@ public class Config {
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_DAMAGE_MULTIPLIER;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL_EQUIPPED;
+    public static final ForgeConfigSpec.IntValue HEART_TRIGGER_HOSTILE_COUNT;
+    public static final ForgeConfigSpec.IntValue HEART_TRIGGER_RADIUS;
+    public static final ForgeConfigSpec.IntValue HEART_ACTIVE_DURATION;
+    public static final ForgeConfigSpec.IntValue HEART_ACTIVE_XP_COST;
+    public static final ForgeConfigSpec.IntValue HEART_PROMPT_INTERVAL;
+    public static final ForgeConfigSpec.IntValue HEART_BATTLE_STACK_LIMIT;
+    public static final ForgeConfigSpec.IntValue HEART_BATTLE_STACK_TIMEOUT;
+    public static final ForgeConfigSpec.DoubleValue HEART_BATTLE_DAMAGE_PER_STACK;
+    public static final ForgeConfigSpec.IntValue HEART_WARD_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue HEART_WARD_INVULNERABILITY;
+    public static final ForgeConfigSpec.BooleanValue HEART_WARD_MANUAL_TRIGGER;
+    public static final ForgeConfigSpec.DoubleValue HEART_DESERT_REACH_BONUS;
 
     private static boolean validateEffectName(final Object obj) {
         return obj instanceof final String effectName && ForgeRegistries.MOB_EFFECTS.containsKey(new ResourceLocation(effectName));

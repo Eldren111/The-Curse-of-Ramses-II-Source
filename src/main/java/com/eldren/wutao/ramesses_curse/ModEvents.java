@@ -57,6 +57,7 @@ import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
@@ -75,6 +76,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.NetworkDirection;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 
@@ -134,6 +136,7 @@ public class ModEvents {
         boolean sealEquipped = isSealEquipped(player);
         int remainingGuiltLock = getRemainingGuiltLockTicks(player);
 
+        updateHeartSlotAccess(player, sealEquipped);
         syncClientState(player, false);
 
         if (remainingGuiltLock > 0 && player instanceof ServerPlayer serverPlayer) {
@@ -240,7 +243,13 @@ public class ModEvents {
                                 .executes(context -> teleportToSatietyCrystal(context.getSource(), context.getSource().getPlayerOrException()))
                                 .then(argument("target", EntityArgument.player())
                                         .requires(source -> source.hasPermission(2))
-                                        .executes(context -> teleportToSatietyCrystal(context.getSource(), EntityArgument.getPlayer(context, "target"))))));
+                                        .executes(context -> teleportToSatietyCrystal(context.getSource(), EntityArgument.getPlayer(context, "target")))))
+                        .then(literal("cooling")
+                                .then(literal("duat")
+                                        .requires(source -> source.hasPermission(2))
+                                        .executes(context -> clearDuatCooling(context.getSource(), context.getSource().getPlayerOrException()))
+                                        .then(argument("target", EntityArgument.player())
+                                                .executes(context -> clearDuatCooling(context.getSource(), EntityArgument.getPlayer(context, "target")))))));
     }
 
     @SubscribeEvent
@@ -370,13 +379,35 @@ public class ModEvents {
             event.setCanceled(true);
             return;
         }
-        if (event.getEntity().level().isClientSide || !(event.getTarget() instanceof LivingEntity)) {
+        if (event.getEntity().level().isClientSide || !(event.getTarget() instanceof LivingEntity target)) {
             return;
+        }
+
+        Player player = event.getEntity();
+
+        if (canUseHeartSlot(player) && isHeartEquipped(player) && target instanceof Enemy) {
+            ModItems.onHeartOfDuatAttack(player, target, 0.0F);
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingDamage(LivingDamageEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player && canUseHeartSlot(player) && isHeartEquipped(player)) {
+            if (ModItems.isHeartOfDuatInvulnerable(player)) {
+                event.setCanceled(true);
+                event.setAmount(0.0F);
+                return;
+            }
+        }
+
+        LivingEntity target = event.getEntity();
+        if (event.getSource().getEntity() instanceof Player player
+                && canUseHeartSlot(player)
+                && isHeartEquipped(player)
+                && target instanceof Enemy) {
+            event.setAmount(event.getAmount() + ModItems.HeartOfDuat.getDamageBonus(player));
+        }
+
         if (!(event.getSource().getEntity() instanceof Player player) || player.level().isClientSide) {
             return;
         }
@@ -429,6 +460,10 @@ public class ModEvents {
             return;
         }
 
+        if (canUseHeartSlot(player) && isHeartEquipped(player) && event.getEntity() instanceof Enemy) {
+            ModItems.HeartOfDuat.onKillEnemy(player, event.getEntity());
+        }
+
         if (!isSealEquipped(player) || !isInnocentVictim(event.getEntity())) {
             return;
         }
@@ -446,6 +481,25 @@ public class ModEvents {
 
     public static boolean canUseSealBoundItem(Player player) {
         return isSealEquipped(player);
+    }
+
+    public static boolean canUseHeartSlot(Player player) {
+        return isSealEquipped(player);
+    }
+
+    private static boolean isHeartEquipped(Player player) {
+        return CuriosApi.getCuriosInventory(player)
+                .resolve()
+                .flatMap(inv -> inv.findFirstCurio(ModItems.HEART_OF_DUAT.get()))
+                .map(SlotResult::stack)
+                .filter(stack -> !stack.isEmpty())
+                .isPresent();
+    }
+
+    private static int clearDuatCooling(CommandSourceStack source, ServerPlayer target) {
+        ModItems.clearHeartWardCooldown(target);
+        source.sendSuccess(() -> Component.translatable("command.ramesses_curse.cooling.duat", target.getDisplayName()), true);
+        return 1;
     }
 
     @SubscribeEvent
@@ -598,8 +652,8 @@ public class ModEvents {
             equipped = CuriosApi.getCuriosInventory(player)
                     .resolve()
                     .map(inv -> {
-                        if (inv.getStacksHandler("curse").isPresent()) {
-                            inv.setEquippedCurio("curse", 0, seal.copy());
+                        if (inv.getStacksHandler(RamessesCurseMod.CURSE_SLOT_ID).isPresent()) {
+                            inv.setEquippedCurio(RamessesCurseMod.CURSE_SLOT_ID, 0, seal.copy());
                             return true;
                         }
                         return false;
@@ -619,6 +673,42 @@ public class ModEvents {
                 .resolve()
                 .map(inv -> inv.findFirstCurio(ModItems.SEAL_OF_KADESH.get()).isPresent())
                 .orElse(false);
+    }
+
+    private static void updateHeartSlotAccess(Player player, boolean sealEquipped) {
+        CuriosApi.getCuriosInventory(player).ifPresent(inv -> {
+            inv.getStacksHandler(RamessesCurseMod.HEART_SLOT_ID).ifPresent(handler -> {
+                int slots = handler.getSlots();
+
+                if (sealEquipped) {
+                    if (slots <= 0) {
+                        inv.growSlotType(RamessesCurseMod.HEART_SLOT_ID, 1);
+                    }
+                    return;
+                }
+
+                ejectHeartSlotContents(player, handler.getStacks());
+                if (slots > 0) {
+                    inv.shrinkSlotType(RamessesCurseMod.HEART_SLOT_ID, slots);
+                }
+            });
+        });
+    }
+
+    private static void ejectHeartSlotContents(Player player, top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler stacks) {
+        for (int i = 0; i < stacks.getSlots(); i++) {
+            ItemStack stack = stacks.getStackInSlot(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            ItemStack extracted = stack.copy();
+            stacks.setStackInSlot(i, ItemStack.EMPTY);
+
+            if (!player.getInventory().add(extracted)) {
+                player.drop(extracted, false);
+            }
+        }
     }
 
     private static void awardSealAdvancement(ServerPlayer player) {
@@ -1029,12 +1119,33 @@ public class ModEvents {
         private static boolean clientSealEquipped;
         private static int clientLockTicks;
         private static int clientSatietyCrystalCount;
+        private static int clientHeartBattleStacks;
+        private static int clientHeartCooldownTicks;
+        private static boolean clientHeartWardReady;
 
         public static void updateClientGuilt(int guilt, boolean sealEquipped, int lockTicks, int satietyCrystalCount) {
             clientGuilt = guilt;
             clientSealEquipped = sealEquipped;
             clientLockTicks = lockTicks;
             clientSatietyCrystalCount = satietyCrystalCount;
+        }
+
+        public static void updateHeartState(int battleStacks, int cooldownTicks, boolean wardReady) {
+            clientHeartBattleStacks = battleStacks;
+            clientHeartCooldownTicks = cooldownTicks;
+            clientHeartWardReady = wardReady;
+        }
+
+        public static int getClientHeartBattleStacks() {
+            return clientHeartBattleStacks;
+        }
+
+        public static int getClientHeartCooldownTicks() {
+            return clientHeartCooldownTicks;
+        }
+
+        public static boolean isClientHeartWardReady() {
+            return clientHeartWardReady;
         }
 
         @SubscribeEvent
@@ -1057,11 +1168,12 @@ public class ModEvents {
 
         @SubscribeEvent
         public static void onItemTooltip(ItemTooltipEvent event) {
+            Minecraft minecraft = Minecraft.getInstance();
+
             if (clientLockTicks <= 0) {
                 return;
             }
 
-            Minecraft minecraft = Minecraft.getInstance();
             if (!(minecraft.screen instanceof AbstractContainerScreen<?> screen)) {
                 return;
             }
@@ -1102,6 +1214,22 @@ public class ModEvents {
             input.shiftKeyDown = jumping;
         }
 
+        @SubscribeEvent
+        public static void onKeyInput(InputEvent.Key event) {
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player == null) {
+                return;
+            }
+
+            while (RamessesCurseMod.HEART_AWAKENING_KEY.consumeClick()) {
+                ModNetwork.CHANNEL.sendToServer(new HeartAwakeningPacket());
+            }
+
+            while (RamessesCurseMod.HEART_WARD_KEY.consumeClick()) {
+                ModNetwork.CHANNEL.sendToServer(new HeartWardActivatePacket());
+            }
+        }
+
         private static void renderGuiltBar(net.minecraft.client.gui.GuiGraphics guiGraphics, Minecraft minecraft, int guilt, int max) {
             int barWidth = 96;
             int barHeight = 8;
@@ -1114,6 +1242,17 @@ public class ModEvents {
             guiGraphics.fill(x, y, x + barWidth, y + barHeight, 0xFF31150E);
             guiGraphics.fill(x, y, x + fill, y + barHeight, 0xFFD6A63A);
             guiGraphics.drawString(minecraft.font, Component.translatable("hud.ramesses_curse.guilt", guilt, max), x, y - 10, 0xFFD6A63A, false);
+
+            if (clientHeartBattleStacks > 0 || clientHeartWardReady || clientHeartCooldownTicks > 0) {
+                int battleColor = clientHeartWardReady ? 0xFFFFD166 : 0xFF8BE9FD;
+                guiGraphics.drawString(
+                        minecraft.font,
+                        Component.translatable("message.ramesses_curse.heart_battle_stacks", clientHeartBattleStacks, Config.HEART_BATTLE_STACK_LIMIT.get()),
+                        x,
+                        y + 12,
+                        battleColor,
+                        false);
+            }
         }
     }
 }

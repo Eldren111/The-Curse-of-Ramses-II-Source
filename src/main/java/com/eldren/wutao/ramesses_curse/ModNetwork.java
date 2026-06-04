@@ -28,5 +28,29 @@ public class ModNetwork {
                 GuiltSyncPacket::encode,
                 GuiltSyncPacket::decode,
                 GuiltSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                HeartAwakeningPacket.class,
+                HeartAwakeningPacket::encode,
+                HeartAwakeningPacket::decode,
+                HeartAwakeningPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                HeartWardTriggeredPacket.class,
+                HeartWardTriggeredPacket::encode,
+                HeartWardTriggeredPacket::decode,
+                HeartWardTriggeredPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                HeartWardActivatePacket.class,
+                HeartWardActivatePacket::encode,
+                HeartWardActivatePacket::decode,
+                HeartWardActivatePacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                HeartStateSyncPacket.class,
+                HeartStateSyncPacket::encode,
+                HeartStateSyncPacket::decode,
+                HeartStateSyncPacket::handle);
     }
 }

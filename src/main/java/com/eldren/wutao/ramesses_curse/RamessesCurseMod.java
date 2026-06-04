@@ -1,7 +1,9 @@
 package com.eldren.wutao.ramesses_curse;
 
 import com.mojang.logging.LogUtils;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
@@ -23,13 +25,27 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import org.slf4j.Logger;
 import top.theillusivec4.curios.api.SlotTypeMessage;
+import org.lwjgl.glfw.GLFW;
 
 @Mod(RamessesCurseMod.MODID)
 public class RamessesCurseMod {
 
     public static final String MODID = "ramesses_curse";
+    public static final String CURSE_SLOT_ID = "ramesses_curse_curse";
+    public static final String HEART_SLOT_ID = "ramesses_curse_heart";
+    public static final KeyMapping HEART_AWAKENING_KEY = new KeyMapping(
+            "key.ramesses_curse.heart_awakening",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_V,
+            "key.categories.ramesses_curse");
+    public static final KeyMapping HEART_WARD_KEY = new KeyMapping(
+            "key.ramesses_curse.heart_ward",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_P,
+            "key.categories.ramesses_curse");
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
@@ -46,6 +62,7 @@ public class RamessesCurseMod {
                         output.accept(ModItems.PURIFICATION_SCROLL.get());
                         output.accept(ModItems.SATIETY_CRYSTAL.get());
                         output.accept(ModItems.EMBER_OF_DUAT.get());
+                        output.accept(ModItems.HEART_OF_DUAT.get());
                     })
                     .build());
 
@@ -65,8 +82,13 @@ public class RamessesCurseMod {
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
-                    new SlotTypeMessage.Builder("curse")
+                    new SlotTypeMessage.Builder(CURSE_SLOT_ID)
                             .size(1)
+                            .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
+                            .build());
+            InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
+                    new SlotTypeMessage.Builder(HEART_SLOT_ID)
+                            .size(0)
                             .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
                             .build());
             ModNetwork.register();
@@ -84,6 +106,12 @@ public class RamessesCurseMod {
         public static void onClientSetup(FMLClientSetupEvent event) {
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+        }
+
+        @SubscribeEvent
+        public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+            event.register(HEART_AWAKENING_KEY);
+            event.register(HEART_WARD_KEY);
         }
     }
 }
