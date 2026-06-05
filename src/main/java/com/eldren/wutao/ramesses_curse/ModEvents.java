@@ -26,6 +26,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -43,6 +44,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.JukeboxBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -61,10 +65,12 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -82,7 +88,9 @@ import top.theillusivec4.curios.api.SlotResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -124,6 +132,7 @@ public class ModEvents {
     private static final UUID GUILT_ARMOR_MODIFIER = UUID.fromString("2d7c5100-0a8b-4e93-bf56-fca78f6d7fd3");
     private static final UUID GUILT_TOUGHNESS_MODIFIER = UUID.fromString("8b962d09-4d48-4a89-930f-d23456848976");
     private static final UUID GUILT_KNOCKBACK_MODIFIER = UUID.fromString("4c133cc4-96d4-4d7f-a69e-d7f2fb74e148");
+    private static final Map<ResourceKey<Level>, Map<BlockPos, TrackedMusicPlayback>> ACTIVE_MUSIC_PLAYBACKS = new HashMap<>();
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -133,7 +142,7 @@ public class ModEvents {
 
         Player player = event.player;
         CompoundTag data = getCurseData(player);
-        boolean sealEquipped = isSealEquipped(player);
+        boolean sealEquipped = sanitizeSealCurios(player);
         int remainingGuiltLock = getRemainingGuiltLockTicks(player);
 
         updateHeartSlotAccess(player, sealEquipped);
@@ -149,6 +158,9 @@ public class ModEvents {
         if (player.level() instanceof ServerLevel serverLevel) {
             updateCurseNineHunger(serverLevel, player);
         }
+
+        cleanupTrackedMusicPlaybacks(player.level());
+        ModItems.tickMusicRelic(player);
 
         if (isHoldingEmberOfDuat(player)) {
             player.addEffect(new MobEffectInstance(ModMobEffects.INVERSION.get(), 10, 0, false, false, true));
@@ -391,7 +403,22 @@ public class ModEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onLivingAttack(LivingAttackEvent event) {
+        Player lockedAttacker = getLockedAttacker(event.getSource());
+        if (lockedAttacker != null) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingDamage(LivingDamageEvent event) {
+        Player lockedAttacker = getLockedAttacker(event.getSource());
+        if (lockedAttacker != null) {
+            event.setCanceled(true);
+            event.setAmount(0.0F);
+            return;
+        }
+
         if (event.getEntity() instanceof ServerPlayer player && canUseHeartSlot(player) && isHeartEquipped(player)) {
             if (ModItems.isHeartOfDuatInvulnerable(player)) {
                 event.setCanceled(true);
@@ -485,6 +512,91 @@ public class ModEvents {
 
     public static boolean canUseHeartSlot(Player player) {
         return isSealEquipped(player);
+    }
+
+    public static boolean isMusicRelicEquipped(Player player) {
+        return CuriosApi.getCuriosInventory(player)
+                .resolve()
+                .map(inv -> inv.getStacksHandler(RamessesCurseMod.MUSIC_SLOT_ID)
+                        .map(handler -> containsMusicRelic(handler.getStacks()))
+                        .orElse(false))
+                .orElse(false);
+    }
+
+    public static void registerMusicDiscPlayback(Level level, BlockPos pos, int lengthTicks) {
+        if (level.isClientSide || lengthTicks <= 0) {
+            return;
+        }
+
+        ACTIVE_MUSIC_PLAYBACKS
+                .computeIfAbsent(level.dimension(), key -> new HashMap<>())
+                .put(pos.immutable(), new TrackedMusicPlayback(level.getGameTime(), level.getGameTime() + lengthTicks));
+    }
+
+    public static MusicPlaybackState findNearbyTrackedDisc(Player player, int radius) {
+        Map<BlockPos, TrackedMusicPlayback> playbacks = ACTIVE_MUSIC_PLAYBACKS.get(player.level().dimension());
+        if (playbacks == null || playbacks.isEmpty()) {
+            return null;
+        }
+
+        long gameTime = player.level().getGameTime();
+        double maxDistanceSq = radius * radius;
+        MusicPlaybackState closest = null;
+        double closestDistanceSq = Double.MAX_VALUE;
+
+        for (Map.Entry<BlockPos, TrackedMusicPlayback> entry : playbacks.entrySet()) {
+            BlockPos pos = entry.getKey();
+            TrackedMusicPlayback playback = entry.getValue();
+            if (gameTime > playback.endTick || !player.level().isLoaded(pos)) {
+                continue;
+            }
+
+            double distanceSq = pos.distToCenterSqr(player.position());
+            if (distanceSq > maxDistanceSq || distanceSq >= closestDistanceSq) {
+                continue;
+            }
+
+            closestDistanceSq = distanceSq;
+            closest = new MusicPlaybackState(pos, playback.startTick, (int) Math.max(1L, playback.endTick - playback.startTick));
+        }
+
+        return closest;
+    }
+
+    public static void cancelNearbyTrackedMusicDisc(Player player, int radius) {
+        MusicPlaybackState playbackState = findNearbyTrackedDisc(player, radius);
+        if (playbackState != null) {
+            consumeTrackedMusicDisc(player.level(), playbackState.pos());
+        }
+    }
+
+    public static void consumeTrackedMusicDisc(Level level, BlockPos pos) {
+        if (level.isClientSide) {
+            return;
+        }
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof JukeboxBlockEntity jukebox) {
+            level.playSound(null, pos, SoundEvents.GLASS_BREAK, SoundSource.RECORDS, 1.0F, 0.9F);
+            jukebox.removeFirstItem();
+            level.setBlock(pos, level.getBlockState(pos).setValue(JukeboxBlock.HAS_RECORD, false), 2);
+        }
+
+        Map<BlockPos, TrackedMusicPlayback> playbacks = ACTIVE_MUSIC_PLAYBACKS.get(level.dimension());
+        if (playbacks != null) {
+            playbacks.remove(pos);
+            if (playbacks.isEmpty()) {
+                ACTIVE_MUSIC_PLAYBACKS.remove(level.dimension());
+            }
+        }
+    }
+
+    public static boolean hasSealAnywhere(Player player) {
+        return CuriosApi.getCuriosInventory(player)
+                .resolve()
+                .map(inv -> inv.getCurios().values().stream()
+                        .anyMatch(handler -> containsSeal(handler.getStacks())))
+                .orElse(false);
     }
 
     private static boolean isHeartEquipped(Player player) {
@@ -671,7 +783,47 @@ public class ModEvents {
     private static boolean isSealEquipped(Player player) {
         return CuriosApi.getCuriosInventory(player)
                 .resolve()
-                .map(inv -> inv.findFirstCurio(ModItems.SEAL_OF_KADESH.get()).isPresent())
+                .map(inv -> inv.getStacksHandler(RamessesCurseMod.CURSE_SLOT_ID)
+                        .map(handler -> containsSeal(handler.getStacks()))
+                        .orElse(false))
+                .orElse(false);
+    }
+
+    private static boolean sanitizeSealCurios(Player player) {
+        return CuriosApi.getCuriosInventory(player)
+                .resolve()
+                .map(inv -> {
+                    boolean validSeal = false;
+
+                    if (inv.getStacksHandler(RamessesCurseMod.CURSE_SLOT_ID).isPresent()) {
+                        var curseHandler = inv.getStacksHandler(RamessesCurseMod.CURSE_SLOT_ID).get().getStacks();
+                        for (int i = 0; i < curseHandler.getSlots(); i++) {
+                            ItemStack stack = curseHandler.getStackInSlot(i);
+                            if (!stack.is(ModItems.SEAL_OF_KADESH.get())) {
+                                continue;
+                            }
+                            if (!validSeal) {
+                                validSeal = true;
+                            } else {
+                                ejectCurioStack(player, curseHandler, i);
+                            }
+                        }
+                    }
+
+                    inv.getCurios().forEach((slotId, handler) -> {
+                        if (RamessesCurseMod.CURSE_SLOT_ID.equals(slotId)) {
+                            return;
+                        }
+                        top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler stacks = handler.getStacks();
+                        for (int i = 0; i < stacks.getSlots(); i++) {
+                            if (stacks.getStackInSlot(i).is(ModItems.SEAL_OF_KADESH.get())) {
+                                ejectCurioStack(player, stacks, i);
+                            }
+                        }
+                    });
+
+                    return validSeal;
+                })
                 .orElse(false);
     }
 
@@ -702,13 +854,78 @@ public class ModEvents {
                 continue;
             }
 
-            ItemStack extracted = stack.copy();
-            stacks.setStackInSlot(i, ItemStack.EMPTY);
+            ejectCurioStack(player, stacks, i);
+        }
+    }
 
-            if (!player.getInventory().add(extracted)) {
-                player.drop(extracted, false);
+    private static boolean containsSeal(top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler stacks) {
+        for (int i = 0; i < stacks.getSlots(); i++) {
+            if (stacks.getStackInSlot(i).is(ModItems.SEAL_OF_KADESH.get())) {
+                return true;
             }
         }
+        return false;
+    }
+
+    private static boolean containsMusicRelic(top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler stacks) {
+        for (int i = 0; i < stacks.getSlots(); i++) {
+            if (stacks.getStackInSlot(i).is(ModItems.RESONANT_SCARAB.get())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void ejectCurioStack(Player player, top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler stacks, int slot) {
+        ItemStack stack = stacks.getStackInSlot(slot);
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        ItemStack extracted = stack.copy();
+        stacks.setStackInSlot(slot, ItemStack.EMPTY);
+
+        if (!player.getInventory().add(extracted)) {
+            player.drop(extracted, false);
+        }
+    }
+
+    private static Player getLockedAttacker(net.minecraft.world.damagesource.DamageSource source) {
+        Player player = getSourcePlayer(source);
+        return player != null && isGuiltLocked(player) ? player : null;
+    }
+
+    private static void cleanupTrackedMusicPlaybacks(Level level) {
+        Map<BlockPos, TrackedMusicPlayback> playbacks = ACTIVE_MUSIC_PLAYBACKS.get(level.dimension());
+        if (playbacks == null || playbacks.isEmpty()) {
+            return;
+        }
+
+        long gameTime = level.getGameTime();
+        playbacks.entrySet().removeIf(entry -> gameTime > entry.getValue().endTick || !level.isLoaded(entry.getKey()));
+        if (playbacks.isEmpty()) {
+            ACTIVE_MUSIC_PLAYBACKS.remove(level.dimension());
+        }
+    }
+
+    private static Player getSourcePlayer(net.minecraft.world.damagesource.DamageSource source) {
+        Entity entity = source.getEntity();
+        if (entity instanceof Player player) {
+            return player;
+        }
+
+        Entity directEntity = source.getDirectEntity();
+        if (directEntity instanceof Player player) {
+            return player;
+        }
+        if (directEntity instanceof Projectile projectile && projectile.getOwner() instanceof Player player) {
+            return player;
+        }
+
+        return null;
+    }
+
+    private record TrackedMusicPlayback(long startTick, long endTick) {
     }
 
     private static void awardSealAdvancement(ServerPlayer player) {

@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -36,6 +37,7 @@ public class RamessesCurseMod {
     public static final String MODID = "ramesses_curse";
     public static final String CURSE_SLOT_ID = "ramesses_curse_curse";
     public static final String HEART_SLOT_ID = "ramesses_curse_heart";
+    public static final String MUSIC_SLOT_ID = "ramesses_curse_music";
     public static final KeyMapping HEART_AWAKENING_KEY = new KeyMapping(
             "key.ramesses_curse.heart_awakening",
             InputConstants.Type.KEYSYM,
@@ -50,6 +52,7 @@ public class RamessesCurseMod {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = ModMobEffects.MOB_EFFECTS;
+    public static final DeferredRegister<SoundEvent> SOUND_EVENTS = ModSounds.SOUND_EVENTS;
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
@@ -63,6 +66,8 @@ public class RamessesCurseMod {
                         output.accept(ModItems.SATIETY_CRYSTAL.get());
                         output.accept(ModItems.EMBER_OF_DUAT.get());
                         output.accept(ModItems.HEART_OF_DUAT.get());
+                        output.accept(ModItems.HYMN_OF_THE_TWO_LANDS.get());
+                        output.accept(ModItems.RESONANT_SCARAB.get());
                     })
                     .build());
 
@@ -72,6 +77,7 @@ public class RamessesCurseMod {
 
         ITEMS.register(modEventBus);
         MOB_EFFECTS.register(modEventBus);
+        SOUND_EVENTS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -89,6 +95,11 @@ public class RamessesCurseMod {
             InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
                     new SlotTypeMessage.Builder(HEART_SLOT_ID)
                             .size(0)
+                            .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
+                            .build());
+            InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
+                    new SlotTypeMessage.Builder(MUSIC_SLOT_ID)
+                            .size(1)
                             .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
                             .build());
             ModNetwork.register();

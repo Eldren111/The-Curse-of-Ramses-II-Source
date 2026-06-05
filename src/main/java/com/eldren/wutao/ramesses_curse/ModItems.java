@@ -26,6 +26,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
@@ -34,6 +35,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -66,6 +69,10 @@ public class ModItems {
             ITEMS.register("ember_of_duat", EmberOfDuat::new);
     public static final RegistryObject<Item> HEART_OF_DUAT =
             ITEMS.register("heart_of_duat", HeartOfDuat::new);
+    public static final RegistryObject<Item> HYMN_OF_THE_TWO_LANDS =
+            ITEMS.register("hymn_of_the_two_lands", HymnOfTheTwoLands::new);
+    public static final RegistryObject<Item> RESONANT_SCARAB =
+            ITEMS.register("resonant_scarab", ResonantScarab::new);
 
     public static int getHeartOfDuatCooldownTicks(Player player) {
         return HeartOfDuat.getCooldownTicks(player);
@@ -121,12 +128,24 @@ public class ModItems {
         HeartOfDuat.syncHeartState(player, HeartOfDuat.getHeartDataStatic(player));
     }
 
+    public static void tickMusicRelic(Player player) {
+        ResonantScarab.tickRelic(player);
+    }
+
     public static class SealOfKadesh extends Item implements ICurioItem {
         private static final String WARNING_KEY = "message.ramesses_curse.curse_wrapping";
         private static final UUID CURSE_2_LUCK_MODIFIER_ID = UUID.fromString("d5b8dc2a-6541-46b2-8d8a-f642f6f40b91");
 
         public SealOfKadesh() {
             super(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+        }
+
+        @Override
+        public boolean canEquip(SlotContext slotContext, ItemStack stack) {
+            LivingEntity wearer = slotContext.entity();
+            return RamessesCurseMod.CURSE_SLOT_ID.equals(slotContext.identifier())
+                    && wearer instanceof Player player
+                    && !ModEvents.hasSealAnywhere(player);
         }
 
         @Override
@@ -457,6 +476,209 @@ public class ModItems {
         @Override
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
             tooltip.add(Component.translatable("item.ramesses_curse.ember_of_duat.chance").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
+        }
+    }
+
+    public static class HymnOfTheTwoLands extends RecordItem {
+
+        public HymnOfTheTwoLands() {
+            super(14, ModSounds.MUSIC_DISC_HYMN_OF_THE_TWO_LANDS.get(), new Item.Properties().stacksTo(1).rarity(Rarity.RARE), 60);
+        }
+
+        @Override
+        public MutableComponent getDisplayName() {
+            return Component.translatable(this.getDescriptionId());
+        }
+
+        @Override
+        public InteractionResult useOn(UseOnContext context) {
+            Player player = context.getPlayer();
+            if (player != null && !ModEvents.isMusicRelicEquipped(player)) {
+                if (!context.getLevel().isClientSide) {
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.music_relic_required").withStyle(ChatFormatting.DARK_PURPLE), true);
+                }
+                return InteractionResult.FAIL;
+            }
+            if (player != null && ResonantScarab.isAwakened(player)) {
+                return InteractionResult.FAIL;
+            }
+
+            InteractionResult result = super.useOn(context);
+            if (!result.consumesAction()) {
+                return result;
+            }
+
+            Level level = context.getLevel();
+            BlockPos pos = context.getClickedPos();
+            if (!level.isClientSide
+                    && level.getBlockState(pos).is(Blocks.JUKEBOX)
+                    && level.getBlockState(pos).hasProperty(JukeboxBlock.HAS_RECORD)
+                    && level.getBlockState(pos).getValue(JukeboxBlock.HAS_RECORD)) {
+                ModEvents.registerMusicDiscPlayback(level, pos, getLengthInTicks());
+            }
+            return result;
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.hymn_of_the_two_lands.desc").withStyle(ChatFormatting.DARK_PURPLE));
+        }
+    }
+
+    public static class ResonantScarab extends Item implements ICurioItem {
+        private static final String MUSIC_DATA_KEY = "RamessesMusicRelic";
+        private static final String ACTIVATED_KEY = "Activated";
+        private static final String LAST_JUKEBOX_KEY = "LastJukebox";
+        private static final UUID MUSIC_ATTACK_MODIFIER_ID = UUID.fromString("7f29fc7c-ff31-4a60-9b81-379b5b5f6cc1");
+        private static final UUID MUSIC_ARMOR_MODIFIER_ID = UUID.fromString("4ce69522-f43a-47c0-8a5b-21608e91711d");
+        private static final UUID MUSIC_BLOCK_REACH_MODIFIER_ID = UUID.fromString("c19a9385-c1d7-4c0b-9ce0-d857791c38ce");
+        private static final UUID MUSIC_ENTITY_REACH_MODIFIER_ID = UUID.fromString("3eeb5184-4fb6-48e1-83bb-ff040f235418");
+        private static final double BONUS_ATTACK = 0.2D;
+        private static final double BONUS_ARMOR = 0.15D;
+        private static final double BONUS_REACH = 3.0D;
+        private static final int DETECTION_RADIUS = 8;
+
+        public ResonantScarab() {
+            super(new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
+        }
+
+        @Override
+        public boolean canEquip(SlotContext slotContext, ItemStack stack) {
+            return RamessesCurseMod.MUSIC_SLOT_ID.equals(slotContext.identifier()) && slotContext.entity() instanceof Player;
+        }
+
+        @Override
+        public boolean canUnequip(SlotContext slotContext, ItemStack stack) {
+            return true;
+        }
+
+        @Override
+        public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+            if (slotContext.entity() instanceof ServerPlayer player) {
+                boolean wasAwakened = isAwakened(player);
+                ModEvents.cancelNearbyTrackedMusicDisc(player, DETECTION_RADIUS);
+                removeBuffs(player);
+                resetActivation(player);
+                player.removeEffect(MobEffects.DAMAGE_RESISTANCE);
+                if (wasAwakened) {
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.music_relic_removed").withStyle(ChatFormatting.RED), true);
+                }
+            }
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.resonant_scarab.desc").withStyle(ChatFormatting.DARK_PURPLE));
+            tooltip.add(Component.translatable("item.ramesses_curse.resonant_scarab.effect_1").withStyle(ChatFormatting.DARK_PURPLE));
+            tooltip.add(Component.translatable("item.ramesses_curse.resonant_scarab.effect_2").withStyle(ChatFormatting.DARK_PURPLE));
+        }
+
+        private static void tickRelic(Player player) {
+            if (player.level().isClientSide) {
+                return;
+            }
+
+            if (!ModEvents.isMusicRelicEquipped(player)) {
+                removeBuffs(player);
+                resetActivation(player);
+                return;
+            }
+
+            CompoundTag data = getMusicData(player);
+            if (data.getBoolean(ACTIVATED_KEY)) {
+                applyBuffs(player);
+                return;
+            }
+
+            MusicPlaybackState playbackState = ModEvents.findNearbyTrackedDisc(player, DETECTION_RADIUS);
+            if (playbackState == null) {
+                removeBuffs(player);
+                clearTracking(data);
+                return;
+            }
+
+            String currentKey = playbackState.key();
+            String lastKey = data.getString(LAST_JUKEBOX_KEY);
+            if (!currentKey.equals(lastKey)) {
+                data.putString(LAST_JUKEBOX_KEY, currentKey);
+                data.putBoolean(ACTIVATED_KEY, false);
+                removeBuffs(player);
+            }
+
+            long elapsedTicks = player.level().getGameTime() - playbackState.startTick();
+
+            if (!data.getBoolean(ACTIVATED_KEY) && elapsedTicks >= playbackState.requiredTicks()) {
+                data.putBoolean(ACTIVATED_KEY, true);
+                player.displayClientMessage(Component.translatable("message.ramesses_curse.music_relic_awakened").withStyle(ChatFormatting.GOLD), true);
+                player.level().playSound(null, player.blockPosition(), SoundEvents.ENDER_DRAGON_GROWL, SoundSource.PLAYERS, 0.9F, 1.1F);
+                ModEvents.consumeTrackedMusicDisc(player.level(), playbackState.pos());
+            }
+
+            if (data.getBoolean(ACTIVATED_KEY)) {
+                applyBuffs(player);
+            } else {
+                removeBuffs(player);
+            }
+        }
+
+        private static CompoundTag getMusicData(Player player) {
+            CompoundTag persistent = player.getPersistentData();
+            if (!persistent.contains(Player.PERSISTED_NBT_TAG)) {
+                persistent.put(Player.PERSISTED_NBT_TAG, new CompoundTag());
+            }
+            CompoundTag persisted = persistent.getCompound(Player.PERSISTED_NBT_TAG);
+            if (!persisted.contains(MUSIC_DATA_KEY)) {
+                persisted.put(MUSIC_DATA_KEY, new CompoundTag());
+            }
+            return persisted.getCompound(MUSIC_DATA_KEY);
+        }
+
+        public static boolean isAwakened(Player player) {
+            return getMusicData(player).getBoolean(ACTIVATED_KEY);
+        }
+
+        private static void resetActivation(Player player) {
+            CompoundTag data = getMusicData(player);
+            data.putBoolean(ACTIVATED_KEY, false);
+            clearTracking(data);
+        }
+
+        private static void clearTracking(CompoundTag data) {
+            data.putString(LAST_JUKEBOX_KEY, "");
+        }
+
+        private static void applyBuffs(Player player) {
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 220, 0, false, false, true));
+            applyModifier(player, Attributes.ATTACK_DAMAGE, MUSIC_ATTACK_MODIFIER_ID, "resonant_scarab_attack", BONUS_ATTACK, AttributeModifier.Operation.MULTIPLY_TOTAL);
+            applyModifier(player, Attributes.ARMOR, MUSIC_ARMOR_MODIFIER_ID, "resonant_scarab_armor", BONUS_ARMOR, AttributeModifier.Operation.MULTIPLY_TOTAL);
+            applyReach(player, ForgeMod.BLOCK_REACH.get(), MUSIC_BLOCK_REACH_MODIFIER_ID);
+            applyReach(player, ForgeMod.ENTITY_REACH.get(), MUSIC_ENTITY_REACH_MODIFIER_ID);
+        }
+
+        private static void removeBuffs(Player player) {
+            removeModifier(player, Attributes.ATTACK_DAMAGE, MUSIC_ATTACK_MODIFIER_ID);
+            removeModifier(player, Attributes.ARMOR, MUSIC_ARMOR_MODIFIER_ID);
+            removeModifier(player, ForgeMod.BLOCK_REACH.get(), MUSIC_BLOCK_REACH_MODIFIER_ID);
+            removeModifier(player, ForgeMod.ENTITY_REACH.get(), MUSIC_ENTITY_REACH_MODIFIER_ID);
+        }
+
+        private static void applyReach(Player player, net.minecraft.world.entity.ai.attributes.Attribute attribute, UUID id) {
+            applyModifier(player, attribute, id, "resonant_scarab_reach", BONUS_REACH, AttributeModifier.Operation.ADDITION);
+        }
+
+        private static void applyModifier(Player player, net.minecraft.world.entity.ai.attributes.Attribute attribute, UUID id, String name, double amount, AttributeModifier.Operation operation) {
+            AttributeInstance instance = player.getAttribute(attribute);
+            if (instance == null || instance.getModifier(id) != null) {
+                return;
+            }
+            instance.addTransientModifier(new AttributeModifier(id, name, amount, operation));
+        }
+
+        private static void removeModifier(Player player, net.minecraft.world.entity.ai.attributes.Attribute attribute, UUID id) {
+            AttributeInstance instance = player.getAttribute(attribute);
+            if (instance != null) {
+                instance.removeModifier(id);
+            }
         }
     }
 

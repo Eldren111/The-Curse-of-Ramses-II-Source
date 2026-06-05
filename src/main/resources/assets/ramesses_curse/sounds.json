@@ -1,0 +1,10 @@
+{
+  "music_disc.hymn_of_the_two_lands": {
+    "sounds": [
+      {
+        "name": "ramesses_curse:music_disc/hymn_of_the_two_lands",
+        "stream": true
+      }
+    ]
+  }
+}
