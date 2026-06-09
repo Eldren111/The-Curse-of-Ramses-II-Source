@@ -1,5 +1,7 @@
 package com.eldren.wutao.ramesses_curse;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -20,6 +22,7 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -46,7 +49,9 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
+import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.SlotResult;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
@@ -73,6 +78,10 @@ public class ModItems {
             ITEMS.register("hymn_of_the_two_lands", HymnOfTheTwoLands::new);
     public static final RegistryObject<Item> RESONANT_SCARAB =
             ITEMS.register("resonant_scarab", ResonantScarab::new);
+    public static final RegistryObject<Item> URAEUS_NECKLACE =
+            ITEMS.register("uraeus_necklace", UraeusNecklace::new);
+    public static final RegistryObject<Item> EDICT_OF_TWO_LANDS =
+            ITEMS.register("edict_of_two_lands", EdictOfTwoLands::new);
 
     public static int getHeartOfDuatCooldownTicks(Player player) {
         return HeartOfDuat.getCooldownTicks(player);
@@ -132,8 +141,35 @@ public class ModItems {
         ResonantScarab.tickRelic(player);
     }
 
+    public static boolean isMusicRelicAwakened(Player player) {
+        return ResonantScarab.isAwakened(player);
+    }
+
+    public static boolean hasMusicAttackModifier(Player player) {
+        return ResonantScarab.hasAttackModifier(player);
+    }
+
+    public static float getMusicAttackMultiplier() {
+        return ResonantScarab.getAttackMultiplier();
+    }
+
+    public static float onUraeusNecklaceAttack(Player player, LivingEntity target, float damage) {
+        return UraeusNecklace.onAttack(player, target, damage);
+    }
+
+    public static boolean isEdictOfTwoLandsEquipped(Player player) {
+        return EdictOfTwoLands.isEquipped(player);
+    }
+
+    public static boolean tryActivateEdictOfTwoLands(ServerPlayer player) {
+        return EdictOfTwoLands.tryActivate(player);
+    }
+
+    public static int getEdictOfTwoLandsCooldownTicks(Player player) {
+        return EdictOfTwoLands.getCooldownTicks(player);
+    }
+
     public static class SealOfKadesh extends Item implements ICurioItem {
-        private static final String WARNING_KEY = "message.ramesses_curse.curse_wrapping";
         private static final UUID CURSE_2_LUCK_MODIFIER_ID = UUID.fromString("d5b8dc2a-6541-46b2-8d8a-f642f6f40b91");
 
         public SealOfKadesh() {
@@ -146,14 +182,6 @@ public class ModItems {
             return RamessesCurseMod.CURSE_SLOT_ID.equals(slotContext.identifier())
                     && wearer instanceof Player player
                     && !ModEvents.hasSealAnywhere(player);
-        }
-
-        @Override
-        public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
-            LivingEntity wearer = slotContext.entity();
-            if (wearer instanceof ServerPlayer player) {
-                player.displayClientMessage(Component.translatable(WARNING_KEY).withStyle(ChatFormatting.DARK_RED), true);
-            }
         }
 
         @Override
@@ -177,16 +205,6 @@ public class ModItems {
 
         @Override
         public void curioTick(SlotContext slotContext, ItemStack stack) {
-            LivingEntity wearer = slotContext.entity();
-
-            if (wearer.level().isClientSide) {
-                return;
-            }
-
-            long tick = wearer.tickCount;
-
-            applyFavorOrDamnation(wearer, tick);
-            applyCrownOfRegency(wearer, tick);
         }
 
         @Override
@@ -194,6 +212,11 @@ public class ModItems {
             tooltip.add(purpleText("一枚承载王朝威令与余烬的古老咒印，佩戴者将逐步承受九重诅咒。"));
             tooltip.add(purpleText("按住 ").append(blueText("Shift")).append(purpleText(" 查看当前诅咒状态")));
             tooltip.add(purpleText("按住 ").append(blueText("Ctrl")).append(purpleText(" 查看当前故事状态")));
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player != null && ModEvents.isNetherAwakened(minecraft.player)) {
+                tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.nether_awakened")
+                        .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            }
 
             if (Screen.hasShiftDown()) {
                 tooltip.add(Component.empty());
@@ -273,18 +296,9 @@ public class ModItems {
                         .append(blueText("地狱烙印"))
                         .append(purpleText("：首次进入地狱后永久生效，攻击怪物时有 "))
                         .append(yellowPercent(Config.HELL_REBOUND_CHANCE.get()))
-                        .append(purpleText(" 反噬自身，并额外承受 "))
+                        .append(purpleText(" 反噬自身，承受本次伤害并额外追加 "))
                         .append(yellowPercent(Config.HELL_REBOUND_DAMAGE_MULTIPLIER.get() - 1.0D))
                         .append(purpleText(" 伤害。")));
-                Minecraft minecraft = Minecraft.getInstance();
-                if (minecraft.player != null) {
-                    CompoundTag persisted = minecraft.player.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
-                    CompoundTag curseData = persisted.getCompound("RamessesCurseData");
-                    if (curseData.getBoolean("NetherAwakened")) {
-                        tooltip.add(Component.literal("已踏足该维度诅咒已生效...")
-                                .withStyle(ChatFormatting.RED));
-                    }
-                }
                 tooltip.add(purpleText("- ")
                         .append(blueText("饥王遗罚"))
                         .append(purpleText("：每次死亡失去 "))
@@ -303,45 +317,7 @@ public class ModItems {
             }
         }
 
-        private void applyFavorOrDamnation(LivingEntity wearer, long tick) {
-            int interval = Config.RANDOM_CURSE_INTERVAL.get();
-            if (tick % interval != 0L) {
-                return;
-            }
-
-            MobEffect effect = Config.getRandomNegativeEffect(wearer.getRandom().nextInt());
-
-            if (effect == null || effect == MobEffects.DARKNESS || effect == MobEffects.DIG_SLOWDOWN || effect == MobEffects.CONFUSION) {
-                return;
-            }
-
-            int minAmp = Config.RANDOM_CURSE_AMPLIFIER_MIN.get();
-            int maxAmp = Math.max(minAmp, Config.RANDOM_CURSE_AMPLIFIER_MAX.get());
-            int amplifier = minAmp + wearer.getRandom().nextInt(maxAmp - minAmp + 1);
-            wearer.addEffect(new MobEffectInstance(effect, Config.RANDOM_CURSE_DURATION.get(), amplifier, false, false, true));
-        }
-
-        private void applyCrownOfRegency(LivingEntity wearer, long tick) {
-            if (!(wearer instanceof ServerPlayer player)) {
-                return;
-            }
-
-            applyLuckPenalty(player);
-
-            int equipTicks = ModEvents.getSealEquipTicks(player);
-            int interval = Config.CURSE_2_SPAWN_INTERVAL.get();
-            if (equipTicks <= 0 || equipTicks % interval != 0) {
-                return;
-            }
-
-            if (player.getRandom().nextDouble() >= Config.CURSE_2_SPAWN_CHANCE.get()) {
-                return;
-            }
-
-            ModEvents.spawnCurseTwoMob(player);
-        }
-
-        private void applyLuckPenalty(Player player) {
+        private static void applyLuckPenalty(Player player) {
             AttributeInstance luck = player.getAttribute(Attributes.LUCK);
             if (luck == null || luck.getModifier(CURSE_2_LUCK_MODIFIER_ID) != null) {
                 return;
@@ -354,11 +330,52 @@ public class ModItems {
                     AttributeModifier.Operation.ADDITION));
         }
 
-        private void removeLuckPenalty(Player player) {
+        private static void removeLuckPenalty(Player player) {
             AttributeInstance luck = player.getAttribute(Attributes.LUCK);
             if (luck != null) {
                 luck.removeModifier(CURSE_2_LUCK_MODIFIER_ID);
             }
+        }
+
+        public static void tickSealCurses(ServerPlayer player, int equipTicks) {
+            applyLuckPenalty(player);
+            applyFavorOrDamnation(player, equipTicks);
+            applyCrownOfRegency(player, equipTicks);
+        }
+
+        public static void clearSealCurses(Player player) {
+            removeLuckPenalty(player);
+        }
+
+        private static void applyFavorOrDamnation(ServerPlayer player, int equipTicks) {
+            int interval = Config.RANDOM_CURSE_INTERVAL.get();
+            if (equipTicks <= 0 || equipTicks % interval != 0) {
+                return;
+            }
+
+            MobEffect effect = Config.getRandomNegativeEffect(player.getRandom().nextInt());
+
+            if (effect == null || effect == MobEffects.DARKNESS || effect == MobEffects.DIG_SLOWDOWN || effect == MobEffects.CONFUSION) {
+                return;
+            }
+
+            int minAmp = Config.RANDOM_CURSE_AMPLIFIER_MIN.get();
+            int maxAmp = Math.max(minAmp, Config.RANDOM_CURSE_AMPLIFIER_MAX.get());
+            int amplifier = minAmp + player.getRandom().nextInt(maxAmp - minAmp + 1);
+            player.addEffect(new MobEffectInstance(effect, Config.RANDOM_CURSE_DURATION.get(), amplifier, false, false, true));
+        }
+
+        private static void applyCrownOfRegency(ServerPlayer player, int equipTicks) {
+            int interval = Config.CURSE_2_SPAWN_INTERVAL.get();
+            if (equipTicks <= 0 || equipTicks % interval != 0) {
+                return;
+            }
+
+            if (player.getRandom().nextDouble() >= Config.CURSE_2_SPAWN_CHANCE.get()) {
+                return;
+            }
+
+            ModEvents.spawnCurseTwoMob(player);
         }
 
         private static double formatTicksAsMinutes(int ticks) {
@@ -528,6 +545,7 @@ public class ModItems {
     public static class ResonantScarab extends Item implements ICurioItem {
         private static final String MUSIC_DATA_KEY = "RamessesMusicRelic";
         private static final String ACTIVATED_KEY = "Activated";
+        private static final String LAST_SYNC_ACTIVATED_KEY = "LastSyncActivated";
         private static final String LAST_JUKEBOX_KEY = "LastJukebox";
         private static final UUID MUSIC_ATTACK_MODIFIER_ID = UUID.fromString("7f29fc7c-ff31-4a60-9b81-379b5b5f6cc1");
         private static final UUID MUSIC_ARMOR_MODIFIER_ID = UUID.fromString("4ce69522-f43a-47c0-8a5b-21608e91711d");
@@ -537,6 +555,7 @@ public class ModItems {
         private static final double BONUS_ARMOR = 0.15D;
         private static final double BONUS_REACH = 3.0D;
         private static final int DETECTION_RADIUS = 8;
+        private static boolean clientAwakened;
 
         public ResonantScarab() {
             super(new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
@@ -554,6 +573,9 @@ public class ModItems {
 
         @Override
         public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+            if (!newStack.isEmpty() && newStack.is(stack.getItem())) {
+                return;
+            }
             if (slotContext.entity() instanceof ServerPlayer player) {
                 boolean wasAwakened = isAwakened(player);
                 ModEvents.cancelNearbyTrackedMusicDisc(player, DETECTION_RADIUS);
@@ -571,6 +593,23 @@ public class ModItems {
             tooltip.add(Component.translatable("item.ramesses_curse.resonant_scarab.desc").withStyle(ChatFormatting.DARK_PURPLE));
             tooltip.add(Component.translatable("item.ramesses_curse.resonant_scarab.effect_1").withStyle(ChatFormatting.DARK_PURPLE));
             tooltip.add(Component.translatable("item.ramesses_curse.resonant_scarab.effect_2").withStyle(ChatFormatting.DARK_PURPLE));
+            if (isClientAwakened(level)) {
+                tooltip.add(Component.translatable("item.ramesses_curse.resonant_scarab.awakened").withStyle(ChatFormatting.GOLD));
+            }
+        }
+
+        @Override
+        public Multimap<Attribute, AttributeModifier> getAttributeModifiers(SlotContext slotContext, UUID uuid, ItemStack stack) {
+            ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
+            if (RamessesCurseMod.MUSIC_SLOT_ID.equals(slotContext.identifier())
+                    && slotContext.entity() instanceof Player player
+                    && isAwakened(player)) {
+                builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(MUSIC_ATTACK_MODIFIER_ID, "resonant_scarab_attack", BONUS_ATTACK, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                builder.put(Attributes.ARMOR, new AttributeModifier(MUSIC_ARMOR_MODIFIER_ID, "resonant_scarab_armor", BONUS_ARMOR, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                builder.put(ForgeMod.BLOCK_REACH.get(), new AttributeModifier(MUSIC_BLOCK_REACH_MODIFIER_ID, "resonant_scarab_block_reach", BONUS_REACH, AttributeModifier.Operation.ADDITION));
+                builder.put(ForgeMod.ENTITY_REACH.get(), new AttributeModifier(MUSIC_ENTITY_REACH_MODIFIER_ID, "resonant_scarab_entity_reach", BONUS_REACH, AttributeModifier.Operation.ADDITION));
+            }
+            return builder.build();
         }
 
         private static void tickRelic(Player player) {
@@ -587,12 +626,16 @@ public class ModItems {
             CompoundTag data = getMusicData(player);
             if (data.getBoolean(ACTIVATED_KEY)) {
                 applyBuffs(player);
+                syncAwakened(player, true, false);
+                refreshMusicSlot(player);
                 return;
             }
 
             MusicPlaybackState playbackState = ModEvents.findNearbyTrackedDisc(player, DETECTION_RADIUS);
             if (playbackState == null) {
                 removeBuffs(player);
+                syncAwakened(player, false, false);
+                refreshMusicSlot(player);
                 clearTracking(data);
                 return;
             }
@@ -602,13 +645,17 @@ public class ModItems {
             if (!currentKey.equals(lastKey)) {
                 data.putString(LAST_JUKEBOX_KEY, currentKey);
                 data.putBoolean(ACTIVATED_KEY, false);
+                syncAwakened(player, false, false);
                 removeBuffs(player);
+                refreshMusicSlot(player);
             }
 
             long elapsedTicks = player.level().getGameTime() - playbackState.startTick();
 
             if (!data.getBoolean(ACTIVATED_KEY) && elapsedTicks >= playbackState.requiredTicks()) {
                 data.putBoolean(ACTIVATED_KEY, true);
+                syncAwakened(player, true, true);
+                refreshMusicSlot(player);
                 player.displayClientMessage(Component.translatable("message.ramesses_curse.music_relic_awakened").withStyle(ChatFormatting.GOLD), true);
                 player.level().playSound(null, player.blockPosition(), SoundEvents.ENDER_DRAGON_GROWL, SoundSource.PLAYERS, 0.9F, 1.1F);
                 ModEvents.consumeTrackedMusicDisc(player.level(), playbackState.pos());
@@ -640,6 +687,8 @@ public class ModItems {
         private static void resetActivation(Player player) {
             CompoundTag data = getMusicData(player);
             data.putBoolean(ACTIVATED_KEY, false);
+            syncAwakened(player, false, true);
+            refreshMusicSlot(player);
             clearTracking(data);
         }
 
@@ -668,9 +717,14 @@ public class ModItems {
 
         private static void applyModifier(Player player, net.minecraft.world.entity.ai.attributes.Attribute attribute, UUID id, String name, double amount, AttributeModifier.Operation operation) {
             AttributeInstance instance = player.getAttribute(attribute);
-            if (instance == null || instance.getModifier(id) != null) {
+            if (instance == null) {
                 return;
             }
+            AttributeModifier existing = instance.getModifier(id);
+            if (existing != null && existing.getAmount() == amount && existing.getOperation() == operation) {
+                return;
+            }
+            instance.removeModifier(id);
             instance.addTransientModifier(new AttributeModifier(id, name, amount, operation));
         }
 
@@ -679,6 +733,317 @@ public class ModItems {
             if (instance != null) {
                 instance.removeModifier(id);
             }
+        }
+
+        private static boolean hasAttackModifier(Player player) {
+            AttributeInstance instance = player.getAttribute(Attributes.ATTACK_DAMAGE);
+            return instance != null && instance.getModifier(MUSIC_ATTACK_MODIFIER_ID) != null;
+        }
+
+        private static float getAttackMultiplier() {
+            return (float) (1.0D + BONUS_ATTACK);
+        }
+
+        public static void updateClientAwakened(boolean awakened) {
+            clientAwakened = awakened;
+        }
+
+        private static void syncAwakened(Player player, boolean awakened, boolean force) {
+            if (!(player instanceof ServerPlayer serverPlayer)) {
+                return;
+            }
+            CompoundTag data = getMusicData(player);
+            if (!force && data.contains(LAST_SYNC_ACTIVATED_KEY) && data.getBoolean(LAST_SYNC_ACTIVATED_KEY) == awakened) {
+                return;
+            }
+            data.putBoolean(LAST_SYNC_ACTIVATED_KEY, awakened);
+            ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new MusicRelicSyncPacket(awakened));
+        }
+
+        private static void refreshMusicSlot(Player player) {
+            CuriosApi.getCuriosInventory(player)
+                    .resolve()
+                    .flatMap(inv -> inv.getStacksHandler(RamessesCurseMod.MUSIC_SLOT_ID))
+                    .ifPresent(handler -> {
+                        handler.clearCachedModifiers();
+                        handler.update();
+                    });
+        }
+
+        private static boolean isClientAwakened(@Nullable Level level) {
+            return level != null && level.isClientSide && clientAwakened;
+        }
+    }
+
+    public static class UraeusNecklace extends Item implements ICurioItem {
+        private static final String BURST_GUARD_KEY = "RamessesUraeusBurst";
+        public UraeusNecklace() {
+            super(new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
+        }
+
+        @Override
+        public boolean canEquip(SlotContext slotContext, ItemStack stack) {
+            return slotContext.entity() instanceof Player;
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            if (appendConfiguredTooltip(tooltip)) {
+                return;
+            }
+            tooltip.add(Component.literal("-命中敌对怪物时，附着 ")
+                    .withStyle(ChatFormatting.DARK_PURPLE)
+                    .append(Component.literal("1").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 种配置中的咒效，").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("10").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 秒内继续命中会逐层加深。").withStyle(ChatFormatting.DARK_PURPLE)));
+            tooltip.add(Component.literal("-叠至 ")
+                    .withStyle(ChatFormatting.DARK_PURPLE)
+                    .append(Component.literal("8").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 层时崩解为 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("300%").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 伤害；雨天额外 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("+50%").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal("，并赐予 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("伤害吸收V").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 与 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("抗性提升V").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal("。").withStyle(ChatFormatting.DARK_PURPLE)));
+        }
+
+        private static float onAttack(Player player, LivingEntity target, float damage) {
+            if (player.level().isClientSide
+                    || !(target instanceof Enemy)
+                    || damage <= 0.0F
+                    || !hasNecklaceEquipped(player)
+                    || !ModEvents.canUseSealBoundItem(player)
+                    || target.getPersistentData().getBoolean(BURST_GUARD_KEY)) {
+                return damage;
+            }
+
+            MobEffect effect = Config.getNecklaceEffect();
+            if (effect == null) {
+                return damage;
+            }
+
+            MobEffectInstance existing = target.getEffect(effect);
+            int nextLevel = existing == null ? 1 : existing.getAmplifier() + 2;
+
+            if (nextLevel >= Config.NECKLACE_MAX_STACKS.get()) {
+                target.removeEffect(effect);
+
+                float burstMultiplier = Config.NECKLACE_BURST_DAMAGE_MULTIPLIER.get().floatValue();
+                if (isRainEmpowered(player)) {
+                    burstMultiplier += (float) (Config.NECKLACE_RAIN_BONUS_MULTIPLIER.get() - 1.0D);
+                    rewardRainBurst(player);
+                }
+
+                return damage * burstMultiplier;
+            }
+
+            target.addEffect(new MobEffectInstance(effect, Config.NECKLACE_STACK_TIMEOUT.get(), nextLevel - 1, false, true, true));
+            return damage;
+        }
+
+        private static boolean isRainEmpowered(Player player) {
+            return player.level().isRaining() && player.level().canSeeSky(player.blockPosition().above());
+        }
+
+        private static void rewardRainBurst(Player player) {
+            player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, Config.NECKLACE_RAIN_REWARD_DURATION.get(), Config.NECKLACE_RAIN_ABSORPTION_AMPLIFIER.get(), false, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, Config.NECKLACE_RAIN_REWARD_DURATION.get(), Config.NECKLACE_RAIN_RESISTANCE_AMPLIFIER.get(), false, false, true));
+        }
+
+        private static boolean hasNecklaceEquipped(Player player) {
+            return CuriosApi.getCuriosInventory(player)
+                    .resolve()
+                    .flatMap(inv -> inv.findFirstCurio(URAEUS_NECKLACE.get()))
+                    .map(SlotResult::stack)
+                    .filter(stack -> !stack.isEmpty())
+                    .isPresent();
+        }
+
+        private static boolean appendConfiguredTooltip(List<Component> tooltip) {
+            Component effectName = getConfiguredEffectName();
+            tooltip.add(Component.literal("-命中敌对怪物时，为其附着 ")
+                    .withStyle(ChatFormatting.DARK_PURPLE)
+                    .append(effectName.copy().withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal("，并在 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal(formatSeconds(Config.NECKLACE_STACK_TIMEOUT.get())).withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 秒内继续叠层。").withStyle(ChatFormatting.DARK_PURPLE)));
+            tooltip.add(Component.literal("-叠满 ")
+                    .withStyle(ChatFormatting.DARK_PURPLE)
+                    .append(Component.literal(Integer.toString(Config.NECKLACE_MAX_STACKS.get())).withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 层后爆裂为 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal(formatPercent(Config.NECKLACE_BURST_DAMAGE_MULTIPLIER.get())).withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 伤害；雨天额外 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("+" + formatPercentDelta(Config.NECKLACE_RAIN_BONUS_MULTIPLIER.get())).withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal("，并赐予 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("伤害吸收" + getRomanLevel(Config.NECKLACE_RAIN_ABSORPTION_AMPLIFIER.get() + 1)).withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 与 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("抗性提升" + getRomanLevel(Config.NECKLACE_RAIN_RESISTANCE_AMPLIFIER.get() + 1)).withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal("。").withStyle(ChatFormatting.DARK_PURPLE)));
+            return true;
+        }
+
+        private static Component getConfiguredEffectName() {
+            MobEffect effect = Config.getNecklaceEffect();
+            return effect != null ? Component.translatable(effect.getDescriptionId()) : Component.literal(Config.NECKLACE_EFFECT_ID.get());
+        }
+
+        private static String formatSeconds(int ticks) {
+            double seconds = ticks / 20.0D;
+            if (Math.abs(seconds - Math.rint(seconds)) < 1.0E-6D) {
+                return Integer.toString((int) Math.rint(seconds));
+            }
+            return String.format(Locale.ROOT, "%.1f", seconds);
+        }
+
+        private static String formatPercent(double multiplier) {
+            return formatNumber(multiplier * 100.0D) + "%";
+        }
+
+        private static String formatPercentDelta(double multiplier) {
+            return formatNumber((multiplier - 1.0D) * 100.0D) + "%";
+        }
+
+        private static String formatNumber(double value) {
+            if (Math.abs(value - Math.rint(value)) < 1.0E-6D) {
+                return Integer.toString((int) Math.rint(value));
+            }
+            return String.format(Locale.ROOT, "%.1f", value);
+        }
+
+        private static String getRomanLevel(int level) {
+            return switch (level) {
+                case 1 -> "I";
+                case 2 -> "II";
+                case 3 -> "III";
+                case 4 -> "IV";
+                case 5 -> "V";
+                case 6 -> "VI";
+                case 7 -> "VII";
+                case 8 -> "VIII";
+                case 9 -> "IX";
+                case 10 -> "X";
+                default -> Integer.toString(level);
+            };
+        }
+    }
+
+    public static class EdictOfTwoLands extends Item implements ICurioItem {
+        private static final String DATA_KEY = "RamessesEdictOfTwoLands";
+        private static final String COOLDOWN_UNTIL_KEY = "CooldownUntil";
+        private static final int GUILT_COST = 20;
+        private static final int COOLDOWN_TICKS = 90 * 20;
+
+        public EdictOfTwoLands() {
+            super(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+        }
+
+        @Override
+        public boolean canEquip(SlotContext slotContext, ItemStack stack) {
+            return slotContext.entity() instanceof Player
+                    && isValidHandSlot(slotContext.identifier());
+        }
+
+        @Override
+        public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+            if (!newStack.isEmpty() && newStack.is(stack.getItem())) {
+                return;
+            }
+            if (slotContext.entity().level().isClientSide) {
+                ModEvents.ClientOverlayEvents.cancelEdictCharge();
+            }
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.literal("掌中的敕印并不急于发声，它总要先让威压沉到底。").withStyle(ChatFormatting.DARK_PURPLE));
+            tooltip.add(Component.literal("- 长按 ").withStyle(ChatFormatting.DARK_PURPLE)
+                    .append(Component.literal("X").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 凝聚约 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("5").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 秒，周围 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("8").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 格敌群会被掀起、悬封，终被重重砸落。").withStyle(ChatFormatting.DARK_PURPLE)));
+            tooltip.add(Component.literal("- 每次敕令索取 ").withStyle(ChatFormatting.DARK_PURPLE)
+                    .append(Component.literal(Integer.toString(GUILT_COST)).withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 点王罪，余响需静默 ").withStyle(ChatFormatting.DARK_PURPLE))
+                    .append(Component.literal("90").withStyle(ChatFormatting.GOLD))
+                    .append(Component.literal(" 秒。").withStyle(ChatFormatting.DARK_PURPLE)));
+
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player == null) {
+                return;
+            }
+
+            int cooldownTicks = getCooldownTicks(minecraft.player);
+            if (cooldownTicks > 0) {
+                tooltip.add(Component.translatable("message.ramesses_curse.edict_cooldown", String.format(Locale.ROOT, "%.1f", cooldownTicks / 20.0F))
+                        .withStyle(ChatFormatting.GRAY));
+            }
+        }
+
+        private static boolean tryActivate(ServerPlayer player) {
+            if (!isEquipped(player)) {
+                return false;
+            }
+
+            if (getCooldownTicks(player) > 0) {
+                return false;
+            }
+
+            if (ModEvents.getGuiltProgress(player) < GUILT_COST) {
+                player.displayClientMessage(Component.translatable("message.ramesses_curse.edict_no_guilt")
+                        .withStyle(ChatFormatting.RED), true);
+                return false;
+            }
+
+            if (!ModEvents.activateEdictOfTwoLands(player)) {
+                return false;
+            }
+
+            ModEvents.setGuiltProgress(player, ModEvents.getGuiltProgress(player) - GUILT_COST);
+            getData(player).putLong(COOLDOWN_UNTIL_KEY, player.level().getGameTime() + COOLDOWN_TICKS);
+            player.getCooldowns().addCooldown(ModItems.EDICT_OF_TWO_LANDS.get(), COOLDOWN_TICKS);
+            return true;
+        }
+
+        private static int getCooldownTicks(Player player) {
+            return (int) Math.max(0L, getData(player).getLong(COOLDOWN_UNTIL_KEY) - player.level().getGameTime());
+        }
+
+        private static boolean isEquipped(Player player) {
+            return CuriosApi.getCuriosInventory(player)
+                    .resolve()
+                    .flatMap(inv -> inv.findFirstCurio(EDICT_OF_TWO_LANDS.get()))
+                    .map(SlotResult::stack)
+                    .filter(stack -> !stack.isEmpty())
+                    .isPresent();
+        }
+
+        private static CompoundTag getData(Player player) {
+            CompoundTag persisted = player.getPersistentData();
+            if (!persisted.contains(Player.PERSISTED_NBT_TAG)) {
+                persisted.put(Player.PERSISTED_NBT_TAG, new CompoundTag());
+            }
+            CompoundTag root = persisted.getCompound(Player.PERSISTED_NBT_TAG);
+            if (!root.contains(DATA_KEY)) {
+                root.put(DATA_KEY, new CompoundTag());
+            }
+            return root.getCompound(DATA_KEY);
+        }
+
+        private static boolean isValidHandSlot(String identifier) {
+            if (identifier == null) {
+                return false;
+            }
+            return RamessesCurseMod.HAND_SLOT_ID.equals(identifier)
+                    || "hand".equals(identifier)
+                    || "hands".equals(identifier)
+                    || identifier.endsWith("_hand")
+                    || identifier.endsWith("_hands");
         }
     }
 

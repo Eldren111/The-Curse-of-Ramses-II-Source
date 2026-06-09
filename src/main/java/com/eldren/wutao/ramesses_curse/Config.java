@@ -21,162 +21,201 @@ public class Config {
         BUILDER.push("sealOfKadesh");
 
         RANDOM_CURSE_INTERVAL = BUILDER
-                .comment("[Curse 1] Trigger interval in ticks for the random negative effect. 6000 ticks = 5 minutes.")
+                .comment("[诅咒1] 随机负面效果的触发间隔，单位为 tick。6000 tick = 5 分钟。")
                 .defineInRange("randomCurseInterval", 6000, 20, 72000);
 
         RANDOM_CURSE_DURATION = BUILDER
-                .comment("[Curse 1] Duration in ticks of the random negative effect applied each time.")
+                .comment("[诅咒1] 每次随机负面效果的持续时间，单位为 tick。")
                 .defineInRange("randomCurseDuration", 160, 20, 72000);
 
         RANDOM_CURSE_AMPLIFIER_MIN = BUILDER
-                .comment("[Curse 1] Minimum amplifier of the random negative effect.")
+                .comment("[诅咒1] 随机负面效果的最小等级。")
                 .defineInRange("randomCurseAmplifierMin", 0, 0, 10);
 
         RANDOM_CURSE_AMPLIFIER_MAX = BUILDER
-                .comment("[Curse 1] Maximum amplifier of the random negative effect.")
+                .comment("[诅咒1] 随机负面效果的最大等级。")
                 .defineInRange("randomCurseAmplifierMax", 1, 0, 10);
 
-        RANDOM_CURSE_NEGATIVE_POOL = BUILDER
-                .comment("[Curse 1] Negative effect pool. Fill in effect ids here. Darkness, mining fatigue, and nausea are filtered out by code.")
-                .defineListAllowEmpty("randomCurseNegativePool",
+        CURSE_1_EFFECT_WHITELIST = BUILDER
+                .comment("[诅咒1] 负面效果白名单。这里只会抽取你填写的效果 ID，也支持其他模组效果。")
+                .defineListAllowEmpty("curse1EffectWhitelist",
                         List.of("minecraft:weakness", "minecraft:slowness", "minecraft:hunger", "minecraft:blindness", "minecraft:poison", "minecraft:wither", "minecraft:unluck", "minecraft:levitation"),
                         Config::validateEffectName);
 
         CURSE_2_SPAWN_INTERVAL = BUILDER
-                .comment("[Curse 2] Interval in ticks for the hostile mob summon check. 12000 ticks = 10 minutes.")
+                .comment("[诅咒2] 敌对生物生成检测的时间间隔，单位为 tick。12000 tick = 10 分钟。")
                 .defineInRange("curse2SpawnInterval", 12000, 20, 720000);
 
         CURSE_2_SPAWN_CHANCE = BUILDER
-                .comment("[Curse 2] Chance to summon a hostile mob whenever the curse 2 interval is reached.")
+                .comment("[诅咒2] 每次到达触发间隔后，召唤敌对生物的概率。")
                 .defineInRange("curse2SpawnChance", 0.15D, 0.0D, 1.0D);
 
         CURSE_2_LUCK_PENALTY = BUILDER
-                .comment("[Curse 2] How much luck is removed while the Seal of Kadesh is worn.")
+                .comment("[诅咒2] 佩戴卡迭石咒印时减少的幸运值。")
                 .defineInRange("curse2LuckPenalty", 2.0D, 0.0D, 1024.0D);
 
         CURSE_2_SPAWN_RADIUS = BUILDER
-                .comment("[Curse 2] Horizontal spawn radius around the player for summoned hostile mobs.")
+                .comment("[诅咒2] 召唤敌对生物时，围绕玩家的水平生成半径。")
                 .defineInRange("curse2SpawnRadius", 8, 2, 64);
 
-        CURSE_2_ENTITY_BLACKLIST = BUILDER
-                .comment("[Curse 2] Hostile mob blacklist. Curse 2 scans all MONSTER entities automatically, then excludes any entity id listed here.")
-                .defineListAllowEmpty("curse2EntityBlacklist", List.of(), Config::validateEntityTypeName);
+        CURSE_2_ENTITY_WHITELIST = BUILDER
+                .comment("[诅咒2] 敌对生物白名单。诅咒2只会生成这里填写的实体 ID，也支持其他模组生物。")
+                .defineListAllowEmpty(
+                        "curse2EntityWhitelist",
+                        List.of("minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"),
+                        Config::validateEntityTypeName);
 
         CURSE_3_XP_MULTIPLIER = BUILDER
-                .comment("[Curse 3] Experience multiplier applied after killing any creature. 0.5 means the player only gets 50 percent of the normal experience.")
+                .comment("[诅咒3] 击杀任意生物后的经验倍率。0.5 表示只能获得原本 50% 的经验。")
                 .defineInRange("curse3XpMultiplier", 0.5D, 0.0D, 10.0D);
 
         CURSE_3_ENCHANT_COST_MULTIPLIER = BUILDER
-                .comment("[Curse 3] Enchanting table level cost multiplier. 2.0 means the displayed level requirement is doubled.")
+                .comment("[诅咒3] 附魔台等级消耗倍率。2.0 表示显示需求翻倍。")
                 .defineInRange("curse3EnchantCostMultiplier", 2.0D, 0.0D, 10.0D);
 
         CURSE_3_ANVIL_COST_MULTIPLIER = BUILDER
-                .comment("[Curse 3] Anvil level cost multiplier. 2.0 means the anvil level cost is doubled.")
+                .comment("[诅咒3] 铁砧等级消耗倍率。2.0 表示铁砧经验消耗翻倍。")
                 .defineInRange("curse3AnvilCostMultiplier", 2.0D, 0.0D, 10.0D);
 
         CURSE_4_TRADE_SURCHARGE = BUILDER
-                .comment("[Curse 4] Villager trade price surcharge multiplier. 0.25 means prices increase by 25 percent.")
+                .comment("[诅咒4] 村民与流浪商人交易价格上浮倍率。0.25 表示价格上涨 25%。")
                 .defineInRange("curse4TradeSurcharge", 0.25D, 0.0D, 10.0D);
 
         CURSE_5_MAX_GUILT = BUILDER
-                .comment("[Curse 5] Maximum King's Guilt value. When reached, curse 5 triggers execution, thunderstorm, lightning, and inventory lock.")
+                .comment("[诅咒5] 王罪最大值。达到后会触发强制处决、雷暴、雷击与背包封印。")
                 .defineInRange("curse5MaxGuilt", 399, 1, 100000);//王罪值
 
         CURSE_5_PURIFICATION_AMOUNT = BUILDER
-                .comment("[Curse 5] How much King's Guilt is removed by one Purification Scroll.")
+                .comment("[诅咒5] 每张净化卷轴可消除的王罪值。")
                 .defineInRange("curse5PurificationAmount", 50, 1, 100000);
 
         CURSE_5_LIGHTNING_STRIKES = BUILDER
-                .comment("[Curse 5] Number of lightning strikes called down when King's Guilt reaches the maximum.")
+                .comment("[诅咒5] 王罪满值时降下的闪电次数。")
                 .defineInRange("curse5LightningStrikes", 10, 1, 200);
 
         CURSE_5_LOCK_DURATION = BUILDER
-                .comment("[Curse 5] Duration in ticks of the full inventory lock after King's Guilt reaches the maximum.")
+                .comment("[诅咒5] 王罪满值后，整套背包被封印的持续时间，单位为 tick。")
                 .defineInRange("curse5LockDuration", 1200, 20, 72000);//背包锁定时间，单位tick
 
         MAIN_HAND_LOCK_DELAY = BUILDER
-                .comment("[Curse 6] Delay in ticks before the first main-hand seal triggers. 36000 ticks = 30 minutes.")
+                .comment("[诅咒6] 首次主手封印触发前的延迟时间，单位为 tick。36000 tick = 30 分钟。")
                 .defineInRange("mainHandLockDelay", 36000, 20, 720000);
 
         MAIN_HAND_LOCK_DURATION = BUILDER
-                .comment("[Curse 6] Duration in ticks of the first main-hand seal. 1200 ticks = 1 minute.")
+                .comment("[诅咒6] 首次主手封印的持续时间，单位为 tick。1200 tick = 1 分钟。")
                 .defineInRange("mainHandLockDuration", 1200, 20, 72000);
 
         INVENTORY_LOCK_INTERVAL = BUILDER
-                .comment("[Curse 6] After the first main-hand seal, this is the interval in ticks for locking a random inventory item. 6000 ticks = 5 minutes.")
+                .comment("[诅咒6] 首次主手封印后，随机封印背包物品的触发间隔，单位为 tick。6000 tick = 5 分钟。")
                 .defineInRange("inventoryLockInterval", 6000, 20, 720000);
 
         INVENTORY_LOCK_DURATION = BUILDER
-                .comment("[Curse 6] Duration in ticks for how long the random inventory item remains locked.")
+                .comment("[诅咒6] 随机封印背包物品的持续时间，单位为 tick。")
                 .defineInRange("inventoryLockDuration", 1200, 20, 72000);
 
         END_WEAKNESS_AMPLIFIER = BUILDER
-                .comment("[Curse 7] Weakness amplifier applied only while the player is in the End.")
+                .comment("[诅咒7] 玩家位于末地时获得的虚弱等级。")
                 .defineInRange("endWeaknessAmplifier", 0, 0, 10);
 
         HELL_REBOUND_CHANCE = BUILDER
-                .comment("[Curse 8] After curse 8 is awakened in the Nether, this is the chance that attacking a mob will rebound damage back to the player.")
-                .defineInRange("hellReboundChance", 0.15D, 0.0D, 1.0D);
+                .comment("[诅咒8] 诅咒8在地狱生效后，攻击怪物时反伤到自身的概率。")
+                .defineInRange("hellReboundChance", 0.25D, 0.0D, 1.0D);
 
         HELL_REBOUND_DAMAGE_MULTIPLIER = BUILDER
-                .comment("[Curse 8] Self-damage multiplier for rebound. 1.10 means the player takes 110 percent of the dealt damage back.")
-                .defineInRange("hellReboundDamageMultiplier", 1.10D, 0.0D, 10.0D);
+                .comment("[诅咒8] 反伤时玩家承受的伤害倍率。1.10 表示承受造成伤害的 110%。")
+                .defineInRange("hellReboundDamageMultiplier", 1.25D, 0.0D, 10.0D);
+
+        HELL_REBOUND_FLAT_DAMAGE = BUILDER
+                .comment("[诅咒8] 反伤时额外追加的固定伤害。最终伤害 = 原伤害 * 倍率 + 固定额外伤害。")
+                .defineInRange("hellReboundFlatDamage", 0.0D, 0.0D, 100.0D);
 
         START_WITH_SEAL = BUILDER
-                .comment("[General] If true, new players start with the Seal of Kadesh.")
+                .comment("[通用] 为 true 时，新玩家开局获得卡迭石咒印。")
                 .define("startWithSeal", true);
 
         START_WITH_SEAL_EQUIPPED = BUILDER
-                .comment("[General] If true, new players start with the Seal of Kadesh already equipped in the curse slot. When enabled, the seal is not also placed into the starting inventory.")
+                .comment("[通用] 为 true 时，新玩家开局直接将卡迭石咒印佩戴在诅咒槽位中。开启后不会再额外放入初始背包。")
                 .define("startWithSealEquipped", false);
 
         HEART_TRIGGER_HOSTILE_COUNT = BUILDER
-                .comment("[Heart of Duat] Hostile entity count required within range before the active awakening can be used.")
+                .comment("[杜阿特之心] 可使用主动觉醒前，范围内所需的敌对实体数量。")
                 .defineInRange("heartTriggerHostileCount", 6, 1, 256);
 
         HEART_TRIGGER_RADIUS = BUILDER
-                .comment("[Heart of Duat] Detection radius in blocks for counting nearby hostile entities.")
+                .comment("[杜阿特之心] 检测附近敌对实体数量的范围半径，单位为格。")
                 .defineInRange("heartTriggerRadius", 16, 1, 128);
 
         HEART_ACTIVE_DURATION = BUILDER
-                .comment("[Heart of Duat] Active awakening duration in ticks. 600 ticks = 30 seconds.")
+                .comment("[杜阿特之心] 主动觉醒的持续时间，单位为 tick。600 tick = 30 秒。")
                 .defineInRange("heartActiveDuration", 600, 20, 72000);
 
         HEART_ACTIVE_XP_COST = BUILDER
-                .comment("[Heart of Duat] Experience level cost paid whenever the active awakening is triggered.")
+                .comment("[杜阿特之心] 每次触发主动觉醒时需要支付的经验等级。")
                 .defineInRange("heartActiveXpCost", 3, 0, 100);
 
         HEART_PROMPT_INTERVAL = BUILDER
-                .comment("[Heart of Duat] Prompt interval in ticks before the ready message can appear again.")
+                .comment("[杜阿特之心] 觉醒提示再次出现前的间隔，单位为 tick。")
                 .defineInRange("heartPromptInterval", 40, 1, 72000);
 
         HEART_BATTLE_STACK_LIMIT = BUILDER
-                .comment("[Heart of Duat] Maximum number of battle stacks gained from killing hostile mobs.")
+                .comment("[杜阿特之心] 通过击杀敌对怪物可叠加的战意最大层数。")
                 .defineInRange("heartBattleStackLimit", 10, 1, 100);
 
         HEART_BATTLE_STACK_TIMEOUT = BUILDER
-                .comment("[Heart of Duat] Stack timeout in ticks. If the player does not kill another hostile mob before this expires, stacks reset. 100 ticks = 5 seconds.")
+                .comment("[杜阿特之心] 战意层数超时时间，单位为 tick。若在此时间内未再次击杀敌对怪物，则层数清零。100 tick = 5 秒。")
                 .defineInRange("heartBattleStackTimeout", 100, 1, 72000);
 
         HEART_BATTLE_DAMAGE_PER_STACK = BUILDER
-                .comment("[Heart of Duat] Bonus attack damage granted by each battle stack.")
+                .comment("[杜阿特之心] 每层战意额外提供的攻击伤害。")
                 .defineInRange("heartBattleDamagePerStack", 3.0D, 0.0D, 1000.0D);
 
         HEART_WARD_COOLDOWN = BUILDER
-                .comment("[Heart of Duat] Cooldown in ticks after the full battle stack ward is triggered. 7200 ticks = 360 seconds.")
+                .comment("[杜阿特之心] 满层战意触发免伤后的冷却时间，单位为 tick。7200 tick = 360 秒。")
                 .defineInRange("heartWardCooldown", 7200, 20, 720000);
 
         HEART_WARD_INVULNERABILITY = BUILDER
-                .comment("[Heart of Duat] Invulnerability duration in ticks granted when the ward is triggered. 100 ticks = 5 seconds.")
+                .comment("[杜阿特之心] 触发免伤后获得的无敌时间，单位为 tick。100 tick = 5 秒。")
                 .defineInRange("heartWardInvulnerability", 100, 1, 72000);
 
         HEART_WARD_MANUAL_TRIGGER = BUILDER
-                .comment("[Heart of Duat] If true, a full battle stack waits for the player to press the ward key before triggering. If false, the ward triggers immediately when the stack is filled.")
+                .comment("[杜阿特之心] 为 true 时，战意满层后需要玩家手动按键触发免伤；为 false 时，满层立即自动触发。")
                 .define("heartWardManualTrigger", true);
 
         HEART_DESERT_REACH_BONUS = BUILDER
-                .comment("[Heart of Duat] Reach bonus granted while the wearer is in desert or badlands biomes.")
+                .comment("[杜阿特之心] 佩戴者位于沙漠或恶地群系时获得的交互距离加成。")
                 .defineInRange("heartDesertReachBonus", 5.0D, 0.0D, 64.0D);
+
+        NECKLACE_EFFECT_ID = BUILDER
+                .comment("[项链] 项链命中怪物时允许附着的唯一效果 ID。仅填写 1 个，支持其他模组效果。")
+                .define("necklaceEffectId", "minecraft:poison", Config::validateEffectName);
+
+        NECKLACE_STACK_TIMEOUT = BUILDER
+                .comment("[项链] 每层效果的持续时间，单位 tick。60 tick = 3 秒。")
+                .defineInRange("necklaceStackTimeout", 200, 1, 72000);
+
+        NECKLACE_MAX_STACKS = BUILDER
+                .comment("[项链] 爆发前需要叠满的层数。")
+                .defineInRange("necklaceMaxStacks", 8, 2, 64);
+
+        NECKLACE_BURST_DAMAGE_MULTIPLIER = BUILDER
+                .comment("[项链] 叠满后转化出的爆发伤害倍率。3.0 表示 300%。")
+                .defineInRange("necklaceBurstDamageMultiplier", 3.0D, 0.1D, 100.0D);
+
+        NECKLACE_RAIN_BONUS_MULTIPLIER = BUILDER
+                .comment("[项链] 雨天或雷暴时，爆发伤害额外乘上的倍率。1.5 表示额外 50%。")
+                .defineInRange("necklaceRainBonusMultiplier", 1.5D, 1.0D, 100.0D);
+
+        NECKLACE_RAIN_REWARD_DURATION = BUILDER
+                .comment("[项链] 雨天爆发后，玩家获得伤害吸收与抗性提升的持续时间，单位 tick。3600 tick = 3 分钟。")
+                .defineInRange("necklaceRainRewardDuration", 3600, 20, 72000);
+
+        NECKLACE_RAIN_ABSORPTION_AMPLIFIER = BUILDER
+                .comment("[项链] 雨天爆发后给予玩家的伤害吸收等级。4 表示伤害吸收 V。")
+                .defineInRange("necklaceRainAbsorptionAmplifier", 4, 0, 255);
+
+        NECKLACE_RAIN_RESISTANCE_AMPLIFIER = BUILDER
+                .comment("[项链] 雨天爆发后给予玩家的抗性提升等级。4 表示抗性提升 V。")
+                .defineInRange("necklaceRainResistanceAmplifier", 4, 0, 255);
 
         BUILDER.pop();
     }
@@ -187,12 +226,12 @@ public class Config {
     public static final ForgeConfigSpec.IntValue RANDOM_CURSE_DURATION;
     public static final ForgeConfigSpec.IntValue RANDOM_CURSE_AMPLIFIER_MIN;
     public static final ForgeConfigSpec.IntValue RANDOM_CURSE_AMPLIFIER_MAX;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> RANDOM_CURSE_NEGATIVE_POOL;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_1_EFFECT_WHITELIST;
     public static final ForgeConfigSpec.IntValue CURSE_2_SPAWN_INTERVAL;
     public static final ForgeConfigSpec.DoubleValue CURSE_2_SPAWN_CHANCE;
     public static final ForgeConfigSpec.DoubleValue CURSE_2_LUCK_PENALTY;
     public static final ForgeConfigSpec.IntValue CURSE_2_SPAWN_RADIUS;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_2_ENTITY_BLACKLIST;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_2_ENTITY_WHITELIST;
     public static final ForgeConfigSpec.DoubleValue CURSE_3_XP_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue CURSE_3_ENCHANT_COST_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue CURSE_3_ANVIL_COST_MULTIPLIER;
@@ -208,6 +247,7 @@ public class Config {
     public static final ForgeConfigSpec.IntValue END_WEAKNESS_AMPLIFIER;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_CHANCE;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_DAMAGE_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_FLAT_DAMAGE;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL_EQUIPPED;
     public static final ForgeConfigSpec.IntValue HEART_TRIGGER_HOSTILE_COUNT;
@@ -222,6 +262,14 @@ public class Config {
     public static final ForgeConfigSpec.IntValue HEART_WARD_INVULNERABILITY;
     public static final ForgeConfigSpec.BooleanValue HEART_WARD_MANUAL_TRIGGER;
     public static final ForgeConfigSpec.DoubleValue HEART_DESERT_REACH_BONUS;
+    public static final ForgeConfigSpec.ConfigValue<String> NECKLACE_EFFECT_ID;
+    public static final ForgeConfigSpec.IntValue NECKLACE_STACK_TIMEOUT;
+    public static final ForgeConfigSpec.IntValue NECKLACE_MAX_STACKS;
+    public static final ForgeConfigSpec.DoubleValue NECKLACE_BURST_DAMAGE_MULTIPLIER;
+    public static final ForgeConfigSpec.DoubleValue NECKLACE_RAIN_BONUS_MULTIPLIER;
+    public static final ForgeConfigSpec.IntValue NECKLACE_RAIN_REWARD_DURATION;
+    public static final ForgeConfigSpec.IntValue NECKLACE_RAIN_ABSORPTION_AMPLIFIER;
+    public static final ForgeConfigSpec.IntValue NECKLACE_RAIN_RESISTANCE_AMPLIFIER;
 
     private static boolean validateEffectName(final Object obj) {
         return obj instanceof final String effectName && ForgeRegistries.MOB_EFFECTS.containsKey(new ResourceLocation(effectName));
@@ -236,18 +284,20 @@ public class Config {
     }
 
     public static MobEffect getRandomNegativeEffect(int seed) {
-        return getEffectFromPool(RANDOM_CURSE_NEGATIVE_POOL.get(), seed);
+        return getEffectFromPool(CURSE_1_EFFECT_WHITELIST.get(), seed);
     }
 
     public static EntityType<?> getRandomCurseTwoEntityType(int seed) {
-        List<EntityType<?>> filteredPool = ForgeRegistries.ENTITY_TYPES.getValues().stream()
-                .filter(entityType -> entityType.getCategory() == MobCategory.MONSTER)
-                .filter(entityType -> {
-                    ResourceLocation key = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
-                    return key != null && !CURSE_2_ENTITY_BLACKLIST.get().contains(key.toString());
-                })
+        List<EntityType<?>> filteredPool = CURSE_2_ENTITY_WHITELIST.get().stream()
+                .map(ResourceLocation::new)
+                .map(ForgeRegistries.ENTITY_TYPES::getValue)
+                .filter(entityType -> entityType != null && entityType.getCategory() == MobCategory.MONSTER)
                 .toList();
         return getEntityTypeFromPool(filteredPool, seed);
+    }
+
+    public static MobEffect getNecklaceEffect() {
+        return ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(NECKLACE_EFFECT_ID.get()));
     }
 
     private static MobEffect getEffectFromPool(List<? extends String> pool, int seed) {

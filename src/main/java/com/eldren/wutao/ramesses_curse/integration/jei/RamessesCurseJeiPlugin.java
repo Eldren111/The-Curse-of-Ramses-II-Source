@@ -48,5 +48,10 @@ public class RamessesCurseJeiPlugin implements IModPlugin {
                 List.of(new ItemStack(ModItems.HEART_OF_DUAT.get())),
                 Component.translatable("jei.ramesses_curse.heart_of_duat.line1"),
                 Component.translatable("jei.ramesses_curse.heart_of_duat.line2"));
+
+        registration.addItemStackInfo(
+                List.of(new ItemStack(ModItems.URAEUS_NECKLACE.get())),
+                Component.translatable("jei.ramesses_curse.uraeus_necklace.line1"),
+                Component.translatable("jei.ramesses_curse.uraeus_necklace.line2"));
     }
 }

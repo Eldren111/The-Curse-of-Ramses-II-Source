@@ -38,6 +38,7 @@ public class RamessesCurseMod {
     public static final String CURSE_SLOT_ID = "ramesses_curse_curse";
     public static final String HEART_SLOT_ID = "ramesses_curse_heart";
     public static final String MUSIC_SLOT_ID = "ramesses_curse_music";
+    public static final String HAND_SLOT_ID = "ramesses_curse_hand";
     public static final KeyMapping HEART_AWAKENING_KEY = new KeyMapping(
             "key.ramesses_curse.heart_awakening",
             InputConstants.Type.KEYSYM,
@@ -47,6 +48,11 @@ public class RamessesCurseMod {
             "key.ramesses_curse.heart_ward",
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_P,
+            "key.categories.ramesses_curse");
+    public static final KeyMapping EDICT_OF_TWO_LANDS_KEY = new KeyMapping(
+            "key.ramesses_curse.edict_of_two_lands",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_X,
             "key.categories.ramesses_curse");
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -68,6 +74,8 @@ public class RamessesCurseMod {
                         output.accept(ModItems.HEART_OF_DUAT.get());
                         output.accept(ModItems.HYMN_OF_THE_TWO_LANDS.get());
                         output.accept(ModItems.RESONANT_SCARAB.get());
+                        output.accept(ModItems.URAEUS_NECKLACE.get());
+                        output.accept(ModItems.EDICT_OF_TWO_LANDS.get());
                     })
                     .build());
 
@@ -102,6 +110,16 @@ public class RamessesCurseMod {
                             .size(1)
                             .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
                             .build());
+            InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
+                    new SlotTypeMessage.Builder(HAND_SLOT_ID)
+                            .size(1)
+                            .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
+                            .build());
+            InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
+                    new SlotTypeMessage.Builder("necklace")
+                            .size(1)
+                            .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
+                            .build());
             ModNetwork.register();
         });
     }
@@ -123,6 +141,7 @@ public class RamessesCurseMod {
         public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
             event.register(HEART_AWAKENING_KEY);
             event.register(HEART_WARD_KEY);
+            event.register(EDICT_OF_TWO_LANDS_KEY);
         }
     }
 }

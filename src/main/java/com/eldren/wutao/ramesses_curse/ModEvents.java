@@ -5,10 +5,18 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -16,6 +24,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -43,7 +52,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.inventory.EnchantmentMenu;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
@@ -56,9 +68,12 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.client.event.InputEvent;
@@ -68,8 +83,10 @@ import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
@@ -85,11 +102,14 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkDirection;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import static net.minecraft.commands.Commands.argument;
@@ -119,16 +139,39 @@ public class ModEvents {
     private static final String GUILT_SENTENCE_PENDING = "GuiltSentencePending";
     private static final String GUILT_LOCK_UNTIL = "GuiltLockUntil";
     private static final String SATIETY_CRYSTAL_OWNER = "SatietyCrystalOwner";
+    private static final String SATIETY_CRYSTAL_ID = "SatietyCrystalId";
     private static final String SATIETY_CRYSTAL_COUNT = "SatietyCrystalCount";
     private static final String SATIETY_CRYSTAL_DIMENSION = "SatietyCrystalDimension";
     private static final String SATIETY_CRYSTAL_X = "SatietyCrystalX";
     private static final String SATIETY_CRYSTAL_Y = "SatietyCrystalY";
     private static final String SATIETY_CRYSTAL_Z = "SatietyCrystalZ";
+    private static final String SATIETY_CRYSTAL_RECORDS = "SatietyCrystalRecords";
     private static final String LAST_SYNC_GUILT = "LastSyncGuilt";
     private static final String LAST_SYNC_SEAL = "LastSyncSeal";
+    private static final String LAST_SYNC_NETHER_AWAKENED = "LastSyncNetherAwakened";
     private static final String LAST_SYNC_LOCK_SECONDS = "LastSyncLockSeconds";
     private static final String LAST_SYNC_SATIETY = "LastSyncSatiety";
+    private static final String LAST_SYNC_LOCKED_SLOT = "LastSyncLockedSlot";
+    private static final String LAST_SYNC_LOCKED_SLOT_TICKS = "LastSyncLockedSlotTicks";
+    private static final String CURSE_3_ANVIL_COST = "Curse3AnvilCost";
+    private static final String CURSE_3_ANVIL_BASE_COST = "Curse3AnvilBaseCost";
+    private static final String CURSE_3_PENDING_ENCHANT_COST = "Curse3PendingEnchantCost";
+    private static final String EDICT_SEAL_UNTIL = "RamessesEdictSealUntil";
+    private static final String EDICT_LIFT_UNTIL = "RamessesEdictLiftUntil";
+    private static final String EDICT_SLAM_AT = "RamessesEdictSlamAt";
+    private static final String EDICT_SLAMMED = "RamessesEdictSlammed";
+    private static final String EDICT_SPELL_BURST_DONE = "RamessesEdictSpellBurstDone";
+    private static final String EDICT_CASTER_UUID = "RamessesEdictCasterUuid";
+    private static final String EDICT_CAST_ID = "RamessesEdictCastId";
+    private static final String EDICT_ORIGINAL_NO_AI = "RamessesEdictOriginalNoAi";
+    private static final String EDICT_ORIGINAL_NO_GRAVITY = "RamessesEdictOriginalNoGravity";
     private static final int CURSE_9_HUNGER_LOSS = 2;
+    private static final int EDICT_RANGE = 8;
+    private static final int EDICT_CHARGE_TICKS = 100;
+    private static final int EDICT_SEAL_TICKS = 200;
+    private static final int EDICT_LIFT_TICKS = 16;
+    private static final float EDICT_SPELL_DAMAGE = 10.0F;
+    private static final float EDICT_SLAM_DAMAGE = 20.0F;
     private static final UUID GUILT_ARMOR_MODIFIER = UUID.fromString("2d7c5100-0a8b-4e93-bf56-fca78f6d7fd3");
     private static final UUID GUILT_TOUGHNESS_MODIFIER = UUID.fromString("8b962d09-4d48-4a89-930f-d23456848976");
     private static final UUID GUILT_KNOCKBACK_MODIFIER = UUID.fromString("4c133cc4-96d4-4d7f-a69e-d7f2fb74e148");
@@ -155,8 +198,24 @@ public class ModEvents {
             clearDefenseSuppression(serverPlayer);
         }
 
+        int remainingMainHandLock = getRemainingMainHandLockTicks(player);
+        if (remainingMainHandLock > 0 && player instanceof ServerPlayer serverPlayer) {
+            applyMainHandCooldown(serverPlayer, remainingMainHandLock);
+        }
+
+        int remainingLockedSlotTicks = getRemainingLockedSlotTicks(player);
+        if (remainingLockedSlotTicks > 0 && player instanceof ServerPlayer serverPlayer) {
+            applyLockedSlotCooldown(serverPlayer, remainingLockedSlotTicks);
+        }
+
         if (player.level() instanceof ServerLevel serverLevel) {
             updateCurseNineHunger(serverLevel, player);
+        }
+
+        if (player.containerMenu instanceof AnvilMenu anvilMenu) {
+            syncCurseThreeAnvilCost(player, anvilMenu, sealEquipped);
+        } else {
+            data.putInt(CURSE_3_ANVIL_COST, 0);
         }
 
         cleanupTrackedMusicPlaybacks(player.level());
@@ -169,6 +228,7 @@ public class ModEvents {
         }
 
         if (!sealEquipped) {
+            ModItems.SealOfKadesh.clearSealCurses(player);
             return;
         }
 
@@ -178,14 +238,21 @@ public class ModEvents {
 
         long gameTime = player.level().getGameTime();
         data.putInt(EQUIP_TICKS, data.getInt(EQUIP_TICKS) + 1);
+        if (player instanceof ServerPlayer serverPlayer) {
+            ModItems.SealOfKadesh.tickSealCurses(serverPlayer, data.getInt(EQUIP_TICKS));
+        }
 
         if (!data.getBoolean(NETHER_AWAKENED) && player.level().dimension() == Level.NETHER) {
             data.putBoolean(NETHER_AWAKENED, true);
+            syncClientState(player, true);
         }
 
         if (data.getInt(EQUIP_TICKS) >= Config.MAIN_HAND_LOCK_DELAY.get() && data.getLong(MAIN_LOCK_UNTIL) == 0L) {
             data.putLong(MAIN_LOCK_UNTIL, gameTime + Config.MAIN_HAND_LOCK_DURATION.get());
             data.putLong(NEXT_RANDOM_LOCK, gameTime + Config.INVENTORY_LOCK_INTERVAL.get());
+            if (player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.displayClientMessage(Component.translatable("message.ramesses_curse.main_hand_lock_started").withStyle(net.minecraft.ChatFormatting.GOLD), true);
+            }
         }
 
         if (data.getLong(MAIN_LOCK_UNTIL) > 0L && gameTime >= data.getLong(MAIN_LOCK_UNTIL) && data.getLong(NEXT_RANDOM_LOCK) > 0L && gameTime >= data.getLong(NEXT_RANDOM_LOCK)) {
@@ -252,10 +319,20 @@ public class ModEvents {
                                         .requires(source -> source.hasPermission(2))
                                         .executes(context -> locateSatietyCrystal(context.getSource(), EntityArgument.getPlayer(context, "target")))))
                         .then(literal("locate_tp")
-                                .executes(context -> teleportToSatietyCrystal(context.getSource(), context.getSource().getPlayerOrException()))
+                                .executes(context -> teleportToSatietyCrystal(context.getSource(), context.getSource().getPlayerOrException(), 0))
+                                .then(argument("index", IntegerArgumentType.integer(1))
+                                        .executes(context -> teleportToSatietyCrystal(
+                                                context.getSource(),
+                                                context.getSource().getPlayerOrException(),
+                                                IntegerArgumentType.getInteger(context, "index") - 1)))
                                 .then(argument("target", EntityArgument.player())
                                         .requires(source -> source.hasPermission(2))
-                                        .executes(context -> teleportToSatietyCrystal(context.getSource(), EntityArgument.getPlayer(context, "target")))))
+                                        .executes(context -> teleportToSatietyCrystal(context.getSource(), EntityArgument.getPlayer(context, "target"), 0))
+                                        .then(argument("index", IntegerArgumentType.integer(1))
+                                                .executes(context -> teleportToSatietyCrystal(
+                                                        context.getSource(),
+                                                        EntityArgument.getPlayer(context, "target"),
+                                                        IntegerArgumentType.getInteger(context, "index") - 1)))))
                         .then(literal("cooling")
                                 .then(literal("duat")
                                         .requires(source -> source.hasPermission(2))
@@ -402,8 +479,22 @@ public class ModEvents {
         }
     }
 
+    @SubscribeEvent
+    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
+        LivingEntity living = event.getEntity();
+        if (living.level().isClientSide) {
+            return;
+        }
+
+        tickEdictSeal(living);
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingAttack(LivingAttackEvent event) {
+        if (isEdictSealed(event.getSource().getEntity())) {
+            event.setCanceled(true);
+            return;
+        }
         Player lockedAttacker = getLockedAttacker(event.getSource());
         if (lockedAttacker != null) {
             event.setCanceled(true);
@@ -412,6 +503,11 @@ public class ModEvents {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingDamage(LivingDamageEvent event) {
+        if (isEdictSealed(event.getSource().getEntity())) {
+            event.setCanceled(true);
+            event.setAmount(0.0F);
+            return;
+        }
         Player lockedAttacker = getLockedAttacker(event.getSource());
         if (lockedAttacker != null) {
             event.setCanceled(true);
@@ -426,13 +522,29 @@ public class ModEvents {
                 return;
             }
         }
+    }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onLivingDamageFinal(LivingDamageEvent event) {
         LivingEntity target = event.getEntity();
+        if (event.getSource().getEntity() instanceof Player player
+                && !player.level().isClientSide
+                && ModItems.isMusicRelicAwakened(player)
+                && !ModItems.hasMusicAttackModifier(player)) {
+            event.setAmount(event.getAmount() * ModItems.getMusicAttackMultiplier());
+        }
+
         if (event.getSource().getEntity() instanceof Player player
                 && canUseHeartSlot(player)
                 && isHeartEquipped(player)
                 && target instanceof Enemy) {
             event.setAmount(event.getAmount() + ModItems.HeartOfDuat.getDamageBonus(player));
+        }
+
+        if (event.getSource().getEntity() instanceof Player player
+                && !player.level().isClientSide
+                && target instanceof Enemy) {
+            event.setAmount(ModItems.onUraeusNecklaceAttack(player, target, event.getAmount()));
         }
 
         if (!(event.getSource().getEntity() instanceof Player player) || player.level().isClientSide) {
@@ -445,8 +557,11 @@ public class ModEvents {
         }
 
         if (player.getRandom().nextDouble() < Config.HELL_REBOUND_CHANCE.get()) {
-            float rebound = (float) Math.max(1.0D, event.getAmount() * Config.HELL_REBOUND_DAMAGE_MULTIPLIER.get());
+            float rebound = (float) Math.max(1.0D, event.getAmount() * Config.HELL_REBOUND_DAMAGE_MULTIPLIER.get() + Config.HELL_REBOUND_FLAT_DAMAGE.get());
             player.hurt(player.damageSources().magic(), rebound);
+            player.displayClientMessage(Component.translatable("message.ramesses_curse.hell_rebound", String.format(java.util.Locale.ROOT, "%.1f", rebound))
+                    .withStyle(net.minecraft.ChatFormatting.RED), true);
+            player.level().playSound(null, player.blockPosition(), SoundEvents.BLAZE_HURT, SoundSource.PLAYERS, 0.85F, 0.75F);
         }
     }
 
@@ -460,9 +575,31 @@ public class ModEvents {
 
     @SubscribeEvent
     public static void onEnchantmentLevelSet(EnchantmentLevelSetEvent event) {
-        Player player = Minecraft.getInstance().player;
-        if (player != null && isSealEquipped(player)) {
-            event.setEnchantLevel(Math.min(30, Mth.ceil(event.getEnchantLevel() * Config.CURSE_3_ENCHANT_COST_MULTIPLIER.get())));
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onPlayerLevelChange(PlayerXpEvent.LevelChange event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide || player.getAbilities().instabuild || event.getLevels() >= 0 || !isSealEquipped(player)) {
+            return;
+        }
+
+        if (player.containerMenu instanceof EnchantmentMenu) {
+            int spentLevels = -event.getLevels();
+            int adjustedLevels = resolveAdjustedEnchantSpend(player, spentLevels);
+            event.setLevels(-adjustedLevels);
+            return;
+        }
+
+        if (player.containerMenu instanceof AnvilMenu anvilMenu) {
+            int storedCost = getCurseData(player).getInt(CURSE_3_ANVIL_COST);
+            if (storedCost <= 0) {
+                storedCost = Math.max(0, Mth.ceil(anvilMenu.getCost() * Config.CURSE_3_ANVIL_COST_MULTIPLIER.get()));
+                getCurseData(player).putInt(CURSE_3_ANVIL_COST, storedCost);
+            }
+            if (storedCost > 0) {
+                event.setLevels(-storedCost);
+            }
         }
     }
 
@@ -470,9 +607,13 @@ public class ModEvents {
     public static void onAnvilUpdate(AnvilUpdateEvent event) {
         Player player = event.getPlayer();
         if (!isSealEquipped(player)) {
+            clearCurseThreeAnvilCosts(player);
             return;
         }
-        event.setCost(Math.max(0, Mth.ceil(event.getCost() * Config.CURSE_3_ANVIL_COST_MULTIPLIER.get())));
+        int baseCost = Math.max(0, event.getCost());
+        int adjustedCost = Math.max(0, Mth.ceil(baseCost * Config.CURSE_3_ANVIL_COST_MULTIPLIER.get()));
+        event.setCost(adjustedCost);
+        storeCurseThreeAnvilCosts(player, baseCost, adjustedCost);
     }
 
     @SubscribeEvent
@@ -510,8 +651,162 @@ public class ModEvents {
         return isSealEquipped(player);
     }
 
+    public static boolean isNetherAwakened(Player player) {
+        if (player == null) {
+            return false;
+        }
+        if (player.level().isClientSide) {
+            return ClientOverlayEvents.isClientNetherAwakened();
+        }
+        return getCurseData(player).getBoolean(NETHER_AWAKENED);
+    }
+
+    public static int getDisplayedEnchantCost(Player player, int vanillaCost) {
+        return getAdjustedEnchantLevelCost(player, vanillaCost);
+    }
+
+    public static int getCurseThreeEnchantExtraCost(Player player, int vanillaCost) {
+        return Math.max(0, getDisplayedEnchantCost(player, vanillaCost) - Math.max(0, vanillaCost));
+    }
+
+    public static int getDisplayedAnvilCost(Player player, int currentCost) {
+        if (player == null || currentCost <= 0 || !isSealEquipped(player)) {
+            return currentCost;
+        }
+
+        int storedCost = getCurseData(player).getInt(CURSE_3_ANVIL_COST);
+        return storedCost > 0 ? storedCost : currentCost;
+    }
+
+    public static int getCurseThreeAnvilExtraCost(Player player, int vanillaCost) {
+        return Math.max(0, getDisplayedAnvilCost(player, vanillaCost) - Math.max(0, vanillaCost));
+    }
+
+    public static void storeCurseThreeAnvilCosts(Player player, int baseCost, int adjustedCost) {
+        CompoundTag data = getCurseData(player);
+        data.putInt(CURSE_3_ANVIL_BASE_COST, Math.max(0, baseCost));
+        data.putInt(CURSE_3_ANVIL_COST, Math.max(0, adjustedCost));
+    }
+
+    public static void clearCurseThreeAnvilCosts(Player player) {
+        storeCurseThreeAnvilCosts(player, 0, 0);
+    }
+
+    public static int getDisplayedAnvilBaseCost(Player player, int fallbackCost) {
+        if (player == null || fallbackCost <= 0 || !isSealEquipped(player)) {
+            return fallbackCost;
+        }
+
+        int baseCost = getCurseData(player).getInt(CURSE_3_ANVIL_BASE_COST);
+        return baseCost > 0 ? baseCost : fallbackCost;
+    }
+
+    public static int getAdjustedEnchantLevelCost(Player player, int vanillaCost) {
+        if (player == null || vanillaCost <= 0 || !isSealEquipped(player)) {
+            return vanillaCost;
+        }
+        return Math.max(vanillaCost, Mth.ceil(vanillaCost * Config.CURSE_3_ENCHANT_COST_MULTIPLIER.get()));
+    }
+
+    public static int getAdjustedEnchantSpend(Player player, int vanillaSpend) {
+        if (player == null || vanillaSpend <= 0 || !isSealEquipped(player)) {
+            return vanillaSpend;
+        }
+        return Math.max(vanillaSpend, Mth.ceil(vanillaSpend * Config.CURSE_3_ENCHANT_COST_MULTIPLIER.get()));
+    }
+
+    public static int resolveAdjustedEnchantSpend(Player player, int vanillaSpend) {
+        if (player == null || vanillaSpend <= 0 || !isSealEquipped(player)) {
+            return vanillaSpend;
+        }
+
+        CompoundTag data = getCurseData(player);
+        int pendingCost = data.getInt(CURSE_3_PENDING_ENCHANT_COST);
+        if (pendingCost > 0) {
+            data.putInt(CURSE_3_PENDING_ENCHANT_COST, 0);
+            return pendingCost;
+        }
+
+        if (player.containerMenu instanceof EnchantmentMenu menu
+                && vanillaSpend >= 1
+                && vanillaSpend <= menu.costs.length) {
+            return getAdjustedEnchantLevelCost(player, menu.costs[vanillaSpend - 1]);
+        }
+
+        return getAdjustedEnchantSpend(player, vanillaSpend);
+    }
+
+    public static Component getCurseThreeEnchantTooltip(Player player, int vanillaCost) {
+        return Component.literal("诅咒三已生效：附魔额外 +"
+                        + getCurseThreeEnchantExtraCost(player, vanillaCost)
+                        + "，当前倍率 x"
+                        + ClientOverlayEvents.formatMultiplier(Config.CURSE_3_ENCHANT_COST_MULTIPLIER.get()))
+                .withStyle(net.minecraft.ChatFormatting.RED);
+    }
+
+    public static Component getCurseThreeAnvilTooltip(Player player, int vanillaCost) {
+        return Component.literal("诅咒三已生效：铁砧额外 +"
+                        + getCurseThreeAnvilExtraCost(player, vanillaCost)
+                        + "，当前倍率 x"
+                        + ClientOverlayEvents.formatMultiplier(Config.CURSE_3_ANVIL_COST_MULTIPLIER.get()))
+                .withStyle(net.minecraft.ChatFormatting.RED);
+    }
+
+    public static Component getCurseThreeInsufficientXpMessage() {
+        return Component.literal("经验不足，无法附魔")
+                .withStyle(net.minecraft.ChatFormatting.RED);
+    }
+    public static void setPendingEnchantCost(Player player, int cost) {
+        getCurseData(player).putInt(CURSE_3_PENDING_ENCHANT_COST, Math.max(0, cost));
+    }
+
     public static boolean canUseHeartSlot(Player player) {
         return isSealEquipped(player);
+    }
+
+    public static boolean activateEdictOfTwoLands(ServerPlayer player) {
+        List<LivingEntity> targets = player.level().getEntitiesOfClass(
+                LivingEntity.class,
+                player.getBoundingBox().inflate(EDICT_RANGE),
+                entity -> entity instanceof Enemy && entity.isAlive() && entity != player);
+
+        if (targets.isEmpty()) {
+            player.displayClientMessage(Component.translatable("message.ramesses_curse.edict_no_targets")
+                    .withStyle(net.minecraft.ChatFormatting.RED), true);
+            return false;
+        }
+
+        long gameTime = player.level().getGameTime();
+        ServerLevel serverLevel = player.serverLevel();
+        UUID castId = UUID.randomUUID();
+
+        player.level().playSound(null, player.blockPosition(), SoundEvents.EVOKER_CAST_SPELL, SoundSource.PLAYERS, 1.0F, 0.75F);
+        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new EdictOfTwoLandsTriggeredPacket());
+
+        for (LivingEntity target : targets) {
+            CompoundTag tag = target.getPersistentData();
+            tag.putLong(EDICT_SEAL_UNTIL, gameTime + EDICT_LIFT_TICKS + EDICT_SEAL_TICKS);
+            tag.putLong(EDICT_LIFT_UNTIL, gameTime + EDICT_LIFT_TICKS);
+            tag.putLong(EDICT_SLAM_AT, gameTime + EDICT_LIFT_TICKS + EDICT_SEAL_TICKS);
+            tag.putBoolean(EDICT_SLAMMED, false);
+            tag.putBoolean(EDICT_SPELL_BURST_DONE, false);
+            tag.putUUID(EDICT_CASTER_UUID, player.getUUID());
+            tag.putUUID(EDICT_CAST_ID, castId);
+            tag.putBoolean(EDICT_ORIGINAL_NO_GRAVITY, target.isNoGravity());
+            if (target instanceof Mob mob) {
+                tag.putBoolean(EDICT_ORIGINAL_NO_AI, mob.isNoAi());
+            }
+            target.setNoGravity(false);
+            target.fallDistance = 0.0F;
+            target.hasImpulse = true;
+            target.hurtMarked = true;
+            target.setDeltaMovement(0.0D, 1.45D, 0.0D);
+            target.addEffect(new MobEffectInstance(MobEffects.GLOWING, EDICT_LIFT_TICKS + EDICT_SEAL_TICKS, 0, false, false, true));
+
+            spawnEdictDebris(serverLevel, target);
+        }
+
+        return true;
     }
 
     public static boolean isMusicRelicEquipped(Player player) {
@@ -635,8 +930,11 @@ public class ModEvents {
                 player,
                 getCurseData(player).getInt(GUILT_PROGRESS),
                 isSealEquipped(player),
+                getCurseData(player).getBoolean(NETHER_AWAKENED),
                 getRemainingGuiltLockTicks(player),
-                getSatietyCrystalCount(player));
+                getSatietyCrystalCount(player),
+                getCurseData(player).getInt(LOCKED_SLOT),
+                getRemainingLockedSlotTicks(player));
         event.setCanceled(true);
     }
 
@@ -718,6 +1016,11 @@ public class ModEvents {
         return data.getLong(MAIN_LOCK_UNTIL) > player.level().getGameTime();
     }
 
+    private static int getRemainingMainHandLockTicks(Player player) {
+        CompoundTag data = getCurseData(player);
+        return (int) Math.max(0L, data.getLong(MAIN_LOCK_UNTIL) - player.level().getGameTime());
+    }
+
     public static boolean isLockedInventoryStack(Player player, ItemStack stack) {
         if (isGuiltLocked(player)) {
             return !stack.isEmpty();
@@ -745,6 +1048,25 @@ public class ModEvents {
     private static int getRemainingGuiltLockTicks(Player player) {
         CompoundTag data = getCurseData(player);
         return (int) Math.max(0L, data.getLong(GUILT_LOCK_UNTIL) - player.level().getGameTime());
+    }
+
+    private static int getRemainingLockedSlotTicks(Player player) {
+        CompoundTag data = getCurseData(player);
+        return (int) Math.max(0L, data.getLong(LOCKED_SLOT_UNTIL) - player.level().getGameTime());
+    }
+
+    private static void syncCurseThreeAnvilCost(Player player, AnvilMenu anvilMenu, boolean sealEquipped) {
+        CompoundTag data = getCurseData(player);
+        if (!sealEquipped) {
+            clearCurseThreeAnvilCosts(player);
+            return;
+        }
+
+        int storedCost = data.getInt(CURSE_3_ANVIL_COST);
+        if (storedCost > 0 && anvilMenu.getCost() != storedCost) {
+            anvilMenu.setMaximumCost(storedCost);
+            player.containerMenu.broadcastChanges();
+        }
     }
 
     private static void ensureStarterSeal(ServerPlayer player) {
@@ -876,6 +1198,190 @@ public class ModEvents {
         return false;
     }
 
+    private static void tickEdictSeal(LivingEntity target) {
+        CompoundTag tag = target.getPersistentData();
+        long sealUntil = tag.getLong(EDICT_SEAL_UNTIL);
+        if (sealUntil <= 0L) {
+            return;
+        }
+
+        long gameTime = target.level().getGameTime();
+        if (gameTime >= sealUntil && tag.getBoolean(EDICT_SLAMMED)) {
+            clearEdictSeal(target);
+            return;
+        }
+
+        long slamAt = tag.getLong(EDICT_SLAM_AT);
+        long liftUntil = tag.getLong(EDICT_LIFT_UNTIL);
+
+        if (!tag.getBoolean(EDICT_SLAMMED)) {
+            if (gameTime < liftUntil) {
+                target.fallDistance = 0.0F;
+                target.hasImpulse = true;
+                target.setNoGravity(false);
+                if (target.getDeltaMovement().y < 0.55D) {
+                    target.setDeltaMovement(target.getDeltaMovement().x * 0.12D, 1.05D, target.getDeltaMovement().z * 0.12D);
+                }
+            } else if (gameTime < slamAt) {
+                if (target instanceof Mob mob) {
+                    mob.setNoAi(true);
+                }
+                target.setNoGravity(true);
+                target.fallDistance = 0.0F;
+                target.setDeltaMovement(Vec3.ZERO);
+                if (target.level() instanceof ServerLevel serverLevel) {
+                    ServerPlayer caster = getEdictCaster(serverLevel, tag);
+                    if (caster != null) {
+                        if (!tag.getBoolean(EDICT_SPELL_BURST_DONE)) {
+                            tag.putBoolean(EDICT_SPELL_BURST_DONE, true);
+                            triggerEdictSpellBurst(serverLevel, caster, tag);
+                        }
+                    }
+                }
+            } else {
+                tag.putBoolean(EDICT_SLAMMED, true);
+                target.setNoGravity(false);
+                target.hasImpulse = true;
+                target.setDeltaMovement(0.0D, -2.2D, 0.0D);
+                target.hurtMarked = true;
+            }
+        } else if (target.onGround() || target.isInWaterOrBubble()) {
+            target.hurt(target.damageSources().magic(), EDICT_SLAM_DAMAGE);
+            target.level().playSound(null, target.blockPosition(), SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 0.9F, 0.7F);
+            clearEdictSeal(target);
+            return;
+        }
+
+        if (target.level() instanceof ServerLevel serverLevel && gameTime % 5L == 0L) {
+            serverLevel.sendParticles(
+                    new DustParticleOptions(new Vector3f(1.0F, 0.84F, 0.18F), 1.15F),
+                    target.getX(),
+                    target.getY() + target.getBbHeight() * 0.5D,
+                    target.getZ(),
+                    8,
+                    0.35D,
+                    0.55D,
+                    0.35D,
+                    0.02D);
+        }
+    }
+
+    private static void clearEdictSeal(LivingEntity target) {
+        CompoundTag tag = target.getPersistentData();
+        if (target instanceof Mob mob) {
+            mob.setNoAi(tag.getBoolean(EDICT_ORIGINAL_NO_AI));
+        }
+        target.setNoGravity(tag.getBoolean(EDICT_ORIGINAL_NO_GRAVITY));
+        tag.remove(EDICT_SEAL_UNTIL);
+        tag.remove(EDICT_LIFT_UNTIL);
+        tag.remove(EDICT_SLAM_AT);
+        tag.remove(EDICT_SLAMMED);
+        tag.remove(EDICT_SPELL_BURST_DONE);
+        tag.remove(EDICT_CASTER_UUID);
+        tag.remove(EDICT_CAST_ID);
+        tag.remove(EDICT_ORIGINAL_NO_AI);
+        tag.remove(EDICT_ORIGINAL_NO_GRAVITY);
+    }
+
+    private static boolean isEdictSealed(Entity entity) {
+        return entity instanceof LivingEntity living
+                && living.getPersistentData().getLong(EDICT_SEAL_UNTIL) > living.level().getGameTime();
+    }
+
+    private static void spawnEdictDebris(ServerLevel level, LivingEntity target) {
+        level.sendParticles(
+                new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SANDSTONE.defaultBlockState()),
+                target.getX(),
+                target.getY() + 0.2D,
+                target.getZ(),
+                28,
+                0.55D,
+                0.25D,
+                0.55D,
+                0.08D);
+        level.sendParticles(
+                new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SMOOTH_SANDSTONE.defaultBlockState()),
+                target.getX(),
+                target.getY() + 0.4D,
+                target.getZ(),
+                18,
+                0.4D,
+                0.3D,
+                0.4D,
+                0.05D);
+    }
+
+    private static void spawnEdictLink(ServerLevel level, Vec3 start, Vec3 end) {
+        Vec3 delta = end.subtract(start);
+        int points = Math.max(10, Mth.ceil((float) delta.length() * 4.0F));
+        for (int i = 0; i <= points; i++) {
+            double progress = i / (double) points;
+            Vec3 pos = start.add(delta.scale(progress));
+            level.sendParticles(
+                    new DustParticleOptions(new Vector3f(0.98F, 0.83F, 0.18F), 1.0F),
+                    pos.x,
+                    pos.y,
+                    pos.z,
+                    1,
+                    0.0D,
+                    0.0D,
+                    0.0D,
+                    0.0D);
+        }
+    }
+
+    private static void triggerEdictSpellBurst(ServerLevel level, ServerPlayer caster, CompoundTag tag) {
+        if (!tag.hasUUID(EDICT_CAST_ID)) {
+            return;
+        }
+
+        UUID castId = tag.getUUID(EDICT_CAST_ID);
+        List<LivingEntity> chainedTargets = level.getEntitiesOfClass(
+                LivingEntity.class,
+                caster.getBoundingBox().inflate(EDICT_RANGE + 8),
+                entity -> entity instanceof Enemy
+                        && entity.getPersistentData().hasUUID(EDICT_CAST_ID)
+                        && castId.equals(entity.getPersistentData().getUUID(EDICT_CAST_ID))
+                        && entity.getPersistentData().getLong(EDICT_SEAL_UNTIL) > level.getGameTime());
+
+        if (chainedTargets.isEmpty()) {
+            return;
+        }
+
+        chainedTargets.sort((left, right) -> Double.compare(
+                left.distanceToSqr(caster),
+                right.distanceToSqr(caster)));
+
+        Vec3 previous = caster.position().add(0.0D, caster.getBbHeight() * 0.75D, 0.0D);
+        for (LivingEntity chainedTarget : chainedTargets) {
+            Vec3 current = chainedTarget.position().add(0.0D, chainedTarget.getBbHeight() * 0.5D, 0.0D);
+            spawnEdictLink(level, previous, current);
+            chainedTarget.hurt(caster.damageSources().magic(), EDICT_SPELL_DAMAGE);
+            spawnEdictHarmlessBurst(level, current);
+            previous = current;
+        }
+    }
+
+    private static void spawnEdictHarmlessBurst(ServerLevel level, Vec3 pos) {
+        level.playSound(null, BlockPos.containing(pos), SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 0.55F, 1.25F);
+        level.sendParticles(ParticleTypes.EXPLOSION, pos.x, pos.y, pos.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        level.sendParticles(
+                new DustParticleOptions(new Vector3f(1.0F, 0.84F, 0.18F), 1.2F),
+                pos.x,
+                pos.y,
+                pos.z,
+                18,
+                0.3D,
+                0.3D,
+                0.3D,
+                0.04D);
+    }
+
+    @org.jetbrains.annotations.Nullable
+    private static ServerPlayer getEdictCaster(ServerLevel level, CompoundTag tag) {
+        return tag.hasUUID(EDICT_CASTER_UUID) ? level.getServer().getPlayerList().getPlayer(tag.getUUID(EDICT_CASTER_UUID)) : null;
+    }
+
     private static void ejectCurioStack(Player player, top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler stacks, int slot) {
         ItemStack stack = stacks.getStackInSlot(slot);
         if (stack.isEmpty()) {
@@ -958,6 +1464,7 @@ public class ModEvents {
         crystal.setInvulnerable(true);
         crystal.setGlowingTag(true);
         crystal.getPersistentData().putUUID(SATIETY_CRYSTAL_OWNER, player.getUUID());
+        crystal.getPersistentData().putUUID(SATIETY_CRYSTAL_ID, crystal.getUUID());
         player.level().addFreshEntity(crystal);
         rememberSatietyCrystal(player, crystal);
     }
@@ -973,7 +1480,7 @@ public class ModEvents {
         if (player.getFoodData().getFoodLevel() > maxFoodLevel) {
             player.getFoodData().setFoodLevel(maxFoodLevel);
         }
-        player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 220, 1, false, false, true));
+        player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 220, 4, false, false, true));
     }
 
     private static boolean isNetherContainerLoot(ResourceLocation lootTableId) {
@@ -995,19 +1502,17 @@ public class ModEvents {
                 && player.getUUID().equals(itemEntity.getPersistentData().getUUID(SATIETY_CRYSTAL_OWNER));
     }
 
-    private static ItemEntity findOwnedSatietyCrystal(Iterable<ServerLevel> levels, java.util.UUID ownerId) {
+    private static List<ItemEntity> findOwnedSatietyCrystals(Iterable<ServerLevel> levels, UUID ownerId) {
+        List<ItemEntity> results = new ArrayList<>();
         for (ServerLevel level : levels) {
-            List<ItemEntity> matches = level.getEntitiesOfClass(
+            results.addAll(level.getEntitiesOfClass(
                     ItemEntity.class,
                     new AABB(-30000000, level.getMinBuildHeight() - 64, -30000000, 30000000, level.getMaxBuildHeight() + 64, 30000000),
                     entity -> entity.getItem().is(ModItems.SATIETY_CRYSTAL.get())
                             && entity.getPersistentData().hasUUID(SATIETY_CRYSTAL_OWNER)
-                            && ownerId.equals(entity.getPersistentData().getUUID(SATIETY_CRYSTAL_OWNER)));
-            if (!matches.isEmpty()) {
-                return matches.get(0);
-            }
+                            && ownerId.equals(entity.getPersistentData().getUUID(SATIETY_CRYSTAL_OWNER))));
         }
-        return null;
+        return results;
     }
 
     private static int getSatietyCrystalCount(Player player) {
@@ -1024,6 +1529,25 @@ public class ModEvents {
     }
 
     private static void rememberSatietyCrystal(Player player, ItemEntity crystal) {
+        List<SatietyCrystalRecord> records = getRememberedSatietyCrystals(player);
+        UUID crystalId = crystal.getPersistentData().hasUUID(SATIETY_CRYSTAL_ID)
+                ? crystal.getPersistentData().getUUID(SATIETY_CRYSTAL_ID)
+                : crystal.getUUID();
+        SatietyCrystalRecord updatedRecord = new SatietyCrystalRecord(crystalId, crystal.level().dimension(), crystal.blockPosition());
+        boolean replaced = false;
+
+        for (int i = 0; i < records.size(); i++) {
+            if (records.get(i).id().equals(crystalId)) {
+                records.set(i, updatedRecord);
+                replaced = true;
+                break;
+            }
+        }
+        if (!replaced) {
+            records.add(0, updatedRecord);
+        }
+        setRememberedSatietyCrystals(player, records);
+
         CompoundTag data = getCurseData(player);
         data.putString(SATIETY_CRYSTAL_DIMENSION, crystal.level().dimension().location().toString());
         data.putInt(SATIETY_CRYSTAL_X, crystal.blockPosition().getX());
@@ -1033,10 +1557,100 @@ public class ModEvents {
 
     private static void clearRememberedSatietyCrystal(Player player) {
         CompoundTag data = getCurseData(player);
+        data.remove(SATIETY_CRYSTAL_RECORDS);
         data.remove(SATIETY_CRYSTAL_DIMENSION);
         data.remove(SATIETY_CRYSTAL_X);
         data.remove(SATIETY_CRYSTAL_Y);
         data.remove(SATIETY_CRYSTAL_Z);
+    }
+
+    private static void forgetSatietyCrystal(Player player, ItemEntity crystal) {
+        UUID crystalId = crystal.getPersistentData().hasUUID(SATIETY_CRYSTAL_ID)
+                ? crystal.getPersistentData().getUUID(SATIETY_CRYSTAL_ID)
+                : crystal.getUUID();
+        List<SatietyCrystalRecord> records = getRememberedSatietyCrystals(player);
+        records.removeIf(record -> record.id().equals(crystalId));
+
+        if (records.isEmpty()) {
+            clearRememberedSatietyCrystal(player);
+            return;
+        }
+
+        setRememberedSatietyCrystals(player, records);
+        SatietyCrystalRecord latest = records.get(0);
+        CompoundTag data = getCurseData(player);
+        data.putString(SATIETY_CRYSTAL_DIMENSION, latest.dimension().location().toString());
+        data.putInt(SATIETY_CRYSTAL_X, latest.pos().getX());
+        data.putInt(SATIETY_CRYSTAL_Y, latest.pos().getY());
+        data.putInt(SATIETY_CRYSTAL_Z, latest.pos().getZ());
+    }
+
+    private static List<SatietyCrystalRecord> getRememberedSatietyCrystals(Player player) {
+        List<SatietyCrystalRecord> records = new ArrayList<>();
+        CompoundTag data = getCurseData(player);
+
+        if (data.contains(SATIETY_CRYSTAL_RECORDS, Tag.TAG_LIST)) {
+            ListTag listTag = data.getList(SATIETY_CRYSTAL_RECORDS, Tag.TAG_COMPOUND);
+            for (Tag tag : listTag) {
+                if (!(tag instanceof CompoundTag entry)) {
+                    continue;
+                }
+                if (!entry.hasUUID(SATIETY_CRYSTAL_ID)
+                        || !entry.contains(SATIETY_CRYSTAL_DIMENSION)
+                        || !entry.contains(SATIETY_CRYSTAL_X)
+                        || !entry.contains(SATIETY_CRYSTAL_Y)
+                        || !entry.contains(SATIETY_CRYSTAL_Z)) {
+                    continue;
+                }
+                records.add(new SatietyCrystalRecord(
+                        entry.getUUID(SATIETY_CRYSTAL_ID),
+                        ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, new ResourceLocation(entry.getString(SATIETY_CRYSTAL_DIMENSION))),
+                        new BlockPos(entry.getInt(SATIETY_CRYSTAL_X), entry.getInt(SATIETY_CRYSTAL_Y), entry.getInt(SATIETY_CRYSTAL_Z))));
+            }
+            return records;
+        }
+
+        if (data.contains(SATIETY_CRYSTAL_DIMENSION) && data.contains(SATIETY_CRYSTAL_X) && data.contains(SATIETY_CRYSTAL_Y) && data.contains(SATIETY_CRYSTAL_Z)) {
+            records.add(new SatietyCrystalRecord(
+                    UUID.nameUUIDFromBytes((data.getString(SATIETY_CRYSTAL_DIMENSION) + ":" + data.getInt(SATIETY_CRYSTAL_X) + ":" + data.getInt(SATIETY_CRYSTAL_Y) + ":" + data.getInt(SATIETY_CRYSTAL_Z)).getBytes(java.nio.charset.StandardCharsets.UTF_8)),
+                    ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, new ResourceLocation(data.getString(SATIETY_CRYSTAL_DIMENSION))),
+                    new BlockPos(data.getInt(SATIETY_CRYSTAL_X), data.getInt(SATIETY_CRYSTAL_Y), data.getInt(SATIETY_CRYSTAL_Z))));
+        }
+        return records;
+    }
+
+    private static void setRememberedSatietyCrystals(Player player, List<SatietyCrystalRecord> records) {
+        CompoundTag data = getCurseData(player);
+        ListTag listTag = new ListTag();
+
+        for (SatietyCrystalRecord record : records) {
+            CompoundTag entry = new CompoundTag();
+            entry.putUUID(SATIETY_CRYSTAL_ID, record.id());
+            entry.putString(SATIETY_CRYSTAL_DIMENSION, record.dimension().location().toString());
+            entry.putInt(SATIETY_CRYSTAL_X, record.pos().getX());
+            entry.putInt(SATIETY_CRYSTAL_Y, record.pos().getY());
+            entry.putInt(SATIETY_CRYSTAL_Z, record.pos().getZ());
+            listTag.add(entry);
+        }
+
+        data.put(SATIETY_CRYSTAL_RECORDS, listTag);
+    }
+
+    private static List<SatietyCrystalRecord> getAvailableSatietyCrystals(MinecraftServer server, ServerPlayer target) {
+        LinkedHashMap<UUID, SatietyCrystalRecord> records = new LinkedHashMap<>();
+
+        for (SatietyCrystalRecord remembered : getRememberedSatietyCrystals(target)) {
+            records.put(remembered.id(), remembered);
+        }
+        for (ItemEntity crystal : findOwnedSatietyCrystals(server.getAllLevels(), target.getUUID())) {
+            rememberSatietyCrystal(target, crystal);
+            UUID crystalId = crystal.getPersistentData().hasUUID(SATIETY_CRYSTAL_ID)
+                    ? crystal.getPersistentData().getUUID(SATIETY_CRYSTAL_ID)
+                    : crystal.getUUID();
+            records.put(crystalId, new SatietyCrystalRecord(crystalId, crystal.level().dimension(), crystal.blockPosition()));
+        }
+
+        return new ArrayList<>(records.values());
     }
 
     private static BlockPos getRememberedSatietyCrystalPos(Player player) {
@@ -1056,45 +1670,48 @@ public class ModEvents {
     }
 
     private static int locateSatietyCrystal(CommandSourceStack source, ServerPlayer target) {
-        ItemEntity crystal = findOwnedSatietyCrystal(source.getServer().getAllLevels(), target.getUUID());
-        if (crystal != null) {
-            rememberSatietyCrystal(target, crystal);
-        }
-        BlockPos crystalPos = crystal != null ? crystal.blockPosition() : getRememberedSatietyCrystalPos(target);
-
-        if (crystalPos == null) {
+        List<SatietyCrystalRecord> records = getAvailableSatietyCrystals(source.getServer(), target);
+        if (records.isEmpty()) {
             source.sendFailure(Component.translatable("command.ramesses_curse.locate.none", target.getDisplayName()));
             return 0;
         }
 
-        MutableComponent clickable = Component.translatable(
-                        "command.ramesses_curse.locate.found",
-                        target.getDisplayName(),
-                        crystalPos.getX(),
-                        crystalPos.getY(),
-                        crystalPos.getZ())
-                .withStyle(style -> style
-                        .withColor(0xF6D365)
-                        .withClickEvent(new ClickEvent(
-                                ClickEvent.Action.RUN_COMMAND,
-                                target == source.getEntity() ? "/ramessescurse locate_tp" : "/ramessescurse locate_tp " + target.getGameProfile().getName()))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("command.ramesses_curse.locate.hover"))));
+        for (int i = 0; i < records.size(); i++) {
+            SatietyCrystalRecord record = records.get(i);
+            int displayIndex = i + 1;
+            BlockPos crystalPos = record.pos();
+            String clickCommand = target == source.getEntity()
+                    ? "/ramessescurse locate_tp " + displayIndex
+                    : "/ramessescurse locate_tp " + target.getGameProfile().getName() + " " + displayIndex;
 
-        source.sendSuccess(() -> clickable, false);
-        return 1;
+            MutableComponent clickable = Component.literal("[" + displayIndex + "] ")
+                    .append(Component.translatable(
+                            "command.ramesses_curse.locate.found",
+                            target.getDisplayName(),
+                            crystalPos.getX(),
+                            crystalPos.getY(),
+                            crystalPos.getZ()))
+                    .append(Component.literal(" (" + record.dimension().location() + ")"))
+                    .withStyle(style -> style
+                            .withColor(0xF6D365)
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, clickCommand))
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("command.ramesses_curse.locate.hover"))));
+
+            source.sendSuccess(() -> clickable, false);
+        }
+        return records.size();
     }
 
-    private static int teleportToSatietyCrystal(CommandSourceStack source, ServerPlayer target) throws CommandSyntaxException {
-        ItemEntity crystal = findOwnedSatietyCrystal(source.getServer().getAllLevels(), target.getUUID());
-        if (crystal != null) {
-            rememberSatietyCrystal(target, crystal);
-        }
-        ResourceKey<Level> dimension = crystal != null ? crystal.level().dimension() : getRememberedSatietyCrystalDimension(target);
-        BlockPos crystalPos = crystal != null ? crystal.blockPosition() : getRememberedSatietyCrystalPos(target);
-        if (dimension == null || crystalPos == null) {
+    private static int teleportToSatietyCrystal(CommandSourceStack source, ServerPlayer target, int recordIndex) throws CommandSyntaxException {
+        List<SatietyCrystalRecord> records = getAvailableSatietyCrystals(source.getServer(), target);
+        if (records.isEmpty() || recordIndex < 0 || recordIndex >= records.size()) {
             source.sendFailure(Component.translatable("command.ramesses_curse.locate.none", target.getDisplayName()));
             return 0;
         }
+
+        SatietyCrystalRecord selected = records.get(recordIndex);
+        ResourceKey<Level> dimension = selected.dimension();
+        BlockPos crystalPos = selected.pos();
 
         ServerLevel destination = source.getServer().getLevel(dimension);
         if (destination == null) {
@@ -1138,6 +1755,9 @@ public class ModEvents {
 
     private static boolean isDamageableBurden(ItemStack stack) {
         return !stack.isEmpty() && stack.isDamageableItem() && !stack.is(ModItems.SEAL_OF_KADESH.get());
+    }
+
+    private record SatietyCrystalRecord(UUID id, ResourceKey<Level> dimension, BlockPos pos) {
     }
 
     private static boolean isInnocentVictim(LivingEntity entity) {
@@ -1251,9 +1871,11 @@ public class ModEvents {
         REMOVE
     }
 
-    private static void syncGuiltState(Player player, int guilt, boolean sealEquipped, int lockTicks, int satietyCrystalCount) {
+    private static void syncGuiltState(Player player, int guilt, boolean sealEquipped, boolean netherAwakened, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
         if (player instanceof ServerPlayer serverPlayer) {
-            ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new GuiltSyncPacket(guilt, sealEquipped, lockTicks, satietyCrystalCount));
+            ModNetwork.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> serverPlayer),
+                    new GuiltSyncPacket(guilt, sealEquipped, netherAwakened, lockTicks, satietyCrystalCount, lockedSlot, lockedSlotTicks));
         }
     }
 
@@ -1261,22 +1883,31 @@ public class ModEvents {
         CompoundTag data = getCurseData(player);
         int guilt = data.getInt(GUILT_PROGRESS);
         boolean sealEquipped = isSealEquipped(player);
+        boolean netherAwakened = data.getBoolean(NETHER_AWAKENED);
         int lockSeconds = Mth.ceil(getRemainingGuiltLockTicks(player) / 20.0F);
         int satietyCrystalCount = getSatietyCrystalCount(player);
+        int lockedSlot = data.getInt(LOCKED_SLOT);
+        int lockedSlotTicks = getRemainingLockedSlotTicks(player);
 
         if (!force
                 && data.getInt(LAST_SYNC_GUILT) == guilt
                 && data.getBoolean(LAST_SYNC_SEAL) == sealEquipped
+                && data.getBoolean(LAST_SYNC_NETHER_AWAKENED) == netherAwakened
                 && data.getInt(LAST_SYNC_LOCK_SECONDS) == lockSeconds
-                && data.getInt(LAST_SYNC_SATIETY) == satietyCrystalCount) {
+                && data.getInt(LAST_SYNC_SATIETY) == satietyCrystalCount
+                && data.getInt(LAST_SYNC_LOCKED_SLOT) == lockedSlot
+                && data.getInt(LAST_SYNC_LOCKED_SLOT_TICKS) == lockedSlotTicks) {
             return;
         }
 
         data.putInt(LAST_SYNC_GUILT, guilt);
         data.putBoolean(LAST_SYNC_SEAL, sealEquipped);
+        data.putBoolean(LAST_SYNC_NETHER_AWAKENED, netherAwakened);
         data.putInt(LAST_SYNC_LOCK_SECONDS, lockSeconds);
         data.putInt(LAST_SYNC_SATIETY, satietyCrystalCount);
-        syncGuiltState(player, guilt, sealEquipped, lockSeconds * 20, satietyCrystalCount);
+        data.putInt(LAST_SYNC_LOCKED_SLOT, lockedSlot);
+        data.putInt(LAST_SYNC_LOCKED_SLOT_TICKS, lockedSlotTicks);
+        syncGuiltState(player, guilt, sealEquipped, netherAwakened, lockSeconds * 20, satietyCrystalCount, lockedSlot, lockedSlotTicks);
     }
 
     private static void applyInventoryCooldowns(ServerPlayer player, int remainingTicks) {
@@ -1294,6 +1925,26 @@ public class ModEvents {
     private static void applyCooldown(ServerPlayer player, ItemStack stack, int remainingTicks) {
         if (!stack.isEmpty()) {
             player.getCooldowns().addCooldown(stack.getItem(), remainingTicks);
+        }
+    }
+
+    private static void applyMainHandCooldown(ServerPlayer player, int remainingTicks) {
+        ItemStack mainHand = player.getMainHandItem();
+        if (!mainHand.isEmpty()) {
+            player.getCooldowns().addCooldown(mainHand.getItem(), remainingTicks);
+        }
+    }
+
+    private static void applyLockedSlotCooldown(ServerPlayer player, int remainingTicks) {
+        CompoundTag data = getCurseData(player);
+        int slot = data.getInt(LOCKED_SLOT);
+        if (slot < 0 || slot >= player.getInventory().items.size()) {
+            return;
+        }
+
+        ItemStack lockedStack = player.getInventory().items.get(slot);
+        if (!lockedStack.isEmpty()) {
+            player.getCooldowns().addCooldown(lockedStack.getItem(), remainingTicks);
         }
     }
 
@@ -1334,17 +1985,33 @@ public class ModEvents {
     public static class ClientOverlayEvents {
         private static int clientGuilt;
         private static boolean clientSealEquipped;
+        private static boolean clientNetherAwakened;
         private static int clientLockTicks;
         private static int clientSatietyCrystalCount;
         private static int clientHeartBattleStacks;
         private static int clientHeartCooldownTicks;
         private static boolean clientHeartWardReady;
+        private static int clientLockedSlot = -1;
+        private static int clientLockedSlotTicks;
+        private static int clientEdictChargeTicks;
+        private static boolean clientEdictTriggeredThisHold;
+        private static int clientEdictShakeTicks;
+        private static int clientEdictShakeTotalTicks;
+        private static float clientEdictShakeStrength;
+        private static boolean clientEdictCooldownPromptedThisHold;
 
-        public static void updateClientGuilt(int guilt, boolean sealEquipped, int lockTicks, int satietyCrystalCount) {
+        public static void updateClientGuilt(int guilt, boolean sealEquipped, boolean netherAwakened, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
             clientGuilt = guilt;
             clientSealEquipped = sealEquipped;
+            clientNetherAwakened = netherAwakened;
             clientLockTicks = lockTicks;
             clientSatietyCrystalCount = satietyCrystalCount;
+            clientLockedSlot = lockedSlot;
+            clientLockedSlotTicks = lockedSlotTicks;
+        }
+
+        public static boolean isClientNetherAwakened() {
+            return clientNetherAwakened;
         }
 
         public static void updateHeartState(int battleStacks, int cooldownTicks, boolean wardReady) {
@@ -1365,6 +2032,16 @@ public class ModEvents {
             return clientHeartWardReady;
         }
 
+        public static void triggerEdictScreenShake(int ticks, float strength) {
+            clientEdictShakeTicks = Math.max(clientEdictShakeTicks, ticks);
+            clientEdictShakeTotalTicks = Math.max(clientEdictShakeTotalTicks, ticks);
+            clientEdictShakeStrength = Math.max(clientEdictShakeStrength, strength);
+        }
+
+        public static void cancelEdictCharge() {
+            resetEdictCharge();
+        }
+
         @SubscribeEvent
         public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
             if (event.getOverlay() != VanillaGuiOverlay.HOTBAR.type()) {
@@ -1381,6 +2058,8 @@ public class ModEvents {
                 int max = Config.CURSE_5_MAX_GUILT.get();
                 renderGuiltBar(event.getGuiGraphics(), minecraft, clientGuilt, max);
             }
+
+            renderEdictChargeBar(event.getGuiGraphics(), minecraft);
         }
 
         @SubscribeEvent
@@ -1406,6 +2085,23 @@ public class ModEvents {
             float seconds = clientLockTicks / 20.0F;
             event.getToolTip().add(Component.translatable("hud.ramesses_curse.guilt_lock", String.format("%.1f", seconds))
                     .withStyle(net.minecraft.ChatFormatting.GOLD));
+            event.getToolTip().add(Component.translatable("hud.ramesses_curse.guilt_lock_no_damage")
+                    .withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+
+        }
+
+        @SubscribeEvent
+        public static void onScreenRender(ScreenEvent.Render.Post event) {
+            if (event.getScreen() instanceof AbstractContainerScreen<?> screen && clientLockedSlotTicks > 0) {
+                screen.getMenu().slots.stream()
+                        .filter(slot -> slot.container instanceof Inventory && slot.getContainerSlot() == clientLockedSlot)
+                        .findFirst()
+                        .ifPresent(slot -> renderLockedSlot(event, screen, slot.x, slot.y));
+            }
+
+            renderCurseThreeCompatSuffix(event);
+            renderCurseThreeGenericMarker(event);
+            renderCurseThreeHoverTooltip(event);
         }
 
         @SubscribeEvent
@@ -1429,6 +2125,76 @@ public class ModEvents {
             boolean jumping = input.jumping;
             input.jumping = input.shiftKeyDown;
             input.shiftKeyDown = jumping;
+        }
+
+        @SubscribeEvent
+        public static void onClientTick(TickEvent.ClientTickEvent event) {
+            if (event.phase != TickEvent.Phase.END) {
+                return;
+            }
+
+            Minecraft minecraft = Minecraft.getInstance();
+            Player player = minecraft.player;
+            if (player == null || minecraft.isPaused() || minecraft.screen != null) {
+                resetEdictCharge();
+                return;
+            }
+
+            if (!ModItems.isEdictOfTwoLandsEquipped(player) || !RamessesCurseMod.EDICT_OF_TWO_LANDS_KEY.isDown()) {
+                resetEdictCharge();
+                return;
+            }
+
+            if (player.getCooldowns().isOnCooldown(ModItems.EDICT_OF_TWO_LANDS.get())) {
+                if (!clientEdictCooldownPromptedThisHold) {
+                    float cooldownRatio = player.getCooldowns().getCooldownPercent(ModItems.EDICT_OF_TWO_LANDS.get(), minecraft.getFrameTime());
+                    float cooldownSeconds = Math.max(0.1F, cooldownRatio * 90.0F);
+                    player.displayClientMessage(
+                            Component.translatable("message.ramesses_curse.edict_cooldown", String.format(Locale.ROOT, "%.1f", cooldownSeconds))
+                                    .withStyle(net.minecraft.ChatFormatting.RED),
+                            true);
+                    clientEdictCooldownPromptedThisHold = true;
+                }
+                clientEdictChargeTicks = 0;
+                clientEdictTriggeredThisHold = false;
+                return;
+            }
+
+            if (clientEdictChargeTicks < EDICT_CHARGE_TICKS) {
+                clientEdictChargeTicks++;
+            }
+
+            if (clientEdictChargeTicks >= EDICT_CHARGE_TICKS && !clientEdictTriggeredThisHold) {
+                clientEdictTriggeredThisHold = true;
+                ModNetwork.CHANNEL.sendToServer(new EdictOfTwoLandsActivatePacket());
+            }
+
+            if (clientEdictShakeTicks > 0) {
+                clientEdictShakeTicks--;
+                if (clientEdictShakeTicks <= 0) {
+                    clientEdictShakeStrength = 0.0F;
+                    clientEdictShakeTotalTicks = 0;
+                }
+            }
+        }
+
+        @SubscribeEvent
+        public static void onCameraAngles(ViewportEvent.ComputeCameraAngles event) {
+            if (clientEdictShakeTicks <= 0 || clientEdictShakeStrength <= 0.0F) {
+                return;
+            }
+
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player == null) {
+                return;
+            }
+
+            float progress = clientEdictShakeTicks / (float) Math.max(1, clientEdictShakeTotalTicks);
+            float intensity = clientEdictShakeStrength * Math.max(0.2F, progress);
+            float tick = (float) (minecraft.player.tickCount + event.getPartialTick());
+            event.setYaw(event.getYaw() + (float) Math.sin(tick * 1.35F) * intensity);
+            event.setPitch(event.getPitch() + (float) Math.cos(tick * 1.7F) * intensity * 0.55F);
+            event.setRoll(event.getRoll() + (float) Math.sin(tick * 1.9F) * intensity * 0.4F);
         }
 
         @SubscribeEvent
@@ -1471,5 +2237,222 @@ public class ModEvents {
                         false);
             }
         }
+
+        private static void renderEdictChargeBar(net.minecraft.client.gui.GuiGraphics guiGraphics, Minecraft minecraft) {
+            if (clientEdictChargeTicks <= 0) {
+                return;
+            }
+
+            String glyphBar = "IIIIIIIIIII";
+            int barWidth = minecraft.font.width(glyphBar);
+            int barHeight = minecraft.font.lineHeight;
+            int x = (minecraft.getWindow().getGuiScaledWidth() - barWidth) / 2;
+            int y = minecraft.getWindow().getGuiScaledHeight() - 50;
+            float ratio = Mth.clamp(clientEdictChargeTicks / (float) EDICT_CHARGE_TICKS, 0.0F, 1.0F);
+            int fill = Mth.floor(barWidth * ratio);
+
+            guiGraphics.drawString(minecraft.font, glyphBar, x, y, 0xFF5B4630, false);
+            if (fill > 0) {
+                guiGraphics.enableScissor(x, y, x + fill, y + barHeight);
+                guiGraphics.drawString(minecraft.font, glyphBar, x, y, 0xFFE0B84A, false);
+                guiGraphics.disableScissor();
+            }
+            guiGraphics.drawCenteredString(
+                    minecraft.font,
+                    Component.translatable("hud.ramesses_curse.edict_charge", String.format(java.util.Locale.ROOT, "%.1f", clientEdictChargeTicks / 20.0F)),
+                    minecraft.getWindow().getGuiScaledWidth() / 2,
+                    y - 11,
+                    0xFFE0C76B);
+        }
+
+        private static void resetEdictCharge() {
+            clientEdictChargeTicks = 0;
+            clientEdictTriggeredThisHold = false;
+            clientEdictCooldownPromptedThisHold = false;
+        }
+
+        private static void renderLockedSlot(ScreenEvent.Render.Post event, AbstractContainerScreen<?> screen, int slotX, int slotY) {
+            int x = screen.getGuiLeft() + slotX;
+            int y = screen.getGuiTop() + slotY;
+            float ratio = Mth.clamp(clientLockedSlotTicks / (float) Math.max(1, Config.INVENTORY_LOCK_DURATION.get()), 0.0F, 1.0F);
+            int fill = Mth.ceil(ratio * 16.0F);
+
+            event.getGuiGraphics().fill(x, y, x + 16, y + 16, 0xAA111111);
+            event.getGuiGraphics().fill(x, y + 16 - fill, x + 16, y + 16, 0x883A3A3A);
+            event.getGuiGraphics().fill(x, y + 15, x + 16, y + 16, 0xFF5C5C5C);
+        }
+
+        private static void renderCurseThreeCompatSuffix(ScreenEvent.Render.Post event) {
+            Minecraft minecraft = Minecraft.getInstance();
+            Player player = minecraft.player;
+            if (player == null || !ModEvents.canUseSealBoundItem(player)) {
+                return;
+            }
+
+            if (!(event.getScreen() instanceof EnchantmentScreen screen) || event.getScreen().getClass() == EnchantmentScreen.class) {
+                return;
+            }
+
+            int left = screen.getGuiLeft();
+            int top = screen.getGuiTop();
+            boolean apothScreen = screen.getClass().getName().equals("dev.shadowsoffire.apotheosis.ench.table.ApothEnchantScreen");
+            for (int i = 0; i < screen.getMenu().costs.length; i++) {
+                int vanillaCost = screen.getMenu().costs[i];
+                int extraCost = ModEvents.getCurseThreeEnchantExtraCost(player, vanillaCost);
+                if (vanillaCost <= 0 || extraCost <= 0) {
+                    continue;
+                }
+
+                String text = Integer.toString(vanillaCost);
+                int textX = apothScreen
+                        ? left + 60 + 108 - minecraft.font.width("+" + extraCost) - 4
+                        : left + 60 + 20 + 86 - minecraft.font.width(text);
+                int textY = apothScreen
+                        ? top + 14 + 19 * i + 5
+                        : top + 16 + 19 * i + 7;
+                if (apothScreen) {
+                    event.getGuiGraphics().drawString(minecraft.font, "+" + extraCost, textX, textY, 0xFFFF5555, false);
+                } else {
+                    event.getGuiGraphics().drawString(minecraft.font, "+" + extraCost, textX + minecraft.font.width(text) + 2, textY, 0xFFFF5555, false);
+                }
+            }
+        }
+
+        private static void renderCurseThreeGenericMarker(ScreenEvent.Render.Post event) {
+        }
+
+        private static void renderCurseThreeHoverTooltip(ScreenEvent.Render.Post event) {
+            Minecraft minecraft = Minecraft.getInstance();
+            Player player = minecraft.player;
+            if (player == null || !ModEvents.canUseSealBoundItem(player)) {
+                return;
+            }
+
+            int mouseX = (int) event.getMouseX();
+            int mouseY = (int) event.getMouseY();
+
+            if (event.getScreen() instanceof EnchantmentScreen screen) {
+                int left = screen.getGuiLeft();
+                int top = screen.getGuiTop();
+                boolean apothScreen = screen.getClass().getName().equals("dev.shadowsoffire.apotheosis.ench.table.ApothEnchantScreen");
+                for (int i = 0; i < screen.getMenu().costs.length; i++) {
+                    int vanillaCost = screen.getMenu().costs[i];
+                    int extraCost = ModEvents.getCurseThreeEnchantExtraCost(player, vanillaCost);
+                    if (vanillaCost <= 0 || extraCost <= 0) {
+                        continue;
+                    }
+
+                    if (apothScreen) {
+                        int suffixX = left + 60 + 108 - minecraft.font.width("+" + extraCost) - 4;
+                        int suffixY = top + 14 + 19 * i + 5;
+                        int suffixWidth = minecraft.font.width("+" + extraCost);
+                        if (mouseX >= suffixX && mouseX <= suffixX + suffixWidth
+                                && mouseY >= suffixY && mouseY <= suffixY + minecraft.font.lineHeight) {
+                            event.getGuiGraphics().renderTooltip(
+                                    minecraft.font,
+                                    ModEvents.getCurseThreeEnchantTooltip(player, vanillaCost),
+                                    mouseX + 12,
+                                    mouseY + 12);
+                            return;
+                        }
+                    } else {
+                        String text = Integer.toString(vanillaCost);
+                        int textX = left + 60 + 20 + 86 - minecraft.font.width(text);
+                        int textY = top + 16 + 19 * i + 7;
+                        int suffixX = textX + minecraft.font.width(text) + 2;
+                        int suffixWidth = minecraft.font.width("+" + extraCost);
+                        if (mouseX >= suffixX && mouseX <= suffixX + suffixWidth && mouseY >= textY && mouseY <= textY + minecraft.font.lineHeight) {
+                            event.getGuiGraphics().renderTooltip(minecraft.font, ModEvents.getCurseThreeEnchantTooltip(player, vanillaCost), mouseX, mouseY);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (event.getScreen() instanceof AnvilScreen screen) {
+                int vanillaCost = ModEvents.getDisplayedAnvilBaseCost(player, screen.getMenu().getCost());
+                int extraCost = ModEvents.getCurseThreeAnvilExtraCost(player, vanillaCost);
+                if (vanillaCost <= 0 || extraCost <= 0 || !screen.getMenu().getSlot(2).hasItem()) {
+                    return;
+                }
+
+                Component costText = Component.translatable("container.repair.cost", vanillaCost);
+                int left = screen.getGuiLeft();
+                int top = screen.getGuiTop();
+                int textX = left + 176 - 8 - minecraft.font.width(costText) - 2;
+                int textY = top + 69;
+                int suffixX = textX + minecraft.font.width(costText) + 2;
+                int suffixWidth = minecraft.font.width("+" + extraCost);
+                if (mouseX >= suffixX && mouseX <= suffixX + suffixWidth && mouseY >= textY && mouseY <= textY + minecraft.font.lineHeight) {
+                    event.getGuiGraphics().renderTooltip(minecraft.font, ModEvents.getCurseThreeAnvilTooltip(player, vanillaCost), mouseX, mouseY);
+                }
+            }
+        }
+
+        private static void renderCurseThreeScreenInfo(ScreenEvent.Render.Post event) {
+            Minecraft minecraft = Minecraft.getInstance();
+            Player player = minecraft.player;
+            if (player == null || !clientSealEquipped) {
+                return;
+            }
+
+            if (event.getScreen() instanceof EnchantmentScreen screen) {
+                EnchantmentMenu menu = screen.getMenu();
+                int x = (screen.width - 176) / 2;
+                int y = (screen.height - 166) / 2;
+                event.getGuiGraphics().drawString(
+                        minecraft.font,
+                        Component.translatable("screen.ramesses_curse.enchant_multiplier", formatMultiplier(Config.CURSE_3_ENCHANT_COST_MULTIPLIER.get())),
+                        x,
+                        y - 20,
+                        0xFFD6A63A,
+                        false);
+                for (int i = 0; i < menu.costs.length; i++) {
+                    int displayed = menu.costs[i];
+                    if (displayed > 0) {
+                        event.getGuiGraphics().drawString(
+                                minecraft.font,
+                                Component.literal(Integer.toString(displayed)).withStyle(net.minecraft.ChatFormatting.GOLD),
+                                x + 62,
+                                y + 14 + i * 19,
+                                0xFFD6A63A,
+                                false);
+                    }
+                }
+                return;
+            }
+
+            if (event.getScreen() instanceof AnvilScreen screen) {
+                AnvilMenu menu = screen.getMenu();
+                int x = (screen.width - 176) / 2;
+                int y = (screen.height - 166) / 2;
+                int cost = menu.getCost();
+                event.getGuiGraphics().drawString(
+                        minecraft.font,
+                        Component.translatable("screen.ramesses_curse.anvil_multiplier", formatMultiplier(Config.CURSE_3_ANVIL_COST_MULTIPLIER.get())),
+                        x,
+                        y - 20,
+                        0xFFD6A63A,
+                        false);
+                if (cost > 0) {
+                    event.getGuiGraphics().drawString(
+                            minecraft.font,
+                            Component.translatable("screen.ramesses_curse.anvil_cost", cost),
+                            x,
+                            y - 10,
+                            0xFFFFD166,
+                            false);
+                }
+            }
+        }
+
+        public static String formatMultiplier(double value) {
+            if (Math.abs(value - Math.rint(value)) < 0.0001D) {
+                return Integer.toString((int) Math.rint(value));
+            }
+            return String.format(java.util.Locale.ROOT, "%.1f", value);
+        }
     }
 }
+
+

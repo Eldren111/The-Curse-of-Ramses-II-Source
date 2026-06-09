@@ -11,31 +11,54 @@ public class GuiltSyncPacket {
 
     private final int guilt;
     private final boolean sealEquipped;
+    private final boolean netherAwakened;
     private final int lockTicks;
     private final int satietyCrystalCount;
+    private final int lockedSlot;
+    private final int lockedSlotTicks;
 
-    public GuiltSyncPacket(int guilt, boolean sealEquipped, int lockTicks, int satietyCrystalCount) {
+    public GuiltSyncPacket(int guilt, boolean sealEquipped, boolean netherAwakened, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
         this.guilt = guilt;
         this.sealEquipped = sealEquipped;
+        this.netherAwakened = netherAwakened;
         this.lockTicks = lockTicks;
         this.satietyCrystalCount = satietyCrystalCount;
+        this.lockedSlot = lockedSlot;
+        this.lockedSlotTicks = lockedSlotTicks;
     }
 
     public static void encode(GuiltSyncPacket packet, FriendlyByteBuf buffer) {
         buffer.writeVarInt(packet.guilt);
         buffer.writeBoolean(packet.sealEquipped);
+        buffer.writeBoolean(packet.netherAwakened);
         buffer.writeVarInt(packet.lockTicks);
         buffer.writeVarInt(packet.satietyCrystalCount);
+        buffer.writeVarInt(packet.lockedSlot);
+        buffer.writeVarInt(packet.lockedSlotTicks);
     }
 
     public static GuiltSyncPacket decode(FriendlyByteBuf buffer) {
-        return new GuiltSyncPacket(buffer.readVarInt(), buffer.readBoolean(), buffer.readVarInt(), buffer.readVarInt());
+        return new GuiltSyncPacket(
+                buffer.readVarInt(),
+                buffer.readBoolean(),
+                buffer.readBoolean(),
+                buffer.readVarInt(),
+                buffer.readVarInt(),
+                buffer.readVarInt(),
+                buffer.readVarInt());
     }
 
     public static void handle(GuiltSyncPacket packet, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
-                ModEvents.ClientOverlayEvents.updateClientGuilt(packet.guilt, packet.sealEquipped, packet.lockTicks, packet.satietyCrystalCount)));
+                ModEvents.ClientOverlayEvents.updateClientGuilt(
+                        packet.guilt,
+                        packet.sealEquipped,
+                        packet.netherAwakened,
+                        packet.lockTicks,
+                        packet.satietyCrystalCount,
+                        packet.lockedSlot,
+                        packet.lockedSlotTicks)));
         context.setPacketHandled(true);
     }
 }

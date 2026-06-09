@@ -52,5 +52,23 @@ public class ModNetwork {
                 HeartStateSyncPacket::encode,
                 HeartStateSyncPacket::decode,
                 HeartStateSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                MusicRelicSyncPacket.class,
+                MusicRelicSyncPacket::encode,
+                MusicRelicSyncPacket::decode,
+                MusicRelicSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                EdictOfTwoLandsActivatePacket.class,
+                EdictOfTwoLandsActivatePacket::encode,
+                EdictOfTwoLandsActivatePacket::decode,
+                EdictOfTwoLandsActivatePacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                EdictOfTwoLandsTriggeredPacket.class,
+                EdictOfTwoLandsTriggeredPacket::encode,
+                EdictOfTwoLandsTriggeredPacket::decode,
+                EdictOfTwoLandsTriggeredPacket::handle);
     }
 }

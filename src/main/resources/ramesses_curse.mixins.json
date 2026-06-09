@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.eldren.wutao.ramesses_curse.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "ramesses_curse.refmap.json",
+  "mixins": [
+    "ApothEnchantmentMenuMixin",
+    "AnvilMenuMixin",
+    "EnchantmentMenuMixin",
+    "ItemCombinerMenuAccessor"
+  ],
+  "client": [
+    "AnvilScreenMixin",
+    "EnchantmentScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
