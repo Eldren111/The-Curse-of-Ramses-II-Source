@@ -33,26 +33,6 @@ The project aims to build a themed curse-and-relic experience rather than a gene
 - Java 17
 - Minecraft Forge 1.20.1
 
-### Build
-
-```powershell
-.\gradlew.bat build
-```
-
-### Run in development
-
-```powershell
-.\gradlew.bat runClient
-```
-
-### Helpful commands
-
-```powershell
-.\gradlew.bat compileJava
-.\gradlew.bat processResources
-.\gradlew.bat build
-```
-
 ## Repository structure
 
 - `src/main/java` - mod source code
@@ -63,6 +43,14 @@ The project aims to build a themed curse-and-relic experience rather than a gene
 
 ## License
 
-Source code in this repository is licensed under the MIT License. See [LICENSE](LICENSE).
+Source code in this repository is distributed under a custom license:
+
+- Personal gameplay use is allowed
+- Non-commercial modpack use is allowed
+- Non-commercial reposting is allowed with clear credit
+- Commercial redistribution and resale are prohibited
+- Modified versions may not be republished without explicit permission
+
+See [LICENSE](LICENSE) for the full terms.
 
 Art assets, textures, animations, models, sounds, music, written lore, and localization content are All Rights Reserved unless explicitly stated otherwise. See [LICENSE_ASSETS](LICENSE_ASSETS).
