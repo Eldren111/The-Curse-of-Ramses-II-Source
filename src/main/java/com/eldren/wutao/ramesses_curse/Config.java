@@ -18,8 +18,9 @@ public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
     static {
-        BUILDER.push("sealOfKadesh");
+        BUILDER.push("卡迭石咒印");
 
+        BUILDER.push("诅咒一");
         RANDOM_CURSE_INTERVAL = BUILDER
                 .comment("[诅咒1] 随机负面效果的触发间隔，单位为 tick。6000 tick = 5 分钟。")
                 .defineInRange("randomCurseInterval", 6000, 20, 72000);
@@ -41,7 +42,9 @@ public class Config {
                 .defineListAllowEmpty("curse1EffectWhitelist",
                         List.of("minecraft:weakness", "minecraft:slowness", "minecraft:hunger", "minecraft:blindness", "minecraft:poison", "minecraft:wither", "minecraft:unluck", "minecraft:levitation"),
                         Config::validateEffectName);
+        BUILDER.pop();
 
+        BUILDER.push("诅咒二");
         CURSE_2_SPAWN_INTERVAL = BUILDER
                 .comment("[诅咒2] 敌对生物生成检测的时间间隔，单位为 tick。12000 tick = 10 分钟。")
                 .defineInRange("curse2SpawnInterval", 12000, 20, 720000);
@@ -64,7 +67,9 @@ public class Config {
                         "curse2EntityWhitelist",
                         List.of("minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"),
                         Config::validateEntityTypeName);
+        BUILDER.pop();
 
+        BUILDER.push("诅咒三");
         CURSE_3_XP_MULTIPLIER = BUILDER
                 .comment("[诅咒3] 击杀任意生物后的经验倍率。0.5 表示只能获得原本 50% 的经验。")
                 .defineInRange("curse3XpMultiplier", 0.5D, 0.0D, 10.0D);
@@ -76,11 +81,15 @@ public class Config {
         CURSE_3_ANVIL_COST_MULTIPLIER = BUILDER
                 .comment("[诅咒3] 铁砧等级消耗倍率。2.0 表示铁砧经验消耗翻倍。")
                 .defineInRange("curse3AnvilCostMultiplier", 2.0D, 0.0D, 10.0D);
+        BUILDER.pop();
 
+        BUILDER.push("诅咒四");
         CURSE_4_TRADE_SURCHARGE = BUILDER
                 .comment("[诅咒4] 村民与流浪商人交易价格上浮倍率。0.25 表示价格上涨 25%。")
                 .defineInRange("curse4TradeSurcharge", 0.25D, 0.0D, 10.0D);
+        BUILDER.pop();
 
+        BUILDER.push("诅咒五");
         CURSE_5_MAX_GUILT = BUILDER
                 .comment("[诅咒5] 王罪最大值。达到后会触发强制处决、雷暴、雷击与背包封印。")
                 .defineInRange("curse5MaxGuilt", 399, 1, 100000);//王罪值
@@ -96,7 +105,9 @@ public class Config {
         CURSE_5_LOCK_DURATION = BUILDER
                 .comment("[诅咒5] 王罪满值后，整套背包被封印的持续时间，单位为 tick。")
                 .defineInRange("curse5LockDuration", 1200, 20, 72000);//背包锁定时间，单位tick
+        BUILDER.pop();
 
+        BUILDER.push("诅咒六");
         MAIN_HAND_LOCK_DELAY = BUILDER
                 .comment("[诅咒6] 首次主手封印触发前的延迟时间，单位为 tick。36000 tick = 30 分钟。")
                 .defineInRange("mainHandLockDelay", 36000, 20, 720000);
@@ -112,11 +123,15 @@ public class Config {
         INVENTORY_LOCK_DURATION = BUILDER
                 .comment("[诅咒6] 随机封印背包物品的持续时间，单位为 tick。")
                 .defineInRange("inventoryLockDuration", 1200, 20, 72000);
+        BUILDER.pop();
 
+        BUILDER.push("诅咒七");
         END_WEAKNESS_AMPLIFIER = BUILDER
                 .comment("[诅咒7] 玩家位于末地时获得的虚弱等级。")
                 .defineInRange("endWeaknessAmplifier", 0, 0, 10);
+        BUILDER.pop();
 
+        BUILDER.push("诅咒八");
         HELL_REBOUND_CHANCE = BUILDER
                 .comment("[诅咒8] 诅咒8在地狱生效后，攻击怪物时反伤到自身的概率。")
                 .defineInRange("hellReboundChance", 0.25D, 0.0D, 1.0D);
@@ -129,14 +144,17 @@ public class Config {
                 .comment("[诅咒8] 反伤时额外追加的固定伤害。最终伤害 = 原伤害 * 倍率 + 固定额外伤害。")
                 .defineInRange("hellReboundFlatDamage", 0.0D, 0.0D, 100.0D);
 
-        START_WITH_SEAL = BUILDER
-                .comment("[通用] 为 true 时，新玩家开局获得卡迭石咒印。")
-                .define("startWithSeal", true);
+        CURSE_8_BOSS_WHITELIST = BUILDER
+                .comment("[诅咒8] 用于完成诅咒8反转的 Boss 白名单。支持其他模组的生物实体 ID，默认是末影龙。")
+                .defineListAllowEmpty(
+                        "curse8BossWhitelist",
+                        List.of("minecraft:ender_dragon"),
+                        Config::validateEntityTypeName);
+        BUILDER.pop();
 
-        START_WITH_SEAL_EQUIPPED = BUILDER
-                .comment("[通用] 为 true 时，新玩家开局直接将卡迭石咒印佩戴在诅咒槽位中。开启后不会再额外放入初始背包。")
-                .define("startWithSealEquipped", false);
+        BUILDER.pop();
 
+        BUILDER.push("杜阿特之心");
         HEART_TRIGGER_HOSTILE_COUNT = BUILDER
                 .comment("[杜阿特之心] 可使用主动觉醒前，范围内所需的敌对实体数量。")
                 .defineInRange("heartTriggerHostileCount", 6, 1, 256);
@@ -184,7 +202,9 @@ public class Config {
         HEART_DESERT_REACH_BONUS = BUILDER
                 .comment("[杜阿特之心] 佩戴者位于沙漠或恶地群系时获得的交互距离加成。")
                 .defineInRange("heartDesertReachBonus", 5.0D, 0.0D, 64.0D);
+        BUILDER.pop();
 
+        BUILDER.push("乌拉埃乌斯项链");
         NECKLACE_EFFECT_ID = BUILDER
                 .comment("[项链] 项链命中怪物时允许附着的唯一效果 ID。仅填写 1 个，支持其他模组效果。")
                 .define("necklaceEffectId", "minecraft:poison", Config::validateEffectName);
@@ -216,7 +236,16 @@ public class Config {
         NECKLACE_RAIN_RESISTANCE_AMPLIFIER = BUILDER
                 .comment("[项链] 雨天爆发后给予玩家的抗性提升等级。4 表示抗性提升 V。")
                 .defineInRange("necklaceRainResistanceAmplifier", 4, 0, 255);
+        BUILDER.pop();
 
+        BUILDER.push("通用");
+        START_WITH_SEAL = BUILDER
+                .comment("[通用] 为 true 时，新玩家开局获得卡迭石咒印。")
+                .define("startWithSeal", true);
+
+        START_WITH_SEAL_EQUIPPED = BUILDER
+                .comment("[通用] 为 true 时，新玩家开局直接将卡迭石咒印佩戴在诅咒槽位中。开启后不会再额外放入初始背包。")
+                .define("startWithSealEquipped", false);
         BUILDER.pop();
     }
 
@@ -248,6 +277,7 @@ public class Config {
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_CHANCE;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_DAMAGE_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_FLAT_DAMAGE;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_8_BOSS_WHITELIST;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL_EQUIPPED;
     public static final ForgeConfigSpec.IntValue HEART_TRIGGER_HOSTILE_COUNT;
@@ -298,6 +328,16 @@ public class Config {
 
     public static MobEffect getNecklaceEffect() {
         return ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(NECKLACE_EFFECT_ID.get()));
+    }
+
+    public static boolean isCurseEightBoss(EntityType<?> entityType) {
+        ResourceLocation entityId = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
+        if (entityId == null) {
+            return false;
+        }
+        return CURSE_8_BOSS_WHITELIST.get().stream()
+                .map(ResourceLocation::new)
+                .anyMatch(entityId::equals);
     }
 
     private static MobEffect getEffectFromPool(List<? extends String> pool, int seed) {

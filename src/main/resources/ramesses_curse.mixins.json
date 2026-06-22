@@ -8,11 +8,13 @@
     "ApothEnchantmentMenuMixin",
     "AnvilMenuMixin",
     "EnchantmentMenuMixin",
+    "InfuserMenuMixin",
     "ItemCombinerMenuAccessor"
   ],
   "client": [
     "AnvilScreenMixin",
-    "EnchantmentScreenMixin"
+    "EnchantmentScreenMixin",
+    "InfuserScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

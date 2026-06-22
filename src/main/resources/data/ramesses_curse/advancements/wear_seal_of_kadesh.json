@@ -21,5 +21,8 @@
     "wear_seal": {
       "trigger": "minecraft:impossible"
     }
+  },
+  "rewards": {
+    "experience": 50
   }
 }

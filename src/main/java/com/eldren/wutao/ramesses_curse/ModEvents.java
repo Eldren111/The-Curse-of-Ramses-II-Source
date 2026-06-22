@@ -34,6 +34,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
@@ -45,6 +46,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.npc.AbstractVillager;
@@ -60,6 +62,7 @@ import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -134,6 +137,7 @@ public class ModEvents {
     private static final String LOCKED_SLOT = "LockedSlot";
     private static final String LOCKED_SLOT_UNTIL = "LockedSlotUntil";
     private static final String NETHER_AWAKENED = "NetherAwakened";
+    private static final String CURSE_8_REVERSED = "CurseEightReversed";
     private static final String STARTER_GRANTED = "StarterGranted";
     private static final String GUILT_PROGRESS = "GuiltProgress";
     private static final String GUILT_SENTENCE_PENDING = "GuiltSentencePending";
@@ -149,6 +153,7 @@ public class ModEvents {
     private static final String LAST_SYNC_GUILT = "LastSyncGuilt";
     private static final String LAST_SYNC_SEAL = "LastSyncSeal";
     private static final String LAST_SYNC_NETHER_AWAKENED = "LastSyncNetherAwakened";
+    private static final String LAST_SYNC_CURSE_8_REVERSED = "LastSyncCurseEightReversed";
     private static final String LAST_SYNC_LOCK_SECONDS = "LastSyncLockSeconds";
     private static final String LAST_SYNC_SATIETY = "LastSyncSatiety";
     private static final String LAST_SYNC_LOCKED_SLOT = "LastSyncLockedSlot";
@@ -161,17 +166,28 @@ public class ModEvents {
     private static final String EDICT_SLAM_AT = "RamessesEdictSlamAt";
     private static final String EDICT_SLAMMED = "RamessesEdictSlammed";
     private static final String EDICT_SPELL_BURST_DONE = "RamessesEdictSpellBurstDone";
+    private static final String EDICT_AIR_TICK_DAMAGE_AT = "RamessesEdictAirTickDamageAt";
     private static final String EDICT_CASTER_UUID = "RamessesEdictCasterUuid";
     private static final String EDICT_CAST_ID = "RamessesEdictCastId";
     private static final String EDICT_ORIGINAL_NO_AI = "RamessesEdictOriginalNoAi";
     private static final String EDICT_ORIGINAL_NO_GRAVITY = "RamessesEdictOriginalNoGravity";
+    private static final String EDICT_DOMAIN_UNTIL = "RamessesEdictDomainUntil";
+    private static final String EDICT_DOMAIN_CENTER_X = "RamessesEdictDomainCenterX";
+    private static final String EDICT_DOMAIN_CENTER_Y = "RamessesEdictDomainCenterY";
+    private static final String EDICT_DOMAIN_CENTER_Z = "RamessesEdictDomainCenterZ";
+    private static final String EDICT_DOMAIN_HIT = "RamessesEdictDomainHit";
     private static final int CURSE_9_HUNGER_LOSS = 2;
-    private static final int EDICT_RANGE = 8;
-    private static final int EDICT_CHARGE_TICKS = 100;
+    private static final int EDICT_RANGE = 12;
+    private static final int EDICT_DOMAIN_RANGE = 15;
+    private static final int EDICT_CHARGE_TICKS = 60;
     private static final int EDICT_SEAL_TICKS = 200;
-    private static final int EDICT_LIFT_TICKS = 16;
+    private static final int EDICT_LIFT_TICKS = 12;
     private static final float EDICT_SPELL_DAMAGE = 10.0F;
     private static final float EDICT_SLAM_DAMAGE = 20.0F;
+    private static final int EDICT_DOMAIN_DURATION = 200;
+    private static final int EDICT_AIR_DAMAGE_INTERVAL = 40;
+    private static final double EDICT_CHAIN_PULL_STRENGTH = 0.18D;
+    private static final double EDICT_DOMAIN_PULL_STRENGTH = 0.18D;
     private static final UUID GUILT_ARMOR_MODIFIER = UUID.fromString("2d7c5100-0a8b-4e93-bf56-fca78f6d7fd3");
     private static final UUID GUILT_TOUGHNESS_MODIFIER = UUID.fromString("8b962d09-4d48-4a89-930f-d23456848976");
     private static final UUID GUILT_KNOCKBACK_MODIFIER = UUID.fromString("4c133cc4-96d4-4d7f-a69e-d7f2fb74e148");
@@ -210,6 +226,10 @@ public class ModEvents {
 
         if (player.level() instanceof ServerLevel serverLevel) {
             updateCurseNineHunger(serverLevel, player);
+        }
+
+        if (player instanceof ServerPlayer serverPlayer) {
+            tickEdictDomain(serverPlayer);
         }
 
         if (player.containerMenu instanceof AnvilMenu anvilMenu) {
@@ -338,7 +358,12 @@ public class ModEvents {
                                         .requires(source -> source.hasPermission(2))
                                         .executes(context -> clearDuatCooling(context.getSource(), context.getSource().getPlayerOrException()))
                                         .then(argument("target", EntityArgument.player())
-                                                .executes(context -> clearDuatCooling(context.getSource(), EntityArgument.getPlayer(context, "target")))))));
+                                                .executes(context -> clearDuatCooling(context.getSource(), EntityArgument.getPlayer(context, "target")))))
+                                .then(literal("edict")
+                                        .requires(source -> source.hasPermission(2))
+                                        .executes(context -> clearEdictCooling(context.getSource(), context.getSource().getPlayerOrException()))
+                                        .then(argument("target", EntityArgument.player())
+                                                .executes(context -> clearEdictCooling(context.getSource(), EntityArgument.getPlayer(context, "target")))))));
     }
 
     @SubscribeEvent
@@ -487,6 +512,23 @@ public class ModEvents {
         }
 
         tickEdictSeal(living);
+
+        if (living instanceof Mob mob) {
+            CompoundTag tag = mob.getPersistentData();
+            if (tag.contains(EDICT_DOMAIN_HIT) && living.level() instanceof ServerLevel serverLevel) {
+                boolean insideAnyDomain = !serverLevel.getEntitiesOfClass(
+                        ServerPlayer.class,
+                        mob.getBoundingBox().inflate(EDICT_DOMAIN_RANGE + 2.0D),
+                        player -> player.isAlive()
+                                && player.getPersistentData().getLong(EDICT_DOMAIN_UNTIL) > player.level().getGameTime()
+                                && isInsideEdictDomain(player.getPersistentData(), mob.position()))
+                        .isEmpty();
+
+                if (!insideAnyDomain) {
+                    clearEdictDomainTarget(mob);
+                }
+            }
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -553,6 +595,20 @@ public class ModEvents {
 
         CompoundTag data = getCurseData(player);
         if (!isSealEquipped(player) || !data.getBoolean(NETHER_AWAKENED)) {
+            return;
+        }
+
+        if (data.getBoolean(CURSE_8_REVERSED)) {
+            if (player.getMainHandItem().isEmpty()) {
+                return;
+            }
+            if (player.getRandom().nextDouble() < Config.HELL_REBOUND_CHANCE.get()) {
+                float assistDamage = event.getAmount();
+                event.setAmount(event.getAmount() + assistDamage);
+                player.displayClientMessage(Component.translatable("message.ramesses_curse.curse_8_assist", String.format(java.util.Locale.ROOT, "%.1f", assistDamage))
+                        .withStyle(net.minecraft.ChatFormatting.GREEN), true);
+                player.level().playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.7F, 1.2F);
+            }
             return;
         }
 
@@ -632,6 +688,15 @@ public class ModEvents {
             ModItems.HeartOfDuat.onKillEnemy(player, event.getEntity());
         }
 
+        if (isSealEquipped(player) && Config.isCurseEightBoss(event.getEntity().getType())) {
+            CompoundTag data = getCurseData(player);
+            if (data.getBoolean(NETHER_AWAKENED) && !data.getBoolean(CURSE_8_REVERSED)) {
+                data.putBoolean(CURSE_8_REVERSED, true);
+                player.displayClientMessage(Component.translatable("message.ramesses_curse.curse_8_reversed").withStyle(net.minecraft.ChatFormatting.GREEN, net.minecraft.ChatFormatting.BOLD), false);
+                syncClientState(player, true);
+            }
+        }
+
         if (!isSealEquipped(player) || !isInnocentVictim(event.getEntity())) {
             return;
         }
@@ -659,6 +724,16 @@ public class ModEvents {
             return ClientOverlayEvents.isClientNetherAwakened();
         }
         return getCurseData(player).getBoolean(NETHER_AWAKENED);
+    }
+
+    public static boolean isCurseEightReversed(Player player) {
+        if (player == null) {
+            return false;
+        }
+        if (player.level().isClientSide) {
+            return ClientOverlayEvents.isClientCurseEightReversed();
+        }
+        return getCurseData(player).getBoolean(CURSE_8_REVERSED);
     }
 
     public static int getDisplayedEnchantCost(Player player, int vanillaCost) {
@@ -764,7 +839,17 @@ public class ModEvents {
         return isSealEquipped(player);
     }
 
-    public static boolean activateEdictOfTwoLands(ServerPlayer player) {
+    public enum EdictCastResult {
+        SUCCESS,
+        NO_TARGETS,
+        OTHER_MODE_ACTIVE
+    }
+
+    public static EdictCastResult activateEdictOfTwoLands(ServerPlayer player) {
+        if (isEdictDomainActive(player)) {
+            return EdictCastResult.OTHER_MODE_ACTIVE;
+        }
+
         List<LivingEntity> targets = player.level().getEntitiesOfClass(
                 LivingEntity.class,
                 player.getBoundingBox().inflate(EDICT_RANGE),
@@ -773,7 +858,7 @@ public class ModEvents {
         if (targets.isEmpty()) {
             player.displayClientMessage(Component.translatable("message.ramesses_curse.edict_no_targets")
                     .withStyle(net.minecraft.ChatFormatting.RED), true);
-            return false;
+            return EdictCastResult.NO_TARGETS;
         }
 
         long gameTime = player.level().getGameTime();
@@ -790,23 +875,62 @@ public class ModEvents {
             tag.putLong(EDICT_SLAM_AT, gameTime + EDICT_LIFT_TICKS + EDICT_SEAL_TICKS);
             tag.putBoolean(EDICT_SLAMMED, false);
             tag.putBoolean(EDICT_SPELL_BURST_DONE, false);
+            tag.putLong(EDICT_AIR_TICK_DAMAGE_AT, gameTime + EDICT_LIFT_TICKS + EDICT_AIR_DAMAGE_INTERVAL);
             tag.putUUID(EDICT_CASTER_UUID, player.getUUID());
             tag.putUUID(EDICT_CAST_ID, castId);
             tag.putBoolean(EDICT_ORIGINAL_NO_GRAVITY, target.isNoGravity());
             if (target instanceof Mob mob) {
                 tag.putBoolean(EDICT_ORIGINAL_NO_AI, mob.isNoAi());
             }
+            spawnEdictLaunchBurst(serverLevel, target.position().add(0.0D, 0.2D, 0.0D));
             target.setNoGravity(false);
             target.fallDistance = 0.0F;
             target.hasImpulse = true;
             target.hurtMarked = true;
-            target.setDeltaMovement(0.0D, 1.45D, 0.0D);
+            target.setDeltaMovement(0.0D, 0.68D, 0.0D);
             target.addEffect(new MobEffectInstance(MobEffects.GLOWING, EDICT_LIFT_TICKS + EDICT_SEAL_TICKS, 0, false, false, true));
 
             spawnEdictDebris(serverLevel, target);
         }
 
-        return true;
+        return EdictCastResult.SUCCESS;
+    }
+
+    public static EdictCastResult activateEdictOfTwoLandsDomain(ServerPlayer player) {
+        if (hasActiveEdictSeal(player)) {
+            return EdictCastResult.OTHER_MODE_ACTIVE;
+        }
+
+        List<LivingEntity> targets = player.level().getEntitiesOfClass(
+                LivingEntity.class,
+                player.getBoundingBox().inflate(EDICT_DOMAIN_RANGE),
+                entity -> entity instanceof Enemy && entity.isAlive() && entity != player);
+
+        if (targets.isEmpty()) {
+            return EdictCastResult.NO_TARGETS;
+        }
+
+        long gameTime = player.level().getGameTime();
+        CompoundTag playerData = player.getPersistentData();
+        playerData.putLong(EDICT_DOMAIN_UNTIL, gameTime + EDICT_DOMAIN_DURATION);
+        playerData.putDouble(EDICT_DOMAIN_CENTER_X, player.getX());
+        playerData.putDouble(EDICT_DOMAIN_CENTER_Y, player.getY() + 0.08D);
+        playerData.putDouble(EDICT_DOMAIN_CENTER_Z, player.getZ());
+        player.level().playSound(null, player.blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0F, 0.6F);
+        player.level().playSound(null, player.blockPosition(), SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.PLAYERS, 0.9F, 0.55F);
+        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new EdictOfTwoLandsTriggeredPacket());
+
+        for (LivingEntity target : targets) {
+            applyEdictDomainToTarget(
+                    player,
+                    target,
+                    playerData.getDouble(EDICT_DOMAIN_CENTER_X),
+                    playerData.getDouble(EDICT_DOMAIN_CENTER_Y),
+                    playerData.getDouble(EDICT_DOMAIN_CENTER_Z),
+                    0.0F);
+        }
+
+        return EdictCastResult.SUCCESS;
     }
 
     public static boolean isMusicRelicEquipped(Player player) {
@@ -909,6 +1033,12 @@ public class ModEvents {
         return 1;
     }
 
+    private static int clearEdictCooling(CommandSourceStack source, ServerPlayer target) {
+        ModItems.clearEdictCooldown(target);
+        source.sendSuccess(() -> Component.translatable("command.ramesses_curse.cooling.edict", target.getDisplayName()), true);
+        return 1;
+    }
+
     @SubscribeEvent
     public static void onEntityItemPickup(EntityItemPickupEvent event) {
         ItemEntity itemEntity = event.getItem();
@@ -931,6 +1061,7 @@ public class ModEvents {
                 getCurseData(player).getInt(GUILT_PROGRESS),
                 isSealEquipped(player),
                 getCurseData(player).getBoolean(NETHER_AWAKENED),
+                getCurseData(player).getBoolean(CURSE_8_REVERSED),
                 getRemainingGuiltLockTicks(player),
                 getSatietyCrystalCount(player),
                 getCurseData(player).getInt(LOCKED_SLOT),
@@ -1206,10 +1337,6 @@ public class ModEvents {
         }
 
         long gameTime = target.level().getGameTime();
-        if (gameTime >= sealUntil && tag.getBoolean(EDICT_SLAMMED)) {
-            clearEdictSeal(target);
-            return;
-        }
 
         long slamAt = tag.getLong(EDICT_SLAM_AT);
         long liftUntil = tag.getLong(EDICT_LIFT_UNTIL);
@@ -1219,8 +1346,8 @@ public class ModEvents {
                 target.fallDistance = 0.0F;
                 target.hasImpulse = true;
                 target.setNoGravity(false);
-                if (target.getDeltaMovement().y < 0.55D) {
-                    target.setDeltaMovement(target.getDeltaMovement().x * 0.12D, 1.05D, target.getDeltaMovement().z * 0.12D);
+                if (target.getDeltaMovement().y < 0.18D) {
+                    target.setDeltaMovement(target.getDeltaMovement().x * 0.12D, 0.56D, target.getDeltaMovement().z * 0.12D);
                 }
             } else if (gameTime < slamAt) {
                 if (target instanceof Mob mob) {
@@ -1232,38 +1359,554 @@ public class ModEvents {
                 if (target.level() instanceof ServerLevel serverLevel) {
                     ServerPlayer caster = getEdictCaster(serverLevel, tag);
                     if (caster != null) {
+                        pullEdictTargetTowardSealCenter(serverLevel, target, tag, gameTime);
                         if (!tag.getBoolean(EDICT_SPELL_BURST_DONE)) {
                             tag.putBoolean(EDICT_SPELL_BURST_DONE, true);
                             triggerEdictSpellBurst(serverLevel, caster, tag);
+                        }
+                        long nextAirDamageAt = tag.getLong(EDICT_AIR_TICK_DAMAGE_AT);
+                        if (nextAirDamageAt <= 0L || gameTime >= nextAirDamageAt) {
+                            target.hurt(caster.damageSources().magic(), EDICT_SLAM_DAMAGE);
+                            tag.putLong(EDICT_AIR_TICK_DAMAGE_AT, gameTime + EDICT_AIR_DAMAGE_INTERVAL);
                         }
                     }
                 }
             } else {
                 tag.putBoolean(EDICT_SLAMMED, true);
+                if (target instanceof Mob mob) {
+                    mob.setNoAi(false);
+                }
                 target.setNoGravity(false);
                 target.hasImpulse = true;
-                target.setDeltaMovement(0.0D, -2.2D, 0.0D);
+                target.setDeltaMovement(0.0D, -3.4D, 0.0D);
                 target.hurtMarked = true;
             }
-        } else if (target.onGround() || target.isInWaterOrBubble()) {
-            target.hurt(target.damageSources().magic(), EDICT_SLAM_DAMAGE);
-            target.level().playSound(null, target.blockPosition(), SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 0.9F, 0.7F);
-            clearEdictSeal(target);
+        } else {
+            if (target instanceof Mob mob) {
+                mob.setNoAi(false);
+            }
+            target.setNoGravity(false);
+            target.hasImpulse = true;
+            target.fallDistance = 0.0F;
+            if (target.getDeltaMovement().y > -3.4D) {
+                target.setDeltaMovement(target.getDeltaMovement().x * 0.08D, -3.4D, target.getDeltaMovement().z * 0.08D);
+            }
+            target.hurtMarked = true;
+
+            if (hasEdictImpacted(target)) {
+                if (target.level() instanceof ServerLevel serverLevel) {
+                    Vec3 impactPos = getEdictImpactPosition(target);
+                    strikeEdictLightning(serverLevel, target, impactPos);
+                    spawnEdictImpactBurst(serverLevel, impactPos);
+                }
+                clearEdictSeal(target);
+                return;
+            }
+        }
+
+        if (!tag.getBoolean(EDICT_SLAMMED) && gameTime >= liftUntil && gameTime < slamAt && target.level() instanceof ServerLevel serverLevel) {
+            spawnEdictSealSigil(serverLevel, target, tag, gameTime);
+        }
+    }
+
+    private static void tickEdictDomain(ServerPlayer player) {
+        CompoundTag data = player.getPersistentData();
+        long domainUntil = data.getLong(EDICT_DOMAIN_UNTIL);
+        long gameTime = player.level().getGameTime();
+        if (domainUntil <= gameTime) {
+            if (domainUntil > 0L) {
+                detonateEdictDomain(player.serverLevel(), player, data);
+                clearExpiredEdictDomainTargets(player.serverLevel(), player);
+                data.remove(EDICT_DOMAIN_UNTIL);
+                data.remove(EDICT_DOMAIN_CENTER_X);
+                data.remove(EDICT_DOMAIN_CENTER_Y);
+                data.remove(EDICT_DOMAIN_CENTER_Z);
+            }
             return;
         }
 
-        if (target.level() instanceof ServerLevel serverLevel && gameTime % 5L == 0L) {
-            serverLevel.sendParticles(
-                    new DustParticleOptions(new Vector3f(1.0F, 0.84F, 0.18F), 1.15F),
-                    target.getX(),
-                    target.getY() + target.getBbHeight() * 0.5D,
-                    target.getZ(),
-                    8,
-                    0.35D,
-                    0.55D,
-                    0.35D,
-                    0.02D);
+        if (!(player.level() instanceof ServerLevel serverLevel)) {
+            return;
         }
+
+        double centerX = data.getDouble(EDICT_DOMAIN_CENTER_X);
+        double centerY = data.getDouble(EDICT_DOMAIN_CENTER_Y);
+        double centerZ = data.getDouble(EDICT_DOMAIN_CENTER_Z);
+        float progress = Mth.clamp((EDICT_DOMAIN_DURATION - Math.max(0L, domainUntil - gameTime)) / (float) EDICT_DOMAIN_DURATION, 0.0F, 1.0F);
+
+        List<LivingEntity> targets = serverLevel.getEntitiesOfClass(
+                LivingEntity.class,
+                new AABB(
+                        centerX - EDICT_DOMAIN_RANGE,
+                        centerY - 3.0D,
+                        centerZ - EDICT_DOMAIN_RANGE,
+                        centerX + EDICT_DOMAIN_RANGE,
+                        centerY + 6.0D,
+                        centerZ + EDICT_DOMAIN_RANGE),
+                entity -> entity instanceof Enemy && entity.isAlive() && entity != player);
+
+        for (LivingEntity target : targets) {
+            applyEdictDomainToTarget(player, target, centerX, centerY, centerZ, progress);
+        }
+
+        spawnEdictDomainMatrix(serverLevel, data, gameTime, domainUntil);
+    }
+
+    private static void clearExpiredEdictDomainTargets(ServerLevel level, ServerPlayer caster) {
+        CompoundTag data = caster.getPersistentData();
+        double centerX = data.getDouble(EDICT_DOMAIN_CENTER_X);
+        double centerY = data.getDouble(EDICT_DOMAIN_CENTER_Y);
+        double centerZ = data.getDouble(EDICT_DOMAIN_CENTER_Z);
+        List<Mob> affected = level.getEntitiesOfClass(
+                Mob.class,
+                new AABB(
+                        centerX - EDICT_DOMAIN_RANGE - 4.0D,
+                        centerY - 4.0D,
+                        centerZ - EDICT_DOMAIN_RANGE - 4.0D,
+                        centerX + EDICT_DOMAIN_RANGE + 4.0D,
+                        centerY + 8.0D,
+                        centerZ + EDICT_DOMAIN_RANGE + 4.0D),
+                entity -> entity.isAlive() && entity.getPersistentData().contains(EDICT_DOMAIN_HIT));
+        for (Mob mob : affected) {
+            clearEdictDomainTarget(mob);
+        }
+    }
+
+    private static void applyEdictDomainToTarget(ServerPlayer caster, LivingEntity target, double centerX, double centerY, double centerZ, float progress) {
+        CompoundTag tag = target.getPersistentData();
+        if (target instanceof Mob mob) {
+            if (!tag.contains(EDICT_ORIGINAL_NO_AI)) {
+                tag.putBoolean(EDICT_ORIGINAL_NO_AI, mob.isNoAi());
+            }
+            mob.setNoAi(true);
+        }
+
+        if (!tag.getBoolean(EDICT_DOMAIN_HIT)) {
+            tag.putBoolean(EDICT_DOMAIN_HIT, true);
+        }
+
+        target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 10, 0, false, false, true));
+        Vec3 center = new Vec3(centerX, centerY + target.getBbHeight() * 0.25D, centerZ);
+        Vec3 toCenter = center.subtract(target.position());
+        Vec3 current = target.getDeltaMovement().scale(0.35D);
+        Vec3 horizontalPull = new Vec3(toCenter.x, 0.0D, toCenter.z);
+        double distance = horizontalPull.length();
+        double tightening = EDICT_DOMAIN_PULL_STRENGTH + progress * 0.1D;
+        Vec3 pull = distance > 0.001D
+                ? horizontalPull.normalize().scale(Math.min(0.42D, tightening + distance * 0.018D))
+                : Vec3.ZERO;
+        double verticalAdjust = Mth.clamp(toCenter.y * 0.085D, -0.08D, 0.1D);
+        target.setDeltaMovement(pull.x + current.x * 0.15D, verticalAdjust, pull.z + current.z * 0.15D);
+        if (distance > 0.2D && distance < 1.6D) {
+            double step = Math.min(0.3D, distance * (0.08D + progress * 0.06D));
+            Vec3 snap = horizontalPull.normalize().scale(step);
+            target.setPos(target.getX() + snap.x, target.getY(), target.getZ() + snap.z);
+        }
+        target.fallDistance = 0.0F;
+        target.hasImpulse = true;
+        target.hurtMarked = true;
+    }
+
+    private static void spawnEdictDomainMatrix(ServerLevel level, CompoundTag data, long gameTime, long domainUntil) {
+        if (gameTime % 2L != 0L) {
+            return;
+        }
+
+        double radius = EDICT_DOMAIN_RANGE;
+        double centerX = data.getDouble(EDICT_DOMAIN_CENTER_X);
+        double centerY = data.getDouble(EDICT_DOMAIN_CENTER_Y);
+        double centerZ = data.getDouble(EDICT_DOMAIN_CENTER_Z);
+        long elapsedTicks = Math.max(0L, gameTime - (domainUntil - EDICT_DOMAIN_DURATION));
+        long remainingTicks = Math.max(0L, domainUntil - gameTime);
+        float progress = Mth.clamp(elapsedTicks / (float) EDICT_DOMAIN_DURATION, 0.0F, 1.0F);
+        float collapse = Mth.clamp(remainingTicks / 40.0F, 0.0F, 1.0F);
+        boolean finalPhase = remainingTicks <= 40L;
+
+        int ringPoints = finalPhase ? 96 : 64;
+        int visiblePoints = finalPhase
+                ? ringPoints
+                : Mth.clamp((int) (ringPoints * Math.max(0.18F, progress * 1.2F)), 12, ringPoints);
+        double spin = finalPhase ? gameTime * 0.32D : gameTime * 0.08D;
+        double ringRadius = radius * (finalPhase ? (0.72D + collapse * 0.28D) : 1.0D);
+        float outerSize = finalPhase ? 1.25F : 1.0F;
+        Vector3f outerColor = finalPhase
+                ? new Vector3f(0.55F, 0.82F, 1.0F)
+                : new Vector3f(0.22F, 0.68F, 1.0F);
+
+        for (int i = 0; i < visiblePoints; i++) {
+            double angle = spin + (Math.PI * 2.0D * i) / ringPoints;
+            double x = centerX + Math.cos(angle) * ringRadius;
+            double z = centerZ + Math.sin(angle) * ringRadius;
+            level.sendParticles(
+                    new DustParticleOptions(outerColor, outerSize),
+                    x,
+                    centerY + 0.15D,
+                    z,
+                    1,
+                    0.0D,
+                    0.0D,
+                    0.0D,
+                    0.0D);
+        }
+
+        Vec3[] points = new Vec3[5];
+        double starRadius = ringRadius * 0.72D;
+        double starSpin = -Math.PI / 2.0D + (finalPhase ? gameTime * 0.21D : gameTime * 0.03D);
+        for (int i = 0; i < points.length; i++) {
+            double angle = starSpin + (Math.PI * 2.0D * i) / points.length;
+            points[i] = new Vec3(
+                    centerX + Math.cos(angle) * starRadius,
+                    centerY,
+                    centerZ + Math.sin(angle) * starRadius);
+        }
+
+        int starRevealSteps = finalPhase
+                ? 22
+                : Mth.clamp((int) (4 + progress * 18.0F), 4, 18);
+        for (int i = 0; i < points.length; i++) {
+            drawEdictGroundLine(level, points[i], points[(i + 2) % points.length], starRevealSteps, finalPhase ? 1.0F : 0.75F);
+        }
+        for (int i = 0; i < points.length; i++) {
+            drawEdictGroundLine(level, points[i], points[(i + 1) % points.length], Math.max(4, starRevealSteps / 2), finalPhase ? 0.85F : 0.6F);
+        }
+
+        if (finalPhase) {
+            int spokeCount = 10;
+            int activeSpokes = 3 + (int) ((1.0F - collapse) * 5.0F);
+            double spokeSpin = gameTime * 0.14D;
+            Vec3 center = new Vec3(centerX, centerY, centerZ);
+            for (int i = 0; i < activeSpokes; i++) {
+                int spokeIndex = (int) ((gameTime / 2L + i * 2L) % spokeCount);
+                double angle = spokeSpin + (Math.PI * 2.0D * spokeIndex) / spokeCount;
+                Vec3 spokeEnd = new Vec3(
+                        centerX + Math.cos(angle) * ringRadius * 0.96D,
+                        centerY,
+                        centerZ + Math.sin(angle) * ringRadius * 0.96D);
+                drawEdictGroundLine(level, center, spokeEnd, 10, 0.95F + (1.0F - collapse) * 0.45F);
+            }
+        }
+
+        if (finalPhase && gameTime % 4L == 0L) {
+            level.sendParticles(
+                    new DustParticleOptions(new Vector3f(0.75F, 0.9F, 1.0F), 1.55F),
+                    centerX,
+                    centerY + 0.18D,
+                    centerZ,
+                    1,
+                    0.0D,
+                    0.0D,
+                    0.0D,
+                    0.0D);
+        }
+
+        spawnEdictDomainSkyPressure(level, centerX, centerY, centerZ, ringRadius, progress, collapse, finalPhase, gameTime);
+    }
+
+    private static void drawEdictGroundLine(ServerLevel level, Vec3 start, Vec3 end, int steps, float size) {
+        Vec3 delta = end.subtract(start);
+        for (int i = 0; i <= steps; i++) {
+            Vec3 pos = start.add(delta.scale(i / (double) steps));
+            level.sendParticles(
+                    new DustParticleOptions(new Vector3f(0.22F, 0.68F, 1.0F), size),
+                    pos.x,
+                    pos.y,
+                    pos.z,
+                    1,
+                    0.0D,
+                    0.0D,
+                    0.0D,
+                    0.0D);
+        }
+    }
+
+    private static void spawnEdictDomainSkyPressure(ServerLevel level, double centerX, double centerY, double centerZ, double radius, float progress, float collapse, boolean finalPhase, long gameTime) {
+        if (gameTime % 4L != 0L) {
+            return;
+        }
+
+        int columnCount = finalPhase ? 18 : 10;
+        double height = finalPhase ? 8.5D : 6.0D;
+        float alpha = finalPhase ? 1.15F : 0.8F;
+        Vector3f color = finalPhase
+                ? new Vector3f(0.75F, 0.88F, 1.0F)
+                : new Vector3f(0.36F, 0.7F, 1.0F);
+
+        for (int i = 0; i < columnCount; i++) {
+            double angle = (Math.PI * 2.0D * i) / columnCount + gameTime * (finalPhase ? 0.04D : 0.015D);
+            double x = centerX + Math.cos(angle) * radius * 0.9D;
+            double z = centerZ + Math.sin(angle) * radius * 0.9D;
+            level.sendParticles(
+                    new DustParticleOptions(color, alpha),
+                    x,
+                    centerY + height,
+                    z,
+                    1,
+                    0.0D,
+                    0.0D,
+                    0.0D,
+                    0.0D);
+            level.sendParticles(
+                    ParticleTypes.END_ROD,
+                    x,
+                    centerY + height - 0.35D,
+                    z,
+                    finalPhase ? 2 : 1,
+                    0.03D,
+                    0.45D,
+                    0.03D,
+                    -0.06D - progress * 0.04D);
+        }
+
+        if (finalPhase && gameTime % 8L == 0L) {
+            int pulseCount = 24;
+            double pulseRadius = radius * (0.65D + collapse * 0.25D);
+            for (int i = 0; i < pulseCount; i++) {
+                double angle = (Math.PI * 2.0D * i) / pulseCount;
+                double x = centerX + Math.cos(angle) * pulseRadius;
+                double z = centerZ + Math.sin(angle) * pulseRadius;
+                level.sendParticles(
+                        ParticleTypes.ELECTRIC_SPARK,
+                        x,
+                        centerY + 1.2D,
+                        z,
+                        1,
+                        0.05D,
+                        0.15D,
+                        0.05D,
+                        0.01D);
+            }
+            float pitch = 0.55F + (1.0F - collapse) * 0.35F;
+            level.playSound(null, BlockPos.containing(centerX, centerY, centerZ), SoundEvents.BEACON_POWER_SELECT, SoundSource.PLAYERS, 0.45F, pitch);
+        }
+    }
+
+    private static void detonateEdictDomain(ServerLevel level, ServerPlayer caster, CompoundTag data) {
+        double centerX = data.getDouble(EDICT_DOMAIN_CENTER_X);
+        double centerY = data.getDouble(EDICT_DOMAIN_CENTER_Y);
+        double centerZ = data.getDouble(EDICT_DOMAIN_CENTER_Z);
+        Vec3 center = new Vec3(centerX, centerY, centerZ);
+        AABB bounds = new AABB(
+                centerX - EDICT_DOMAIN_RANGE,
+                centerY - 4.0D,
+                centerZ - EDICT_DOMAIN_RANGE,
+                centerX + EDICT_DOMAIN_RANGE,
+                centerY + 8.0D,
+                centerZ + EDICT_DOMAIN_RANGE);
+        List<LivingEntity> targets = level.getEntitiesOfClass(
+                LivingEntity.class,
+                bounds,
+                entity -> entity instanceof Enemy && entity.isAlive() && entity.distanceToSqr(center) <= EDICT_DOMAIN_RANGE * EDICT_DOMAIN_RANGE);
+
+        level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, centerX, centerY + 0.4D, centerZ, 6, 1.2D, 0.3D, 1.2D, 0.0D);
+        level.sendParticles(
+                new DustParticleOptions(new Vector3f(0.72F, 0.88F, 1.0F), 2.6F),
+                centerX,
+                centerY + 0.1D,
+                centerZ,
+                72,
+                2.4D,
+                0.2D,
+                2.4D,
+                0.01D);
+        level.sendParticles(
+                ParticleTypes.ELECTRIC_SPARK,
+                centerX,
+                centerY + 0.3D,
+                centerZ,
+                120,
+                3.0D,
+                0.45D,
+                3.0D,
+                0.16D);
+        level.playSound(null, BlockPos.containing(centerX, centerY, centerZ), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 1.35F, 0.72F);
+        level.playSound(null, BlockPos.containing(centerX, centerY, centerZ), SoundEvents.LIGHTNING_BOLT_IMPACT, SoundSource.PLAYERS, 1.0F, 0.86F);
+
+        for (LivingEntity target : targets) {
+            Vec3 impact = target.position().lerp(center, 0.45D);
+            level.sendParticles(
+                    ParticleTypes.END_ROD,
+                    impact.x,
+                    target.getY() + target.getBbHeight() * 0.5D,
+                    impact.z,
+                    14,
+                    0.08D,
+                    0.18D,
+                    0.08D,
+                    0.02D);
+            DamageSource source = caster.damageSources().genericKill();
+            target.hurt(source, target.getMaxHealth());
+            target.invulnerableTime = 0;
+            if (target.isAlive()) {
+                target.hurt(source, Math.max(target.getHealth(), 1.0F));
+            }
+        }
+    }
+
+    private static void clearEdictDomainTarget(LivingEntity target) {
+        CompoundTag tag = target.getPersistentData();
+        if (target instanceof Mob mob && tag.contains(EDICT_ORIGINAL_NO_AI)) {
+            mob.setNoAi(tag.getBoolean(EDICT_ORIGINAL_NO_AI));
+        }
+        tag.remove(EDICT_DOMAIN_HIT);
+        if (tag.contains(EDICT_ORIGINAL_NO_AI) && !tag.contains(EDICT_SEAL_UNTIL)) {
+            tag.remove(EDICT_ORIGINAL_NO_AI);
+        }
+    }
+
+    private static boolean isInsideEdictDomain(CompoundTag domainData, Vec3 position) {
+        if (!domainData.contains(EDICT_DOMAIN_UNTIL)) {
+            return false;
+        }
+        double centerX = domainData.getDouble(EDICT_DOMAIN_CENTER_X);
+        double centerZ = domainData.getDouble(EDICT_DOMAIN_CENTER_Z);
+        return position.distanceToSqr(centerX, position.y, centerZ) <= EDICT_DOMAIN_RANGE * EDICT_DOMAIN_RANGE;
+    }
+
+    private static boolean isEdictDomainActive(ServerPlayer player) {
+        return player.getPersistentData().getLong(EDICT_DOMAIN_UNTIL) > player.level().getGameTime();
+    }
+
+    private static boolean hasActiveEdictSeal(ServerPlayer player) {
+        return !player.serverLevel().getEntitiesOfClass(
+                LivingEntity.class,
+                player.getBoundingBox().inflate(EDICT_RANGE + 16.0D),
+                entity -> entity.isAlive()
+                        && entity.getPersistentData().hasUUID(EDICT_CASTER_UUID)
+                        && player.getUUID().equals(entity.getPersistentData().getUUID(EDICT_CASTER_UUID))
+                        && entity.getPersistentData().getLong(EDICT_SEAL_UNTIL) > player.level().getGameTime())
+                .isEmpty();
+    }
+
+    private static void spawnEdictSealSigil(ServerLevel level, LivingEntity anchor, CompoundTag anchorTag, long gameTime) {
+        if (gameTime % 4L != 0L) {
+            return;
+        }
+
+        List<LivingEntity> sealedTargets = getEdictCastTargets(level, anchor, anchorTag, gameTime);
+        if (sealedTargets.isEmpty() || sealedTargets.stream().mapToInt(Entity::getId).min().orElse(anchor.getId()) != anchor.getId()) {
+            return;
+        }
+
+        AABB bounds = getEdictSealBounds(sealedTargets);
+        double centerX = (bounds.minX + bounds.maxX) * 0.5D;
+        double centerZ = (bounds.minZ + bounds.maxZ) * 0.5D;
+        double y = bounds.maxY + 0.85D;
+        double radius = Math.max(1.8D, Math.sqrt(Mth.square((float) (bounds.maxX - bounds.minX)) + Mth.square((float) (bounds.maxZ - bounds.minZ))) * 0.5D + 1.15D);
+        int ringPoints = Mth.clamp(Mth.ceil((float) (radius * 18.0D)), 48, 112);
+        int starSteps = Mth.clamp(Mth.ceil((float) (radius * 3.2D)), 10, 26);
+        long liftUntil = sealedTargets.stream()
+                .mapToLong(entity -> entity.getPersistentData().getLong(EDICT_LIFT_UNTIL))
+                .min()
+                .orElse(gameTime);
+        int elapsedTicks = Math.max(0, (int) (gameTime - liftUntil));
+        int ringReveal = Mth.clamp(1 + elapsedTicks * 5, 1, ringPoints);
+        int starRevealSteps = Mth.clamp(1 + elapsedTicks, 1, starSteps);
+
+        for (int i = 0; i < ringReveal; i++) {
+            double angle = (Math.PI * 2.0D * i) / ringPoints;
+            spawnEdictOuterSigilParticle(level, centerX + Math.cos(angle) * radius, y, centerZ + Math.sin(angle) * radius);
+        }
+
+        Vec3[] points = new Vec3[5];
+        for (int i = 0; i < points.length; i++) {
+            double angle = -Math.PI / 2.0D + (Math.PI * 2.0D * i) / points.length;
+            points[i] = new Vec3(centerX + Math.cos(angle) * radius * 0.78D, y + 0.02D, centerZ + Math.sin(angle) * radius * 0.78D);
+        }
+
+        for (int i = 0; i < points.length; i++) {
+            drawEdictBlueFlameLine(level, new Vec3(centerX, y + 0.02D, centerZ), points[i], starRevealSteps);
+        }
+        for (int i = 0; i < points.length; i++) {
+            drawEdictBlueFlameLine(level, points[i], points[(i + 2) % points.length], starRevealSteps);
+        }
+        if (starRevealSteps >= starSteps) {
+            for (int i = 0; i < points.length; i++) {
+                drawEdictBlueFlameLine(level, points[i], points[(i + 1) % points.length], Math.max(5, starSteps / 2));
+            }
+        }
+
+        spawnEdictBlueFlame(level, centerX, y + 0.08D, centerZ);
+    }
+
+    private static void pullEdictTargetTowardSealCenter(ServerLevel level, LivingEntity target, CompoundTag anchorTag, long gameTime) {
+        List<LivingEntity> sealedTargets = getEdictCastTargets(level, target, anchorTag, gameTime);
+        if (sealedTargets.size() <= 1) {
+            return;
+        }
+
+        AABB bounds = getEdictSealBounds(sealedTargets);
+        double centerX = (bounds.minX + bounds.maxX) * 0.5D;
+        double centerZ = (bounds.minZ + bounds.maxZ) * 0.5D;
+        Vec3 toCenter = new Vec3(centerX - target.getX(), 0.0D, centerZ - target.getZ());
+        double horizontalDistance = toCenter.horizontalDistance();
+        if (horizontalDistance < 0.18D) {
+            return;
+        }
+
+        Vec3 pull = toCenter.normalize().scale(Math.min(0.12D, horizontalDistance * 0.14D));
+        target.setDeltaMovement(pull.x, 0.0D, pull.z);
+        target.hasImpulse = true;
+        target.hurtMarked = true;
+    }
+
+    private static AABB getEdictSealBounds(List<LivingEntity> sealedTargets) {
+        AABB bounds = sealedTargets.get(0).getBoundingBox();
+        for (int i = 1; i < sealedTargets.size(); i++) {
+            bounds = bounds.minmax(sealedTargets.get(i).getBoundingBox());
+        }
+        return bounds;
+    }
+
+    private static List<LivingEntity> getEdictCastTargets(ServerLevel level, LivingEntity anchor, CompoundTag anchorTag, long gameTime) {
+        if (!anchorTag.hasUUID(EDICT_CAST_ID)) {
+            return List.of(anchor);
+        }
+
+        UUID castId = anchorTag.getUUID(EDICT_CAST_ID);
+        return level.getEntitiesOfClass(
+                LivingEntity.class,
+                anchor.getBoundingBox().inflate(EDICT_RANGE * 2.0D + 4.0D),
+                entity -> entity.isAlive()
+                        && entity.getPersistentData().hasUUID(EDICT_CAST_ID)
+                        && castId.equals(entity.getPersistentData().getUUID(EDICT_CAST_ID))
+                        && !entity.getPersistentData().getBoolean(EDICT_SLAMMED)
+                        && entity.getPersistentData().getLong(EDICT_SEAL_UNTIL) > gameTime
+                        && entity.getPersistentData().getLong(EDICT_LIFT_UNTIL) <= gameTime
+                        && entity.getPersistentData().getLong(EDICT_SLAM_AT) > gameTime);
+    }
+
+    private static void drawEdictBlueFlameLine(ServerLevel level, Vec3 start, Vec3 end, int steps) {
+        Vec3 delta = end.subtract(start);
+        for (int i = 0; i <= steps; i++) {
+            Vec3 pos = start.add(delta.scale(i / (double) steps));
+            spawnEdictBlueFlame(level, pos.x, pos.y, pos.z);
+        }
+    }
+
+    private static void spawnEdictBlueFlame(ServerLevel level, double x, double y, double z) {
+        level.sendParticles(
+                ParticleTypes.SOUL_FIRE_FLAME,
+                x,
+                y,
+                z,
+                1,
+                0.0D,
+                0.0D,
+                0.0D,
+                0.0D);
+    }
+
+    private static void spawnEdictOuterSigilParticle(ServerLevel level, double x, double y, double z) {
+        level.sendParticles(
+                new DustParticleOptions(new Vector3f(0.12F, 0.55F, 1.0F), 0.9F),
+                x,
+                y,
+                z,
+                1,
+                0.0D,
+                0.0D,
+                0.0D,
+                0.0D);
     }
 
     private static void clearEdictSeal(LivingEntity target) {
@@ -1277,6 +1920,7 @@ public class ModEvents {
         tag.remove(EDICT_SLAM_AT);
         tag.remove(EDICT_SLAMMED);
         tag.remove(EDICT_SPELL_BURST_DONE);
+        tag.remove(EDICT_AIR_TICK_DAMAGE_AT);
         tag.remove(EDICT_CASTER_UUID);
         tag.remove(EDICT_CAST_ID);
         tag.remove(EDICT_ORIGINAL_NO_AI);
@@ -1286,6 +1930,21 @@ public class ModEvents {
     private static boolean isEdictSealed(Entity entity) {
         return entity instanceof LivingEntity living
                 && living.getPersistentData().getLong(EDICT_SEAL_UNTIL) > living.level().getGameTime();
+    }
+
+    private static boolean hasEdictImpacted(LivingEntity target) {
+        return target.onGround() || target.isInWaterOrBubble() || target.verticalCollisionBelow;
+    }
+
+    private static Vec3 getEdictImpactPosition(LivingEntity target) {
+        BlockPos impactBlockPos = BlockPos.containing(target.getX(), target.getBoundingBox().minY - 0.05D, target.getZ());
+        if (target.level().getBlockState(impactBlockPos).isAir()) {
+            impactBlockPos = target.blockPosition().below();
+        }
+        return new Vec3(
+                impactBlockPos.getX() + 0.5D,
+                Math.max(target.level().getMinBuildHeight(), impactBlockPos.getY() + 0.05D),
+                impactBlockPos.getZ() + 0.5D);
     }
 
     private static void spawnEdictDebris(ServerLevel level, LivingEntity target) {
@@ -1313,12 +1972,12 @@ public class ModEvents {
 
     private static void spawnEdictLink(ServerLevel level, Vec3 start, Vec3 end) {
         Vec3 delta = end.subtract(start);
-        int points = Math.max(10, Mth.ceil((float) delta.length() * 4.0F));
+        int points = Math.max(8, Mth.ceil((float) delta.length() * 2.0F));
         for (int i = 0; i <= points; i++) {
             double progress = i / (double) points;
             Vec3 pos = start.add(delta.scale(progress));
             level.sendParticles(
-                    new DustParticleOptions(new Vector3f(0.98F, 0.83F, 0.18F), 1.0F),
+                new DustParticleOptions(new Vector3f(0.98F, 0.83F, 0.18F), 1.0F),
                     pos.x,
                     pos.y,
                     pos.z,
@@ -1356,25 +2015,244 @@ public class ModEvents {
         for (LivingEntity chainedTarget : chainedTargets) {
             Vec3 current = chainedTarget.position().add(0.0D, chainedTarget.getBbHeight() * 0.5D, 0.0D);
             spawnEdictLink(level, previous, current);
+            pullEdictTargetTowardChain(chainedTarget, previous, current);
             chainedTarget.hurt(caster.damageSources().magic(), EDICT_SPELL_DAMAGE);
-            spawnEdictHarmlessBurst(level, current);
+            level.sendParticles(
+                    new DustParticleOptions(new Vector3f(1.0F, 0.86F, 0.22F), 1.0F),
+                    current.x,
+                    current.y,
+                    current.z,
+                    10,
+                    0.22D,
+                    0.22D,
+                    0.22D,
+                    0.02D);
             previous = current;
         }
     }
 
-    private static void spawnEdictHarmlessBurst(ServerLevel level, Vec3 pos) {
-        level.playSound(null, BlockPos.containing(pos), SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 0.55F, 1.25F);
+    private static void pullEdictTargetTowardChain(LivingEntity target, Vec3 previous, Vec3 current) {
+        Vec3 drag = current.subtract(previous);
+        if (drag.lengthSqr() <= 1.0E-4D) {
+            return;
+        }
+
+        Vec3 normalized = drag.normalize();
+        target.setDeltaMovement(
+                normalized.x * EDICT_CHAIN_PULL_STRENGTH,
+                Math.max(target.getDeltaMovement().y, 0.22D),
+                normalized.z * EDICT_CHAIN_PULL_STRENGTH);
+        target.hasImpulse = true;
+        target.hurtMarked = true;
+    }
+
+    private static void strikeEdictLightning(ServerLevel level, LivingEntity target, Vec3 impactPos) {
+        LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
+        if (bolt != null) {
+            bolt.moveTo(impactPos.x, impactPos.y, impactPos.z);
+            level.addFreshEntity(bolt);
+        }
+        target.thunderHit(level, bolt);
+    }
+
+    private static void spawnEdictLaunchBurst(ServerLevel level, Vec3 pos) {
+        level.playSound(null, BlockPos.containing(pos), SoundEvents.GENERIC_EXPLODE, SoundSource.HOSTILE, 0.45F, 1.35F);
         level.sendParticles(ParticleTypes.EXPLOSION, pos.x, pos.y, pos.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
         level.sendParticles(
-                new DustParticleOptions(new Vector3f(1.0F, 0.84F, 0.18F), 1.2F),
+                new DustParticleOptions(new Vector3f(1.0F, 0.84F, 0.18F), 1.0F),
                 pos.x,
                 pos.y,
                 pos.z,
-                18,
-                0.3D,
-                0.3D,
-                0.3D,
-                0.04D);
+                14,
+                0.28D,
+                0.12D,
+                0.28D,
+                0.03D);
+        level.sendParticles(
+                new BlockParticleOption(ParticleTypes.BLOCK, Blocks.SANDSTONE.defaultBlockState()),
+                pos.x,
+                pos.y,
+                pos.z,
+                20,
+                0.45D,
+                0.1D,
+                0.45D,
+                0.08D);
+    }
+
+    private static void spawnEdictImpactBurst(ServerLevel level, Vec3 pos) {
+        BlockPos groundPos = BlockPos.containing(pos.x, pos.y, pos.z);
+        BlockState groundState = level.getBlockState(groundPos);
+        if (groundState.isAir()) {
+            BlockPos belowPos = BlockPos.containing(pos.x, pos.y - 0.35D, pos.z);
+            BlockState belowState = level.getBlockState(belowPos);
+            if (!belowState.isAir()) {
+                groundPos = belowPos;
+                groundState = belowState;
+            } else {
+                groundState = Blocks.SANDSTONE.defaultBlockState();
+            }
+        }
+
+        level.levelEvent(2001, groundPos, net.minecraft.world.level.block.Block.getId(groundState));
+        level.sendParticles(ParticleTypes.POOF, pos.x, pos.y + 0.08D, pos.z, 18, 0.6D, 0.05D, 0.6D, 0.04D);
+        level.sendParticles(
+                new DustParticleOptions(new Vector3f(1.0F, 0.82F, 0.16F), 1.35F),
+                pos.x,
+                pos.y + 0.1D,
+                pos.z,
+                24,
+                0.45D,
+                0.08D,
+                0.45D,
+                0.05D);
+        // Ground shock ring.
+        for (int i = 0; i < 16; i++) {
+            double angle = (Math.PI * 2.0D * i) / 16.0D;
+            double offsetX = Math.cos(angle) * 1.6D;
+            double offsetZ = Math.sin(angle) * 1.6D;
+            level.sendParticles(
+                    ParticleTypes.CLOUD,
+                    pos.x + offsetX,
+                    pos.y + 0.05D,
+                    pos.z + offsetZ,
+                    2,
+                    0.05D,
+                    0.02D,
+                    0.05D,
+                    0.02D);
+        }
+        for (int i = 0; i < 20; i++) {
+            double angle = (Math.PI * 2.0D * i) / 20.0D;
+            double offsetX = Math.cos(angle) * 2.2D;
+            double offsetZ = Math.sin(angle) * 2.2D;
+            level.sendParticles(
+                    ParticleTypes.CLOUD,
+                    pos.x + offsetX,
+                    pos.y + 0.04D,
+                    pos.z + offsetZ,
+                    3,
+                    0.08D,
+                    0.03D,
+                    0.08D,
+                    0.03D);
+        }
+        spawnEdictGroundHeave(level, pos, groundPos, groundState);
+        // "Blocks lifted by shock" visual.
+        level.sendParticles(
+                new BlockParticleOption(ParticleTypes.BLOCK, groundState),
+                pos.x,
+                pos.y + 0.12D,
+                pos.z,
+                50,
+                1.1D,
+                0.08D,
+                1.1D,
+                0.18D);
+        level.sendParticles(
+                new BlockParticleOption(ParticleTypes.BLOCK, groundState),
+                pos.x,
+                pos.y + 0.12D,
+                pos.z,
+                28,
+                0.85D,
+                0.05D,
+                0.85D,
+                0.14D);
+        level.sendParticles(
+                ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                pos.x,
+                pos.y + 0.08D,
+                pos.z,
+                8,
+                0.45D,
+                0.02D,
+                0.45D,
+                0.01D);
+        for (int i = 0; i < 12; i++) {
+            double angle = (Math.PI * 2.0D * i) / 12.0D;
+            double ringX = Math.cos(angle) * 0.9D;
+            double ringZ = Math.sin(angle) * 0.9D;
+            level.sendParticles(
+                    new BlockParticleOption(ParticleTypes.BLOCK, groundState),
+                    pos.x + ringX,
+                    pos.y + 0.18D,
+                    pos.z + ringZ,
+                    8,
+                    0.08D,
+                    0.28D,
+                    0.08D,
+                    0.2D);
+        }
+    }
+
+    private static void spawnEdictGroundHeave(ServerLevel level, Vec3 pos, BlockPos centerPos, BlockState defaultState) {
+        for (int x = -2; x <= 2; x++) {
+            for (int z = -2; z <= 2; z++) {
+                double distance = Math.sqrt(x * x + z * z);
+                if (distance < 1.25D || distance > 2.35D) {
+                    continue;
+                }
+
+                BlockPos samplePos = centerPos.offset(x, 0, z);
+                BlockState sampleState = level.getBlockState(samplePos);
+                if (sampleState.isAir()) {
+                    sampleState = defaultState;
+                }
+                if (sampleState.isAir() || sampleState.hasBlockEntity()) {
+                    continue;
+                }
+
+                level.levelEvent(2001, samplePos, net.minecraft.world.level.block.Block.getId(sampleState));
+                spawnEdictLiftedBlock(level, samplePos, sampleState, x, z);
+                level.sendParticles(
+                        new BlockParticleOption(ParticleTypes.BLOCK, sampleState),
+                        samplePos.getX() + 0.5D,
+                        samplePos.getY() + 1.02D,
+                        samplePos.getZ() + 0.5D,
+                        16,
+                        0.12D,
+                        0.34D,
+                        0.12D,
+                        0.18D);
+                level.sendParticles(
+                        ParticleTypes.CLOUD,
+                        samplePos.getX() + 0.5D,
+                        samplePos.getY() + 1.0D,
+                        samplePos.getZ() + 0.5D,
+                        5,
+                        0.08D,
+                        0.05D,
+                        0.08D,
+                        0.03D);
+            }
+        }
+    }
+
+    private static void spawnEdictLiftedBlock(ServerLevel level, BlockPos sourcePos, BlockState state, int offsetX, int offsetZ) {
+        if (state.isAir() || state.hasBlockEntity()) {
+            return;
+        }
+
+        FallingBlockEntity liftedBlock = FallingBlockEntity.fall(level, sourcePos, state);
+        level.setBlock(sourcePos, state, 3);
+        liftedBlock.dropItem = false;
+        liftedBlock.disableDrop();
+        liftedBlock.time = 1 + level.random.nextInt(3);
+        liftedBlock.setNoGravity(false);
+        liftedBlock.setInvulnerable(true);
+        liftedBlock.setStartPos(sourcePos);
+        liftedBlock.setPos(sourcePos.getX() + 0.5D, sourcePos.getY() + 1.03D, sourcePos.getZ() + 0.5D);
+
+        Vec3 outward = new Vec3(offsetX, 0.0D, offsetZ);
+        if (outward.lengthSqr() > 0.0D) {
+            outward = outward.normalize();
+        }
+        double lift = 0.36D + level.random.nextDouble() * 0.08D;
+        double spread = 0.018D + level.random.nextDouble() * 0.025D;
+        liftedBlock.setDeltaMovement(outward.x * spread, lift, outward.z * spread);
+        liftedBlock.hasImpulse = true;
+        liftedBlock.hurtMarked = true;
     }
 
     @org.jetbrains.annotations.Nullable
@@ -1871,11 +2749,11 @@ public class ModEvents {
         REMOVE
     }
 
-    private static void syncGuiltState(Player player, int guilt, boolean sealEquipped, boolean netherAwakened, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
+    private static void syncGuiltState(Player player, int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
         if (player instanceof ServerPlayer serverPlayer) {
             ModNetwork.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> serverPlayer),
-                    new GuiltSyncPacket(guilt, sealEquipped, netherAwakened, lockTicks, satietyCrystalCount, lockedSlot, lockedSlotTicks));
+                    new GuiltSyncPacket(guilt, sealEquipped, netherAwakened, curseEightReversed, lockTicks, satietyCrystalCount, lockedSlot, lockedSlotTicks));
         }
     }
 
@@ -1884,6 +2762,7 @@ public class ModEvents {
         int guilt = data.getInt(GUILT_PROGRESS);
         boolean sealEquipped = isSealEquipped(player);
         boolean netherAwakened = data.getBoolean(NETHER_AWAKENED);
+        boolean curseEightReversed = data.getBoolean(CURSE_8_REVERSED);
         int lockSeconds = Mth.ceil(getRemainingGuiltLockTicks(player) / 20.0F);
         int satietyCrystalCount = getSatietyCrystalCount(player);
         int lockedSlot = data.getInt(LOCKED_SLOT);
@@ -1893,6 +2772,7 @@ public class ModEvents {
                 && data.getInt(LAST_SYNC_GUILT) == guilt
                 && data.getBoolean(LAST_SYNC_SEAL) == sealEquipped
                 && data.getBoolean(LAST_SYNC_NETHER_AWAKENED) == netherAwakened
+                && data.getBoolean(LAST_SYNC_CURSE_8_REVERSED) == curseEightReversed
                 && data.getInt(LAST_SYNC_LOCK_SECONDS) == lockSeconds
                 && data.getInt(LAST_SYNC_SATIETY) == satietyCrystalCount
                 && data.getInt(LAST_SYNC_LOCKED_SLOT) == lockedSlot
@@ -1903,11 +2783,12 @@ public class ModEvents {
         data.putInt(LAST_SYNC_GUILT, guilt);
         data.putBoolean(LAST_SYNC_SEAL, sealEquipped);
         data.putBoolean(LAST_SYNC_NETHER_AWAKENED, netherAwakened);
+        data.putBoolean(LAST_SYNC_CURSE_8_REVERSED, curseEightReversed);
         data.putInt(LAST_SYNC_LOCK_SECONDS, lockSeconds);
         data.putInt(LAST_SYNC_SATIETY, satietyCrystalCount);
         data.putInt(LAST_SYNC_LOCKED_SLOT, lockedSlot);
         data.putInt(LAST_SYNC_LOCKED_SLOT_TICKS, lockedSlotTicks);
-        syncGuiltState(player, guilt, sealEquipped, netherAwakened, lockSeconds * 20, satietyCrystalCount, lockedSlot, lockedSlotTicks);
+        syncGuiltState(player, guilt, sealEquipped, netherAwakened, curseEightReversed, lockSeconds * 20, satietyCrystalCount, lockedSlot, lockedSlotTicks);
     }
 
     private static void applyInventoryCooldowns(ServerPlayer player, int remainingTicks) {
@@ -1983,9 +2864,16 @@ public class ModEvents {
 
     @Mod.EventBusSubscriber(modid = RamessesCurseMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ClientOverlayEvents {
+        private enum EdictChargeMode {
+            NONE,
+            X_CAST,
+            Y_DOMAIN
+        }
+
         private static int clientGuilt;
         private static boolean clientSealEquipped;
         private static boolean clientNetherAwakened;
+        private static boolean clientCurseEightReversed;
         private static int clientLockTicks;
         private static int clientSatietyCrystalCount;
         private static int clientHeartBattleStacks;
@@ -1995,15 +2883,18 @@ public class ModEvents {
         private static int clientLockedSlotTicks;
         private static int clientEdictChargeTicks;
         private static boolean clientEdictTriggeredThisHold;
+        private static EdictChargeMode clientEdictChargeMode = EdictChargeMode.NONE;
+        private static int clientEdictCooldownTicks;
         private static int clientEdictShakeTicks;
         private static int clientEdictShakeTotalTicks;
         private static float clientEdictShakeStrength;
         private static boolean clientEdictCooldownPromptedThisHold;
 
-        public static void updateClientGuilt(int guilt, boolean sealEquipped, boolean netherAwakened, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
+        public static void updateClientGuilt(int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
             clientGuilt = guilt;
             clientSealEquipped = sealEquipped;
             clientNetherAwakened = netherAwakened;
+            clientCurseEightReversed = curseEightReversed;
             clientLockTicks = lockTicks;
             clientSatietyCrystalCount = satietyCrystalCount;
             clientLockedSlot = lockedSlot;
@@ -2012,6 +2903,10 @@ public class ModEvents {
 
         public static boolean isClientNetherAwakened() {
             return clientNetherAwakened;
+        }
+
+        public static boolean isClientCurseEightReversed() {
+            return clientCurseEightReversed;
         }
 
         public static void updateHeartState(int battleStacks, int cooldownTicks, boolean wardReady) {
@@ -2040,6 +2935,10 @@ public class ModEvents {
 
         public static void cancelEdictCharge() {
             resetEdictCharge();
+        }
+
+        public static void updateClientEdictCooldown(int cooldownTicks) {
+            clientEdictCooldownTicks = Math.max(0, cooldownTicks);
         }
 
         @SubscribeEvent
@@ -2133,6 +3032,10 @@ public class ModEvents {
                 return;
             }
 
+            if (clientEdictCooldownTicks > 0) {
+                clientEdictCooldownTicks--;
+            }
+
             Minecraft minecraft = Minecraft.getInstance();
             Player player = minecraft.player;
             if (player == null || minecraft.isPaused() || minecraft.screen != null) {
@@ -2140,23 +3043,92 @@ public class ModEvents {
                 return;
             }
 
-            if (!ModItems.isEdictOfTwoLandsEquipped(player) || !RamessesCurseMod.EDICT_OF_TWO_LANDS_KEY.isDown()) {
+            if (!ModItems.isEdictOfTwoLandsEquipped(player)) {
                 resetEdictCharge();
                 return;
             }
 
-            if (player.getCooldowns().isOnCooldown(ModItems.EDICT_OF_TWO_LANDS.get())) {
+            boolean xDown = RamessesCurseMod.EDICT_OF_TWO_LANDS_KEY.isDown();
+            boolean yDown = RamessesCurseMod.EDICT_OF_TWO_LANDS_DOMAIN_KEY.isDown();
+
+            if (xDown && yDown) {
                 if (!clientEdictCooldownPromptedThisHold) {
-                    float cooldownRatio = player.getCooldowns().getCooldownPercent(ModItems.EDICT_OF_TWO_LANDS.get(), minecraft.getFrameTime());
-                    float cooldownSeconds = Math.max(0.1F, cooldownRatio * 90.0F);
                     player.displayClientMessage(
-                            Component.translatable("message.ramesses_curse.edict_cooldown", String.format(Locale.ROOT, "%.1f", cooldownSeconds))
-                                    .withStyle(net.minecraft.ChatFormatting.RED),
+                            Component.translatable("message.ramesses_curse.edict_other_mode_active").withStyle(net.minecraft.ChatFormatting.RED),
                             true);
+                    clientEdictCooldownPromptedThisHold = true;
+                }
+                resetEdictCharge();
+                return;
+            }
+
+            if (!xDown && !yDown) {
+                resetEdictCharge();
+                return;
+            }
+
+            EdictChargeMode intendedMode = yDown ? EdictChargeMode.Y_DOMAIN : EdictChargeMode.X_CAST;
+            int intendedCooldownTicks = intendedMode == EdictChargeMode.Y_DOMAIN
+                    ? ModItems.getEdictOfTwoLandsDomainCooldownTicks(player)
+                    : ModItems.getEdictOfTwoLandsCooldownTicks(player);
+            intendedCooldownTicks = Math.max(intendedCooldownTicks, clientEdictCooldownTicks);
+            if (player.getCooldowns().isOnCooldown(ModItems.EDICT_OF_TWO_LANDS.get())) {
+                intendedCooldownTicks = Math.max(intendedCooldownTicks, 1);
+            }
+            if (intendedCooldownTicks > 0) {
+                if (!clientEdictCooldownPromptedThisHold) {
+                    float cooldownSeconds = Math.max(0.1F, intendedCooldownTicks / 20.0F);
+                    MutableComponent message = Component.translatable(
+                            "message.ramesses_curse.edict_other_skill_cooling",
+                            intendedMode == EdictChargeMode.Y_DOMAIN ? "X" : "Y",
+                            String.format(Locale.ROOT, "%.1f", cooldownSeconds));
+                    player.displayClientMessage(message.withStyle(net.minecraft.ChatFormatting.RED), true);
                     clientEdictCooldownPromptedThisHold = true;
                 }
                 clientEdictChargeTicks = 0;
                 clientEdictTriggeredThisHold = false;
+                clientEdictChargeMode = EdictChargeMode.NONE;
+                return;
+            }
+
+            if (clientEdictChargeMode == EdictChargeMode.NONE) {
+                clientEdictChargeMode = intendedMode;
+            }
+
+            if (clientEdictChargeMode == EdictChargeMode.X_CAST && !xDown) {
+                resetEdictCharge();
+                return;
+            }
+
+            if (clientEdictChargeMode == EdictChargeMode.Y_DOMAIN && !yDown) {
+                resetEdictCharge();
+                return;
+            }
+
+            if (clientEdictChargeMode == EdictChargeMode.X_CAST && ModItems.isEdictOfTwoLandsDomainActive(player)) {
+                if (!clientEdictCooldownPromptedThisHold) {
+                    player.displayClientMessage(
+                            Component.translatable("message.ramesses_curse.edict_other_mode_active").withStyle(net.minecraft.ChatFormatting.RED),
+                            true);
+                    clientEdictCooldownPromptedThisHold = true;
+                }
+                resetEdictCharge();
+                return;
+            }
+
+            int cooldownTicks = clientEdictChargeMode == EdictChargeMode.Y_DOMAIN
+                    ? ModItems.getEdictOfTwoLandsDomainCooldownTicks(player)
+                    : ModItems.getEdictOfTwoLandsCooldownTicks(player);
+            if (cooldownTicks > 0) {
+                if (!clientEdictCooldownPromptedThisHold) {
+                    float cooldownSeconds = Math.max(0.1F, cooldownTicks / 20.0F);
+                    MutableComponent message = clientEdictChargeMode == EdictChargeMode.Y_DOMAIN
+                            ? Component.translatable("message.ramesses_curse.edict_domain_cooldown", String.format(Locale.ROOT, "%.1f", cooldownSeconds))
+                            : Component.translatable("message.ramesses_curse.edict_cooldown", String.format(Locale.ROOT, "%.1f", cooldownSeconds));
+                    player.displayClientMessage(message.withStyle(net.minecraft.ChatFormatting.RED), true);
+                    clientEdictCooldownPromptedThisHold = true;
+                }
+                resetEdictCharge();
                 return;
             }
 
@@ -2166,7 +3138,11 @@ public class ModEvents {
 
             if (clientEdictChargeTicks >= EDICT_CHARGE_TICKS && !clientEdictTriggeredThisHold) {
                 clientEdictTriggeredThisHold = true;
-                ModNetwork.CHANNEL.sendToServer(new EdictOfTwoLandsActivatePacket());
+                if (clientEdictChargeMode == EdictChargeMode.Y_DOMAIN) {
+                    ModNetwork.CHANNEL.sendToServer(new EdictOfTwoLandsDomainActivatePacket());
+                } else {
+                    ModNetwork.CHANNEL.sendToServer(new EdictOfTwoLandsActivatePacket());
+                }
             }
 
             if (clientEdictShakeTicks > 0) {
@@ -2259,7 +3235,11 @@ public class ModEvents {
             }
             guiGraphics.drawCenteredString(
                     minecraft.font,
-                    Component.translatable("hud.ramesses_curse.edict_charge", String.format(java.util.Locale.ROOT, "%.1f", clientEdictChargeTicks / 20.0F)),
+                    Component.translatable(
+                            clientEdictChargeMode == EdictChargeMode.Y_DOMAIN
+                                    ? "hud.ramesses_curse.edict_domain_charge"
+                                    : "hud.ramesses_curse.edict_charge",
+                            String.format(java.util.Locale.ROOT, "%.1f", clientEdictChargeTicks / 20.0F)),
                     minecraft.getWindow().getGuiScaledWidth() / 2,
                     y - 11,
                     0xFFE0C76B);
@@ -2269,6 +3249,7 @@ public class ModEvents {
             clientEdictChargeTicks = 0;
             clientEdictTriggeredThisHold = false;
             clientEdictCooldownPromptedThisHold = false;
+            clientEdictChargeMode = EdictChargeMode.NONE;
         }
 
         private static void renderLockedSlot(ScreenEvent.Render.Post event, AbstractContainerScreen<?> screen, int slotX, int slotY) {
@@ -2454,5 +3435,3 @@ public class ModEvents {
         }
     }
 }
-
-

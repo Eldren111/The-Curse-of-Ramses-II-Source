@@ -2,7 +2,6 @@ package com.eldren.wutao.ramesses_curse;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -20,11 +19,9 @@ public class EdictOfTwoLandsTriggeredPacket {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> {
             Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.player == null || minecraft.gameRenderer == null) {
+            if (minecraft.player == null) {
                 return;
             }
-
-            minecraft.gameRenderer.displayItemActivation(new ItemStack(ModItems.EDICT_OF_TWO_LANDS.get()));
             minecraft.player.displayClientMessage(
                     Component.translatable("message.ramesses_curse.edict_cast").withStyle(net.minecraft.ChatFormatting.GOLD),
                     true);

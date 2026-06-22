@@ -1,0 +1,37 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:resonant_scarab"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_resonant_scarab.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_resonant_scarab.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "x": 2,
+    "y": 1
+  },
+  "criteria": {
+    "has_resonant_scarab": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:resonant_scarab"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 125
+  }
+}

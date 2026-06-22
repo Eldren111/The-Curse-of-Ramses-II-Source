@@ -10,7 +10,7 @@
     "description": {
       "translate": "advancement.ramesses_curse.craft_heart_of_duat.description"
     },
-    "frame": "task",
+    "frame": "challenge",
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false,
@@ -30,5 +30,8 @@
         ]
       }
     }
+  },
+  "rewards": {
+    "experience": 250
   }
 }

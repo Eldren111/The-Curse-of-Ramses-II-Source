@@ -12,15 +12,17 @@ public class GuiltSyncPacket {
     private final int guilt;
     private final boolean sealEquipped;
     private final boolean netherAwakened;
+    private final boolean curseEightReversed;
     private final int lockTicks;
     private final int satietyCrystalCount;
     private final int lockedSlot;
     private final int lockedSlotTicks;
 
-    public GuiltSyncPacket(int guilt, boolean sealEquipped, boolean netherAwakened, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
+    public GuiltSyncPacket(int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
         this.guilt = guilt;
         this.sealEquipped = sealEquipped;
         this.netherAwakened = netherAwakened;
+        this.curseEightReversed = curseEightReversed;
         this.lockTicks = lockTicks;
         this.satietyCrystalCount = satietyCrystalCount;
         this.lockedSlot = lockedSlot;
@@ -31,6 +33,7 @@ public class GuiltSyncPacket {
         buffer.writeVarInt(packet.guilt);
         buffer.writeBoolean(packet.sealEquipped);
         buffer.writeBoolean(packet.netherAwakened);
+        buffer.writeBoolean(packet.curseEightReversed);
         buffer.writeVarInt(packet.lockTicks);
         buffer.writeVarInt(packet.satietyCrystalCount);
         buffer.writeVarInt(packet.lockedSlot);
@@ -40,6 +43,7 @@ public class GuiltSyncPacket {
     public static GuiltSyncPacket decode(FriendlyByteBuf buffer) {
         return new GuiltSyncPacket(
                 buffer.readVarInt(),
+                buffer.readBoolean(),
                 buffer.readBoolean(),
                 buffer.readBoolean(),
                 buffer.readVarInt(),
@@ -55,6 +59,7 @@ public class GuiltSyncPacket {
                         packet.guilt,
                         packet.sealEquipped,
                         packet.netherAwakened,
+                        packet.curseEightReversed,
                         packet.lockTicks,
                         packet.satietyCrystalCount,
                         packet.lockedSlot,

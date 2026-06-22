@@ -1,4 +1,4 @@
-package com.eldren.wutao.ramesses_curse;
+﻿package com.eldren.wutao.ramesses_curse;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
@@ -168,7 +168,26 @@ public class ModItems {
     public static int getEdictOfTwoLandsCooldownTicks(Player player) {
         return EdictOfTwoLands.getCooldownTicks(player);
     }
-
+    public static void clearEdictCooldown(ServerPlayer player) {
+        EdictOfTwoLands.clearCooldown(player);
+    }
+    public static EdictActivationResult tryActivateEdictOfTwoLandsDomain(ServerPlayer player) {
+        return EdictOfTwoLands.tryActivateDomain(player);
+    }
+    public static int getEdictOfTwoLandsDomainCooldownTicks(Player player) {
+        return EdictOfTwoLands.getDomainCooldownTicks(player);
+    }
+    public static boolean isEdictOfTwoLandsDomainActive(Player player) {
+        return EdictOfTwoLands.isDomainActive(player);
+    }
+    public enum EdictActivationResult {
+        SUCCESS,
+        NOT_EQUIPPED,
+        COOLDOWN,
+        NO_GUILT,
+        NO_TARGETS,
+        OTHER_MODE_ACTIVE
+    }
     public static class SealOfKadesh extends Item implements ICurioItem {
         private static final UUID CURSE_2_LUCK_MODIFIER_ID = UUID.fromString("d5b8dc2a-6541-46b2-8d8a-f642f6f40b91");
 
@@ -213,11 +232,18 @@ public class ModItems {
             tooltip.add(purpleText("按住 ").append(blueText("Shift")).append(purpleText(" 查看当前诅咒状态")));
             tooltip.add(purpleText("按住 ").append(blueText("Ctrl")).append(purpleText(" 查看当前故事状态")));
             Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.player != null && ModEvents.isNetherAwakened(minecraft.player)) {
-                tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.nether_awakened")
-                        .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            boolean curseEightReversed = minecraft.player != null
+                    && ModEvents.isNetherAwakened(minecraft.player)
+                    && ModEvents.isCurseEightReversed(minecraft.player);
+            if (minecraft.player != null) {
+                if (curseEightReversed) {
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.nether_reversed")
+                            .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+                } else if (ModEvents.isNetherAwakened(minecraft.player)) {
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.nether_awakened")
+                            .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+                }
             }
-
             if (Screen.hasShiftDown()) {
                 tooltip.add(Component.empty());
                 tooltip.add(purpleText("九重诅咒"));
@@ -292,13 +318,19 @@ public class ModItems {
                         .append(purpleText("：身处末地时持续获得虚弱 "))
                         .append(yellowNumber(Config.END_WEAKNESS_AMPLIFIER.get() + 1))
                         .append(purpleText(" 级。")));
-                tooltip.add(purpleText("- ")
-                        .append(blueText("地狱烙印"))
-                        .append(purpleText("：首次进入地狱后永久生效，攻击怪物时有 "))
-                        .append(yellowPercent(Config.HELL_REBOUND_CHANCE.get()))
-                        .append(purpleText(" 反噬自身，承受本次伤害并额外追加 "))
-                        .append(yellowPercent(Config.HELL_REBOUND_DAMAGE_MULTIPLIER.get() - 1.0D))
-                        .append(purpleText(" 伤害。")));
+                MutableComponent curseEightLine = purpleText("- ").append(blueText("地狱烙印"));
+                if (curseEightReversed) {
+                    curseEightLine.append(purpleText("：反转后，主手的击打有 "))
+                            .append(yellowPercent(Config.HELL_REBOUND_CHANCE.get()))
+                            .append(purpleText(" 的概率将同等伤害助推回去。"));
+                } else {
+                    curseEightLine.append(purpleText("：首次进入地狱后永久生效，攻击怪物时有 "))
+                            .append(yellowPercent(Config.HELL_REBOUND_CHANCE.get()))
+                            .append(purpleText(" 反噬自身，承受本次伤害并额外追加 "))
+                            .append(yellowPercent(Config.HELL_REBOUND_DAMAGE_MULTIPLIER.get() - 1.0D))
+                            .append(purpleText(" 伤害。"));
+                }
+                tooltip.add(curseEightLine);
                 tooltip.add(purpleText("- ")
                         .append(blueText("饥王遗罚"))
                         .append(purpleText("：每次死亡失去 "))
@@ -307,7 +339,6 @@ public class ModItems {
                         .append(blueText("1 枚饱食水晶"))
                         .append(purpleText("。拾取后返还失去的饱食度。")));
             }
-
             if (Screen.hasControlDown()) {
                 tooltip.add(Component.empty());
                 tooltip.add(blueText("王朝秘闻"));
@@ -316,7 +347,6 @@ public class ModItems {
                 }
             }
         }
-
         private static void applyLuckPenalty(Player player) {
             AttributeInstance luck = player.getAttribute(Attributes.LUCK);
             if (luck == null || luck.getModifier(CURSE_2_LUCK_MODIFIER_ID) != null) {
@@ -935,18 +965,17 @@ public class ModItems {
         private static final String DATA_KEY = "RamessesEdictOfTwoLands";
         private static final String COOLDOWN_UNTIL_KEY = "CooldownUntil";
         private static final int GUILT_COST = 20;
+        private static final int DOMAIN_GUILT_COST = 30;
         private static final int COOLDOWN_TICKS = 90 * 20;
-
+        private static final int DOMAIN_COOLDOWN_TICKS = 360 * 20;
         public EdictOfTwoLands() {
             super(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
         }
-
         @Override
         public boolean canEquip(SlotContext slotContext, ItemStack stack) {
             return slotContext.entity() instanceof Player
                     && isValidHandSlot(slotContext.identifier());
         }
-
         @Override
         public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
             if (!newStack.isEmpty() && newStack.is(stack.getItem())) {
@@ -956,64 +985,100 @@ public class ModItems {
                 ModEvents.ClientOverlayEvents.cancelEdictCharge();
             }
         }
-
         @Override
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-            tooltip.add(Component.literal("掌中的敕印并不急于发声，它总要先让威压沉到底。").withStyle(ChatFormatting.DARK_PURPLE));
-            tooltip.add(Component.literal("- 长按 ").withStyle(ChatFormatting.DARK_PURPLE)
-                    .append(Component.literal("X").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 凝聚约 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("5").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 秒，周围 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("8").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 格敌群会被掀起、悬封，终被重重砸落。").withStyle(ChatFormatting.DARK_PURPLE)));
-            tooltip.add(Component.literal("- 每次敕令索取 ").withStyle(ChatFormatting.DARK_PURPLE)
-                    .append(Component.literal(Integer.toString(GUILT_COST)).withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 点王罪，余响需静默 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("90").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 秒。").withStyle(ChatFormatting.DARK_PURPLE)));
-
+            tooltip.add(Component.literal("两地敕印不急于开口，它更愿意先让四周的喧声沉到底。")
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+            tooltip.add(Component.literal("按住 Shift 查看技能键位与敕令说明。")
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+            if (Screen.hasShiftDown()) {
+                tooltip.add(Component.empty());
+                tooltip.add(Component.literal("- 长按 ").withStyle(ChatFormatting.DARK_PURPLE)
+                        .append(Component.literal("X").withStyle(ChatFormatting.AQUA))
+                        .append(Component.literal(" 凝聚 ").withStyle(ChatFormatting.DARK_PURPLE))
+                        .append(Component.literal("3").withStyle(ChatFormatting.AQUA))
+                        .append(Component.literal(" s，将周围敌群掀离立足之处，再令其坠回尘土。")
+                                .withStyle(ChatFormatting.DARK_PURPLE)));
+                tooltip.add(Component.literal("- 长按 ").withStyle(ChatFormatting.DARK_PURPLE)
+                        .append(Component.literal("Y").withStyle(ChatFormatting.AQUA))
+                        .append(Component.literal(" 凝聚 ").withStyle(ChatFormatting.DARK_PURPLE))
+                        .append(Component.literal("3").withStyle(ChatFormatting.AQUA))
+                        .append(Component.literal(" s，于原地展开 ").withStyle(ChatFormatting.DARK_PURPLE))
+                        .append(Component.literal("15").withStyle(ChatFormatting.AQUA))
+                        .append(Component.literal(" 格矩阵，缓缓收束踏入者，终以尽数归寂的方式落幕。")
+                                .withStyle(ChatFormatting.DARK_PURPLE)));
+                tooltip.add(Component.literal("- X 索取 ").withStyle(ChatFormatting.DARK_PURPLE)
+                        .append(Component.literal(Integer.toString(GUILT_COST)).withStyle(ChatFormatting.AQUA))
+                        .append(Component.literal(" 点王罪，余响静默 ").withStyle(ChatFormatting.DARK_PURPLE))
+                        .append(Component.literal("90").withStyle(ChatFormatting.AQUA))
+                        .append(Component.literal(" s；Y 索取 ").withStyle(ChatFormatting.DARK_PURPLE))
+                        .append(Component.literal(Integer.toString(DOMAIN_GUILT_COST)).withStyle(ChatFormatting.AQUA))
+                        .append(Component.literal(" 点王罪，余响静默 ").withStyle(ChatFormatting.DARK_PURPLE))
+                        .append(Component.literal("360").withStyle(ChatFormatting.AQUA))
+                        .append(Component.literal(" s。两道敕令共用冷却。")
+                                .withStyle(ChatFormatting.DARK_PURPLE)));
+            }
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.player == null) {
                 return;
             }
-
-            int cooldownTicks = getCooldownTicks(minecraft.player);
+            int cooldownTicks = getSharedCooldownTicks(minecraft.player);
             if (cooldownTicks > 0) {
                 tooltip.add(Component.translatable("message.ramesses_curse.edict_cooldown", String.format(Locale.ROOT, "%.1f", cooldownTicks / 20.0F))
                         .withStyle(ChatFormatting.GRAY));
             }
         }
-
         private static boolean tryActivate(ServerPlayer player) {
+            return tryActivateInternal(player, false) == EdictActivationResult.SUCCESS;
+        }
+        private static EdictActivationResult tryActivateDomain(ServerPlayer player) {
+            return tryActivateInternal(player, true);
+        }
+        private static EdictActivationResult tryActivateInternal(ServerPlayer player, boolean domain) {
             if (!isEquipped(player)) {
-                return false;
+                return EdictActivationResult.NOT_EQUIPPED;
             }
-
-            if (getCooldownTicks(player) > 0) {
-                return false;
+            int cooldownTicks = getSharedCooldownTicks(player);
+            if (cooldownTicks > 0) {
+                return EdictActivationResult.COOLDOWN;
             }
-
-            if (ModEvents.getGuiltProgress(player) < GUILT_COST) {
-                player.displayClientMessage(Component.translatable("message.ramesses_curse.edict_no_guilt")
-                        .withStyle(ChatFormatting.RED), true);
-                return false;
+            int guiltCost = domain ? DOMAIN_GUILT_COST : GUILT_COST;
+            if (ModEvents.getGuiltProgress(player) < guiltCost) {
+                return EdictActivationResult.NO_GUILT;
             }
-
-            if (!ModEvents.activateEdictOfTwoLands(player)) {
-                return false;
+            ModEvents.EdictCastResult castResult = domain
+                    ? ModEvents.activateEdictOfTwoLandsDomain(player)
+                    : ModEvents.activateEdictOfTwoLands(player);
+            if (castResult == ModEvents.EdictCastResult.NO_TARGETS) {
+                return EdictActivationResult.NO_TARGETS;
             }
-
-            ModEvents.setGuiltProgress(player, ModEvents.getGuiltProgress(player) - GUILT_COST);
-            getData(player).putLong(COOLDOWN_UNTIL_KEY, player.level().getGameTime() + COOLDOWN_TICKS);
-            player.getCooldowns().addCooldown(ModItems.EDICT_OF_TWO_LANDS.get(), COOLDOWN_TICKS);
-            return true;
+            if (castResult == ModEvents.EdictCastResult.OTHER_MODE_ACTIVE) {
+                return EdictActivationResult.OTHER_MODE_ACTIVE;
+            }
+            ModEvents.setGuiltProgress(player, ModEvents.getGuiltProgress(player) - guiltCost);
+            int appliedCooldown = domain ? DOMAIN_COOLDOWN_TICKS : COOLDOWN_TICKS;
+            getData(player).putLong(COOLDOWN_UNTIL_KEY, player.level().getGameTime() + appliedCooldown);
+            player.getCooldowns().addCooldown(ModItems.EDICT_OF_TWO_LANDS.get(), appliedCooldown);
+            return EdictActivationResult.SUCCESS;
         }
-
         private static int getCooldownTicks(Player player) {
-            return (int) Math.max(0L, getData(player).getLong(COOLDOWN_UNTIL_KEY) - player.level().getGameTime());
+            return getSharedCooldownTicks(player);
         }
-
+        private static int getDomainCooldownTicks(Player player) {
+            return getSharedCooldownTicks(player);
+        }
+        private static int getSharedCooldownTicks(Player player) {
+            int dataCooldown = (int) Math.max(0L, getData(player).getLong(COOLDOWN_UNTIL_KEY) - player.level().getGameTime());
+            int itemCooldown = player.getCooldowns().isOnCooldown(ModItems.EDICT_OF_TWO_LANDS.get()) ? 1 : 0;
+            return Math.max(dataCooldown, itemCooldown);
+        }
+        private static void clearCooldown(ServerPlayer player) {
+            getData(player).putLong(COOLDOWN_UNTIL_KEY, 0L);
+            player.getCooldowns().removeCooldown(ModItems.EDICT_OF_TWO_LANDS.get());
+        }
+        private static boolean isDomainActive(Player player) {
+            return player.getPersistentData().getLong("RamessesEdictDomainUntil") > player.level().getGameTime();
+        }
         private static boolean isEquipped(Player player) {
             return CuriosApi.getCuriosInventory(player)
                     .resolve()
@@ -1022,7 +1087,6 @@ public class ModItems {
                     .filter(stack -> !stack.isEmpty())
                     .isPresent();
         }
-
         private static CompoundTag getData(Player player) {
             CompoundTag persisted = player.getPersistentData();
             if (!persisted.contains(Player.PERSISTED_NBT_TAG)) {
@@ -1034,7 +1098,6 @@ public class ModItems {
             }
             return root.getCompound(DATA_KEY);
         }
-
         private static boolean isValidHandSlot(String identifier) {
             if (identifier == null) {
                 return false;
@@ -1046,7 +1109,6 @@ public class ModItems {
                     || identifier.endsWith("_hands");
         }
     }
-
     public static class HeartOfDuat extends Item implements ICurioItem {
         private static final String HEART_DATA_KEY = "RamessesHeartOfDuat";
         private static final String CROWD_ACTIVE_UNTIL_KEY = "CrowdActiveUntil";

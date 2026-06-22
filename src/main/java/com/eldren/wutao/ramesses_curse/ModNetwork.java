@@ -70,5 +70,17 @@ public class ModNetwork {
                 EdictOfTwoLandsTriggeredPacket::encode,
                 EdictOfTwoLandsTriggeredPacket::decode,
                 EdictOfTwoLandsTriggeredPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                EdictOfTwoLandsDomainActivatePacket.class,
+                EdictOfTwoLandsDomainActivatePacket::encode,
+                EdictOfTwoLandsDomainActivatePacket::decode,
+                EdictOfTwoLandsDomainActivatePacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                EdictCooldownSyncPacket.class,
+                EdictCooldownSyncPacket::encode,
+                EdictCooldownSyncPacket::decode,
+                EdictCooldownSyncPacket::handle);
     }
 }

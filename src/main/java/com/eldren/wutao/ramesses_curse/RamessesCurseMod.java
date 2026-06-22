@@ -54,6 +54,11 @@ public class RamessesCurseMod {
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_X,
             "key.categories.ramesses_curse");
+    public static final KeyMapping EDICT_OF_TWO_LANDS_DOMAIN_KEY = new KeyMapping(
+            "key.ramesses_curse.edict_of_two_lands_domain",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_Y,
+            "key.categories.ramesses_curse");
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
@@ -142,6 +147,7 @@ public class RamessesCurseMod {
             event.register(HEART_AWAKENING_KEY);
             event.register(HEART_WARD_KEY);
             event.register(EDICT_OF_TWO_LANDS_KEY);
+            event.register(EDICT_OF_TWO_LANDS_DOMAIN_KEY);
         }
     }
 }
