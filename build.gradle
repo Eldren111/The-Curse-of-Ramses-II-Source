@@ -83,6 +83,8 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    compileOnly fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}:api")
+    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}")
     compileOnly fg.deobf("dev.shadowsoffire:Apotheosis:1.20.1-7.4.8")
     implementation fg.deobf("top.theillusivec4.curios:curios-forge:5.9.1+1.20.1")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")

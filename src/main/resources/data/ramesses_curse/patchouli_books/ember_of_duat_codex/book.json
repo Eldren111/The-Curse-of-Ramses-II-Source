@@ -1,0 +1,11 @@
+{
+  "name": "拉美西斯手册",
+  "landing_text": "火中尚有旧王的余温，纸页之间还压着未被译出的字句。",
+  "version": 1,
+  "i18n": true,
+  "use_resource_pack": true,
+  "show_progress": false,
+  "book_texture": "patchouli:textures/gui/book_brown.png",
+  "model": "patchouli:book_brown",
+  "creative_tab": "minecraft:tools_and_utilities"
+}

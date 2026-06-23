@@ -1,0 +1,498 @@
+﻿{
+    "name":  "亡火碑文全录",
+    "category":  "ramesses_curse:embers",
+    "icon":  "ramesses_curse:ember_of_duat",
+    "sortnum":  1,
+    "pages":  [
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一 日轮",
+                      "text":  "我总在黎明前照亮沙海，人人借我计算白昼。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二 月华",
+                      "text":  "我悬于夜幕高处，不发热也能照路。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三 双冠",
+                      "text":  "我束起两地权柄，常立于王者额前。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四 生符",
+                      "text":  "我像钥匙却不开门，我指向延续与呼吸。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五 推日之甲",
+                      "text":  "我滚动光球前行，在墓与饰物间常被看见。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六 长河",
+                      "text":  "我自南向北而流，泥土与王朝都因我存活。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七 立王之人",
+                      "text":  "我不耕田，却让名字先刻在石头上。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八 守墓之神",
+                      "text":  "我以犬首引路，在静默中衡量归途。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九 伏石之问",
+                      "text":  "我半人半兽，最擅长不张口的提问。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文十 向天之陵",
+                      "text":  "我以四面收束大地，像坟墓也像长矛。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文十一 夜后之路",
+                      "text":  "我不是夜色本身，却收容亡者归行。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文十二 白羽长喙",
+                      "text":  "我立在浅水之间，抄写与月意常借我之形。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文十三 归来之王",
+                      "text":  "我曾被分开，后来又在绿意中归来。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文十四 羽衡",
+                      "text":  "我轻若一片羽，却能压住整座王朝。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文十五 鹰眼",
+                      "text":  "我凝望王权，常在冠前而不在座上。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文十六 家门之守",
+                      "text":  "我以猫形护火，白日温顺夜里警醒。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文十七 隐名者",
+                      "text":  "许多人敬我时，只说我难以被看见。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文十八 天轮之主",
+                      "text":  "每一个黎明来临时，总有人先想起我。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文十九 旧纸之草",
+                      "text":  "我被卷成书页，承载墨与旧时代。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二十 直立之石",
+                      "text":  "我笔直向上，把影子切成两半。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二十一 缠布沉眠",
+                      "text":  "我被布条紧紧包裹，却不是礼物。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二十二 石中之眠",
+                      "text":  "石壳包住我的安静，里面护着一具遗身。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二十三 冠前之蛇",
+                      "text":  "我盘在王额之前，既是威吓也是庇护。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二十四 晨光之甲",
+                      "text":  "我在最早的光里推着新一天出现。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二十五 王座之母",
+                      "text":  "我因治愈与王权之力而被反复呼唤。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二十六 烈狮",
+                      "text":  "我兼具怒火与战意，牙锋像灼人的日光。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二十七 记述之手",
+                      "text":  "文字、计算与记忆都愿意向我靠拢。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二十八 吞日长影",
+                      "text":  "我潜伏深处，总想把高天之火吞掉。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文二十九 同息之影",
+                      "text":  "我像另一个你，共享同一口气。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三十 翼魂",
+                      "text":  "我能暂离肉身，看起来像会飞的灵。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三十一 芦原",
+                      "text":  "亡者向往那里，因为田野总是青绿无边。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三十二 芳涂",
+                      "text":  "我抹在皮肤之上，以香气盖过尘土。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三十三 身前小护",
+                      "text":  "我常被挂在胸前，小而隐秘却让人安心。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三十四 行日之舟",
+                      "text":  "我承载光明越过天海，明明是舟却不靠水。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三十五 归后之书",
+                      "text":  "我的页中写满亡者才能用上的言辞。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三十六 覆面之辉",
+                      "text":  "我遮住王者的面容，却让他死后更明亮。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三十七 柱火回声",
+                      "text":  "香烟、立柱与祈祷都在这里聚集。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三十八 诵词之人",
+                      "text":  "我知道何时点香，也知道何时开口。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文三十九 献纳之前",
+                      "text":  "祭品、誓言与祈愿都要先经过我。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四十 隐答",
+                      "text":  "有人发问之后，总会期待我给出看不见的回应。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四十一 深蓝之石",
+                      "text":  "我的颜色像王夜，越看越沉静。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四十二 红色脉络",
+                      "text":  "细小如尘，却总能把力量送往别处。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四十三 火记之黑",
+                      "text":  "我像玻璃，却记得烈火与重压。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四十四 硬光",
+                      "text":  "人人都想拥有我，因为我明亮且难碎。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四十五 交易之绿",
+                      "text":  "村人与我关系极近，而我总闪着温润的色泽。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四十六 熔火之后",
+                      "text":  "我曾在炽热中沉没，回来时更沉更坚。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四十七 折距之珠",
+                      "text":  "只要抛出我，距离便会被强行弯折。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四十八 世界尽头之影",
+                      "text":  "最后的大影常守在黑曜边界的高空。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文四十九 绿响",
+                      "text":  "我先发出短促的警告，再让墙壁失去意义。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五十 迟步饥影",
+                      "text":  "我走得不快，却总被空腹推动着前进。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五十一 骨与弓",
+                      "text":  "黑暗里飞出的一箭，常由我先松手。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五十二 织网者",
+                      "text":  "我爬墙结丝，把空气也变成陷阱。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五十三 瓶药与笑",
+                      "text":  "我戴着尖帽，投来的从不是善意。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五十四 旗前之夺",
+                      "text":  "我举着旗帜靠近，从不懂敲门。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五十五 壳中之举",
+                      "text":  "我藏在硬壳内，却能把人直接托离地面。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五十六 炎环",
+                      "text":  "我被火焰绕着旋转，守着堡垒的空气。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五十七 远哭",
+                      "text":  "我在下界长嚎，像漂浮在空中的悲声。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五十八 深暗之听",
+                      "text":  "我看不见你，却几乎总能找到你。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文五十九 海下之息",
+                      "text":  "有我在时，海水也能容人久留。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六十 吞水之黄",
+                      "text":  "我能把整片水域喝干，让地面裸露出来。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六十一 翼布",
+                      "text":  "只要纵身一跃，天空就会化作道路。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六十二 微光书页",
+                      "text":  "纸页合拢时无声，打开后却许诺更锋利的力量。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六十三 重铁之台",
+                      "text":  "我修补、命名，也在每次敲击后越发疲惫。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六十四 简火之箱",
+                      "text":  "我只靠热，就把生与熟分成前后。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六十五 再铸之处",
+                      "text":  "我让旧装备继续前进，又不忘原本的样子。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六十六 独眼远观",
+                      "text":  "我一次只借给一只眼，却能把远方拉近。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六十七 归向",
+                      "text":  "我总记得某个位置，并执拗地朝它指去。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六十八 夜间暂停",
+                      "text":  "只要周围足够安静，我便让黑夜直接略过。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文六十九 浮木之行",
+                      "text":  "当我碰到水，水面就成了道路。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七十 宝藏之口",
+                      "text":  "我沉默地收着东西，直到有人来打开。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七十一 小容万物",
+                      "text":  "我看似只盛液体，却常装得比外形更多。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七十二 穴中之火",
+                      "text":  "我让洞穴不再显得那么孤独。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七十三 未成之树",
+                      "text":  "我在长成参天之前，只是一点脆弱的开端。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七十四 河边之线",
+                      "text":  "我把耐心垂进水里，等一个突然的回拽。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七十五 先张后发",
+                      "text":  "我总是先蓄着力，再快速回答远处。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七十六 海暴之叉",
+                      "text":  "我属于风暴与深海，尖端一分为三。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七十七 直去之羽",
+                      "text":  "一旦被放手，我只想着朝前。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七十八 固名之片",
+                      "text":  "我能让生物的名字从此不再改变。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文七十九 不用笼子的束缚",
+                      "text":  "我不把谁关起来，却能让谁别走远。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八十 小焰",
+                      "text":  "我安静而微弱，却足以照亮一间房。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八十一 水下之灯",
+                      "text":  "我在海里也能持续发亮，从不溺亡。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八十二 凝住的下界光",
+                      "text":  "我像一块被冻住的明亮火色。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八十三 会老去的金属",
+                      "text":  "我先是温暖的橙，后来慢慢转绿。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八十四 奢侈一口",
+                      "text":  "只需咬下去，身体便会想起某种珍贵。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八十五 火后之食",
+                      "text":  "火把原本粗粝的东西变成了可安心吞下的晚餐。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八十六 最朴素的充饥",
+                      "text":  "我柔软简单，却足以让人继续上路。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八十七 六角甜壳",
+                      "text":  "我黏而明亮，甜味被分隔成整齐的格子。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八十八 橙色切片",
+                      "text":  "外壳、香甜和秋意都被烤进了一块。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文八十九 快步",
+                      "text":  "我还没想完，脚就已经先动了。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九十 沉重一击",
+                      "text":  "当我降临时，每次命中都比先前更实。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九十一 黑中可见",
+                      "text":  "我让黑暗变得像白昼一样可读。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九十二 闭目之幕",
+                      "text":  "世界在我四周把眼睛全部合上。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九十三 倾斜之感",
+                      "text":  "地平线开始晃动，胃也跟着抱怨。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九十四 空腹驱策",
+                      "text":  "我先掏空你的食量，再催你去找更多。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九十五 偏爱",
+                      "text":  "掉落与概率在我面前会稍微温柔一点。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九十六 经耕之地",
+                      "text":  "水、锄与等待共同把泥土变成收成。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九十七 钟与门之聚",
+                      "text":  "钟声、房屋与交易把人们留在这里。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九十八 框中异界",
+                      "text":  "只要把边框立好，另一头的世界就会回应。$(br2)"
+                  }
+              ]
+}

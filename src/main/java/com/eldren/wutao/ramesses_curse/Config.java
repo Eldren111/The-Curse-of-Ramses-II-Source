@@ -67,6 +67,29 @@ public class Config {
                         "curse2EntityWhitelist",
                         List.of("minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"),
                         Config::validateEntityTypeName);
+
+        CURSE_2_REVERSED_LUCK_BONUS = BUILDER
+                .comment("[诅咒2-反转] 反转后持续给予的幸运值加成。")
+                .defineInRange("curse2ReversedLuckBonus", 10.0D, 0.0D, 1024.0D);
+
+        CURSE_2_REVERSED_SPAWN_INTERVAL = BUILDER
+                .comment("[诅咒2-反转] 奴仆召唤检测间隔，单位为 tick。12000 tick = 10 分钟。")
+                .defineInRange("curse2ReversedSpawnInterval", 12000, 20, 720000);
+
+        CURSE_2_REVERSED_SPAWN_CHANCE = BUILDER
+                .comment("[诅咒2-反转] 每次到达检测间隔后，召来王权奴仆的概率。")
+                .defineInRange("curse2ReversedSpawnChance", 0.15D, 0.0D, 1.0D);
+
+        CURSE_2_REVERSED_MINION_DURATION = BUILDER
+                .comment("[诅咒2-反转] 王权奴仆持续时间，单位为 tick。400 tick = 20 秒。")
+                .defineInRange("curse2ReversedMinionDuration", 400, 20, 72000);
+
+        CURSE_2_REVERSED_ENTITY_WHITELIST = BUILDER
+                .comment("[诅咒2-反转] 王权奴仆白名单。只会从这里召唤实体，也支持其他模组生物。")
+                .defineListAllowEmpty(
+                        "curse2ReversedEntityWhitelist",
+                        List.of("minecraft:wither_skeleton", "minecraft:husk", "minecraft:stray", "minecraft:vindicator"),
+                        Config::validateEntityTypeName);
         BUILDER.pop();
 
         BUILDER.push("诅咒三");
@@ -246,6 +269,10 @@ public class Config {
         START_WITH_SEAL_EQUIPPED = BUILDER
                 .comment("[通用] 为 true 时，新玩家开局直接将卡迭石咒印佩戴在诅咒槽位中。开启后不会再额外放入初始背包。")
                 .define("startWithSealEquipped", false);
+
+        START_WITH_RAMASSES_MANUAL = BUILDER
+                .comment("[通用] 为 true 时，新玩家开局获得一本拉美西斯手册。")
+                .define("startWithRamessesManual", true);
         BUILDER.pop();
     }
 
@@ -261,6 +288,11 @@ public class Config {
     public static final ForgeConfigSpec.DoubleValue CURSE_2_LUCK_PENALTY;
     public static final ForgeConfigSpec.IntValue CURSE_2_SPAWN_RADIUS;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_2_ENTITY_WHITELIST;
+    public static final ForgeConfigSpec.DoubleValue CURSE_2_REVERSED_LUCK_BONUS;
+    public static final ForgeConfigSpec.IntValue CURSE_2_REVERSED_SPAWN_INTERVAL;
+    public static final ForgeConfigSpec.DoubleValue CURSE_2_REVERSED_SPAWN_CHANCE;
+    public static final ForgeConfigSpec.IntValue CURSE_2_REVERSED_MINION_DURATION;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_2_REVERSED_ENTITY_WHITELIST;
     public static final ForgeConfigSpec.DoubleValue CURSE_3_XP_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue CURSE_3_ENCHANT_COST_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue CURSE_3_ANVIL_COST_MULTIPLIER;
@@ -280,6 +312,7 @@ public class Config {
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_8_BOSS_WHITELIST;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL_EQUIPPED;
+    public static final ForgeConfigSpec.BooleanValue START_WITH_RAMASSES_MANUAL;
     public static final ForgeConfigSpec.IntValue HEART_TRIGGER_HOSTILE_COUNT;
     public static final ForgeConfigSpec.IntValue HEART_TRIGGER_RADIUS;
     public static final ForgeConfigSpec.IntValue HEART_ACTIVE_DURATION;
@@ -322,6 +355,15 @@ public class Config {
                 .map(ResourceLocation::new)
                 .map(ForgeRegistries.ENTITY_TYPES::getValue)
                 .filter(entityType -> entityType != null && entityType.getCategory() == MobCategory.MONSTER)
+                .toList();
+        return getEntityTypeFromPool(filteredPool, seed);
+    }
+
+    public static EntityType<?> getRandomCurseTwoMinionEntityType(int seed) {
+        List<EntityType<?>> filteredPool = CURSE_2_REVERSED_ENTITY_WHITELIST.get().stream()
+                .map(ResourceLocation::new)
+                .map(ForgeRegistries.ENTITY_TYPES::getValue)
+                .filter(entityType -> entityType != null)
                 .toList();
         return getEntityTypeFromPool(filteredPool, seed);
     }

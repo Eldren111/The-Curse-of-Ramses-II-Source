@@ -1,0 +1,19 @@
+﻿{
+  "name": "碑文字母表",
+  "category": "ramesses_curse:embers",
+  "icon": "ramesses_curse:ramesses_manual",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "A - P",
+      "text": "\uE000 A      \uE001 B      \uE002 C$(br2)\uE003 D      \uE004 E      \uE005 F$(br2)\uE006 G      \uE007 H      \uE008 I$(br2)\uE009 J      \uE00A K      \uE00B L$(br2)\uE00C M      \uE00D N      \uE00E O$(br2)\uE00F P$(br2)先对照前十六字母，抄录时会更顺手。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Q - Z",
+      "text": "\uE010 Q      \uE011 R      \uE012 S$(br2)\uE013 T      \uE014 U      \uE015 V$(br2)\uE016 W      \uE017 X      \uE018 Y$(br2)\uE019 Z$(br2)碑文比对只接受英文谜底，并逐字映成碑文。$(br)例：SUN，ANKH，PORTAL。"
+    }
+  ]
+}
+

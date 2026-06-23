@@ -73,6 +73,7 @@ public class RamessesCurseMod {
                     .icon(() -> ModItems.SEAL_OF_KADESH.get().getDefaultInstance())
                     .displayItems((parameters, output) -> {
                         output.accept(ModItems.SEAL_OF_KADESH.get());
+                        output.accept(ModItems.RAMASSES_MANUAL.get());
                         output.accept(ModItems.PURIFICATION_SCROLL.get());
                         output.accept(ModItems.SATIETY_CRYSTAL.get());
                         output.accept(ModItems.EMBER_OF_DUAT.get());

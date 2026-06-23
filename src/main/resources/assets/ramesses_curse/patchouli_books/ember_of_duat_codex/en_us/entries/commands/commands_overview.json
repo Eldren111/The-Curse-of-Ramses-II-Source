@@ -1,0 +1,27 @@
+{
+  "name": "指令与排障",
+  "category": "ramesses_curse:commands",
+  "icon": "minecraft:command_block",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "以下指令主要用于服主、测试服与开发环境。普通生存流程并不依赖它们。$(br2)根指令均以 $(thing)/ramessescurse$() 开头。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "王罪相关",
+      "text": "$(li)/ramessescurse guilt set <玩家> <数值>$(li)/ramessescurse guilt add <玩家> <数值>$(li)/ramessescurse guilt remove <玩家> <数值>$(br2)可直接校验王罪条、封印与敕印消耗。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "定位与冷却",
+      "text": "$(li)/ramessescurse locate [玩家]$(li)/ramessescurse locate_tp [玩家] [编号]$(li)/ramessescurse cooling duat [玩家]$(li)/ramessescurse cooling edict [玩家]$(br2)适合查找饱食水晶，或在测试技能时重置冷却。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "反转调试",
+      "text": "$(li)/ramessescurse curse2_reversed <玩家> <true/false>$(br2)可手动切换摄政王冠的反转状态，用于验证奴仆与幸运加成是否正常生效。"
+    }
+  ]
+}

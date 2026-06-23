@@ -1,0 +1,35 @@
+{
+  "name": "余烬试炼",
+  "category": "ramesses_curse:embers",
+  "icon": "ramesses_curse:ember_of_duat",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Frontispiece",
+      "text": "The Ember of Duat is not a spark to be spent casually. It only answers those who have truly read the inscriptions. $(br2)Study the pages, then right-click the ember to open its dedicated comparison panel. Only the right name will make the fire lean toward you."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The trial comes in three waves. The hostile ranks are highlighted, and a boss bar records how many remain. $(br2)Finish all three and the first reversal of the Regent's Crown finally loosens. If the trial breaks midway, the ember falls silent and a whole new cycle of inscriptions must be solved."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "How to Read",
+      "text": "These lines are not meant to be translated stroke by stroke. They are a veil, hiding the true name behind title and image. $(br2)Look at names such as the sun-wheel, the great river, the twin crown, or the white feather, then think of the ancient thing that rises first to mind."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The ember does not ask for perfect scholarship or literal decoding. It listens only for the true name hidden inside the shadow. $(br2)Once you have a guess, open the ember's input panel and enter it there. A wrong answer earns no explanation. A right one bends the fire to your side."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Example",
+      "text": "Take the inscription of the sun-wheel. $(br2)Ignore the cipher-shapes at first and focus on the title. Then follow the Egyptian image that fits most directly: the thing crossing the sky by day and lending its rhythm to every clock of the world."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "So the reasoning is simple: $(br)sun-wheel -> the sun in the sky -> enter “太阳” in the ember panel. $(br2)The rest follow the same method: grasp the title first, trace the image second, and finally enter the single nearest accepted name."
+    }
+  ]
+}

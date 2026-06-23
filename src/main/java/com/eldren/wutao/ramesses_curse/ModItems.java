@@ -1,4 +1,4 @@
-﻿package com.eldren.wutao.ramesses_curse;
+package com.eldren.wutao.ramesses_curse;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
@@ -10,6 +10,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -44,6 +45,7 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -58,6 +60,8 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import vazkii.patchouli.api.PatchouliAPI;
 
 public class ModItems {
 
@@ -82,6 +86,8 @@ public class ModItems {
             ITEMS.register("uraeus_necklace", UraeusNecklace::new);
     public static final RegistryObject<Item> EDICT_OF_TWO_LANDS =
             ITEMS.register("edict_of_two_lands", EdictOfTwoLands::new);
+    public static final RegistryObject<Item> RAMASSES_MANUAL =
+            ITEMS.register("ramesses_manual", RamessesManual::new);
 
     public static int getHeartOfDuatCooldownTicks(Player player) {
         return HeartOfDuat.getCooldownTicks(player);
@@ -188,6 +194,31 @@ public class ModItems {
         NO_TARGETS,
         OTHER_MODE_ACTIVE
     }
+
+    public static class RamessesManual extends Item {
+        private static final ResourceLocation BOOK_ID = new ResourceLocation(RamessesCurseMod.MODID, "ember_of_duat_codex");
+
+        public RamessesManual() {
+            super(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
+        }
+
+        @Override
+        public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+            ItemStack stack = player.getItemInHand(usedHand);
+            if (level.isClientSide) {
+                if (!ModList.get().isLoaded("patchouli") || PatchouliAPI.get().isStub()) {
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.manual_patchouli_missing").withStyle(ChatFormatting.RED), true);
+                    return InteractionResultHolder.fail(stack);
+                }
+
+                PatchouliAPI.get().openBookGUI(BOOK_ID);
+                return InteractionResultHolder.sidedSuccess(stack, true);
+            }
+
+            return InteractionResultHolder.sidedSuccess(stack, false);
+        }
+    }
+
     public static class SealOfKadesh extends Item implements ICurioItem {
         private static final UUID CURSE_2_LUCK_MODIFIER_ID = UUID.fromString("d5b8dc2a-6541-46b2-8d8a-f642f6f40b91");
 
@@ -260,19 +291,29 @@ public class ModItems {
                         .append(purpleText(" 到 "))
                         .append(yellowNumber(Math.max(Config.RANDOM_CURSE_AMPLIFIER_MIN.get(), Config.RANDOM_CURSE_AMPLIFIER_MAX.get())))
                         .append(purpleText(" 级。")));
-                tooltip.add(purpleText("- ")
-                        .append(blueText("摄政王冠"))
-                        .append(purpleText("：持续降低 "))
-                        .append(yellowNumber(formatNumber(Config.CURSE_2_LUCK_PENALTY.get())))
-                        .append(purpleText(" 点幸运值，每 "))
-                        .append(yellowNumber(formatTicksAsMinutes(Config.CURSE_2_SPAWN_INTERVAL.get())))
-                        .append(purpleText(" 分钟有 "))
-                        .append(yellowPercent(Config.CURSE_2_SPAWN_CHANCE.get()))
-                        .append(purpleText(" 在半径 "))
-                        .append(yellowNumber(Config.CURSE_2_SPAWN_RADIUS.get()))
-                        .append(purpleText(" 格内召来 "))
-                        .append(yellowNumber(1))
-                        .append(purpleText(" 个敌对生物。")));
+                MutableComponent curseTwoLine = purpleText("- ").append(blueText("摄政王冠"));
+                if (ModEvents.isCurseTwoReversed(minecraft.player)) {
+                    curseTwoLine.append(purpleText("：反转后，冠影不再只夺走幸运，而会补回 "))
+                            .append(yellowNumber(formatNumber(Config.CURSE_2_REVERSED_LUCK_BONUS.get())))
+                            .append(purpleText(" 点。每 "))
+                            .append(yellowNumber(formatTicksAsMinutes(Config.CURSE_2_REVERSED_SPAWN_INTERVAL.get())))
+                            .append(purpleText(" 分钟有 "))
+                            .append(yellowPercent(Config.CURSE_2_REVERSED_SPAWN_CHANCE.get()))
+                            .append(purpleText(" 的机会遣下一名短暂听命的旧臣。"));
+                } else {
+                    curseTwoLine.append(purpleText("：持续降低 "))
+                            .append(yellowNumber(formatNumber(Config.CURSE_2_LUCK_PENALTY.get())))
+                            .append(purpleText(" 点幸运值，每 "))
+                            .append(yellowNumber(formatTicksAsMinutes(Config.CURSE_2_SPAWN_INTERVAL.get())))
+                            .append(purpleText(" 分钟有 "))
+                            .append(yellowPercent(Config.CURSE_2_SPAWN_CHANCE.get()))
+                            .append(purpleText(" 在半径 "))
+                            .append(yellowNumber(Config.CURSE_2_SPAWN_RADIUS.get()))
+                            .append(purpleText(" 格内召来 "))
+                            .append(yellowNumber(1))
+                            .append(purpleText(" 个敌对生物。"));
+                }
+                tooltip.add(curseTwoLine);
                 tooltip.add(purpleText("- ")
                         .append(blueText("御名税印"))
                         .append(purpleText("：击杀任意生物获得经验变为 "))
@@ -349,14 +390,25 @@ public class ModItems {
         }
         private static void applyLuckPenalty(Player player) {
             AttributeInstance luck = player.getAttribute(Attributes.LUCK);
-            if (luck == null || luck.getModifier(CURSE_2_LUCK_MODIFIER_ID) != null) {
+            if (luck == null) {
                 return;
+            }
+
+            double amount = ModEvents.isCurseTwoReversed(player)
+                    ? Config.CURSE_2_REVERSED_LUCK_BONUS.get()
+                    : -Config.CURSE_2_LUCK_PENALTY.get();
+            AttributeModifier existing = luck.getModifier(CURSE_2_LUCK_MODIFIER_ID);
+            if (existing != null) {
+                if (Math.abs(existing.getAmount() - amount) < 1.0E-6D) {
+                    return;
+                }
+                luck.removeModifier(CURSE_2_LUCK_MODIFIER_ID);
             }
 
             luck.addTransientModifier(new AttributeModifier(
                     CURSE_2_LUCK_MODIFIER_ID,
-                    "seal_of_kadesh_curse_2_penalty",
-                    -Config.CURSE_2_LUCK_PENALTY.get(),
+                    "seal_of_kadesh_curse_2_luck",
+                    amount,
                     AttributeModifier.Operation.ADDITION));
         }
 
@@ -396,12 +448,23 @@ public class ModItems {
         }
 
         private static void applyCrownOfRegency(ServerPlayer player, int equipTicks) {
-            int interval = Config.CURSE_2_SPAWN_INTERVAL.get();
+            boolean reversed = ModEvents.isCurseTwoReversed(player);
+            int interval = reversed
+                    ? Config.CURSE_2_REVERSED_SPAWN_INTERVAL.get()
+                    : Config.CURSE_2_SPAWN_INTERVAL.get();
             if (equipTicks <= 0 || equipTicks % interval != 0) {
                 return;
             }
 
-            if (player.getRandom().nextDouble() >= Config.CURSE_2_SPAWN_CHANCE.get()) {
+            double chance = reversed
+                    ? Config.CURSE_2_REVERSED_SPAWN_CHANCE.get()
+                    : Config.CURSE_2_SPAWN_CHANCE.get();
+            if (player.getRandom().nextDouble() >= chance) {
+                return;
+            }
+
+            if (reversed) {
+                ModEvents.spawnCurseTwoMinion(player);
                 return;
             }
 
@@ -521,8 +584,39 @@ public class ModItems {
         }
 
         @Override
+        public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+            ItemStack stack = player.getItemInHand(usedHand);
+            if (level.isClientSide) {
+                if (!ModEvents.ClientOverlayEvents.isClientEmberRiddleUnlocked()) {
+                    Minecraft.getInstance().setScreen(new EmberRiddleInputScreen());
+                }
+                return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+            }
+            if (!(player instanceof ServerPlayer serverPlayer)) {
+                return InteractionResultHolder.sidedSuccess(stack, false);
+            }
+
+            if (!ModEvents.canUseEmberOfDuat(player)) {
+                return InteractionResultHolder.fail(stack);
+            }
+
+            ModEvents.EmberTrialActivationResult result = ModEvents.tryActivateEmberTrial(serverPlayer);
+            if (result == ModEvents.EmberTrialActivationResult.ALREADY_ACTIVE) {
+                player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_trial_active").withStyle(ChatFormatting.RED), false);
+                return InteractionResultHolder.fail(stack);
+            }
+            if (result == ModEvents.EmberTrialActivationResult.RIDDLE_LOCKED) {
+                return InteractionResultHolder.fail(stack);
+            }
+
+            player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_army_pending").withStyle(ChatFormatting.GOLD), false);
+            return InteractionResultHolder.success(stack);
+        }
+
+        @Override
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
             tooltip.add(Component.translatable("item.ramesses_curse.ember_of_duat.chance").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
+            tooltip.add(Component.translatable("item.ramesses_curse.ember_of_duat.riddle").withStyle(ChatFormatting.DARK_PURPLE));
         }
     }
 
@@ -1059,6 +1153,7 @@ public class ModItems {
             int appliedCooldown = domain ? DOMAIN_COOLDOWN_TICKS : COOLDOWN_TICKS;
             getData(player).putLong(COOLDOWN_UNTIL_KEY, player.level().getGameTime() + appliedCooldown);
             player.getCooldowns().addCooldown(ModItems.EDICT_OF_TWO_LANDS.get(), appliedCooldown);
+            ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new EdictCooldownSyncPacket(appliedCooldown));
             return EdictActivationResult.SUCCESS;
         }
         private static int getCooldownTicks(Player player) {
@@ -1068,13 +1163,15 @@ public class ModItems {
             return getSharedCooldownTicks(player);
         }
         private static int getSharedCooldownTicks(Player player) {
-            int dataCooldown = (int) Math.max(0L, getData(player).getLong(COOLDOWN_UNTIL_KEY) - player.level().getGameTime());
-            int itemCooldown = player.getCooldowns().isOnCooldown(ModItems.EDICT_OF_TWO_LANDS.get()) ? 1 : 0;
-            return Math.max(dataCooldown, itemCooldown);
+            if (player.level().isClientSide) {
+                return ModEvents.ClientOverlayEvents.getClientEdictCooldownTicks();
+            }
+            return (int) Math.max(0L, getData(player).getLong(COOLDOWN_UNTIL_KEY) - player.level().getGameTime());
         }
         private static void clearCooldown(ServerPlayer player) {
             getData(player).putLong(COOLDOWN_UNTIL_KEY, 0L);
             player.getCooldowns().removeCooldown(ModItems.EDICT_OF_TWO_LANDS.get());
+            ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new EdictCooldownSyncPacket(0));
         }
         private static boolean isDomainActive(Player player) {
             return player.getPersistentData().getLong("RamessesEdictDomainUntil") > player.level().getGameTime();

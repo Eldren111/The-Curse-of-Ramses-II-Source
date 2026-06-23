@@ -1,6 +1,7 @@
 package com.eldren.wutao.ramesses_curse;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
@@ -16,6 +17,7 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -25,16 +27,19 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
@@ -49,6 +54,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.Inventory;
@@ -72,6 +78,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.BossEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.AnvilUpdateEvent;
@@ -80,6 +87,7 @@ import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.client.event.InputEvent;
+import vazkii.patchouli.api.BookDrawScreenEvent;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
@@ -100,15 +108,19 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkDirection;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
 import org.joml.Vector3f;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -136,9 +148,12 @@ public class ModEvents {
     private static final String NEXT_RANDOM_LOCK = "NextRandomLock";
     private static final String LOCKED_SLOT = "LockedSlot";
     private static final String LOCKED_SLOT_UNTIL = "LockedSlotUntil";
+    private static final String LOCKED_SLOT_STACK = "LockedSlotStack";
     private static final String NETHER_AWAKENED = "NetherAwakened";
+    private static final String CURSE_2_REVERSED = "CurseTwoReversed";
     private static final String CURSE_8_REVERSED = "CurseEightReversed";
     private static final String STARTER_GRANTED = "StarterGranted";
+    private static final String MANUAL_GRANTED = "ManualGranted";
     private static final String GUILT_PROGRESS = "GuiltProgress";
     private static final String GUILT_SENTENCE_PENDING = "GuiltSentencePending";
     private static final String GUILT_LOCK_UNTIL = "GuiltLockUntil";
@@ -150,6 +165,20 @@ public class ModEvents {
     private static final String SATIETY_CRYSTAL_Y = "SatietyCrystalY";
     private static final String SATIETY_CRYSTAL_Z = "SatietyCrystalZ";
     private static final String SATIETY_CRYSTAL_RECORDS = "SatietyCrystalRecords";
+    private static final String EMBER_RIDDLE_ID = "EmberRiddleId";
+    private static final String EMBER_RIDDLE_UNLOCKED = "EmberRiddleUnlocked";
+    private static final String EMBER_LAST_RIDDLE_ID = "EmberLastRiddleId";
+    private static final String EMBER_RIDDLE_ROUND = "EmberRiddleRound";
+    private static final String EMBER_RIDDLE_INDEX = "EmberRiddleIndex";
+    private static final String EMBER_RIDDLE_SOLVED = "EmberRiddleSolved";
+    private static final String EMBER_RIDDLE_UNLOCKED_SNAPSHOT = "EmberRiddleUnlockedSnapshot";
+    private static final String EMBER_TRIAL_ACTIVE = "EmberTrialActive";
+    private static final String EMBER_TRIAL_COMPLETED = "EmberTrialCompleted";
+    private static final String EMBER_TRIAL_WAVE = "EmberTrialWave";
+    private static final String EMBER_TRIAL_TOTAL = "EmberTrialTotal";
+    private static final String EMBER_TRIAL_DEFEATED = "EmberTrialDefeated";
+    private static final String EMBER_TRIAL_MOB = "EmberTrialMob";
+    private static final String EMBER_TRIAL_OWNER = "EmberTrialOwner";
     private static final String LAST_SYNC_GUILT = "LastSyncGuilt";
     private static final String LAST_SYNC_SEAL = "LastSyncSeal";
     private static final String LAST_SYNC_NETHER_AWAKENED = "LastSyncNetherAwakened";
@@ -176,6 +205,9 @@ public class ModEvents {
     private static final String EDICT_DOMAIN_CENTER_Y = "RamessesEdictDomainCenterY";
     private static final String EDICT_DOMAIN_CENTER_Z = "RamessesEdictDomainCenterZ";
     private static final String EDICT_DOMAIN_HIT = "RamessesEdictDomainHit";
+    private static final String CURSE_2_MINION = "RamessesCurseTwoMinion";
+    private static final String CURSE_2_MINION_OWNER = "RamessesCurseTwoMinionOwner";
+    private static final String CURSE_2_MINION_EXPIRES_AT = "RamessesCurseTwoMinionExpiresAt";
     private static final int CURSE_9_HUNGER_LOSS = 2;
     private static final int EDICT_RANGE = 12;
     private static final int EDICT_DOMAIN_RANGE = 15;
@@ -192,6 +224,135 @@ public class ModEvents {
     private static final UUID GUILT_TOUGHNESS_MODIFIER = UUID.fromString("8b962d09-4d48-4a89-930f-d23456848976");
     private static final UUID GUILT_KNOCKBACK_MODIFIER = UUID.fromString("4c133cc4-96d4-4d7f-a69e-d7f2fb74e148");
     private static final Map<ResourceKey<Level>, Map<BlockPos, TrackedMusicPlayback>> ACTIVE_MUSIC_PLAYBACKS = new HashMap<>();
+    private static final Map<UUID, ServerBossEvent> ACTIVE_EMBER_TRIAL_BARS = new HashMap<>();
+    private static final int[] EMBER_TRIAL_WAVE_COUNTS = new int[]{5, 7, 9};
+    private static final String[] EMBER_CIPHER_GLYPHS = new String[]{
+            "\uE000", "\uE001", "\uE002", "\uE003", "\uE004", "\uE005", "\uE006", "\uE007", "\uE008", "\uE009",
+            "\uE00A", "\uE00B", "\uE00C", "\uE00D", "\uE00E", "\uE00F", "\uE010", "\uE011", "\uE012", "\uE013",
+            "\uE014", "\uE015", "\uE016", "\uE017", "\uE018", "\uE019"
+    };
+    private static final List<EmberRiddle> EMBER_RIDDLES = buildEmberRiddles();
+
+    private static List<EmberRiddle> buildEmberRiddles() {
+        List<EmberRiddle> riddles = new ArrayList<>();
+        String data = """
+碑文一 日轮|我总在黎明前照亮沙海，人人借我计算白昼。|sun
+碑文二 月华|我悬于夜幕高处，不发热也能照路。|moon
+碑文三 双冠|我束起两地权柄，常立于王者额前。|crown
+碑文四 生符|我像钥匙却不开门，我指向延续与呼吸。|ankh
+碑文五 推日之甲|我滚动光球前行，在墓与饰物间常被看见。|scarab
+碑文六 长河|我自南向北而流，泥土与王朝都因我存活。|nile
+碑文七 立王之人|我不耕田，却让名字先刻在石头上。|pharaoh
+碑文八 守墓之神|我以犬首引路，在静默中衡量归途。|anubis
+碑文九 伏石之问|我半人半兽，最擅长不张口的提问。|sphinx
+碑文十 向天之陵|我以四面收束大地，像坟墓也像长矛。|pyramid
+碑文十一 夜后之路|我不是夜色本身，却收容亡者归行。|duat
+碑文十二 白羽长喙|我立在浅水之间，抄写与月意常借我之形。|ibis
+碑文十三 归来之王|我曾被分开，后来又在绿意中归来。|osiris
+碑文十四 羽衡|我轻若一片羽，却能压住整座王朝。|maat
+碑文十五 鹰眼|我凝望王权，常在冠前而不在座上。|horus
+碑文十六 家门之守|我以猫形护火，白日温顺夜里警醒。|bastet
+碑文十七 隐名者|许多人敬我时，只说我难以被看见。|amun
+碑文十八 天轮之主|每一个黎明来临时，总有人先想起我。|ra
+碑文十九 旧纸之草|我被卷成书页，承载墨与旧时代。|papyrus
+碑文二十 直立之石|我笔直向上，把影子切成两半。|obelisk
+碑文二十一 缠布沉眠|我被布条紧紧包裹，却不是礼物。|mummy
+碑文二十二 石中之眠|石壳包住我的安静，里面护着一具遗身。|sarcophagus
+碑文二十三 冠前之蛇|我盘在王额之前，既是威吓也是庇护。|uraeus
+碑文二十四 晨光之甲|我在最早的光里推着新一天出现。|khepri
+碑文二十五 王座之母|我因治愈与王权之力而被反复呼唤。|isis
+碑文二十六 烈狮|我兼具怒火与战意，牙锋像灼人的日光。|sekhmet
+碑文二十七 记述之手|文字、计算与记忆都愿意向我靠拢。|thoth
+碑文二十八 吞日长影|我潜伏深处，总想把高天之火吞掉。|apep
+碑文二十九 同息之影|我像另一个你，共享同一口气。|ka
+碑文三十 翼魂|我能暂离肉身，看起来像会飞的灵。|ba
+碑文三十一 芦原|亡者向往那里，因为田野总是青绿无边。|aaru
+碑文三十二 芳涂|我抹在皮肤之上，以香气盖过尘土。|balm
+碑文三十三 身前小护|我常被挂在胸前，小而隐秘却让人安心。|charm
+碑文三十四 行日之舟|我承载光明越过天海，明明是舟却不靠水。|solarbark
+碑文三十五 归后之书|我的页中写满亡者才能用上的言辞。|bookofdead
+碑文三十六 覆面之辉|我遮住王者的面容，却让他死后更明亮。|goldenmask
+碑文三十七 柱火回声|香烟、立柱与祈祷都在这里聚集。|temple
+碑文三十八 诵词之人|我知道何时点香，也知道何时开口。|priest
+碑文三十九 献纳之前|祭品、誓言与祈愿都要先经过我。|altar
+碑文四十 隐答|有人发问之后，总会期待我给出看不见的回应。|oracle
+碑文四十一 深蓝之石|我的颜色像王夜，越看越沉静。|lapis
+碑文四十二 红色脉络|细小如尘，却总能把力量送往别处。|redstone
+碑文四十三 火记之黑|我像玻璃，却记得烈火与重压。|obsidian
+碑文四十四 硬光|人人都想拥有我，因为我明亮且难碎。|diamond
+碑文四十五 交易之绿|村人与我关系极近，而我总闪着温润的色泽。|emerald
+碑文四十六 熔火之后|我曾在炽热中沉没，回来时更沉更坚。|netherite
+碑文四十七 折距之珠|只要抛出我，距离便会被强行弯折。|enderpearl
+碑文四十八 世界尽头之影|最后的大影常守在黑曜边界的高空。|enderdragon
+碑文四十九 绿响|我先发出短促的警告，再让墙壁失去意义。|creeper
+碑文五十 迟步饥影|我走得不快，却总被空腹推动着前进。|zombie
+碑文五十一 骨与弓|黑暗里飞出的一箭，常由我先松手。|skeleton
+碑文五十二 织网者|我爬墙结丝，把空气也变成陷阱。|spider
+碑文五十三 瓶药与笑|我戴着尖帽，投来的从不是善意。|witch
+碑文五十四 旗前之夺|我举着旗帜靠近，从不懂敲门。|pillager
+碑文五十五 壳中之举|我藏在硬壳内，却能把人直接托离地面。|shulker
+碑文五十六 炎环|我被火焰绕着旋转，守着堡垒的空气。|blaze
+碑文五十七 远哭|我在下界长嚎，像漂浮在空中的悲声。|ghast
+碑文五十八 深暗之听|我看不见你，却几乎总能找到你。|warden
+碑文五十九 海下之息|有我在时，海水也能容人久留。|conduit
+碑文六十 吞水之黄|我能把整片水域喝干，让地面裸露出来。|sponge
+碑文六十一 翼布|只要纵身一跃，天空就会化作道路。|elytra
+碑文六十二 微光书页|纸页合拢时无声，打开后却许诺更锋利的力量。|enchantedbook
+碑文六十三 重铁之台|我修补、命名，也在每次敲击后越发疲惫。|anvil
+碑文六十四 简火之箱|我只靠热，就把生与熟分成前后。|furnace
+碑文六十五 再铸之处|我让旧装备继续前进，又不忘原本的样子。|smithingtable
+碑文六十六 独眼远观|我一次只借给一只眼，却能把远方拉近。|spyglass
+碑文六十七 归向|我总记得某个位置，并执拗地朝它指去。|compass
+碑文六十八 夜间暂停|只要周围足够安静，我便让黑夜直接略过。|bed
+碑文六十九 浮木之行|当我碰到水，水面就成了道路。|boat
+碑文七十 宝藏之口|我沉默地收着东西，直到有人来打开。|chest
+碑文七十一 小容万物|我看似只盛液体，却常装得比外形更多。|bucket
+碑文七十二 穴中之火|我让洞穴不再显得那么孤独。|torch
+碑文七十三 未成之树|我在长成参天之前，只是一点脆弱的开端。|sapling
+碑文七十四 河边之线|我把耐心垂进水里，等一个突然的回拽。|fishingrod
+碑文七十五 先张后发|我总是先蓄着力，再快速回答远处。|crossbow
+碑文七十六 海暴之叉|我属于风暴与深海，尖端一分为三。|trident
+碑文七十七 直去之羽|一旦被放手，我只想着朝前。|arrow
+碑文七十八 固名之片|我能让生物的名字从此不再改变。|nametag
+碑文七十九 不用笼子的束缚|我不把谁关起来，却能让谁别走远。|lead
+碑文八十 小焰|我安静而微弱，却足以照亮一间房。|candle
+碑文八十一 水下之灯|我在海里也能持续发亮，从不溺亡。|sealantern
+碑文八十二 凝住的下界光|我像一块被冻住的明亮火色。|glowstone
+碑文八十三 会老去的金属|我先是温暖的橙，后来慢慢转绿。|copper
+碑文八十四 奢侈一口|只需咬下去，身体便会想起某种珍贵。|goldenapple
+碑文八十五 火后之食|火把原本粗粝的东西变成了可安心吞下的晚餐。|cookedbeef
+碑文八十六 最朴素的充饥|我柔软简单，却足以让人继续上路。|bread
+碑文八十七 六角甜壳|我黏而明亮，甜味被分隔成整齐的格子。|honeycomb
+碑文八十八 橙色切片|外壳、香甜和秋意都被烤进了一块。|pumpkinpie
+碑文八十九 快步|我还没想完，脚就已经先动了。|speed
+碑文九十 沉重一击|当我降临时，每次命中都比先前更实。|strength
+碑文九十一 黑中可见|我让黑暗变得像白昼一样可读。|nightvision
+碑文九十二 闭目之幕|世界在我四周把眼睛全部合上。|blindness
+碑文九十三 倾斜之感|地平线开始晃动，胃也跟着抱怨。|nausea
+碑文九十四 空腹驱策|我先掏空你的食量，再催你去找更多。|hunger
+碑文九十五 偏爱|掉落与概率在我面前会稍微温柔一点。|luck
+碑文九十六 经耕之地|水、锄与等待共同把泥土变成收成。|farmland
+碑文九十七 钟与门之聚|钟声、房屋与交易把人们留在这里。|village
+碑文九十八 框中异界|只要把边框立好，另一头的世界就会回应。|portal
+        """;
+
+        for (String line : data.strip().split("\\R")) {
+            if (line.isBlank()) {
+                continue;
+            }
+            String[] parts = line.split("\\|", 3);
+            if (parts.length != 3) {
+                throw new IllegalStateException("Invalid ember riddle entry: " + line);
+            }
+            int page = riddles.size() + 1;
+            String id = String.format(Locale.ROOT, "ember_%02d", page);
+            riddles.add(new EmberRiddle(id, parts[0].trim(), page, parts[1].trim(), parts[2].trim()));
+        }
+        if (riddles.size() != 98) {
+            throw new IllegalStateException("Expected 98 ember riddles but found " + riddles.size());
+        }
+        return riddles;
+    }
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -203,6 +364,7 @@ public class ModEvents {
         CompoundTag data = getCurseData(player);
         boolean sealEquipped = sanitizeSealCurios(player);
         int remainingGuiltLock = getRemainingGuiltLockTicks(player);
+        normalizeLockedSlotState(player, data);
 
         updateHeartSlotAccess(player, sealEquipped);
         syncClientState(player, false);
@@ -230,6 +392,8 @@ public class ModEvents {
 
         if (player instanceof ServerPlayer serverPlayer) {
             tickEdictDomain(serverPlayer);
+            tickCurseTwoMinions(serverPlayer);
+            tickEmberTrial(serverPlayer);
         }
 
         if (player.containerMenu instanceof AnvilMenu anvilMenu) {
@@ -299,6 +463,8 @@ public class ModEvents {
     public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             ensureStarterSeal(player);
+            ensureStarterManual(player);
+            ensureEmberRiddle(player);
             syncClientState(player, true);
         }
     }
@@ -333,6 +499,14 @@ public class ModEvents {
                                                                 EntityArgument.getPlayers(context, "targets"),
                                                                 IntegerArgumentType.getInteger(context, "value"),
                                                                 GuiltOperation.REMOVE))))))
+                        .then(literal("curse2_reversed")
+                                .requires(source -> source.hasPermission(2))
+                                .then(argument("targets", EntityArgument.players())
+                                        .then(argument("enabled", BoolArgumentType.bool())
+                                                .executes(context -> setCurseTwoReversed(
+                                                        context.getSource(),
+                                                        EntityArgument.getPlayers(context, "targets"),
+                                                        BoolArgumentType.getBool(context, "enabled"))))))
                         .then(literal("locate")
                                 .executes(context -> locateSatietyCrystal(context.getSource(), context.getSource().getPlayerOrException()))
                                 .then(argument("target", EntityArgument.player())
@@ -415,6 +589,7 @@ public class ModEvents {
         }
         if (isMainHandLocked(player) && event.getHand() == InteractionHand.MAIN_HAND) {
             event.setCanceled(true);
+            return;
         }
         if (isLockedInventoryStack(player, event.getItemStack())) {
             event.setCanceled(true);
@@ -436,6 +611,7 @@ public class ModEvents {
         }
         if (isMainHandLocked(player) && event.getHand() == InteractionHand.MAIN_HAND) {
             event.setCanceled(true);
+            return;
         }
         if (isLockedInventoryStack(player, event.getItemStack())) {
             event.setCanceled(true);
@@ -468,6 +644,10 @@ public class ModEvents {
         }
         if (isMainHandLocked(player) && event.getHand() == InteractionHand.MAIN_HAND) {
             event.setCanceled(true);
+            return;
+        }
+        if (isLockedInventoryStack(player, player.getMainHandItem()) && event.getHand() == InteractionHand.MAIN_HAND) {
+            event.setCanceled(true);
         }
     }
 
@@ -489,9 +669,11 @@ public class ModEvents {
 
     @SubscribeEvent
     public static void onAttackEntity(AttackEntityEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && isGuiltLocked(player)) {
-            event.setCanceled(true);
-            return;
+        if (event.getEntity() instanceof ServerPlayer player) {
+            if (isGuiltLocked(player) || isMainHandLocked(player) || isLockedInventoryStack(player, player.getMainHandItem())) {
+                event.setCanceled(true);
+                return;
+            }
         }
         if (event.getEntity().level().isClientSide || !(event.getTarget() instanceof LivingEntity target)) {
             return;
@@ -533,6 +715,10 @@ public class ModEvents {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingAttack(LivingAttackEvent event) {
+        if (isCurseTwoMinionFriendlyFire(event.getSource(), event.getEntity())) {
+            event.setCanceled(true);
+            return;
+        }
         if (isEdictSealed(event.getSource().getEntity())) {
             event.setCanceled(true);
             return;
@@ -545,6 +731,16 @@ public class ModEvents {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingDamage(LivingDamageEvent event) {
+        if (isCurseTwoMinionDotOrPotionDamage(event.getEntity(), event.getSource())) {
+            event.setCanceled(true);
+            event.setAmount(0.0F);
+            return;
+        }
+        if (isCurseTwoMinionFriendlyFire(event.getSource(), event.getEntity())) {
+            event.setCanceled(true);
+            event.setAmount(0.0F);
+            return;
+        }
         if (isEdictSealed(event.getSource().getEntity())) {
             event.setCanceled(true);
             event.setAmount(0.0F);
@@ -734,6 +930,10 @@ public class ModEvents {
             return ClientOverlayEvents.isClientCurseEightReversed();
         }
         return getCurseData(player).getBoolean(CURSE_8_REVERSED);
+    }
+
+    public static boolean isCurseTwoReversed(Player player) {
+        return player != null && getCurseData(player).getBoolean(CURSE_2_REVERSED);
     }
 
     public static int getDisplayedEnchantCost(Player player, int vanillaCost) {
@@ -1117,6 +1317,398 @@ public class ModEvents {
         }
     }
 
+    public static boolean canUseEmberOfDuat(Player player) {
+        if (player == null) {
+            return false;
+        }
+        CompoundTag data = getCurseData(player);
+        return data.getBoolean(EMBER_RIDDLE_UNLOCKED) && !data.getBoolean(EMBER_TRIAL_ACTIVE);
+    }
+
+    public static Component getCurrentEmberRiddleHint(Player player) {
+        EmberRiddle riddle = getCurrentEmberRiddle(player);
+        if (riddle == null) {
+            return Component.translatable("message.ramesses_curse.ember_riddle_missing");
+        }
+        return Component.translatable("message.ramesses_curse.ember_riddle_hint", riddle.title(), riddle.page(), riddle.question());
+    }
+
+    public static void submitEmberRiddleAnswer(ServerPlayer player, String answer) {
+        if (player == null) {
+            return;
+        }
+
+        CompoundTag data = getCurseData(player);
+        if (data.getBoolean(EMBER_RIDDLE_UNLOCKED)) {
+            return;
+        }
+
+        EmberRiddle riddle = getCurrentEmberRiddle(player);
+        if (riddle == null) {
+            startNewEmberRiddleRound(player, false);
+            riddle = getCurrentEmberRiddle(player);
+        }
+        if (riddle == null) {
+            return;
+        }
+
+        String normalized = normalizeRiddleAnswer(answer);
+        if (!riddle.matches(normalized)) {
+            startNewEmberRiddleRound(player, true);
+            player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_riddle_wrong")
+                    .withStyle(net.minecraft.ChatFormatting.RED), false);
+            return;
+        }
+
+        markEmberRiddleSolved(player);
+    }
+
+    public static void selectEmberRiddle(ServerPlayer player, int index) {
+        if (player == null) {
+            return;
+        }
+        CompoundTag data = getCurseData(player);
+        if (data.getBoolean(EMBER_RIDDLE_UNLOCKED)) {
+            return;
+        }
+        ListTag round = data.getList(EMBER_RIDDLE_ROUND, Tag.TAG_STRING);
+        if (round.isEmpty()) {
+            startNewEmberRiddleRound(player, false);
+            round = data.getList(EMBER_RIDDLE_ROUND, Tag.TAG_STRING);
+        }
+        if (round.isEmpty()) {
+            return;
+        }
+        int clamped = Mth.clamp(index, 0, round.size() - 1);
+        if (isEmberRiddleSolved(data, clamped)) {
+            return;
+        }
+        data.putInt(EMBER_RIDDLE_INDEX, clamped);
+        syncEmberRiddleState(player);
+    }
+
+    public static void consumeEmberRiddleUse(ServerPlayer player) {
+        startNewEmberRiddleRound(player, true);
+    }
+
+    public static EmberTrialActivationResult tryActivateEmberTrial(ServerPlayer player) {
+        CompoundTag data = getCurseData(player);
+        if (data.getBoolean(EMBER_TRIAL_ACTIVE)) {
+            return EmberTrialActivationResult.ALREADY_ACTIVE;
+        }
+        if (!data.getBoolean(EMBER_RIDDLE_UNLOCKED)) {
+            return EmberTrialActivationResult.RIDDLE_LOCKED;
+        }
+
+        data.putBoolean(EMBER_TRIAL_ACTIVE, true);
+        data.putBoolean(EMBER_TRIAL_COMPLETED, false);
+        data.putInt(EMBER_TRIAL_WAVE, 1);
+        data.putInt(EMBER_TRIAL_TOTAL, Arrays.stream(EMBER_TRIAL_WAVE_COUNTS).sum());
+        data.putInt(EMBER_TRIAL_DEFEATED, 0);
+        consumeEmberRiddleUse(player);
+        spawnEmberTrialWave(player, 1);
+        ensureEmberTrialBossBar(player);
+        return EmberTrialActivationResult.STARTED;
+    }
+
+    public static void finishEmberTrial(ServerPlayer player, boolean success) {
+        CompoundTag data = getCurseData(player);
+        data.putBoolean(EMBER_TRIAL_ACTIVE, false);
+        data.putBoolean(EMBER_TRIAL_COMPLETED, success);
+        data.putInt(EMBER_TRIAL_WAVE, 0);
+        if (success) {
+            data.putBoolean(CURSE_2_REVERSED, true);
+            player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_trial_success")
+                    .withStyle(net.minecraft.ChatFormatting.GOLD), false);
+            removeEmberTrialBossBar(player);
+            return;
+        }
+        clearEmberTrialMobs(player.serverLevel(), player.getUUID());
+        removeEmberTrialBossBar(player);
+        player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_trial_failed")
+                .withStyle(net.minecraft.ChatFormatting.RED), false);
+    }
+
+    public static void spawnCurseTwoMinion(ServerPlayer player) {
+        EntityType<?> entityType = Config.getRandomCurseTwoMinionEntityType(player.getRandom().nextInt());
+        if (entityType == null) {
+            return;
+        }
+
+        BlockPos spawnPos = findSpawnPos(player);
+        if (spawnPos == null) {
+            return;
+        }
+
+        Entity spawned = entityType.spawn(player.serverLevel(), (CompoundTag) null, entity -> {
+        }, spawnPos, MobSpawnType.EVENT, true, false);
+        if (!(spawned instanceof Mob mob)) {
+            if (spawned != null) {
+                spawned.discard();
+            }
+            return;
+        }
+
+        CompoundTag tag = mob.getPersistentData();
+        tag.putBoolean(CURSE_2_MINION, true);
+        tag.putUUID(CURSE_2_MINION_OWNER, player.getUUID());
+        tag.putLong(CURSE_2_MINION_EXPIRES_AT, player.level().getGameTime() + Config.CURSE_2_REVERSED_MINION_DURATION.get());
+        mob.setCustomName(Component.literal("王权奴仆"));
+        mob.setCustomNameVisible(true);
+        mob.setPersistenceRequired();
+        mob.setGlowingTag(true);
+        assignCurseTwoMinionTarget(player, mob);
+    }
+
+    private static void tickCurseTwoMinions(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        long gameTime = level.getGameTime();
+        double searchRadius = Math.max(24.0D, Config.CURSE_2_SPAWN_RADIUS.get() * 3.0D);
+        List<Mob> minions = level.getEntitiesOfClass(
+                Mob.class,
+                player.getBoundingBox().inflate(searchRadius, 12.0D, searchRadius),
+                mob -> isOwnedCurseTwoMinion(mob, player.getUUID()));
+
+        for (Mob minion : minions) {
+            CompoundTag tag = minion.getPersistentData();
+            if (tag.getLong(CURSE_2_MINION_EXPIRES_AT) <= gameTime) {
+                minion.discard();
+                continue;
+            }
+
+            if (minion.getTarget() == null || !minion.getTarget().isAlive() || minion.getTarget() == player) {
+                assignCurseTwoMinionTarget(player, minion);
+            }
+        }
+    }
+
+    private static void tickEmberTrial(ServerPlayer player) {
+        CompoundTag data = getCurseData(player);
+        if (!data.getBoolean(EMBER_TRIAL_ACTIVE)) {
+            removeEmberTrialBossBar(player);
+            return;
+        }
+
+        List<Mob> alive = getAliveEmberTrialMobs(player.serverLevel(), player.getUUID());
+        int currentWave = Math.max(1, data.getInt(EMBER_TRIAL_WAVE));
+        if (alive.isEmpty()) {
+            if (currentWave >= EMBER_TRIAL_WAVE_COUNTS.length) {
+                finishEmberTrial(player, true);
+                return;
+            }
+
+            int nextWave = currentWave + 1;
+            data.putInt(EMBER_TRIAL_WAVE, nextWave);
+            spawnEmberTrialWave(player, nextWave);
+            player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_trial_wave", nextWave, EMBER_TRIAL_WAVE_COUNTS.length)
+                    .withStyle(net.minecraft.ChatFormatting.GOLD), false);
+            alive = getAliveEmberTrialMobs(player.serverLevel(), player.getUUID());
+        }
+
+        updateEmberTrialBossBar(player, alive.size());
+    }
+
+    private static void spawnEmberTrialWave(ServerPlayer player, int wave) {
+        ServerLevel level = player.serverLevel();
+        BlockPos center = player.blockPosition();
+        int count = EMBER_TRIAL_WAVE_COUNTS[Math.max(0, Math.min(EMBER_TRIAL_WAVE_COUNTS.length - 1, wave - 1))];
+
+        for (int i = 0; i < count; i++) {
+            EntityType<? extends Mob> type = getEmberTrialWaveType(wave, i);
+            BlockPos spawnPos = findTrialSpawnPos(level, center, player.getRandom(), 8 + (i % 3) * 2);
+            Mob mob = type.create(level);
+            if (mob == null) {
+                continue;
+            }
+
+            mob.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D, player.getRandom().nextFloat() * 360.0F, 0.0F);
+            mob.finalizeSpawn(level, level.getCurrentDifficultyAt(spawnPos), MobSpawnType.EVENT, null, null);
+            mob.setTarget(player);
+            mob.setPersistenceRequired();
+            mob.setGlowingTag(true);
+            mob.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 60, 0, false, false, true));
+            CompoundTag tag = mob.getPersistentData();
+            tag.putBoolean(EMBER_TRIAL_MOB, true);
+            tag.putUUID(EMBER_TRIAL_OWNER, player.getUUID());
+            level.addFreshEntity(mob);
+        }
+
+        player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_trial_wave", wave, EMBER_TRIAL_WAVE_COUNTS.length)
+                .withStyle(net.minecraft.ChatFormatting.GOLD), false);
+    }
+
+    private static EntityType<? extends Mob> getEmberTrialWaveType(int wave, int index) {
+        List<EntityType<? extends Mob>> pool = new ArrayList<>();
+        switch (wave) {
+            case 1 -> {
+                pool.add(EntityType.ZOMBIE);
+                pool.add(EntityType.SKELETON);
+                pool.add(EntityType.SPIDER);
+                pool.add(EntityType.CREEPER);
+            }
+            case 2 -> {
+                pool.add(EntityType.HUSK);
+                pool.add(EntityType.STRAY);
+                pool.add(EntityType.DROWNED);
+                pool.add(EntityType.WITCH);
+                pool.add(EntityType.PILLAGER);
+            }
+            default -> {
+                pool.add(EntityType.WITHER_SKELETON);
+                pool.add(EntityType.HUSK);
+                pool.add(EntityType.SKELETON);
+                pool.add(EntityType.VINDICATOR);
+                pool.add(EntityType.EVOKER);
+                pool.add(EntityType.SLIME);
+                pool.add(EntityType.BLAZE);
+            }
+        }
+
+        for (EntityType<?> type : ForgeRegistries.ENTITY_TYPES.getValues()) {
+            if (type != null
+                    && Monster.class.isAssignableFrom(type.getBaseClass())
+                    && type != EntityType.PLAYER
+                    && type != EntityType.ENDER_DRAGON
+                    && type != EntityType.WITHER
+                    && !pool.contains(type)) {
+                pool.add((EntityType<? extends Mob>) type);
+            }
+        }
+
+        return pool.get(Math.floorMod(index, pool.size()));
+    }
+
+    private static BlockPos findTrialSpawnPos(ServerLevel level, BlockPos center, RandomSource random, int radius) {
+        for (int attempt = 0; attempt < 12; attempt++) {
+            int offsetX = Mth.nextInt(random, -radius, radius);
+            int offsetZ = Mth.nextInt(random, -radius, radius);
+            BlockPos sample = center.offset(offsetX, 0, offsetZ);
+            BlockPos top = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, sample);
+            if (top.distManhattan(center) >= 4) {
+                return top;
+            }
+        }
+        return level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, center.offset(radius, 0, 0));
+    }
+
+    private static List<Mob> getAliveEmberTrialMobs(ServerLevel level, UUID ownerId) {
+        return level.getEntitiesOfClass(
+                Mob.class,
+                new AABB(-30000000, level.getMinBuildHeight(), -30000000, 30000000, level.getMaxBuildHeight(), 30000000),
+                mob -> mob.isAlive() && mob.getPersistentData().getBoolean(EMBER_TRIAL_MOB)
+                        && mob.getPersistentData().hasUUID(EMBER_TRIAL_OWNER)
+                        && ownerId.equals(mob.getPersistentData().getUUID(EMBER_TRIAL_OWNER)));
+    }
+
+    private static void clearEmberTrialMobs(ServerLevel level, UUID ownerId) {
+        for (Mob mob : getAliveEmberTrialMobs(level, ownerId)) {
+            mob.discard();
+        }
+    }
+
+    private static void ensureEmberTrialBossBar(ServerPlayer player) {
+        ServerBossEvent bossBar = ACTIVE_EMBER_TRIAL_BARS.computeIfAbsent(
+                player.getUUID(),
+                uuid -> new ServerBossEvent(Component.translatable("bossbar.ramesses_curse.ember_trial"), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS));
+        bossBar.addPlayer(player);
+        bossBar.setVisible(true);
+        updateEmberTrialBossBar(player, EMBER_TRIAL_WAVE_COUNTS[0]);
+    }
+
+    private static void updateEmberTrialBossBar(ServerPlayer player, int aliveCount) {
+        ServerBossEvent bossBar = ACTIVE_EMBER_TRIAL_BARS.get(player.getUUID());
+        if (bossBar == null) {
+            return;
+        }
+
+        CompoundTag data = getCurseData(player);
+        int total = Math.max(1, data.getInt(EMBER_TRIAL_TOTAL));
+        int defeated = Math.max(0, total - aliveCount - getRemainingFutureWaveCount(data.getInt(EMBER_TRIAL_WAVE)));
+        data.putInt(EMBER_TRIAL_DEFEATED, defeated);
+        float progress = Mth.clamp((float) defeated / (float) total, 0.0F, 1.0F);
+        bossBar.setProgress(progress);
+        bossBar.setName(Component.translatable(
+                "bossbar.ramesses_curse.ember_trial_status",
+                data.getInt(EMBER_TRIAL_WAVE),
+                EMBER_TRIAL_WAVE_COUNTS.length,
+                aliveCount,
+                total - defeated));
+    }
+
+    private static int getRemainingFutureWaveCount(int currentWave) {
+        int remaining = 0;
+        for (int i = Math.max(0, currentWave); i < EMBER_TRIAL_WAVE_COUNTS.length; i++) {
+            remaining += EMBER_TRIAL_WAVE_COUNTS[i];
+        }
+        return remaining;
+    }
+
+    private static void removeEmberTrialBossBar(ServerPlayer player) {
+        ServerBossEvent bossBar = ACTIVE_EMBER_TRIAL_BARS.remove(player.getUUID());
+        if (bossBar != null) {
+            bossBar.removeAllPlayers();
+            bossBar.setVisible(false);
+        }
+    }
+
+    private static void assignCurseTwoMinionTarget(ServerPlayer player, Mob minion) {
+        List<LivingEntity> targets = player.level().getEntitiesOfClass(
+                LivingEntity.class,
+                minion.getBoundingBox().inflate(24.0D),
+                entity -> entity instanceof Enemy && entity.isAlive() && entity != player);
+        LivingEntity target = targets.stream()
+                .min((left, right) -> Double.compare(minion.distanceToSqr(left), minion.distanceToSqr(right)))
+                .orElse(null);
+        if (target != null) {
+            minion.setTarget(target);
+        }
+    }
+
+    private static boolean isCurseTwoMinionFriendlyFire(DamageSource source, LivingEntity target) {
+        if (!(target instanceof Player)) {
+            return false;
+        }
+        Entity attacker = source.getEntity();
+        if (!(attacker instanceof Mob mob)) {
+            return false;
+        }
+        CompoundTag tag = mob.getPersistentData();
+        return tag.getBoolean(CURSE_2_MINION) && tag.hasUUID(CURSE_2_MINION_OWNER);
+    }
+
+    private static boolean isCurseTwoMinionDotOrPotionDamage(LivingEntity target, DamageSource source) {
+        if (!(target instanceof Mob mob)) {
+            return false;
+        }
+        CompoundTag tag = mob.getPersistentData();
+        if (!tag.getBoolean(CURSE_2_MINION)) {
+            return false;
+        }
+
+        return source.is(DamageTypes.MAGIC)
+                || source.is(DamageTypes.WITHER)
+                || source.is(DamageTypes.IN_FIRE)
+                || source.is(DamageTypes.ON_FIRE)
+                || source.is(DamageTypes.LAVA)
+                || source.is(DamageTypes.HOT_FLOOR)
+                || source.is(DamageTypes.CACTUS)
+                || source.is(DamageTypes.SWEET_BERRY_BUSH)
+                || source.is(DamageTypes.CRAMMING)
+                || source.is(DamageTypes.DRY_OUT)
+                || source.is(DamageTypes.FREEZE)
+                || source.is(DamageTypes.STARVE);
+    }
+
+    private static boolean isOwnedCurseTwoMinion(Entity entity, UUID ownerId) {
+        if (!(entity instanceof Mob mob)) {
+            return false;
+        }
+        CompoundTag tag = mob.getPersistentData();
+        return tag.getBoolean(CURSE_2_MINION)
+                && tag.hasUUID(CURSE_2_MINION_OWNER)
+                && ownerId.equals(tag.getUUID(CURSE_2_MINION_OWNER));
+    }
+
     public static ItemStack findRandomDamageableBurden(ServerPlayer player) {
         List<ItemStack> candidates = new ArrayList<>();
 
@@ -1157,13 +1749,10 @@ public class ModEvents {
             return !stack.isEmpty();
         }
         CompoundTag data = getCurseData(player);
-        if (data.getLong(LOCKED_SLOT_UNTIL) <= player.level().getGameTime()) {
+        if (!hasActiveLockedSlot(player, data)) {
             return false;
         }
         int slot = data.getInt(LOCKED_SLOT);
-        if (slot < 0 || slot >= player.getInventory().items.size()) {
-            return false;
-        }
         return ItemStack.isSameItemSameTags(player.getInventory().items.get(slot), stack);
     }
 
@@ -1183,6 +1772,9 @@ public class ModEvents {
 
     private static int getRemainingLockedSlotTicks(Player player) {
         CompoundTag data = getCurseData(player);
+        if (!hasActiveLockedSlot(player, data)) {
+            return 0;
+        }
         return (int) Math.max(0L, data.getLong(LOCKED_SLOT_UNTIL) - player.level().getGameTime());
     }
 
@@ -1231,6 +1823,20 @@ public class ModEvents {
         }
 
         data.putBoolean(STARTER_GRANTED, true);
+    }
+
+    private static void ensureStarterManual(ServerPlayer player) {
+        if (!Config.START_WITH_RAMASSES_MANUAL.get()) {
+            return;
+        }
+
+        CompoundTag data = getCurseData(player);
+        if (data.getBoolean(MANUAL_GRANTED)) {
+            return;
+        }
+
+        player.getInventory().add(new ItemStack(ModItems.RAMASSES_MANUAL.get()));
+        data.putBoolean(MANUAL_GRANTED, true);
     }
 
     private static boolean isSealEquipped(Player player) {
@@ -1480,6 +2086,10 @@ public class ModEvents {
             }
             mob.setNoAi(true);
         }
+        if (!tag.contains(EDICT_ORIGINAL_NO_GRAVITY)) {
+            tag.putBoolean(EDICT_ORIGINAL_NO_GRAVITY, target.isNoGravity());
+        }
+        target.setNoGravity(true);
 
         if (!tag.getBoolean(EDICT_DOMAIN_HIT)) {
             tag.putBoolean(EDICT_DOMAIN_HIT, true);
@@ -1488,17 +2098,18 @@ public class ModEvents {
         target.addEffect(new MobEffectInstance(MobEffects.GLOWING, 10, 0, false, false, true));
         Vec3 center = new Vec3(centerX, centerY + target.getBbHeight() * 0.25D, centerZ);
         Vec3 toCenter = center.subtract(target.position());
-        Vec3 current = target.getDeltaMovement().scale(0.35D);
         Vec3 horizontalPull = new Vec3(toCenter.x, 0.0D, toCenter.z);
         double distance = horizontalPull.length();
-        double tightening = EDICT_DOMAIN_PULL_STRENGTH + progress * 0.1D;
+        float eased = progress < 0.65F ? progress * 0.55F : 0.3575F + (progress - 0.65F) * 1.8F;
+        double tightening = EDICT_DOMAIN_PULL_STRENGTH * 0.45D + eased * 0.16D;
         Vec3 pull = distance > 0.001D
-                ? horizontalPull.normalize().scale(Math.min(0.42D, tightening + distance * 0.018D))
+                ? horizontalPull.normalize().scale(Math.min(0.34D, tightening + distance * 0.012D))
                 : Vec3.ZERO;
-        double verticalAdjust = Mth.clamp(toCenter.y * 0.085D, -0.08D, 0.1D);
-        target.setDeltaMovement(pull.x + current.x * 0.15D, verticalAdjust, pull.z + current.z * 0.15D);
-        if (distance > 0.2D && distance < 1.6D) {
-            double step = Math.min(0.3D, distance * (0.08D + progress * 0.06D));
+        double verticalAdjust = Mth.clamp(toCenter.y * 0.045D, -0.05D, 0.06D);
+        Vec3 current = target.getDeltaMovement().scale(0.18D);
+        target.setDeltaMovement(pull.x + current.x, verticalAdjust + current.y * 0.2D, pull.z + current.z);
+        if (distance > 0.18D) {
+            double step = Math.min(0.12D, distance * (0.018D + progress * 0.012D));
             Vec3 snap = horizontalPull.normalize().scale(step);
             target.setPos(target.getX() + snap.x, target.getY(), target.getZ() + snap.z);
         }
@@ -1747,9 +2358,17 @@ public class ModEvents {
         if (target instanceof Mob mob && tag.contains(EDICT_ORIGINAL_NO_AI)) {
             mob.setNoAi(tag.getBoolean(EDICT_ORIGINAL_NO_AI));
         }
+        if (tag.contains(EDICT_ORIGINAL_NO_GRAVITY)) {
+            target.setNoGravity(tag.getBoolean(EDICT_ORIGINAL_NO_GRAVITY));
+        } else {
+            target.setNoGravity(false);
+        }
         tag.remove(EDICT_DOMAIN_HIT);
         if (tag.contains(EDICT_ORIGINAL_NO_AI) && !tag.contains(EDICT_SEAL_UNTIL)) {
             tag.remove(EDICT_ORIGINAL_NO_AI);
+        }
+        if (tag.contains(EDICT_ORIGINAL_NO_GRAVITY) && !tag.contains(EDICT_SEAL_UNTIL)) {
+            tag.remove(EDICT_ORIGINAL_NO_GRAVITY);
         }
     }
 
@@ -2616,6 +3235,7 @@ public class ModEvents {
         int slot = filledSlots.get(player.getRandom().nextInt(filledSlots.size()));
         data.putInt(LOCKED_SLOT, slot);
         data.putLong(LOCKED_SLOT_UNTIL, gameTime + Config.INVENTORY_LOCK_DURATION.get());
+        data.put(LOCKED_SLOT_STACK, player.getInventory().items.get(slot).copy().save(new CompoundTag()));
     }
 
     private static BlockPos findSpawnPos(ServerPlayer player) {
@@ -2743,10 +3363,252 @@ public class ModEvents {
         return affected;
     }
 
+    private static int setCurseTwoReversed(CommandSourceStack source, Collection<ServerPlayer> targets, boolean enabled) {
+        int affected = 0;
+
+        for (ServerPlayer target : targets) {
+            CompoundTag data = getCurseData(target);
+            data.putBoolean(CURSE_2_REVERSED, enabled);
+            if (isSealEquipped(target)) {
+                ModItems.SealOfKadesh.tickSealCurses(target, 0);
+            }
+            affected++;
+        }
+
+        int count = affected;
+        source.sendSuccess(() -> Component.literal((enabled ? "已开启" : "已关闭") + " " + count + " 名玩家的摄政王冠反转。"), true);
+        return affected;
+    }
+
+    private static void ensureEmberRiddle(ServerPlayer player) {
+        CompoundTag data = getCurseData(player);
+        if (!data.contains(EMBER_RIDDLE_ROUND, Tag.TAG_LIST) || data.getList(EMBER_RIDDLE_ROUND, Tag.TAG_STRING).isEmpty()) {
+            startNewEmberRiddleRound(player, false);
+        }
+    }
+
+    private static EmberRiddle getCurrentEmberRiddle(Player player) {
+        CompoundTag data = getCurseData(player);
+        ListTag round = data.getList(EMBER_RIDDLE_ROUND, Tag.TAG_STRING);
+        if (round.isEmpty()) {
+            return null;
+        }
+        int index = Mth.clamp(data.getInt(EMBER_RIDDLE_INDEX), 0, round.size() - 1);
+        String id = round.getString(index);
+        return EMBER_RIDDLES.stream()
+                .filter(riddle -> riddle.id().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static void startNewEmberRiddleRound(ServerPlayer player, boolean notify) {
+        CompoundTag data = getCurseData(player);
+        List<EmberRiddle> pool = new ArrayList<>(EMBER_RIDDLES);
+        Collections.shuffle(pool, new java.util.Random(player.getRandom().nextLong()));
+        int size = Math.min(12, pool.size());
+        ListTag round = new ListTag();
+        for (int i = 0; i < size; i++) {
+            round.add(StringTag.valueOf(pool.get(i).id()));
+        }
+        data.put(EMBER_RIDDLE_ROUND, round);
+        data.put(EMBER_RIDDLE_SOLVED, new ListTag());
+        data.putInt(EMBER_RIDDLE_INDEX, 0);
+        data.putBoolean(EMBER_RIDDLE_UNLOCKED, false);
+        data.putBoolean(EMBER_RIDDLE_UNLOCKED_SNAPSHOT, false);
+        syncEmberRiddleState(player);
+        if (notify) {
+            EmberRiddle first = getCurrentEmberRiddle(player);
+            if (first != null) {
+                player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_riddle_next", first.title(), first.question())
+                        .withStyle(net.minecraft.ChatFormatting.GRAY), false);
+            } else {
+                player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_riddle_refresh")
+                        .withStyle(net.minecraft.ChatFormatting.DARK_PURPLE), false);
+            }
+        }
+    }
+
+    private static void markEmberRiddleSolved(ServerPlayer player) {
+        CompoundTag data = getCurseData(player);
+        ListTag round = data.getList(EMBER_RIDDLE_ROUND, Tag.TAG_STRING);
+        if (round.isEmpty()) {
+            startNewEmberRiddleRound(player, false);
+            round = data.getList(EMBER_RIDDLE_ROUND, Tag.TAG_STRING);
+        }
+
+        int currentIndex = Mth.clamp(data.getInt(EMBER_RIDDLE_INDEX), 0, Math.max(0, round.size() - 1));
+        setEmberRiddleSolved(data, currentIndex, true);
+
+        int nextIndex = getNextUnsolvedEmberRiddleIndex(data, round, currentIndex);
+        if (nextIndex < 0) {
+            data.putBoolean(EMBER_RIDDLE_UNLOCKED, true);
+            data.putBoolean(EMBER_RIDDLE_UNLOCKED_SNAPSHOT, true);
+            data.putInt(EMBER_RIDDLE_INDEX, currentIndex);
+            syncEmberRiddleState(player);
+            player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_riddle_solved")
+                    .withStyle(net.minecraft.ChatFormatting.GOLD), false);
+            player.level().playSound(null, player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 0.9F, 1.2F);
+            return;
+        }
+
+        data.putInt(EMBER_RIDDLE_INDEX, nextIndex);
+        syncEmberRiddleState(player);
+        EmberRiddle next = getCurrentEmberRiddle(player);
+        if (next != null) {
+            player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_riddle_next", next.title(), next.question())
+                    .withStyle(net.minecraft.ChatFormatting.GRAY), false);
+        }
+    }
+
+    private static void syncEmberRiddleState(ServerPlayer player) {
+        CompoundTag data = getCurseData(player);
+        ListTag round = data.getList(EMBER_RIDDLE_ROUND, Tag.TAG_STRING);
+        List<String> ids = new ArrayList<>(round.size());
+        List<Boolean> solved = new ArrayList<>(round.size());
+        for (int i = 0; i < round.size(); i++) {
+            ids.add(round.getString(i));
+            solved.add(isEmberRiddleSolved(data, i));
+        }
+        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                new EmberRiddleSyncPacket(ids, data.getInt(EMBER_RIDDLE_INDEX), data.getBoolean(EMBER_RIDDLE_UNLOCKED), solved));
+    }
+
+    private static EmberRiddle getEmberRiddleById(String id) {
+        return EMBER_RIDDLES.stream()
+                .filter(riddle -> riddle.id().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static String normalizeRiddleAnswer(String input) {
+        return input == null ? "" : input.toLowerCase(Locale.ROOT).replace(" ", "").replace("　", "");
+    }
+
+    public static Component getClientCurrentEmberRiddleHint() {
+        EmberRiddle riddle = ClientOverlayEvents.getClientCurrentRiddle();
+        if (riddle == null) {
+            return Component.translatable("message.ramesses_curse.ember_riddle_missing");
+        }
+        return Component.translatable("message.ramesses_curse.ember_riddle_hint", riddle.title(), riddle.question());
+    }
+
+    public static String getClientCurrentEmberRiddleInscription() {
+        EmberRiddle riddle = ClientOverlayEvents.getClientCurrentRiddle();
+        if (riddle == null || riddle.answers().isEmpty()) {
+            return "";
+        }
+        return getEmberCipherGlyphs(riddle.answers().get(0));
+    }
+
+    private static boolean isEmberRiddleSolved(CompoundTag data, int index) {
+        ListTag solved = data.getList(EMBER_RIDDLE_SOLVED, Tag.TAG_BYTE);
+        return index >= 0 && index < solved.size() && solved.get(index) instanceof net.minecraft.nbt.ByteTag byteTag && byteTag.getAsByte() != 0;
+    }
+
+    private static void setEmberRiddleSolved(CompoundTag data, int index, boolean value) {
+        ListTag round = data.getList(EMBER_RIDDLE_ROUND, Tag.TAG_STRING);
+        ListTag solved = data.getList(EMBER_RIDDLE_SOLVED, Tag.TAG_BYTE);
+        while (solved.size() < round.size()) {
+            solved.add(net.minecraft.nbt.ByteTag.valueOf(false));
+        }
+        if (index >= 0 && index < solved.size()) {
+            solved.set(index, net.minecraft.nbt.ByteTag.valueOf(value));
+        }
+        data.put(EMBER_RIDDLE_SOLVED, solved);
+    }
+
+    private static int getNextUnsolvedEmberRiddleIndex(CompoundTag data, ListTag round, int startIndex) {
+        if (round.isEmpty()) {
+            return -1;
+        }
+        for (int step = 1; step <= round.size(); step++) {
+            int candidate = (startIndex + step) % round.size();
+            if (!isEmberRiddleSolved(data, candidate)) {
+                return candidate;
+            }
+        }
+        return -1;
+    }
+
+    public static String getEmberCipherLetters(String answer) {
+        if (answer == null || answer.isBlank()) {
+            return "";
+        }
+        String english = answer.toUpperCase(Locale.ROOT);
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < english.length(); i++) {
+            char c = english.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                builder.append(c);
+            }
+        }
+        return builder.toString();
+    }
+
+    public static String getEmberCipherGlyphs(String answer) {
+        String letters = getEmberCipherLetters(answer);
+        if (letters.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < letters.length(); i++) {
+            if (i > 0 && i % 12 == 0) {
+                builder.append('\n');
+            }
+            builder.append(EMBER_CIPHER_GLYPHS[letters.charAt(i) - 'A']);
+        }
+        return builder.toString();
+    }
+
+    public static String getEmberCipherAlphabetPreview() {
+        return "\uE000 A  \uE001 B  \uE002 C  \uE003 D  \uE004 E  \uE005 F\n"
+                + "\uE006 G  \uE007 H  \uE008 I  \uE009 J  \uE00A K  \uE00B L\n"
+                + "\uE00C M  \uE00D N  \uE00E O  \uE00F P  \uE010 Q  \uE011 R\n"
+                + "\uE012 S  \uE013 T  \uE014 U  \uE015 V  \uE016 W  \uE017 X\n"
+                + "\uE018 Y  \uE019 Z";
+    }
+
+    public static String getClientCurrentEmberRiddleAnswerLetters() {
+        EmberRiddle riddle = ClientOverlayEvents.getClientCurrentRiddle();
+        if (riddle == null || riddle.answers().isEmpty()) {
+            return "";
+        }
+        return getEmberCipherLetters(riddle.answers().get(0));
+    }
+
+    public static String getClientCurrentEmberRiddleGlyphs() {
+        EmberRiddle riddle = ClientOverlayEvents.getClientCurrentRiddle();
+        if (riddle == null || riddle.answers().isEmpty()) {
+            return "";
+        }
+        return getEmberCipherGlyphs(riddle.answers().get(0));
+    }
+
     private enum GuiltOperation {
         SET,
         ADD,
         REMOVE
+    }
+
+    public enum EmberTrialActivationResult {
+        STARTED,
+        RIDDLE_LOCKED,
+        ALREADY_ACTIVE
+    }
+
+    private record EmberRiddle(String id, String title, int page, String question, List<String> answers) {
+        private EmberRiddle(String id, String title, int page, String question, String... answers) {
+            this(id, title, page, question, Arrays.asList(answers));
+        }
+
+        private boolean matches(String input) {
+            if (input == null || input.isEmpty()) {
+                return false;
+            }
+            return answers.stream()
+                    .map(ModEvents::normalizeRiddleAnswer)
+                    .anyMatch(input::equals);
+        }
     }
 
     private static void syncGuiltState(Player player, int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
@@ -2818,6 +3680,9 @@ public class ModEvents {
 
     private static void applyLockedSlotCooldown(ServerPlayer player, int remainingTicks) {
         CompoundTag data = getCurseData(player);
+        if (!hasActiveLockedSlot(player, data)) {
+            return;
+        }
         int slot = data.getInt(LOCKED_SLOT);
         if (slot < 0 || slot >= player.getInventory().items.size()) {
             return;
@@ -2827,6 +3692,36 @@ public class ModEvents {
         if (!lockedStack.isEmpty()) {
             player.getCooldowns().addCooldown(lockedStack.getItem(), remainingTicks);
         }
+    }
+
+    private static boolean hasActiveLockedSlot(Player player, CompoundTag data) {
+        long until = data.getLong(LOCKED_SLOT_UNTIL);
+        if (until <= player.level().getGameTime()) {
+            clearLockedSlotState(data);
+            return false;
+        }
+        int slot = data.getInt(LOCKED_SLOT);
+        if (slot < 0 || slot >= player.getInventory().items.size() || !data.contains(LOCKED_SLOT_STACK, Tag.TAG_COMPOUND)) {
+            clearLockedSlotState(data);
+            return false;
+        }
+        ItemStack current = player.getInventory().items.get(slot);
+        ItemStack lockedSnapshot = ItemStack.of(data.getCompound(LOCKED_SLOT_STACK));
+        if (current.isEmpty() || lockedSnapshot.isEmpty() || !ItemStack.isSameItemSameTags(current, lockedSnapshot)) {
+            clearLockedSlotState(data);
+            return false;
+        }
+        return true;
+    }
+
+    private static void normalizeLockedSlotState(Player player, CompoundTag data) {
+        hasActiveLockedSlot(player, data);
+    }
+
+    private static void clearLockedSlotState(CompoundTag data) {
+        data.putInt(LOCKED_SLOT, -1);
+        data.putLong(LOCKED_SLOT_UNTIL, 0L);
+        data.remove(LOCKED_SLOT_STACK);
     }
 
     private static void suppressDefenses(ServerPlayer player) {
@@ -2889,6 +3784,10 @@ public class ModEvents {
         private static int clientEdictShakeTotalTicks;
         private static float clientEdictShakeStrength;
         private static boolean clientEdictCooldownPromptedThisHold;
+        private static final List<String> clientEmberRiddleRound = new ArrayList<>();
+        private static final List<Boolean> clientEmberRiddleSolved = new ArrayList<>();
+        private static int clientEmberRiddleIndex;
+        private static boolean clientEmberRiddleUnlocked;
 
         public static void updateClientGuilt(int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
             clientGuilt = guilt;
@@ -2941,6 +3840,55 @@ public class ModEvents {
             clientEdictCooldownTicks = Math.max(0, cooldownTicks);
         }
 
+        public static int getClientEdictCooldownTicks() {
+            return clientEdictCooldownTicks;
+        }
+
+        public static void updateEmberRiddleRound(List<String> round, int index, boolean unlocked, List<Boolean> solved) {
+            clientEmberRiddleRound.clear();
+            clientEmberRiddleRound.addAll(round);
+            clientEmberRiddleSolved.clear();
+            clientEmberRiddleSolved.addAll(solved);
+            clientEmberRiddleIndex = Math.max(0, index);
+            clientEmberRiddleUnlocked = unlocked;
+        }
+
+        public static boolean isClientEmberRiddleUnlocked() {
+            return clientEmberRiddleUnlocked;
+        }
+
+        public static int getClientEmberRiddleIndex() {
+            return clientEmberRiddleIndex;
+        }
+
+        public static int getClientEmberRiddleRoundSize() {
+            return clientEmberRiddleRound.size();
+        }
+
+        public static List<Component> getClientEmberRiddleTitles() {
+            List<Component> titles = new ArrayList<>();
+            for (String id : clientEmberRiddleRound) {
+                EmberRiddle riddle = getEmberRiddleById(id);
+                if (riddle != null) {
+                    titles.add(Component.literal(riddle.title()));
+                }
+            }
+            return titles;
+        }
+
+        public static boolean isClientEmberRiddleSolved(int index) {
+            return index >= 0 && index < clientEmberRiddleSolved.size() && Boolean.TRUE.equals(clientEmberRiddleSolved.get(index));
+        }
+
+        @Nullable
+        public static EmberRiddle getClientCurrentRiddle() {
+            if (clientEmberRiddleRound.isEmpty()) {
+                return null;
+            }
+            int index = Mth.clamp(clientEmberRiddleIndex, 0, clientEmberRiddleRound.size() - 1);
+            return getEmberRiddleById(clientEmberRiddleRound.get(index));
+        }
+
         @SubscribeEvent
         public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
             if (event.getOverlay() != VanillaGuiOverlay.HOTBAR.type()) {
@@ -2965,10 +3913,6 @@ public class ModEvents {
         public static void onItemTooltip(ItemTooltipEvent event) {
             Minecraft minecraft = Minecraft.getInstance();
 
-            if (clientLockTicks <= 0) {
-                return;
-            }
-
             if (!(minecraft.screen instanceof AbstractContainerScreen<?> screen)) {
                 return;
             }
@@ -2981,12 +3925,19 @@ public class ModEvents {
                 return;
             }
 
-            float seconds = clientLockTicks / 20.0F;
-            event.getToolTip().add(Component.translatable("hud.ramesses_curse.guilt_lock", String.format("%.1f", seconds))
-                    .withStyle(net.minecraft.ChatFormatting.GOLD));
-            event.getToolTip().add(Component.translatable("hud.ramesses_curse.guilt_lock_no_damage")
-                    .withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+            if (clientLockTicks > 0) {
+                float seconds = clientLockTicks / 20.0F;
+                event.getToolTip().add(Component.translatable("hud.ramesses_curse.guilt_lock", String.format("%.1f", seconds))
+                        .withStyle(net.minecraft.ChatFormatting.GOLD));
+                event.getToolTip().add(Component.translatable("hud.ramesses_curse.guilt_lock_no_damage")
+                        .withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+            }
 
+            if (clientLockedSlotTicks > 0 && screen.getSlotUnderMouse().getContainerSlot() == clientLockedSlot) {
+                float lockedSeconds = clientLockedSlotTicks / 20.0F;
+                event.getToolTip().add(Component.translatable("hud.ramesses_curse.locked_slot", String.format("%.1f", lockedSeconds))
+                        .withStyle(net.minecraft.ChatFormatting.RED));
+            }
         }
 
         @SubscribeEvent
@@ -3051,6 +4002,17 @@ public class ModEvents {
             boolean xDown = RamessesCurseMod.EDICT_OF_TWO_LANDS_KEY.isDown();
             boolean yDown = RamessesCurseMod.EDICT_OF_TWO_LANDS_DOMAIN_KEY.isDown();
 
+            if (yDown && !hasEdictDomainTargets(player)) {
+                if (!clientEdictCooldownPromptedThisHold) {
+                    player.displayClientMessage(
+                            Component.translatable("message.ramesses_curse.edict_domain_no_targets").withStyle(net.minecraft.ChatFormatting.RED),
+                            true);
+                    clientEdictCooldownPromptedThisHold = true;
+                }
+                resetEdictCharge();
+                return;
+            }
+
             if (xDown && yDown) {
                 if (!clientEdictCooldownPromptedThisHold) {
                     player.displayClientMessage(
@@ -3072,15 +4034,11 @@ public class ModEvents {
                     ? ModItems.getEdictOfTwoLandsDomainCooldownTicks(player)
                     : ModItems.getEdictOfTwoLandsCooldownTicks(player);
             intendedCooldownTicks = Math.max(intendedCooldownTicks, clientEdictCooldownTicks);
-            if (player.getCooldowns().isOnCooldown(ModItems.EDICT_OF_TWO_LANDS.get())) {
-                intendedCooldownTicks = Math.max(intendedCooldownTicks, 1);
-            }
             if (intendedCooldownTicks > 0) {
                 if (!clientEdictCooldownPromptedThisHold) {
                     float cooldownSeconds = Math.max(0.1F, intendedCooldownTicks / 20.0F);
                     MutableComponent message = Component.translatable(
                             "message.ramesses_curse.edict_other_skill_cooling",
-                            intendedMode == EdictChargeMode.Y_DOMAIN ? "X" : "Y",
                             String.format(Locale.ROOT, "%.1f", cooldownSeconds));
                     player.displayClientMessage(message.withStyle(net.minecraft.ChatFormatting.RED), true);
                     clientEdictCooldownPromptedThisHold = true;
@@ -3250,6 +4208,13 @@ public class ModEvents {
             clientEdictTriggeredThisHold = false;
             clientEdictCooldownPromptedThisHold = false;
             clientEdictChargeMode = EdictChargeMode.NONE;
+        }
+
+        private static boolean hasEdictDomainTargets(Player player) {
+            return !player.level().getEntitiesOfClass(
+                    LivingEntity.class,
+                    player.getBoundingBox().inflate(EDICT_DOMAIN_RANGE),
+                    entity -> entity instanceof Enemy && entity.isAlive() && entity != player).isEmpty();
         }
 
         private static void renderLockedSlot(ScreenEvent.Render.Post event, AbstractContainerScreen<?> screen, int slotX, int slotY) {
@@ -3435,3 +4400,4 @@ public class ModEvents {
         }
     }
 }
+

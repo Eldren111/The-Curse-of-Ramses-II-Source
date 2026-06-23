@@ -82,5 +82,29 @@ public class ModNetwork {
                 EdictCooldownSyncPacket::encode,
                 EdictCooldownSyncPacket::decode,
                 EdictCooldownSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                EmberRiddleSyncPacket.class,
+                EmberRiddleSyncPacket::encode,
+                EmberRiddleSyncPacket::decode,
+                EmberRiddleSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                EmberRiddleSubmitPacket.class,
+                EmberRiddleSubmitPacket::encode,
+                EmberRiddleSubmitPacket::decode,
+                EmberRiddleSubmitPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                EmberRiddleRefreshPacket.class,
+                EmberRiddleRefreshPacket::encode,
+                EmberRiddleRefreshPacket::decode,
+                EmberRiddleRefreshPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                EmberRiddleSelectPacket.class,
+                EmberRiddleSelectPacket::encode,
+                EmberRiddleSelectPacket::decode,
+                EmberRiddleSelectPacket::handle);
     }
 }
