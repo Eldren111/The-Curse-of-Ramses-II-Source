@@ -12,16 +12,18 @@ public class GuiltSyncPacket {
     private final int guilt;
     private final boolean sealEquipped;
     private final boolean netherAwakened;
+    private final boolean curseTwoReversed;
     private final boolean curseEightReversed;
     private final int lockTicks;
     private final int satietyCrystalCount;
     private final int lockedSlot;
     private final int lockedSlotTicks;
 
-    public GuiltSyncPacket(int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
+    public GuiltSyncPacket(int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseTwoReversed, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
         this.guilt = guilt;
         this.sealEquipped = sealEquipped;
         this.netherAwakened = netherAwakened;
+        this.curseTwoReversed = curseTwoReversed;
         this.curseEightReversed = curseEightReversed;
         this.lockTicks = lockTicks;
         this.satietyCrystalCount = satietyCrystalCount;
@@ -33,6 +35,7 @@ public class GuiltSyncPacket {
         buffer.writeVarInt(packet.guilt);
         buffer.writeBoolean(packet.sealEquipped);
         buffer.writeBoolean(packet.netherAwakened);
+        buffer.writeBoolean(packet.curseTwoReversed);
         buffer.writeBoolean(packet.curseEightReversed);
         buffer.writeVarInt(packet.lockTicks);
         buffer.writeVarInt(packet.satietyCrystalCount);
@@ -43,6 +46,7 @@ public class GuiltSyncPacket {
     public static GuiltSyncPacket decode(FriendlyByteBuf buffer) {
         return new GuiltSyncPacket(
                 buffer.readVarInt(),
+                buffer.readBoolean(),
                 buffer.readBoolean(),
                 buffer.readBoolean(),
                 buffer.readBoolean(),
@@ -59,6 +63,7 @@ public class GuiltSyncPacket {
                         packet.guilt,
                         packet.sealEquipped,
                         packet.netherAwakened,
+                        packet.curseTwoReversed,
                         packet.curseEightReversed,
                         packet.lockTicks,
                         packet.satietyCrystalCount,

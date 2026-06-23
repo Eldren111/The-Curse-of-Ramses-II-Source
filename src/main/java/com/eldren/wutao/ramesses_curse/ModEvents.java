@@ -182,6 +182,7 @@ public class ModEvents {
     private static final String LAST_SYNC_GUILT = "LastSyncGuilt";
     private static final String LAST_SYNC_SEAL = "LastSyncSeal";
     private static final String LAST_SYNC_NETHER_AWAKENED = "LastSyncNetherAwakened";
+    private static final String LAST_SYNC_CURSE_2_REVERSED = "LastSyncCurseTwoReversed";
     private static final String LAST_SYNC_CURSE_8_REVERSED = "LastSyncCurseEightReversed";
     private static final String LAST_SYNC_LOCK_SECONDS = "LastSyncLockSeconds";
     private static final String LAST_SYNC_SATIETY = "LastSyncSatiety";
@@ -933,7 +934,13 @@ public class ModEvents {
     }
 
     public static boolean isCurseTwoReversed(Player player) {
-        return player != null && getCurseData(player).getBoolean(CURSE_2_REVERSED);
+        if (player == null) {
+            return false;
+        }
+        if (player.level().isClientSide) {
+            return ClientOverlayEvents.isClientCurseTwoReversed();
+        }
+        return getCurseData(player).getBoolean(CURSE_2_REVERSED);
     }
 
     public static int getDisplayedEnchantCost(Player player, int vanillaCost) {
@@ -1261,6 +1268,7 @@ public class ModEvents {
                 getCurseData(player).getInt(GUILT_PROGRESS),
                 isSealEquipped(player),
                 getCurseData(player).getBoolean(NETHER_AWAKENED),
+                getCurseData(player).getBoolean(CURSE_2_REVERSED),
                 getCurseData(player).getBoolean(CURSE_8_REVERSED),
                 getRemainingGuiltLockTicks(player),
                 getSatietyCrystalCount(player),
@@ -1417,9 +1425,13 @@ public class ModEvents {
         data.putBoolean(EMBER_TRIAL_COMPLETED, success);
         data.putInt(EMBER_TRIAL_WAVE, 0);
         if (success) {
+            boolean newlyReversed = !data.getBoolean(CURSE_2_REVERSED);
             data.putBoolean(CURSE_2_REVERSED, true);
-            player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_trial_success")
-                    .withStyle(net.minecraft.ChatFormatting.GOLD), false);
+            if (newlyReversed) {
+                player.displayClientMessage(Component.translatable("message.ramesses_curse.ember_trial_success")
+                        .withStyle(net.minecraft.ChatFormatting.GOLD), false);
+            }
+            syncClientState(player, true);
             removeEmberTrialBossBar(player);
             return;
         }
@@ -3611,11 +3623,11 @@ public class ModEvents {
         }
     }
 
-    private static void syncGuiltState(Player player, int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
+    private static void syncGuiltState(Player player, int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseTwoReversed, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
         if (player instanceof ServerPlayer serverPlayer) {
             ModNetwork.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> serverPlayer),
-                    new GuiltSyncPacket(guilt, sealEquipped, netherAwakened, curseEightReversed, lockTicks, satietyCrystalCount, lockedSlot, lockedSlotTicks));
+                    new GuiltSyncPacket(guilt, sealEquipped, netherAwakened, curseTwoReversed, curseEightReversed, lockTicks, satietyCrystalCount, lockedSlot, lockedSlotTicks));
         }
     }
 
@@ -3624,6 +3636,7 @@ public class ModEvents {
         int guilt = data.getInt(GUILT_PROGRESS);
         boolean sealEquipped = isSealEquipped(player);
         boolean netherAwakened = data.getBoolean(NETHER_AWAKENED);
+        boolean curseTwoReversed = data.getBoolean(CURSE_2_REVERSED);
         boolean curseEightReversed = data.getBoolean(CURSE_8_REVERSED);
         int lockSeconds = Mth.ceil(getRemainingGuiltLockTicks(player) / 20.0F);
         int satietyCrystalCount = getSatietyCrystalCount(player);
@@ -3634,6 +3647,7 @@ public class ModEvents {
                 && data.getInt(LAST_SYNC_GUILT) == guilt
                 && data.getBoolean(LAST_SYNC_SEAL) == sealEquipped
                 && data.getBoolean(LAST_SYNC_NETHER_AWAKENED) == netherAwakened
+                && data.getBoolean(LAST_SYNC_CURSE_2_REVERSED) == curseTwoReversed
                 && data.getBoolean(LAST_SYNC_CURSE_8_REVERSED) == curseEightReversed
                 && data.getInt(LAST_SYNC_LOCK_SECONDS) == lockSeconds
                 && data.getInt(LAST_SYNC_SATIETY) == satietyCrystalCount
@@ -3645,12 +3659,13 @@ public class ModEvents {
         data.putInt(LAST_SYNC_GUILT, guilt);
         data.putBoolean(LAST_SYNC_SEAL, sealEquipped);
         data.putBoolean(LAST_SYNC_NETHER_AWAKENED, netherAwakened);
+        data.putBoolean(LAST_SYNC_CURSE_2_REVERSED, curseTwoReversed);
         data.putBoolean(LAST_SYNC_CURSE_8_REVERSED, curseEightReversed);
         data.putInt(LAST_SYNC_LOCK_SECONDS, lockSeconds);
         data.putInt(LAST_SYNC_SATIETY, satietyCrystalCount);
         data.putInt(LAST_SYNC_LOCKED_SLOT, lockedSlot);
         data.putInt(LAST_SYNC_LOCKED_SLOT_TICKS, lockedSlotTicks);
-        syncGuiltState(player, guilt, sealEquipped, netherAwakened, curseEightReversed, lockSeconds * 20, satietyCrystalCount, lockedSlot, lockedSlotTicks);
+        syncGuiltState(player, guilt, sealEquipped, netherAwakened, curseTwoReversed, curseEightReversed, lockSeconds * 20, satietyCrystalCount, lockedSlot, lockedSlotTicks);
     }
 
     private static void applyInventoryCooldowns(ServerPlayer player, int remainingTicks) {
@@ -3768,6 +3783,7 @@ public class ModEvents {
         private static int clientGuilt;
         private static boolean clientSealEquipped;
         private static boolean clientNetherAwakened;
+        private static boolean clientCurseTwoReversed;
         private static boolean clientCurseEightReversed;
         private static int clientLockTicks;
         private static int clientSatietyCrystalCount;
@@ -3789,15 +3805,20 @@ public class ModEvents {
         private static int clientEmberRiddleIndex;
         private static boolean clientEmberRiddleUnlocked;
 
-        public static void updateClientGuilt(int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
+        public static void updateClientGuilt(int guilt, boolean sealEquipped, boolean netherAwakened, boolean curseTwoReversed, boolean curseEightReversed, int lockTicks, int satietyCrystalCount, int lockedSlot, int lockedSlotTicks) {
             clientGuilt = guilt;
             clientSealEquipped = sealEquipped;
             clientNetherAwakened = netherAwakened;
+            clientCurseTwoReversed = curseTwoReversed;
             clientCurseEightReversed = curseEightReversed;
             clientLockTicks = lockTicks;
             clientSatietyCrystalCount = satietyCrystalCount;
             clientLockedSlot = lockedSlot;
             clientLockedSlotTicks = lockedSlotTicks;
+        }
+
+        public static boolean isClientCurseTwoReversed() {
+            return clientCurseTwoReversed;
         }
 
         public static boolean isClientNetherAwakened() {

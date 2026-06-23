@@ -29,7 +29,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "So the reasoning is simple: $(br)sun-wheel -> the sun in the sky -> enter “太阳” in the ember panel. $(br2)The rest follow the same method: grasp the title first, trace the image second, and finally enter the single nearest accepted name."
+      "text": "So the reasoning is simple: $(br)sun-wheel -> the sun in the sky -> enter \"sun\" in the ember panel. $(br2)The rest follow the same method: grasp the title first, trace the image second, and finally enter the single nearest accepted English answer."
     }
   ]
 }
