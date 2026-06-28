@@ -1,5 +1,5 @@
 {
-  "name": "余烬试炼",
+  "name": "Ember Trial",
   "category": "ramesses_curse:embers",
   "icon": "ramesses_curse:ember_of_duat",
   "sortnum": 0,
@@ -30,6 +30,10 @@
     {
       "type": "patchouli:text",
       "text": "So the reasoning is simple: $(br)sun-wheel -> the sun in the sky -> enter \"sun\" in the ember panel. $(br2)The rest follow the same method: grasp the title first, trace the image second, and finally enter the single nearest accepted English answer."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Once the undead host falls silent, the fragment will no longer be printed inside the manual. The fuller ash-fragment now surfaces in the Ember of Duat interface itself, where the sentence is meant to be pieced back together."
     }
   ]
 }

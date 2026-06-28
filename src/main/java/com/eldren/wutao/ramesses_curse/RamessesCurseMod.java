@@ -104,27 +104,27 @@ public class RamessesCurseMod {
             InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
                     new SlotTypeMessage.Builder(CURSE_SLOT_ID)
                             .size(1)
-                            .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
+                            .icon(new ResourceLocation("curios", "slot/empty_curio_slot"))
                             .build());
             InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
                     new SlotTypeMessage.Builder(HEART_SLOT_ID)
                             .size(0)
-                            .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
+                            .icon(new ResourceLocation("curios", "slot/empty_curio_slot"))
                             .build());
             InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
                     new SlotTypeMessage.Builder(MUSIC_SLOT_ID)
                             .size(1)
-                            .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
+                            .icon(new ResourceLocation("curios", "slot/empty_curio_slot"))
                             .build());
             InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
                     new SlotTypeMessage.Builder(HAND_SLOT_ID)
                             .size(1)
-                            .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
+                            .icon(new ResourceLocation("curios", "slot/empty_curio_slot"))
                             .build());
             InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
                     new SlotTypeMessage.Builder("necklace")
                             .size(1)
-                            .icon(new ResourceLocation(MODID, "slot/empty_curse_slot"))
+                            .icon(new ResourceLocation("curios", "slot/empty_curio_slot"))
                             .build());
             ModNetwork.register();
         });

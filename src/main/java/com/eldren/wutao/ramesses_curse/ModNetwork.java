@@ -106,5 +106,47 @@ public class ModNetwork {
                 EmberRiddleSelectPacket::encode,
                 EmberRiddleSelectPacket::decode,
                 EmberRiddleSelectPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                CurseSevenRevealPacket.class,
+                CurseSevenRevealPacket::encode,
+                CurseSevenRevealPacket::decode,
+                CurseSevenRevealPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                CurseSevenKeywordPacket.class,
+                CurseSevenKeywordPacket::encode,
+                CurseSevenKeywordPacket::decode,
+                CurseSevenKeywordPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                CurseSevenHintPacket.class,
+                CurseSevenHintPacket::encode,
+                CurseSevenHintPacket::decode,
+                CurseSevenHintPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                CurseFiveChoicePromptPacket.class,
+                CurseFiveChoicePromptPacket::encode,
+                CurseFiveChoicePromptPacket::decode,
+                CurseFiveChoicePromptPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                CurseFiveChoiceResponsePacket.class,
+                CurseFiveChoiceResponsePacket::encode,
+                CurseFiveChoiceResponsePacket::decode,
+                CurseFiveChoiceResponsePacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                CurseFiveMercyRevivePacket.class,
+                CurseFiveMercyRevivePacket::encode,
+                CurseFiveMercyRevivePacket::decode,
+                CurseFiveMercyRevivePacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                CurseFiveMercyReviveAckPacket.class,
+                CurseFiveMercyReviveAckPacket::encode,
+                CurseFiveMercyReviveAckPacket::decode,
+                CurseFiveMercyReviveAckPacket::handle);
     }
 }

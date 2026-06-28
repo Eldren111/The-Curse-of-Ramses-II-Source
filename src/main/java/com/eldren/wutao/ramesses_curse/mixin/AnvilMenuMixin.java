@@ -21,7 +21,9 @@ public abstract class AnvilMenuMixin {
         Player player = ((ItemCombinerMenuAccessor) this).ramessesCurse$getPlayer();
         int baseCost = Math.max(0, this.getCost());
 
-        if (!ModEvents.canUseSealBoundItem(player) || baseCost <= 0) {
+        if (!ModEvents.canUseSealBoundItem(player)
+                || ModEvents.areCurseThreeAndFourLifted(player)
+                || baseCost <= 0) {
             ModEvents.clearCurseThreeAnvilCosts(player);
             return;
         }

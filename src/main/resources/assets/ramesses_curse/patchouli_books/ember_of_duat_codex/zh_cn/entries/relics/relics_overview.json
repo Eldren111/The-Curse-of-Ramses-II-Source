@@ -8,37 +8,37 @@
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:purification_scroll",
       "title": "净化卷轴",
-      "text": "一次性的赦免仪式。只会回应佩戴咒印之人，用来削减王罪。"
+      "text": "一次性的赦免卷轴，只会回应佩戴卡迭石咒印的人。使用后会削减一部分王罪，是诅咒五推进期最直接的缓冲手段。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:satiety_crystal",
       "title": "饱食水晶",
-      "text": "诅咒九留下的结晶债据。死后若被索走饱食度，寻回它便是把债追回来的唯一方法。"
+      "text": "诅咒九在死亡时留下的实物债据。若未及时拾回，左下角的饥饿债会持续递减；一旦归零，便会附上长时间减益并削减多项属性。$(br2)取回水晶后，债务、属性削减与相关减益会立即清空。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:ember_of_duat",
       "title": "杜阿特余烬",
-      "text": "多见于下界遗迹的容器。未读懂碑文前不会回应右键，解谜后可开启亡灵试炼。"
+      "text": "主要可在下界结构容器中找到，如今也会以极低概率从敌对怪物身上掉落。$(br2)它既是碑文系统的载体，也是摄政王冠反转与后续终末线索的关键钥匙。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:heart_of_duat",
       "title": "杜阿特之心",
-      "text": "由余烬与下界之星凝成的战斗核心。敌群成阵时可主动觉醒，平时也会用战意与免伤回报持有者。"
+      "text": "模组中期最重要的战斗核心。敌群成阵时可主动觉醒；平时则靠战意层数、免伤待命与环境被动回馈佩戴者。$(br2)它是你从“被诅咒的人”转向“能驾驭部分王朝力量的人”的标志。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:resonant_scarab",
       "title": "共鸣圣甲虫",
-      "text": "它并不自己歌唱，只负责在旧歌结束后把那股回声留在佩戴者身上。"
+      "text": "需要通过两地圣咏的完整播放来唤醒。唤醒后提供抗性、攻击、护甲与交互距离增益；一旦离身，余响便会散去，甲虫重新沉睡。"
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:edict_of_two_lands",
       "title": "两地敕印",
-      "text": "一件偏向中后期的王令之器。它需要王罪作为代价，并在两种相位之间择一而行。"
+      "text": "偏中后期的王令器物，需要消耗王罪发动。它拥有普通敕令与半穹敕令两种相位，都是围绕控场、拉扯与处决展开的战术型技能。"
     }
   ]
 }

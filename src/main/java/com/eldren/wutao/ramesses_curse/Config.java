@@ -42,6 +42,31 @@ public class Config {
                 .defineListAllowEmpty("curse1EffectWhitelist",
                         List.of("minecraft:weakness", "minecraft:slowness", "minecraft:hunger", "minecraft:blindness", "minecraft:poison", "minecraft:wither", "minecraft:unluck", "minecraft:levitation"),
                         Config::validateEffectName);
+        CURSE_1_REVERSED_TRIGGER_COOLDOWN = BUILDER
+                .comment("[curse1-reversed] Internal cooldown in ticks before the reactive buff can trigger again.")
+                .defineInRange("curse1ReversedTriggerCooldown", 200, 1, 72000);
+
+        CURSE_1_REVERSED_EFFECT_DURATION = BUILDER
+                .comment("[curse1-reversed] Duration in ticks for each granted beneficial effect.")
+                .defineInRange("curse1ReversedEffectDuration", 100, 20, 72000);
+
+        CURSE_1_REVERSED_EFFECT_COUNT = BUILDER
+                .comment("[curse1-reversed] Number of beneficial effects granted per trigger.")
+                .defineInRange("curse1ReversedEffectCount", 2, 1, 16);
+
+        CURSE_1_REVERSED_AMPLIFIER_MIN = BUILDER
+                .comment("[curse1-reversed] Minimum amplifier for the granted beneficial effects.")
+                .defineInRange("curse1ReversedAmplifierMin", 0, 0, 10);
+
+        CURSE_1_REVERSED_AMPLIFIER_MAX = BUILDER
+                .comment("[curse1-reversed] Maximum amplifier for the granted beneficial effects.")
+                .defineInRange("curse1ReversedAmplifierMax", 1, 0, 10);
+
+        CURSE_1_REVERSED_EFFECT_WHITELIST = BUILDER
+                .comment("[curse1-reversed] Candidate whitelist for reactive beneficial effects. Non-beneficial effects are ignored at runtime.")
+                .defineListAllowEmpty("curse1ReversedEffectWhitelist",
+                        List.of("minecraft:regeneration", "minecraft:resistance", "minecraft:speed", "minecraft:fire_resistance", "minecraft:damage_boost"),
+                        Config::validateEffectName);
         BUILDER.pop();
 
         BUILDER.push("诅咒二");
@@ -175,6 +200,15 @@ public class Config {
                         Config::validateEntityTypeName);
         BUILDER.pop();
 
+        BUILDER.push("诅咒九");
+        CURSE_9_MAX_SATIETY = BUILDER
+                .comment("[诅咒9] 饥饿债 HUD 与内部最大饱食值。反转前未拾取饱食水晶时会从这里开始递减。")
+                .defineInRange("curse9MaxSatiety", 40, 1, 200);
+        CURSE_9_REVERSED_KILL_TARGET = BUILDER
+                .comment("[诅咒9-反转] 只有击杀过这里配置的 1 个生物后，才会开始累计不同食物种类。支持其他模组生物实体 ID。")
+                .define("curse9ReversedKillTarget", "minecraft:husk", Config::validateEntityTypeName);
+        BUILDER.pop();
+
         BUILDER.pop();
 
         BUILDER.push("杜阿特之心");
@@ -283,6 +317,12 @@ public class Config {
     public static final ForgeConfigSpec.IntValue RANDOM_CURSE_AMPLIFIER_MIN;
     public static final ForgeConfigSpec.IntValue RANDOM_CURSE_AMPLIFIER_MAX;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_1_EFFECT_WHITELIST;
+    public static final ForgeConfigSpec.IntValue CURSE_1_REVERSED_TRIGGER_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue CURSE_1_REVERSED_EFFECT_DURATION;
+    public static final ForgeConfigSpec.IntValue CURSE_1_REVERSED_EFFECT_COUNT;
+    public static final ForgeConfigSpec.IntValue CURSE_1_REVERSED_AMPLIFIER_MIN;
+    public static final ForgeConfigSpec.IntValue CURSE_1_REVERSED_AMPLIFIER_MAX;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_1_REVERSED_EFFECT_WHITELIST;
     public static final ForgeConfigSpec.IntValue CURSE_2_SPAWN_INTERVAL;
     public static final ForgeConfigSpec.DoubleValue CURSE_2_SPAWN_CHANCE;
     public static final ForgeConfigSpec.DoubleValue CURSE_2_LUCK_PENALTY;
@@ -310,6 +350,8 @@ public class Config {
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_DAMAGE_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_FLAT_DAMAGE;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_8_BOSS_WHITELIST;
+    public static final ForgeConfigSpec.IntValue CURSE_9_MAX_SATIETY;
+    public static final ForgeConfigSpec.ConfigValue<String> CURSE_9_REVERSED_KILL_TARGET;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL_EQUIPPED;
     public static final ForgeConfigSpec.BooleanValue START_WITH_RAMASSES_MANUAL;
@@ -350,6 +392,10 @@ public class Config {
         return getEffectFromPool(CURSE_1_EFFECT_WHITELIST.get(), seed);
     }
 
+    public static MobEffect getRandomCurseOneReversedEffect(int seed) {
+        return getEffectFromPool(CURSE_1_REVERSED_EFFECT_WHITELIST.get(), seed);
+    }
+
     public static EntityType<?> getRandomCurseTwoEntityType(int seed) {
         List<EntityType<?>> filteredPool = CURSE_2_ENTITY_WHITELIST.get().stream()
                 .map(ResourceLocation::new)
@@ -380,6 +426,14 @@ public class Config {
         return CURSE_8_BOSS_WHITELIST.get().stream()
                 .map(ResourceLocation::new)
                 .anyMatch(entityId::equals);
+    }
+
+    public static boolean isCurseNineReversedTarget(EntityType<?> entityType) {
+        ResourceLocation entityId = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
+        if (entityId == null) {
+            return false;
+        }
+        return entityId.equals(new ResourceLocation(CURSE_9_REVERSED_KILL_TARGET.get()));
     }
 
     private static MobEffect getEffectFromPool(List<? extends String> pool, int seed) {

@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EmberRiddleInputScreen extends Screen {
-    private static final int BASE_MAIN_WIDTH = 392;
-    private static final int BASE_MAIN_HEIGHT = 272;
-    private static final int BASE_SIDEBAR_WIDTH = 204;
+    private static final int BASE_MAIN_WIDTH = 316;
+    private static final int BASE_MAIN_HEIGHT = 214;
+    private static final int BASE_SIDEBAR_WIDTH = 160;
 
     private static final String[] CIPHER_GLYPHS = new String[]{
             "\uE000", "\uE001", "\uE002", "\uE003", "\uE004", "\uE005", "\uE006", "\uE007",
@@ -29,10 +29,12 @@ public class EmberRiddleInputScreen extends Screen {
     private Button submitButton;
     private Button toggleReferenceButton;
     private Button refreshButton;
+    private Button curseSevenButton;
     private Component subtitle;
     private final List<Component> roundTitles = new ArrayList<>();
     private String inscription;
     private boolean referenceOpen = false;
+    private boolean showingCurseSevenPage = false;
     private int referenceScroll = 0;
     private final List<ReferenceEntry> referenceEntries = new ArrayList<>();
     private int referenceContentHeight = 0;
@@ -62,8 +64,11 @@ public class EmberRiddleInputScreen extends Screen {
         int mainHeight = layout.mainHeight();
         int scale = layout.scalePercent();
 
-        this.answerBox = new EditBox(this.font, left + scaled(18, scale), top + scaled(164, scale), mainWidth - scaled(36, scale), scaled(20, scale),
+        this.answerBox = new EditBox(this.font, left + scaled(22, scale), top + scaled(146, scale), mainWidth - scaled(44, scale), scaled(18, scale),
                 Component.translatable("screen.ramesses_curse.ember_riddle_input.answer"));
+        this.answerBox.setBordered(false);
+        this.answerBox.setTextColor(0xFFF5E8C9);
+        this.answerBox.setTextColorUneditable(0xFFC8B892);
         this.answerBox.setMaxLength(128);
         this.answerBox.setCanLoseFocus(false);
         this.answerBox.setResponder(value -> updateSubmitButton());
@@ -72,11 +77,11 @@ public class EmberRiddleInputScreen extends Screen {
         this.submitButton = this.addRenderableWidget(Button.builder(
                         Component.translatable("screen.ramesses_curse.ember_riddle_input.submit"),
                         button -> submit())
-                .bounds(left + scaled(18, scale), top + scaled(194, scale), scaled(144, scale), scaled(20, scale))
+                .bounds(left - scaled(92, scale), top + scaled(68, scale), scaled(84, scale), scaled(20, scale))
                 .build());
 
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, button -> onClose())
-                .bounds(left + scaled(18, scale), top + scaled(218, scale), scaled(100, scale), scaled(20, scale))
+                .bounds(left - scaled(92, scale), top + scaled(92, scale), scaled(84, scale), scaled(20, scale))
                 .build());
 
         this.toggleReferenceButton = this.addRenderableWidget(Button.builder(
@@ -88,14 +93,29 @@ public class EmberRiddleInputScreen extends Screen {
                             this.referenceScroll = 0;
                             rebuildPanel();
                         })
-                .bounds(left + mainWidth - scaled(152, scale), top + scaled(194, scale), scaled(134, scale), scaled(20, scale))
+                .bounds(left - scaled(92, scale), top + scaled(20, scale), scaled(84, scale), scaled(20, scale))
                 .build());
 
         this.refreshButton = this.addRenderableWidget(Button.builder(
                         Component.translatable("screen.ramesses_curse.ember_riddle_input.refresh"),
                         button -> refreshRiddle())
-                .bounds(left + mainWidth - scaled(152, scale), top + scaled(218, scale), scaled(134, scale), scaled(20, scale))
+                .bounds(left - scaled(92, scale), top + scaled(44, scale), scaled(84, scale), scaled(20, scale))
                 .build());
+
+        if (ModEvents.shouldShowCurseSevenDuatEntry()) {
+            this.curseSevenButton = this.addRenderableWidget(Button.builder(
+                            Component.literal("终末碑录"),
+                            button -> {
+                                this.showingCurseSevenPage = true;
+                                refreshClientSnapshot();
+                                updateSubmitButton();
+                            })
+                    .bounds(left - scaled(92, scale), top + scaled(116, scale), scaled(84, scale), scaled(20, scale))
+                    .build());
+        } else {
+            this.curseSevenButton = null;
+            this.showingCurseSevenPage = false;
+        }
 
         this.setInitialFocus(this.answerBox);
         updateSubmitButton();
@@ -106,18 +126,18 @@ public class EmberRiddleInputScreen extends Screen {
         int mainWidth = scaled(BASE_MAIN_WIDTH, scale);
         int mainHeight = scaled(BASE_MAIN_HEIGHT, scale);
         int sidebarWidth = this.referenceOpen ? scaled(BASE_SIDEBAR_WIDTH, scale) : 0;
-        int gap = this.referenceOpen ? scaled(12, scale) : 0;
+        int gap = this.referenceOpen ? scaled(6, scale) : 0;
         int panelWidth = mainWidth + sidebarWidth + gap;
         panelWidth = Math.min(panelWidth, this.width - 24);
         int left = (this.width - panelWidth) / 2;
-        int top = Math.max(8, (this.height - mainHeight) / 2);
+        int top = Math.max(2, (this.height - mainHeight) / 2 - scaled(8, scale));
         return new Layout(left, top, mainWidth, mainHeight, sidebarWidth, gap, panelWidth, scale);
     }
 
     private int getUiScalePercent() {
         int widthDriven = (int) Math.round((this.width * 100.0D) / 620.0D);
-        int heightDriven = (int) Math.round((this.height * 100.0D) / 360.0D);
-        return Mth.clamp(Math.min(widthDriven, heightDriven), 78, 185);
+        int heightDriven = (int) Math.round((this.height * 100.0D) / 350.0D);
+        return Mth.clamp(Math.min(widthDriven, heightDriven), 68, 160);
     }
 
     private int scaled(int value, int scalePercent) {
@@ -128,9 +148,26 @@ public class EmberRiddleInputScreen extends Screen {
         if (this.submitButton != null) {
             this.submitButton.active = !this.answerBox.getValue().trim().isEmpty();
         }
+        if (this.refreshButton != null) {
+            this.refreshButton.active = !ModEvents.isClientCurseSevenKeywordLockedForRiddleRefresh();
+        }
+        if (this.curseSevenButton != null) {
+            this.curseSevenButton.active = ModEvents.shouldShowCurseSevenDuatEntry();
+        }
+        if (this.answerBox != null) {
+            this.answerBox.setEditable(true);
+        }
     }
 
     private void submit() {
+        if (this.showingCurseSevenPage) {
+            String value = this.answerBox.getValue().trim();
+            if (!value.isEmpty()) {
+                ModNetwork.CHANNEL.sendToServer(new CurseSevenRevealPacket(value));
+                this.answerBox.setValue("");
+            }
+            return;
+        }
         String value = this.answerBox.getValue().trim();
         if (value.isEmpty()) {
             return;
@@ -141,6 +178,15 @@ public class EmberRiddleInputScreen extends Screen {
     }
 
     private void refreshRiddle() {
+        if (this.showingCurseSevenPage) {
+            this.showingCurseSevenPage = false;
+            refreshClientSnapshot();
+            updateSubmitButton();
+            return;
+        }
+        if (ModEvents.isClientCurseSevenKeywordLockedForRiddleRefresh()) {
+            return;
+        }
         ModNetwork.CHANNEL.sendToServer(new EmberRiddleRefreshPacket());
         this.answerBox.setValue("");
         updateSubmitButton();
@@ -167,74 +213,84 @@ public class EmberRiddleInputScreen extends Screen {
         int height = layout.mainHeight();
         int scale = layout.scalePercent();
 
-        graphics.fill(left, top, left + width, top + height, 0xFF56524A);
-        graphics.fill(left + 1, top + 1, left + width - 1, top + height - 1, 0xFF6B665C);
-        graphics.fill(left, top, left + width, top + 2, 0xFFE2D2B0);
-        graphics.fill(left, top + height - 2, left + width, top + height, 0xFF8F8570);
-        graphics.fill(left, top, left + 2, top + height, 0xFF8F8570);
-        graphics.fill(left + width - 2, top, left + width, top + height, 0xFF8F8570);
-        graphics.fill(left + 10, top + 10, left + width - 10, top + height - 10, 0x22322E28);
+        graphics.fill(left, top, left + width, top + height, 0xFF474038);
+        graphics.fill(left + 2, top + 2, left + width - 2, top + height - 2, 0xFF5F554A);
+        graphics.fill(left + 5, top + 5, left + width - 5, top + height - 5, 0xFF7A6B56);
+        graphics.fill(left + 7, top + 7, left + width - 7, top + height - 7, 0xFF54493D);
+        graphics.fill(left, top, left + width, top + 3, 0xFFE2D2B0);
+        graphics.fill(left, top + height - 3, left + width, top + height, 0xFF8F8570);
+        graphics.fill(left, top, left + 3, top + height, 0xFF8F8570);
+        graphics.fill(left + width - 3, top, left + width, top + height, 0xFF8F8570);
+        graphics.fill(left + 10, top + 10, left + width - 10, top + height - 10, 0x1828211B);
+        graphics.fill(left + 14, top + 14, left + width - 14, top + height - 14, 0x0E120F0C);
         renderStoneOrnaments(graphics, left, top, width, height, false);
+        renderStoneSidePillars(graphics, left, top, width, height, scale);
 
-        graphics.drawCenteredString(this.font, this.title, left + width / 2, top + scaled(10, scale), 0xFFF3E6C8);
-        int roundSize = Math.max(1, ModEvents.ClientOverlayEvents.getClientEmberRiddleRoundSize());
-        int currentIndex = Math.max(0, ModEvents.ClientOverlayEvents.getClientEmberRiddleIndex() + 1);
+        renderTitleCartouche(graphics, left, top, width, scale);
+        graphics.drawCenteredString(this.font, this.title, left + width / 2 + scaled(2, scale), top + scaled(11, scale), 0xFFF5E6C1);
+        int roundSize = this.showingCurseSevenPage ? 1 : Math.max(1, ModEvents.ClientOverlayEvents.getClientEmberRiddleRoundSize());
+        int currentIndex = this.showingCurseSevenPage ? 1 : Math.max(0, ModEvents.ClientOverlayEvents.getClientEmberRiddleIndex() + 1);
         graphics.drawCenteredString(
                 this.font,
                 Component.translatable("screen.ramesses_curse.ember_riddle_input.progress", currentIndex, roundSize),
-                left + width / 2,
-                top + scaled(22, scale),
-                0xFFE8D8AF);
+                left + width / 2 + scaled(2, scale),
+                top + scaled(24, scale),
+                0xFFD7C28D);
 
         renderHeaderBand(graphics, left, top, width, scale);
 
+        renderHintPanel(graphics, left, top, width, scale);
         List<FormattedCharSequence> lines = this.font.split(this.subtitle, width - scaled(40, scale));
         int y = top + scaled(44, scale);
-        for (int i = 0; i < Math.min(lines.size(), 5); i++) {
-            graphics.drawString(this.font, lines.get(i), left + scaled(18, scale), y, 0xFFF7F1E4, false);
-            y += scaled(11, scale);
+        for (int i = 0; i < Math.min(lines.size(), 4); i++) {
+            int lineWidth = this.font.width(lines.get(i));
+            graphics.drawString(this.font, lines.get(i), left + (width - lineWidth) / 2, y, 0xFFF7F1E4, false);
+            y += scaled(10, scale);
         }
 
         renderInscription(graphics, left, top, width, scale);
-        renderDivider(graphics, left + scaled(18, scale), left + width - scaled(18, scale), top + scaled(150, scale));
+        renderDivider(graphics, left + scaled(18, scale), left + width - scaled(18, scale), top + scaled(128, scale));
 
         graphics.drawString(this.font, Component.translatable("screen.ramesses_curse.ember_riddle_input.answer"),
-                left + scaled(18, scale), top + scaled(156, scale), 0xFFE8D39C, false);
+                left + scaled(20, scale), top + scaled(134, scale), 0xFFE8D39C, false);
         graphics.drawCenteredString(this.font,
                 Component.translatable("screen.ramesses_curse.ember_riddle_input.panel"),
                 left + width / 2,
-                top + scaled(142, scale),
+                top + scaled(120, scale),
                 0xFFE4D6BA);
+        renderAnswerFrame(graphics, left, top, width, scale);
     }
 
     private void renderInscription(GuiGraphics graphics, int left, int top, int width, int scale) {
-        graphics.fill(left + scaled(24, scale), top + scaled(86, scale), left + width - scaled(24, scale), top + scaled(132, scale), 0x3A201A12);
-        graphics.fill(left + scaled(25, scale), top + scaled(87, scale), left + width - scaled(25, scale), top + scaled(131, scale), 0x5A8C7B5D);
-        graphics.fill(left + scaled(30, scale), top + scaled(92, scale), left + width - scaled(30, scale), top + scaled(126, scale), 0x1D2A2217);
-        renderDivider(graphics, left + scaled(36, scale), left + width - scaled(36, scale), top + scaled(84, scale));
+        graphics.fill(left + scaled(22, scale), top + scaled(60, scale), left + width - scaled(22, scale), top + scaled(108, scale), 0x40221812);
+        graphics.fill(left + scaled(24, scale), top + scaled(62, scale), left + width - scaled(24, scale), top + scaled(106, scale), 0x8E9F8A66);
+        graphics.fill(left + scaled(28, scale), top + scaled(66, scale), left + width - scaled(28, scale), top + scaled(102, scale), 0x2A241B13);
+        graphics.fill(left + scaled(34, scale), top + scaled(72, scale), left + width - scaled(34, scale), top + scaled(96, scale), 0x14100B08);
+        renderInsetMarks(graphics, left + scaled(28, scale), top + scaled(66, scale), width - scaled(56, scale), scaled(32, scale));
+        renderDivider(graphics, left + scaled(34, scale), left + width - scaled(34, scale), top + scaled(58, scale));
         graphics.drawCenteredString(
                 this.font,
                 Component.translatable("screen.ramesses_curse.ember_riddle_input.inscription"),
-                left + width / 2,
-                top + scaled(74, scale),
+                left + width / 2 + scaled(5, scale),
+                top + scaled(64, scale),
                 0xFFE7D39C);
 
         if (this.inscription == null || this.inscription.isBlank()) {
             graphics.drawCenteredString(
                     this.font,
                     Component.translatable("message.ramesses_curse.ember_riddle_missing"),
-                    left + width / 2,
-                    top + scaled(104, scale),
+                    left + width / 2 + scaled(5, scale),
+                    top + scaled(84, scale),
                     0xFFD7CCB3);
             return;
         }
 
         String[] glyphLines = this.inscription.split("\\n");
-        int glyphY = top + scaled(100, scale) - ((glyphLines.length - 1) * scaled(6, scale));
+        int glyphY = top + scaled(78, scale) - ((glyphLines.length - 1) * scaled(6, scale));
         for (String glyphLine : glyphLines) {
             int lineWidth = this.font.width(glyphLine);
-            graphics.drawString(this.font, glyphLine, left + (width - lineWidth) / 2, glyphY + 1, 0x66453522, false);
-            graphics.drawString(this.font, glyphLine, left + (width - lineWidth) / 2, glyphY, 0xFF211A11, false);
+            graphics.drawString(this.font, glyphLine, left + (width - lineWidth) / 2 + scaled(5, scale), glyphY + 1, 0x66443424, false);
+            graphics.drawString(this.font, glyphLine, left + (width - lineWidth) / 2 + scaled(5, scale), glyphY, 0xFFF2E1B2, false);
             glyphY += scaled(12, scale);
         }
     }
@@ -246,11 +302,12 @@ public class EmberRiddleInputScreen extends Screen {
         int height = layout.mainHeight();
         int scale = layout.scalePercent();
 
-        graphics.fill(left, top, left + width, top + height, 0xFF4A463F);
-        graphics.fill(left + 1, top + 1, left + width - 1, top + height - 1, 0xFF615B51);
-        graphics.fill(left, top, left + width, top + 2, 0xFFD8C7A0);
-        graphics.fill(left, top + height - 2, left + width, top + height, 0xFF8A7C62);
-        graphics.fill(left + 8, top + 8, left + width - 8, top + height - 8, 0x1F2E2A25);
+        graphics.fill(left, top, left + width, top + height, 0xFF403A33);
+        graphics.fill(left + 2, top + 2, left + width - 2, top + height - 2, 0xFF595044);
+        graphics.fill(left + 5, top + 5, left + width - 5, top + height - 5, 0xFF4A4137);
+        graphics.fill(left, top, left + width, top + 3, 0xFFD8C7A0);
+        graphics.fill(left, top + height - 3, left + width, top + height, 0xFF8A7C62);
+        graphics.fill(left + 8, top + 8, left + width - 8, top + height - 8, 0x1A2A241E);
         renderStoneOrnaments(graphics, left, top, width, height, true);
 
         graphics.drawCenteredString(this.font, Component.translatable("screen.ramesses_curse.ember_riddle_input.reference_panel"), left + width / 2, top + scaled(10, scale), 0xFFF1E4C8);
@@ -273,7 +330,7 @@ public class EmberRiddleInputScreen extends Screen {
             y += scaled(12, scale);
         }
 
-        y += scaled(6, scale);
+        y += scaled(15, scale);
         if (y + 9 >= contentTop && y <= contentBottom) {
             graphics.drawString(this.font, Component.translatable("screen.ramesses_curse.ember_riddle_input.round_titles"), contentLeft, y, 0xFFE7D39C, false);
         }
@@ -286,19 +343,26 @@ public class EmberRiddleInputScreen extends Screen {
                 continue;
             }
 
-            boolean solved = ModEvents.ClientOverlayEvents.isClientEmberRiddleSolved(entry.index());
-            boolean selected = entry.index() == ModEvents.ClientOverlayEvents.getClientEmberRiddleIndex();
+            boolean solved = entry.selectable() && ModEvents.ClientOverlayEvents.isClientEmberRiddleSolved(entry.index());
+            boolean selected = entry.selectable() && entry.index() == ModEvents.ClientOverlayEvents.getClientEmberRiddleIndex();
             int entryLeft = contentLeft - 2;
             int entryRight = left + width - 24;
-            if (solved) {
-                graphics.fill(entryLeft, entryTop - 1, entryRight, entryBottom, 0x33221812);
+            int clippedTop = Math.max(contentTop, entryTop - 1);
+            int clippedBottom = Math.min(contentBottom, entryBottom);
+            if (!entry.selectable()) {
+                graphics.fill(entryLeft, clippedTop, entryRight, clippedBottom, 0x2A20170F);
+            } else if (solved) {
+                graphics.fill(entryLeft, clippedTop, entryRight, clippedBottom, 0x33221812);
             } else if (selected) {
-                graphics.fill(entryLeft, entryTop - 1, entryRight, entryBottom, 0x446F5B33);
+                graphics.fill(entryLeft, clippedTop, entryRight, clippedBottom, 0x446F5B33);
             }
 
             int lineY = entryTop;
-            for (FormattedCharSequence line : entry.lines()) {
-                int color = solved ? 0xFF8D8474 : selected ? 0xFFF7E4B8 : 0xFFF6F0E2;
+            for (int i = 0; i < entry.lines().size(); i++) {
+                FormattedCharSequence line = entry.lines().get(i);
+                int color = !entry.selectable() && i == 0
+                        ? 0xFFE7D39C
+                        : solved ? 0xFF8D8474 : selected ? 0xFFF7E4B8 : 0xFFF6F0E2;
                 if (lineY + 8 >= contentTop && lineY <= contentBottom) {
                     graphics.drawString(this.font, line, contentLeft, lineY, color, false);
                 }
@@ -322,9 +386,21 @@ public class EmberRiddleInputScreen extends Screen {
     }
 
     private void renderHeaderBand(GuiGraphics graphics, int left, int top, int width, int scale) {
-        graphics.fill(left + scaled(16, scale), top + scaled(30, scale), left + width - scaled(16, scale), top + scaled(34, scale), 0x44362E24);
-        graphics.fill(left + scaled(22, scale), top + scaled(31, scale), left + width - scaled(22, scale), top + scaled(33, scale), 0x889E8A61);
+        graphics.fill(left + scaled(30, scale), top + scaled(29, scale), left + width - scaled(30, scale), top + scaled(34, scale), 0x44362E24);
+        graphics.fill(left + scaled(38, scale), top + scaled(30, scale), left + width - scaled(38, scale), top + scaled(33, scale), 0x889E8A61);
         renderDivider(graphics, left + scaled(28, scale), left + width - scaled(28, scale), top + scaled(36, scale));
+    }
+
+    private void renderAnswerFrame(GuiGraphics graphics, int left, int top, int width, int scale) {
+        int boxLeft = left + scaled(16, scale);
+        int boxTop = top + scaled(144, scale);
+        int boxRight = left + width - scaled(16, scale);
+        int boxBottom = top + scaled(178, scale);
+        graphics.fill(boxLeft, boxTop, boxRight, boxBottom, 0x5532271B);
+        graphics.fill(boxLeft + 2, boxTop + 2, boxRight - 2, boxBottom - 2, 0xCC1A1410);
+        graphics.fill(boxLeft + 4, boxTop + 4, boxRight - 4, boxBottom - 4, 0x553F3428);
+        graphics.fill(boxLeft + 6, boxTop + 1, boxRight - 6, boxTop + 2, 0x66D1B678);
+        graphics.fill(boxLeft + 6, boxBottom - 2, boxRight - 6, boxBottom - 1, 0x66291E14);
     }
 
     private void renderDivider(GuiGraphics graphics, int left, int right, int y) {
@@ -346,6 +422,54 @@ public class EmberRiddleInputScreen extends Screen {
         int bandColor = compact ? 0x33261F18 : 0x3A2F261C;
         graphics.fill(left + 6, top + 48, left + width - 6, top + 50, bandColor);
         graphics.fill(left + 6, top + height - 28, left + width - 6, top + height - 26, bandColor);
+    }
+
+    private void renderTitleCartouche(GuiGraphics graphics, int left, int top, int width, int scale) {
+        int cartoucheLeft = left + scaled(56, scale);
+        int cartoucheRight = left + width - scaled(56, scale);
+        int cartoucheTop = top + scaled(6, scale);
+        int cartoucheBottom = top + scaled(20, scale);
+        graphics.fill(cartoucheLeft, cartoucheTop, cartoucheRight, cartoucheBottom, 0x4431261B);
+        graphics.fill(cartoucheLeft + 2, cartoucheTop + 2, cartoucheRight - 2, cartoucheBottom - 2, 0x886F5B3C);
+        graphics.fill(cartoucheLeft + 8, cartoucheTop + 5, cartoucheRight - 8, cartoucheBottom - 5, 0x33322519);
+        graphics.fill(cartoucheLeft - scaled(8, scale), top + scaled(12, scale), cartoucheLeft, top + scaled(14, scale), 0xAA9E8A61);
+        graphics.fill(cartoucheRight, top + scaled(12, scale), cartoucheRight + scaled(8, scale), top + scaled(14, scale), 0xAA9E8A61);
+    }
+
+    private void renderHintPanel(GuiGraphics graphics, int left, int top, int width, int scale) {
+        int panelLeft = left + scaled(18, scale);
+        int panelTop = top + scaled(34, scale);
+        int panelRight = left + width - scaled(18, scale);
+        int panelBottom = top + scaled(58, scale);
+        graphics.fill(panelLeft, panelTop, panelRight, panelBottom, 0x2E221913);
+        graphics.fill(panelLeft + 2, panelTop + 2, panelRight - 2, panelBottom - 2, 0x412B2118);
+        graphics.fill(panelLeft + 6, panelTop + 5, panelLeft + 8, panelBottom - 5, 0x889E8A61);
+        graphics.fill(panelRight - 8, panelTop + 5, panelRight - 6, panelBottom - 5, 0x889E8A61);
+    }
+
+    private void renderStoneSidePillars(GuiGraphics graphics, int left, int top, int width, int height, int scale) {
+        int pillarWidth = scaled(10, scale);
+        int innerTop = top + scaled(22, scale);
+        int innerBottom = top + height - scaled(22, scale);
+        renderPillar(graphics, left + scaled(10, scale), innerTop, pillarWidth, innerBottom - innerTop);
+        renderPillar(graphics, left + width - scaled(20, scale), innerTop, pillarWidth, innerBottom - innerTop);
+    }
+
+    private void renderPillar(GuiGraphics graphics, int x, int y, int width, int height) {
+        graphics.fill(x, y, x + width, y + height, 0x2C1D150F);
+        graphics.fill(x + 1, y + 2, x + width - 1, y + height - 2, 0x55453427);
+        graphics.fill(x + width / 2, y + 4, x + width / 2 + 1, y + height - 4, 0x88B49A63);
+        for (int offset = 10; offset < height - 10; offset += 14) {
+            graphics.fill(x + 2, y + offset, x + width - 2, y + offset + 2, 0x66604C31);
+        }
+    }
+
+    private void renderInsetMarks(GuiGraphics graphics, int left, int top, int width, int height) {
+        int step = Math.max(12, width / 8);
+        for (int x = left + 6; x < left + width - 6; x += step) {
+            graphics.fill(x, top + 3, x + 1, top + 7, 0x558F7A54);
+            graphics.fill(x, top + height - 7, x + 1, top + height - 3, 0x55483A27);
+        }
     }
 
     private void renderCornerMotif(GuiGraphics graphics, int anchorX, int anchorY, int accent, int shadow, boolean right, boolean bottom) {
@@ -425,7 +549,17 @@ public class EmberRiddleInputScreen extends Screen {
         for (int i = 0; i < Math.min(this.roundTitles.size(), 12); i++) {
             List<FormattedCharSequence> wrapped = this.font.split(this.roundTitles.get(i), wrapWidth);
             int height = wrapped.size() * scaled(9, scale) + scaled(2, scale);
-            this.referenceEntries.add(new ReferenceEntry(i, offsetY, height, wrapped));
+            this.referenceEntries.add(new ReferenceEntry(i, offsetY, height, wrapped, true));
+            offsetY += height;
+        }
+        if (ModEvents.shouldShowCurseSevenSentenceInDuatUi()) {
+            offsetY += scaled(8, scale);
+            List<FormattedCharSequence> clueLines = new ArrayList<>();
+            clueLines.addAll(this.font.split(Component.literal("余烬残句"), wrapWidth));
+            clueLines.addAll(this.font.split(Component.literal(ModEvents.getCurseSevenSentenceMaskedForManual()), wrapWidth));
+            clueLines.addAll(this.font.split(Component.literal(ModEvents.getCurseSevenSentenceCipherForManual()), wrapWidth));
+            int height = clueLines.size() * scaled(9, scale) + scaled(4, scale);
+            this.referenceEntries.add(new ReferenceEntry(-1, offsetY, height, clueLines, false));
             offsetY += height;
         }
         this.referenceContentHeight = offsetY;
@@ -433,8 +567,13 @@ public class EmberRiddleInputScreen extends Screen {
     }
 
     private void refreshClientSnapshot() {
-        this.subtitle = ModEvents.getClientCurrentEmberRiddleHint();
-        this.inscription = ModEvents.getClientCurrentEmberRiddleInscription();
+        if (this.showingCurseSevenPage) {
+            this.subtitle = ModEvents.getClientCurseSevenDuatHint();
+            this.inscription = ModEvents.getClientCurseSevenDuatInscription();
+        } else {
+            this.subtitle = ModEvents.getClientCurrentEmberRiddleHint();
+            this.inscription = ModEvents.getClientCurrentEmberRiddleInscription();
+        }
         List<Component> latestTitles = ModEvents.ClientOverlayEvents.getClientEmberRiddleTitles();
         if (!this.roundTitles.equals(latestTitles)) {
             this.roundTitles.clear();
@@ -460,12 +599,19 @@ public class EmberRiddleInputScreen extends Screen {
         int width = layout.sidebarWidth();
         int scale = layout.scalePercent();
         int contentLeft = left + scaled(10, scale);
-        int contentTop = top + scaled(28, layout.scalePercent());
+        int contentTop = top + scaled(28, scale);
         int yBase = contentTop - this.referenceScroll;
-        int titleStartY = yBase + scaled(14, scale) + scaled(12, scale) * buildAlphabetLines().size() + scaled(6, scale) + scaled(12, scale);
+        int titleStartY = yBase
+                + scaled(14, scale)
+                + scaled(12, scale) * buildAlphabetLines().size()
+                + scaled(15, scale)
+                + scaled(12, scale);
         int contentRight = left + width - scaled(24, scale);
 
         for (ReferenceEntry entry : this.referenceEntries) {
+            if (!entry.selectable()) {
+                continue;
+            }
             int entryTop = titleStartY + entry.offsetY();
             int entryBottom = entryTop + entry.height();
             if (mouseX >= contentLeft && mouseX <= contentRight && mouseY >= entryTop - 1 && mouseY <= entryBottom) {
@@ -489,6 +635,6 @@ public class EmberRiddleInputScreen extends Screen {
     private record Layout(int left, int top, int mainWidth, int mainHeight, int sidebarWidth, int gap, int totalWidth, int scalePercent) {
     }
 
-    private record ReferenceEntry(int index, int offsetY, int height, List<FormattedCharSequence> lines) {
+    private record ReferenceEntry(int index, int offsetY, int height, List<FormattedCharSequence> lines, boolean selectable) {
     }
 }

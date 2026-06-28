@@ -6,22 +6,22 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "以下指令主要用于服主、测试服与开发环境。普通生存流程并不依赖它们。$(br2)根指令均以 $(thing)/ramessescurse$() 开头。"
+      "text": "以下指令主要服务于服主、测试服与开发环境。正常生存推进并不依赖它们。$(br2)根指令统一以 $(thing)/ramessescurse$() 开头，用来处理王罪、慈悲、饱食水晶定位与部分技能冷却。"
     },
     {
       "type": "patchouli:text",
-      "title": "王罪相关",
-      "text": "$(li)/ramessescurse guilt set <玩家> <数值>$(li)/ramessescurse guilt add <玩家> <数值>$(li)/ramessescurse guilt remove <玩家> <数值>$(br2)可直接校验王罪条、封印与敕印消耗。"
+      "title": "王罪与慈悲",
+      "text": "$(li)/ramessescurse guilt set <玩家> <数值>$(li)/ramessescurse guilt add <玩家> <数值>$(li)/ramessescurse guilt remove <玩家> <数值>$(li)/ramessescurse mercy set <玩家> <数值>$(li)/ramessescurse mercy add <玩家> <数值>$(li)/ramessescurse mercy remove <玩家> <数值>$(br2)适合直接校验诅咒五的满王罪惩罚、慈悲值推进与逆转死亡待命状态。"
     },
     {
       "type": "patchouli:text",
       "title": "定位与冷却",
-      "text": "$(li)/ramessescurse locate [玩家]$(li)/ramessescurse locate_tp [玩家] [编号]$(li)/ramessescurse cooling duat [玩家]$(li)/ramessescurse cooling edict [玩家]$(br2)适合查找饱食水晶，或在测试技能时重置冷却。"
+      "text": "$(li)/ramessescurse locate [玩家]$(li)/ramessescurse locate_tp [玩家] [编号]$(li)/ramessescurse cooling duat [玩家]$(li)/ramessescurse cooling edict [玩家]$(br2)前两条用于定位与传送到饱食水晶；后两条用于清空杜阿特之心与两地敕印的冷却，适合测试技能与 HUD。"
     },
     {
       "type": "patchouli:text",
-      "title": "反转调试",
-      "text": "$(li)/ramessescurse curse2_reversed <玩家> <true/false>$(br2)可手动切换摄政王冠的反转状态，用于验证奴仆与幸运加成是否正常生效。"
+      "title": "排障建议",
+      "text": "如果你发现某条诅咒没有按预期推进，先确认三件事：$(br)$(li)卡迭石咒印是否正在佩戴。$(li)前置条件是否真的满足，比如满王罪惩罚、指定 Boss 击杀、指定生物击杀或末地主岛投放。$(li)客户端 HUD 与打字机提示是否已经同步刷新。$(br2)多数“像是没触发”的问题，最后都能归到这三类。"
     }
   ]
 }

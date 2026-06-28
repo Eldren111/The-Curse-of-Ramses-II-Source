@@ -32,3 +32,11 @@ forge*changelog.txt
 *.zip
 *.log
 Thumbs.db
+*.class
+decode*.txt
+decoded*.txt
+.codex_*.txt
+.codex_*.java
+.tmp_decomp/
+.tmp_decomp2/
+META-INF/

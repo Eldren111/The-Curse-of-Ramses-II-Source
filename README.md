@@ -48,8 +48,9 @@ Source code in this repository is distributed under a custom license:
 - Personal gameplay use is allowed
 - Non-commercial modpack use is allowed
 - Non-commercial reposting is allowed with clear credit
+- Non-commercial modified releases are allowed with clear credit and inclusion of this license
 - Commercial redistribution and resale are prohibited
-- Modified versions may not be republished without explicit permission
+- Commercialized modified versions are prohibited
 
 See [LICENSE](LICENSE) for the full terms.
 
