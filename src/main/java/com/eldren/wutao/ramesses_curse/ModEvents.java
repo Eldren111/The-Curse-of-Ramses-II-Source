@@ -128,6 +128,7 @@ import top.theillusivec4.curios.api.SlotResult;
 import org.joml.Vector3f;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -178,6 +179,7 @@ public class ModEvents {
     private static final String CURSE_5_DECLINED = "CurseFiveDeclined";
     private static final String CURSE_5_PUNISHMENT_COMPLETED = "CurseFivePunishmentCompleted";
     private static final String CURSE_5_WAS_SLEEPING = "CurseFiveWasSleeping";
+    private static final String CURSE_5_SLEEP_CHOICE_OPENED = "CurseFiveSleepChoiceOpened";
     private static final String CURSE_6_KEYWORD_UNLOCKED = "CurseSixKeywordUnlocked";
     private static final String CURSE_6_TERMINAL_SOLVED = "CurseSixTerminalSolved";
     private static final String CURSE_6_REVERSED = "CurseSixReversed";
@@ -237,6 +239,7 @@ public class ModEvents {
     private static final String LAST_SYNC_CURSE_1_REVERSED = "LastSyncCurseOneReversed";
     private static final String LAST_SYNC_CURSE_2_REVERSED = "LastSyncCurseTwoReversed";
     private static final String LAST_SYNC_CURSE_5_REVERSED = "LastSyncCurseFiveReversed";
+    private static final String LAST_SYNC_CURSE_5_DECLINED = "LastSyncCurseFiveDeclined";
     private static final String LAST_SYNC_CURSE_6_KEYWORD_UNLOCKED = "LastSyncCurseSixKeywordUnlocked";
     private static final String LAST_SYNC_CURSE_6_TERMINAL_SOLVED = "LastSyncCurseSixTerminalSolved";
     private static final String LAST_SYNC_CURSE_6_REVERSED = "LastSyncCurseSixReversed";
@@ -297,6 +300,7 @@ public class ModEvents {
     private static final int CURSE_5_MERCY_INVULNERABLE_TICKS = 200;
     private static final int CURSE_5_MERCY_SURGE_TICKS = 600;
     private static final int CURSE_5_CHOICE_HINT_TICKS = 140;
+    private static final int CURSE_5_SLEEP_FREEZE_TICKS = 20;
     private static final int CURSE_3_4_LIFTED_HINT_TICKS = 140;
     private static final Map<String, UUID> CURSE_5_SURGE_MODIFIER_IDS = new HashMap<>();
     private static final int CURSE_9_HUNGER_LOSS = 2;
@@ -327,6 +331,7 @@ public class ModEvents {
     private static final UUID CURSE_9_ARMOR_MODIFIER = UUID.fromString("540b20f1-d413-4678-b13f-b0d53c5fe985");
     private static final UUID CURSE_9_BLOCK_REACH_MODIFIER = UUID.fromString("bf4fc6f7-2ce3-4c2a-a321-9db4ef4b8f72");
     private static final UUID CURSE_9_ENTITY_REACH_MODIFIER = UUID.fromString("53fe3106-b39d-44fe-afbc-5e62dce5bf3a");
+    private static final Field PLAYER_SLEEP_COUNTER_FIELD = findPlayerSleepCounterField();
     private static final Map<ResourceKey<Level>, Map<BlockPos, TrackedMusicPlayback>> ACTIVE_MUSIC_PLAYBACKS = new HashMap<>();
     private static final Map<UUID, ServerBossEvent> ACTIVE_EMBER_TRIAL_BARS = new HashMap<>();
     private static final int[] EMBER_TRIAL_WAVE_COUNTS = new int[]{5, 7, 9};
@@ -617,12 +622,9 @@ public class ModEvents {
 
         Player player = event.player;
         CompoundTag data = getCurseData(player);
-        boolean wasSleeping = data.getBoolean(CURSE_5_WAS_SLEEPING);
-        boolean sleeping = player.isSleeping();
-        if (wasSleeping && !sleeping && player instanceof ServerPlayer serverPlayer) {
-            tryOpenCurseFiveChoice(serverPlayer);
+        if (player instanceof ServerPlayer serverPlayer) {
+            tickCurseFiveSleepChoice(serverPlayer, data);
         }
-        data.putBoolean(CURSE_5_WAS_SLEEPING, sleeping);
         boolean sealEquipped = sanitizeSealCurios(player);
         int remainingGuiltLock = getRemainingGuiltLockTicks(player);
         normalizeLockedSlotState(player, data);
@@ -1517,6 +1519,9 @@ public class ModEvents {
         if (player == null) {
             return false;
         }
+        if (player.level().isClientSide) {
+            return ClientOverlayEvents.isClientCurseFiveDeclined();
+        }
         return getCurseData(player).getBoolean(CURSE_5_DECLINED);
     }
 
@@ -1566,13 +1571,65 @@ public class ModEvents {
         }
 
         CompoundTag data = getCurseData(player);
-        if (!data.getBoolean(CURSE_5_PUNISHMENT_COMPLETED)
-                || !data.getBoolean(CURSE_5_DECISION_PENDING)
-                || data.getBoolean(CURSE_5_FATE_DECIDED)) {
+        if (!isCurseFiveChoicePending(data)) {
             return;
         }
 
         ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new CurseFiveChoicePromptPacket());
+    }
+
+    private static void tickCurseFiveSleepChoice(ServerPlayer player, CompoundTag data) {
+        boolean sleeping = player.isSleeping();
+        data.putBoolean(CURSE_5_WAS_SLEEPING, sleeping);
+        if (!sleeping) {
+            if (!isCurseFiveChoicePending(data)) {
+                data.putBoolean(CURSE_5_SLEEP_CHOICE_OPENED, false);
+            }
+            return;
+        }
+
+        if (!isCurseFiveChoicePending(data)) {
+            data.putBoolean(CURSE_5_SLEEP_CHOICE_OPENED, false);
+            return;
+        }
+
+        freezeCurseFiveSleep(player);
+        if (!data.getBoolean(CURSE_5_SLEEP_CHOICE_OPENED)) {
+            data.putBoolean(CURSE_5_SLEEP_CHOICE_OPENED, true);
+            tryOpenCurseFiveChoice(player);
+        }
+    }
+
+    private static boolean isCurseFiveChoicePending(CompoundTag data) {
+        return data.getBoolean(CURSE_5_PUNISHMENT_COMPLETED)
+                && data.getBoolean(CURSE_5_DECISION_PENDING)
+                && !data.getBoolean(CURSE_5_FATE_DECIDED);
+    }
+
+    private static void freezeCurseFiveSleep(ServerPlayer player) {
+        if (PLAYER_SLEEP_COUNTER_FIELD == null) {
+            return;
+        }
+        try {
+            int sleepCounter = PLAYER_SLEEP_COUNTER_FIELD.getInt(player);
+            if (sleepCounter > CURSE_5_SLEEP_FREEZE_TICKS) {
+                PLAYER_SLEEP_COUNTER_FIELD.setInt(player, CURSE_5_SLEEP_FREEZE_TICKS);
+            }
+        } catch (IllegalAccessException ignored) {
+        }
+    }
+
+    @Nullable
+    private static Field findPlayerSleepCounterField() {
+        for (String fieldName : List.of("sleepCounter", "f_36110_")) {
+            try {
+                Field field = Player.class.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                return field;
+            } catch (NoSuchFieldException ignored) {
+            }
+        }
+        return null;
     }
 
     public static void resolveCurseFiveChoice(ServerPlayer player, boolean reverse) {
@@ -1581,14 +1638,13 @@ public class ModEvents {
         }
 
         CompoundTag data = getCurseData(player);
-        if (!data.getBoolean(CURSE_5_PUNISHMENT_COMPLETED)
-                || !data.getBoolean(CURSE_5_DECISION_PENDING)
-                || data.getBoolean(CURSE_5_FATE_DECIDED)) {
+        if (!isCurseFiveChoicePending(data)) {
             return;
         }
 
         data.putBoolean(CURSE_5_FATE_DECIDED, true);
         data.putBoolean(CURSE_5_DECISION_PENDING, false);
+        data.putBoolean(CURSE_5_SLEEP_CHOICE_OPENED, false);
         data.putBoolean(CURSE_5_REVERSED, reverse);
         data.putBoolean(CURSE_5_DECLINED, !reverse);
 
@@ -2756,6 +2812,7 @@ public class ModEvents {
                 getCurseData(player).getBoolean(CURSE_1_REVERSED),
                 getCurseData(player).getBoolean(CURSE_2_REVERSED),
                 getCurseData(player).getBoolean(CURSE_5_REVERSED),
+                getCurseData(player).getBoolean(CURSE_5_DECLINED),
                 getCurseData(player).getBoolean(CURSE_6_KEYWORD_UNLOCKED),
                 getCurseData(player).getBoolean(CURSE_6_TERMINAL_SOLVED),
                 getCurseData(player).getBoolean(CURSE_6_REVERSED),
@@ -3443,23 +3500,15 @@ public class ModEvents {
     }
 
     private static void updateHeartSlotAccess(Player player, boolean sealEquipped) {
-        CuriosApi.getCuriosInventory(player).ifPresent(inv -> {
+        if (sealEquipped) {
+            return;
+        }
+
+        CuriosApi.getCuriosInventory(player).ifPresent(inv ->
             inv.getStacksHandler(RamessesCurseMod.HEART_SLOT_ID).ifPresent(handler -> {
-                int slots = handler.getSlots();
-
-                if (sealEquipped) {
-                    if (slots <= 0) {
-                        inv.growSlotType(RamessesCurseMod.HEART_SLOT_ID, 1);
-                    }
-                    return;
-                }
-
                 ejectHeartSlotContents(player, handler.getStacks());
-                if (slots > 0) {
-                    inv.shrinkSlotType(RamessesCurseMod.HEART_SLOT_ID, slots);
-                }
-            });
-        });
+            })
+        );
     }
 
     private static void ejectHeartSlotContents(Player player, top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler stacks) {
@@ -5392,11 +5441,11 @@ public class ModEvents {
         }
     }
 
-    private static void syncGuiltState(Player player, int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks) {
+    private static void syncGuiltState(Player player, int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks) {
         if (player instanceof ServerPlayer serverPlayer) {
             ModNetwork.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> serverPlayer),
-                    new GuiltSyncPacket(guilt, mercy, mercyChargeReady, sealEquipped, netherAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockTicks, satietyCrystalCount, curseNineDebtTicks, lockedSlot, lockedSlotTicks));
+                    new GuiltSyncPacket(guilt, mercy, mercyChargeReady, sealEquipped, netherAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockTicks, satietyCrystalCount, curseNineDebtTicks, lockedSlot, lockedSlotTicks));
         }
     }
 
@@ -5410,6 +5459,7 @@ public class ModEvents {
         boolean curseOneReversed = data.getBoolean(CURSE_1_REVERSED);
         boolean curseTwoReversed = data.getBoolean(CURSE_2_REVERSED);
         boolean curseFiveReversed = data.getBoolean(CURSE_5_REVERSED);
+        boolean curseFiveDeclined = data.getBoolean(CURSE_5_DECLINED);
         boolean curseSevenKeywordUnlocked = data.getBoolean(CURSE_6_KEYWORD_UNLOCKED);
         boolean curseSevenTerminalSolved = data.getBoolean(CURSE_6_TERMINAL_SOLVED);
         boolean curseSevenReversed = data.getBoolean(CURSE_6_REVERSED);
@@ -5431,6 +5481,7 @@ public class ModEvents {
                 && data.getBoolean(LAST_SYNC_CURSE_1_REVERSED) == curseOneReversed
                 && data.getBoolean(LAST_SYNC_CURSE_2_REVERSED) == curseTwoReversed
                 && data.getBoolean(LAST_SYNC_CURSE_5_REVERSED) == curseFiveReversed
+                && data.getBoolean(LAST_SYNC_CURSE_5_DECLINED) == curseFiveDeclined
                 && data.getBoolean(LAST_SYNC_CURSE_6_KEYWORD_UNLOCKED) == curseSevenKeywordUnlocked
                 && data.getBoolean(LAST_SYNC_CURSE_6_TERMINAL_SOLVED) == curseSevenTerminalSolved
                 && data.getBoolean(LAST_SYNC_CURSE_6_REVERSED) == curseSevenReversed
@@ -5453,6 +5504,7 @@ public class ModEvents {
         data.putBoolean(LAST_SYNC_CURSE_1_REVERSED, curseOneReversed);
         data.putBoolean(LAST_SYNC_CURSE_2_REVERSED, curseTwoReversed);
         data.putBoolean(LAST_SYNC_CURSE_5_REVERSED, curseFiveReversed);
+        data.putBoolean(LAST_SYNC_CURSE_5_DECLINED, curseFiveDeclined);
         data.putBoolean(LAST_SYNC_CURSE_6_KEYWORD_UNLOCKED, curseSevenKeywordUnlocked);
         data.putBoolean(LAST_SYNC_CURSE_6_TERMINAL_SOLVED, curseSevenTerminalSolved);
         data.putBoolean(LAST_SYNC_CURSE_6_REVERSED, curseSevenReversed);
@@ -5464,7 +5516,7 @@ public class ModEvents {
         data.putInt(LAST_SYNC_CURSE_9_DEBT, curseNineDebtTicks);
         data.putInt(LAST_SYNC_LOCKED_SLOT, lockedSlot);
         data.putInt(LAST_SYNC_LOCKED_SLOT_TICKS, lockedSlotTicks);
-        syncGuiltState(player, guilt, mercy, mercyChargeReady, sealEquipped, netherAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockSeconds * 20, satietyCrystalCount, curseNineDebtTicks, lockedSlot, lockedSlotTicks);
+        syncGuiltState(player, guilt, mercy, mercyChargeReady, sealEquipped, netherAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockSeconds * 20, satietyCrystalCount, curseNineDebtTicks, lockedSlot, lockedSlotTicks);
     }
 
     private static void applyInventoryCooldowns(ServerPlayer player, int remainingTicks) {
@@ -5587,6 +5639,7 @@ public class ModEvents {
         private static boolean clientCurseOneReversed;
         private static boolean clientCurseTwoReversed;
         private static boolean clientCurseFiveReversed;
+        private static boolean clientCurseFiveDeclined;
         private static boolean clientCurseSevenKeywordUnlocked;
         private static boolean clientCurseSevenTerminalSolved;
         private static boolean clientCurseSevenReversed;
@@ -5620,7 +5673,7 @@ public class ModEvents {
         private static int clientEmberRiddleIndex;
         private static boolean clientEmberRiddleUnlocked;
 
-        public static void updateClientGuilt(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks) {
+        public static void updateClientGuilt(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks) {
             clientGuilt = guilt;
             clientMercy = mercy;
             clientMercyChargeReady = mercyChargeReady;
@@ -5629,6 +5682,7 @@ public class ModEvents {
             clientCurseOneReversed = curseOneReversed;
             clientCurseTwoReversed = curseTwoReversed;
             clientCurseFiveReversed = curseFiveReversed;
+            clientCurseFiveDeclined = curseFiveDeclined;
             clientCurseSevenKeywordUnlocked = curseSevenKeywordUnlocked;
             clientCurseSevenTerminalSolved = curseSevenTerminalSolved;
             clientCurseSevenReversed = curseSevenReversed;
@@ -5671,6 +5725,10 @@ public class ModEvents {
 
         public static boolean isClientCurseFiveReversed() {
             return clientCurseFiveReversed;
+        }
+
+        public static boolean isClientCurseFiveDeclined() {
+            return clientCurseFiveDeclined;
         }
 
         public static boolean isClientCurseSevenKeywordUnlocked() {
@@ -6136,7 +6194,7 @@ public class ModEvents {
                         minecraft.font,
                         Component.translatable("message.ramesses_curse.heart_battle_stacks", clientHeartBattleStacks, Config.HEART_BATTLE_STACK_LIMIT.get()),
                         x,
-                        y + 12,
+                        y - 22,
                         battleColor,
                         false);
             }

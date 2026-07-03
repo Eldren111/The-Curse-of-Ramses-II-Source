@@ -262,10 +262,10 @@ public class ModItems {
 
         @Override
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-            tooltip.add(purpleText("一枚承载王朝威令与余烬的古老咒印，佩戴者将逐步承受九重诅咒。"));
-            tooltip.add(purpleText("按住 ").append(blueText("Shift")).append(purpleText(" 查看诅咒介绍")));
-            tooltip.add(purpleText("按住 ").append(blueText("Ctrl")).append(purpleText(" 查看具体数值")));
-            tooltip.add(purpleText("按住 ").append(blueText("Alt")).append(purpleText(" 查看王朝秘闻")));
+            tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.desc"));
+            tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_shift"));
+            tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_ctrl"));
+            tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_alt"));
             Minecraft minecraft = Minecraft.getInstance();
             boolean curseOneReversed = minecraft.player != null
                     && ModEvents.isCurseOneReversed(minecraft.player);
@@ -293,231 +293,112 @@ public class ModItems {
             }
             if (Screen.hasShiftDown()) {
                 tooltip.add(Component.empty());
-                tooltip.add(purpleText("九重诅咒"));
-                MutableComponent curseOneIntro = purpleText("- ").append(blueText("双神翻令"));
-                if (curseOneReversed) {
-                    curseOneIntro.append(reversedText("：受击时降下短暂的双神赐福。"));
-                } else {
-                    curseOneIntro.append(purpleText("：咒印会周期性降下随机负面状态。"));
-                }
-                tooltip.add(curseOneIntro);
-                MutableComponent curseTwoIntro = purpleText("- ").append(blueText("摄政王冠"));
-                if (minecraft.player != null && ModEvents.isCurseTwoReversed(minecraft.player)) {
-                    curseTwoIntro.append(reversedText("：冠影转而回赠幸运，并偶尔遣来旧臣。"));
-                } else {
-                    curseTwoIntro.append(purpleText("：持续剥夺幸运，并不时召来敌对生物。"));
-                }
-                tooltip.add(curseTwoIntro);
+                tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.section_curses"));
+                tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_1_title",
+                        curseOneReversed ? "item.ramesses_curse.seal_of_kadesh.curse_1_intro_reversed" : "item.ramesses_curse.seal_of_kadesh.curse_1_intro",
+                        curseOneReversed));
+                tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_2_title",
+                        minecraft.player != null && ModEvents.isCurseTwoReversed(minecraft.player) ? "item.ramesses_curse.seal_of_kadesh.curse_2_intro_reversed" : "item.ramesses_curse.seal_of_kadesh.curse_2_intro",
+                        minecraft.player != null && ModEvents.isCurseTwoReversed(minecraft.player)));
                 if (!curseThreeFourLifted) {
-                    tooltip.add(purpleText("- ").append(blueText("御名税印")).append(purpleText("：经验、附魔与铁砧消耗都会被王朝加税。")));
-                    tooltip.add(purpleText("- ").append(blueText("两地税契")).append(purpleText("：村民与流浪商人的交易会变得更昂贵。")));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_3_title", "item.ramesses_curse.seal_of_kadesh.curse_3_intro", false));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_4_title", "item.ramesses_curse.seal_of_kadesh.curse_4_intro", false));
                 }
-                MutableComponent curseFiveIntro = purpleText("- ").append(blueText("无辜者天秤"));
                 if (curseFiveReversed) {
-                    curseFiveIntro.append(reversedText("：敌对怪物的性命会被折算为慈悲，换来逆转死亡的机会。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_intro_reversed", true));
                 } else if (curseFiveDeclined) {
-                    curseFiveIntro.append(reversedText("：拒绝抉择后，旧咒会在王罪迫近时赐下危险的增幅。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_declined_intro", true));
                 } else {
-                    curseFiveIntro.append(purpleText("：杀戮无辜会积累王罪，满溢后降下雷罚与封印。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_intro", false));
                 }
-                tooltip.add(curseFiveIntro);
-                MutableComponent curseSixIntro = purpleText("- ").append(blueText("和约枷锁"));
-                if (curseSixReversed) {
-                    curseSixIntro.append(reversedText("：枷锁崩解后，飞行、掉落与力量都归于佩戴者。"));
-                } else {
-                    curseSixIntro.append(purpleText("：主手与背包会依次被咒印封锁。"));
-                }
-                tooltip.add(curseSixIntro);
-                tooltip.add(purpleText("- ").append(blueText("末地审判")).append(purpleText("：身处末地时会被持续削弱。")));
-                MutableComponent curseEightIntro = purpleText("- ").append(blueText("地狱烙印"));
-                if (curseEightReversed) {
-                    curseEightIntro.append(reversedText("：主手的击打会有概率将同等伤害助推回去。"));
-                } else {
-                    curseEightIntro.append(purpleText("：踏入地狱后，攻击怪物可能反噬自身。"));
-                }
-                tooltip.add(curseEightIntro);
-                MutableComponent curseNineIntro = purpleText("- ").append(blueText("饥王遗罚"));
-                if (curseNineReversed) {
-                    curseNineIntro.append(reversedText("：饱食度永久不再下降，饥饿债与饱食水晶一并消散。"));
-                } else {
-                    curseNineIntro.append(purpleText("：死亡会留下饱食水晶，未取回时饥饿债会持续逼近。"));
-                }
-                tooltip.add(curseNineIntro);
+                tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_6_title",
+                        curseSixReversed ? "item.ramesses_curse.seal_of_kadesh.curse_6_intro_reversed" : "item.ramesses_curse.seal_of_kadesh.curse_6_intro",
+                        curseSixReversed));
+                tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_7_title", "item.ramesses_curse.seal_of_kadesh.curse_7_intro", false));
+                tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_8_title",
+                        curseEightReversed ? "item.ramesses_curse.seal_of_kadesh.curse_8_intro_reversed" : "item.ramesses_curse.seal_of_kadesh.curse_8_intro",
+                        curseEightReversed));
+                tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_9_title",
+                        curseNineReversed ? "item.ramesses_curse.seal_of_kadesh.curse_9_intro_reversed" : "item.ramesses_curse.seal_of_kadesh.curse_9_intro",
+                        curseNineReversed));
             }
             if (Screen.hasControlDown()) {
                 tooltip.add(Component.empty());
-                tooltip.add(purpleText("九重诅咒"));
-                MutableComponent curseOneLine = purpleText("- ").append(blueText("双神翻令"));
                 if (curseOneReversed) {
-                    curseOneLine.append(reversedText("：受到攻击时会触发 "))
-                            .append(reversedNumber(Math.max(1, Config.CURSE_1_REVERSED_EFFECT_COUNT.get())))
-                            .append(reversedText(" 个随机正面状态，持续 "))
-                            .append(reversedNumber(formatTicksAsSeconds(Config.CURSE_1_REVERSED_EFFECT_DURATION.get())))
-                            .append(reversedText(" 秒，强度为 "))
-                            .append(reversedNumber(Math.min(Config.CURSE_1_REVERSED_AMPLIFIER_MIN.get(), Config.CURSE_1_REVERSED_AMPLIFIER_MAX.get()) + 1))
-                            .append(reversedText(" 到 "))
-                            .append(reversedNumber(Math.max(Config.CURSE_1_REVERSED_AMPLIFIER_MIN.get(), Config.CURSE_1_REVERSED_AMPLIFIER_MAX.get()) + 1))
-                            .append(reversedText(" 级，冷却 "))
-                            .append(reversedNumber(formatTicksAsSeconds(Config.CURSE_1_REVERSED_TRIGGER_COOLDOWN.get())))
-                            .append(reversedText(" 秒。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_1_title", "item.ramesses_curse.seal_of_kadesh.curse_1_detail_reversed", true,
+                            formatNumber(Math.max(1, Config.CURSE_1_REVERSED_EFFECT_COUNT.get())),
+                            formatNumber(formatTicksAsSeconds(Config.CURSE_1_REVERSED_EFFECT_DURATION.get())),
+                            formatNumber(Math.min(Config.CURSE_1_REVERSED_AMPLIFIER_MIN.get(), Config.CURSE_1_REVERSED_AMPLIFIER_MAX.get()) + 1),
+                            formatNumber(Math.max(Config.CURSE_1_REVERSED_AMPLIFIER_MIN.get(), Config.CURSE_1_REVERSED_AMPLIFIER_MAX.get()) + 1),
+                            formatNumber(formatTicksAsSeconds(Config.CURSE_1_REVERSED_TRIGGER_COOLDOWN.get()))));
                 } else {
-                    curseOneLine.append(purpleText("：每 "))
-                            .append(yellowNumber(formatTicksAsMinutes(Config.RANDOM_CURSE_INTERVAL.get())))
-                            .append(purpleText(" 分钟获得 "))
-                            .append(yellowNumber(1))
-                            .append(purpleText(" 个随机负面状态，持续 "))
-                            .append(yellowNumber(formatTicksAsSeconds(Config.RANDOM_CURSE_DURATION.get())))
-                            .append(purpleText(" 秒，强度为 "))
-                            .append(yellowNumber(Config.RANDOM_CURSE_AMPLIFIER_MIN.get()))
-                            .append(purpleText(" 到 "))
-                            .append(yellowNumber(Math.max(Config.RANDOM_CURSE_AMPLIFIER_MIN.get(), Config.RANDOM_CURSE_AMPLIFIER_MAX.get())))
-                            .append(purpleText(" 级。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_1_title", "item.ramesses_curse.seal_of_kadesh.curse_1_detail", false,
+                            formatNumber(formatTicksAsMinutes(Config.RANDOM_CURSE_INTERVAL.get())),
+                            1,
+                            formatNumber(formatTicksAsSeconds(Config.RANDOM_CURSE_DURATION.get())),
+                            Config.RANDOM_CURSE_AMPLIFIER_MIN.get(),
+                            Math.max(Config.RANDOM_CURSE_AMPLIFIER_MIN.get(), Config.RANDOM_CURSE_AMPLIFIER_MAX.get())));
                 }
-                tooltip.add(curseOneLine);
-                MutableComponent curseTwoLine = purpleText("- ").append(blueText("摄政王冠"));
                 if (minecraft.player != null && ModEvents.isCurseTwoReversed(minecraft.player)) {
-                    curseTwoLine.append(reversedText("：冠影不再只夺走幸运，而会补回 "))
-                            .append(reversedNumber(formatNumber(Config.CURSE_2_REVERSED_LUCK_BONUS.get())))
-                            .append(reversedText(" 点。每 "))
-                            .append(reversedNumber(formatTicksAsMinutes(Config.CURSE_2_REVERSED_SPAWN_INTERVAL.get())))
-                            .append(reversedText(" 分钟有 "))
-                            .append(reversedPercent(Config.CURSE_2_REVERSED_SPAWN_CHANCE.get()))
-                            .append(reversedText(" 的机会遣下一名短暂听命的旧臣。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_2_title", "item.ramesses_curse.seal_of_kadesh.curse_2_detail_reversed", true,
+                            formatNumber(Config.CURSE_2_REVERSED_LUCK_BONUS.get()),
+                            formatNumber(formatTicksAsMinutes(Config.CURSE_2_REVERSED_SPAWN_INTERVAL.get())),
+                            formatNumber(formatPercent(Config.CURSE_2_REVERSED_SPAWN_CHANCE.get())) + "%"));
                 } else {
-                    curseTwoLine.append(purpleText("：持续降低 "))
-                            .append(yellowNumber(formatNumber(Config.CURSE_2_LUCK_PENALTY.get())))
-                            .append(purpleText(" 点幸运值，每 "))
-                            .append(yellowNumber(formatTicksAsMinutes(Config.CURSE_2_SPAWN_INTERVAL.get())))
-                            .append(purpleText(" 分钟有 "))
-                            .append(yellowPercent(Config.CURSE_2_SPAWN_CHANCE.get()))
-                            .append(purpleText(" 在半径 "))
-                            .append(yellowNumber(Config.CURSE_2_SPAWN_RADIUS.get()))
-                            .append(purpleText(" 格内召来 "))
-                            .append(yellowNumber(1))
-                            .append(purpleText(" 个敌对生物。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_2_title", "item.ramesses_curse.seal_of_kadesh.curse_2_detail", false,
+                            formatNumber(Config.CURSE_2_LUCK_PENALTY.get()),
+                            formatNumber(formatTicksAsMinutes(Config.CURSE_2_SPAWN_INTERVAL.get())),
+                            formatNumber(formatPercent(Config.CURSE_2_SPAWN_CHANCE.get())) + "%",
+                            1,
+                            Config.CURSE_2_SPAWN_RADIUS.get()));
                 }
-                tooltip.add(curseTwoLine);
                 if (!curseThreeFourLifted) {
-                    tooltip.add(purpleText("- ")
-                            .append(blueText("御名税印"))
-                            .append(purpleText("：击杀任意生物获得经验变为 "))
-                            .append(yellowPercentInverse(Config.CURSE_3_XP_MULTIPLIER.get()))
-                            .append(purpleText("，附魔等级消耗变为 "))
-                            .append(yellowNumber(formatNumber(Config.CURSE_3_ENCHANT_COST_MULTIPLIER.get())))
-                            .append(purpleText(" 倍，铁砧等级消耗变为 "))
-                            .append(yellowNumber(formatNumber(Config.CURSE_3_ANVIL_COST_MULTIPLIER.get())))
-                            .append(purpleText(" 倍。")));
-                    tooltip.add(purpleText("- ")
-                            .append(blueText("两地税契"))
-                            .append(purpleText("：村民与流浪商人交易价格上升 "))
-                            .append(yellowPercent(Config.CURSE_4_TRADE_SURCHARGE.get()))
-                            .append(purpleText("。")));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_3_title", "item.ramesses_curse.seal_of_kadesh.curse_3_detail", false,
+                            formatNumber(Config.CURSE_3_XP_MULTIPLIER.get() * 100.0D) + "%",
+                            formatNumber(Config.CURSE_3_ENCHANT_COST_MULTIPLIER.get()),
+                            formatNumber(Config.CURSE_3_ANVIL_COST_MULTIPLIER.get())));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_4_title", "item.ramesses_curse.seal_of_kadesh.curse_4_detail", false,
+                            formatNumber(formatPercent(Config.CURSE_4_TRADE_SURCHARGE.get())) + "%"));
                 }
-                MutableComponent curseFiveLine = purpleText("- ").append(blueText("无辜者天秤"));
                 if (curseFiveReversed) {
-                    curseFiveLine.append(reversedText("：每击杀 "))
-                            .append(reversedNumber(1))
-                            .append(reversedText(" 个"))
-                            .append(reversedKeyword("敌对怪物"))
-                            .append(reversedText("增加 "))
-                            .append(reversedNumber(1))
-                            .append(reversedText(" 点"))
-                            .append(reversedKeyword("慈悲值"))
-                            .append(reversedText("；达到 "))
-                            .append(fixedNumber(1299))
-                            .append(reversedText(" 后储存 "))
-                            .append(reversedNumber(1))
-                            .append(reversedText(" 次"))
-                            .append(reversedKeyword("逆转死亡"))
-                            .append(reversedText("。触发后先获得 "))
-                            .append(reversedNumber(10))
-                            .append(reversedText(" 秒"))
-                            .append(reversedKeyword("无敌"))
-                            .append(reversedText("，再获得 "))
-                            .append(reversedNumber(30))
-                            .append(reversedText(" 秒"))
-                            .append(reversedKeyword("部分属性翻倍"))
-                            .append(reversedText("。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_detail_reversed", true,
+                            1, 1, 1299, 1, 10, 30));
                 } else if (curseFiveDeclined) {
-                    curseFiveLine.append(reversedText("：当王罪接近满值时，会获得 "))
-                            .append(reversedKeyword("攻击、生命、护甲与移速提升"))
-                            .append(reversedText("，击杀生物"))
-                            .append(reversedKeyword("经验翻倍"))
-                            .append(reversedText("。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_declined_detail", true));
                 } else {
-                    curseFiveLine.append(purpleText("：每击杀 "))
-                            .append(yellowNumber(1))
-                            .append(purpleText(" 个无辜生物增加 "))
-                            .append(yellowNumber(1))
-                            .append(purpleText(" 点王罪；达到 "))
-                            .append(yellowNumber(Config.CURSE_5_MAX_GUILT.get()))
-                            .append(purpleText(" 后，背包封禁 "))
-                            .append(yellowNumber(formatTicksAsMinutes(Config.CURSE_5_LOCK_DURATION.get())))
-                            .append(purpleText(" 分钟并降下 "))
-                            .append(yellowNumber(Config.CURSE_5_LIGHTNING_STRIKES.get()))
-                            .append(purpleText(" 道雷罚。满王罪惩罚后，睡眠时会面对唯一一次抉择。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_detail", false,
+                            1, 1, Config.CURSE_5_MAX_GUILT.get(), formatNumber(formatTicksAsMinutes(Config.CURSE_5_LOCK_DURATION.get())), Config.CURSE_5_LIGHTNING_STRIKES.get()));
                 }
-                tooltip.add(curseFiveLine);
-                MutableComponent curseSixLine = purpleText("- ").append(blueText("和约枷锁"));
                 if (curseSixReversed) {
-                    curseSixLine.append(reversedText("：可在任何世界享受创造飞行、双倍掉落物与永久力量II，终末秘文、余烬指引与末地交换仪式都归于此咒。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_6_title", "item.ramesses_curse.seal_of_kadesh.curse_6_detail_reversed", true));
                 } else {
-                    curseSixLine.append(purpleText("：佩戴 "))
-                            .append(yellowNumber(formatTicksAsMinutes(Config.MAIN_HAND_LOCK_DELAY.get())))
-                            .append(purpleText(" 分钟后封主手 "))
-                            .append(yellowNumber(formatTicksAsMinutes(Config.MAIN_HAND_LOCK_DURATION.get())))
-                            .append(purpleText(" 分钟，此后每 "))
-                            .append(yellowNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_INTERVAL.get())))
-                            .append(purpleText(" 分钟随机封锁 "))
-                            .append(yellowNumber(1))
-                            .append(purpleText(" 件物品，持续 "))
-                            .append(yellowNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_DURATION.get())))
-                            .append(purpleText(" 分钟。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_6_title", "item.ramesses_curse.seal_of_kadesh.curse_6_detail", false,
+                            formatNumber(formatTicksAsMinutes(Config.MAIN_HAND_LOCK_DELAY.get())),
+                            formatNumber(formatTicksAsMinutes(Config.MAIN_HAND_LOCK_DURATION.get())),
+                            formatNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_INTERVAL.get())),
+                            1,
+                            formatNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_DURATION.get()))));
                 }
-                tooltip.add(curseSixLine);
-                tooltip.add(purpleText("- ")
-                        .append(blueText("末地审判"))
-                        .append(purpleText("：身处末地时持续获得虚弱 "))
-                        .append(yellowNumber(Config.END_WEAKNESS_AMPLIFIER.get() + 1))
-                        .append(purpleText(" 级。")));
-                MutableComponent curseEightLine = purpleText("- ").append(blueText("地狱烙印"));
+                tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_7_title", "item.ramesses_curse.seal_of_kadesh.curse_7_detail", false,
+                        Config.END_WEAKNESS_AMPLIFIER.get() + 1));
                 if (curseEightReversed) {
-                    curseEightLine.append(reversedText("：主手的击打有 "))
-                            .append(reversedPercent(Config.HELL_REBOUND_CHANCE.get()))
-                            .append(reversedText(" 的概率将同等伤害助推回去。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_8_title", "item.ramesses_curse.seal_of_kadesh.curse_8_detail_reversed", true,
+                            formatNumber(formatPercent(Config.HELL_REBOUND_CHANCE.get())) + "%"));
                 } else {
-                    curseEightLine.append(purpleText("：首次进入地狱后永久生效，攻击怪物时有 "))
-                            .append(yellowPercent(Config.HELL_REBOUND_CHANCE.get()))
-                            .append(purpleText(" 反噬自身，承受本次伤害并额外追加 "))
-                            .append(yellowPercent(Config.HELL_REBOUND_DAMAGE_MULTIPLIER.get() - 1.0D))
-                            .append(purpleText(" 伤害。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_8_title", "item.ramesses_curse.seal_of_kadesh.curse_8_detail", false,
+                            formatNumber(formatPercent(Config.HELL_REBOUND_CHANCE.get())) + "%",
+                            formatNumber(formatPercent(Config.HELL_REBOUND_DAMAGE_MULTIPLIER.get() - 1.0D)) + "%"));
                 }
-                tooltip.add(curseEightLine);
-                MutableComponent curseNineLine = purpleText("- ").append(blueText("饥王遗罚"));
                 if (curseNineReversed) {
-                    curseNineLine.append(reversedText("：饱食度永久不再下降，饥饿债 HUD 消失；死亡后不再生成饱食水晶，也不会再触发饥饿债与后续惩罚。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_9_title", "item.ramesses_curse.seal_of_kadesh.curse_9_detail_reversed", true));
                 } else {
-                    curseNineLine.append(purpleText("：每次死亡失去 "))
-                            .append(blueText("2 点饱食度"))
-                            .append(purpleText("，并在死亡处上方生成 "))
-                            .append(blueText("1 枚饱食水晶"))
-                            .append(purpleText("。未拾取时，左下角 "))
-                            .append(blueText("饥饿债"))
-                            .append(purpleText(" 会以每 "))
-                            .append(blueText("5 秒 1 点"))
-                            .append(purpleText(" 的速度从 "))
-                            .append(blueText(Integer.toString(Config.CURSE_9_MAX_SATIETY.get())))
-                            .append(purpleText(" 递减；归零后会施加 "))
-                            .append(blueText("3 分钟"))
-                            .append(purpleText(" 的缓慢 V、黑暗、凋灵、恶心，并减少生命上限、幸运、护甲、交互距离与经验获取。拾取饱食水晶后会立即解除全部惩罚。先击杀配置的指定生物，再累计食用超过 "))
-                            .append(blueText("15 种"))
-                            .append(purpleText(" 可恢复饱食度的不同食物后，此咒将反转。"));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_9_title", "item.ramesses_curse.seal_of_kadesh.curse_9_detail", false,
+                            2, 1, 5, Config.CURSE_9_MAX_SATIETY.get(), 3, 15));
                 }
-                tooltip.add(curseNineLine);
             }
             if (Screen.hasAltDown()) {
                 tooltip.add(Component.empty());
-                tooltip.add(blueText("王朝秘闻"));
+                tooltip.add(blueKey("item.ramesses_curse.seal_of_kadesh.section_story"));
                 for (int i = 1; i <= 5; i++) {
                     tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.story_" + i).withStyle(ChatFormatting.DARK_PURPLE));
                 }
@@ -628,6 +509,21 @@ public class ModItems {
 
         private static MutableComponent purpleText(String text) {
             return Component.literal(text).withStyle(ChatFormatting.DARK_PURPLE);
+        }
+
+        private static MutableComponent purpleKey(String key, Object... args) {
+            return Component.translatable(key, args).withStyle(ChatFormatting.DARK_PURPLE);
+        }
+
+        private static MutableComponent blueKey(String key, Object... args) {
+            return Component.translatable(key, args).withStyle(ChatFormatting.AQUA);
+        }
+
+        private static MutableComponent curseLine(String titleKey, String descKey, boolean reversed, Object... args) {
+            ChatFormatting descColor = reversed ? ChatFormatting.GREEN : ChatFormatting.DARK_PURPLE;
+            return purpleText("- ")
+                    .append(blueKey(titleKey))
+                    .append(Component.translatable(descKey, args).withStyle(descColor));
         }
 
         private static MutableComponent blueText(String text) {
@@ -915,7 +811,6 @@ public class ModItems {
             if (data.getBoolean(ACTIVATED_KEY)) {
                 applyBuffs(player);
                 syncAwakened(player, true, false);
-                refreshMusicSlot(player);
                 return;
             }
 
@@ -923,7 +818,6 @@ public class ModItems {
             if (playbackState == null) {
                 removeBuffs(player);
                 syncAwakened(player, false, false);
-                refreshMusicSlot(player);
                 clearTracking(data);
                 return;
             }
@@ -935,7 +829,6 @@ public class ModItems {
                 data.putBoolean(ACTIVATED_KEY, false);
                 syncAwakened(player, false, false);
                 removeBuffs(player);
-                refreshMusicSlot(player);
             }
 
             long elapsedTicks = player.level().getGameTime() - playbackState.startTick();
@@ -974,10 +867,15 @@ public class ModItems {
 
         private static void resetActivation(Player player) {
             CompoundTag data = getMusicData(player);
+            boolean changed = data.getBoolean(ACTIVATED_KEY)
+                    || data.getBoolean(LAST_SYNC_ACTIVATED_KEY)
+                    || !data.getString(LAST_JUKEBOX_KEY).isEmpty();
             data.putBoolean(ACTIVATED_KEY, false);
-            syncAwakened(player, false, true);
-            refreshMusicSlot(player);
             clearTracking(data);
+            if (changed) {
+                syncAwakened(player, false, true);
+                refreshMusicSlot(player);
+            }
         }
 
         private static void clearTracking(CompoundTag data) {
@@ -1079,24 +977,10 @@ public class ModItems {
             if (appendConfiguredTooltip(tooltip)) {
                 return;
             }
-            tooltip.add(Component.literal("-命中敌对怪物时，附着 ")
-                    .withStyle(ChatFormatting.DARK_PURPLE)
-                    .append(Component.literal("1").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 种配置中的咒效，").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("10").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 秒内继续命中会逐层加深。").withStyle(ChatFormatting.DARK_PURPLE)));
-            tooltip.add(Component.literal("-叠至 ")
-                    .withStyle(ChatFormatting.DARK_PURPLE)
-                    .append(Component.literal("8").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 层时崩解为 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("300%").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 伤害；雨天额外 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("+50%").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("，并赐予 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("伤害吸收V").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 与 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("抗性提升V").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("。").withStyle(ChatFormatting.DARK_PURPLE)));
+            tooltip.add(Component.translatable("item.ramesses_curse.uraeus_necklace.tooltip_stack_default", 1, 10)
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+            tooltip.add(Component.translatable("item.ramesses_curse.uraeus_necklace.tooltip_burst_default", 8, "300%", "+50%", "V", "V")
+                    .withStyle(ChatFormatting.DARK_PURPLE));
         }
 
         private static float onAttack(Player player, LivingEntity target, float damage) {
@@ -1153,24 +1037,19 @@ public class ModItems {
 
         private static boolean appendConfiguredTooltip(List<Component> tooltip) {
             Component effectName = getConfiguredEffectName();
-            tooltip.add(Component.literal("-命中敌对怪物时，为其附着 ")
-                    .withStyle(ChatFormatting.DARK_PURPLE)
-                    .append(effectName.copy().withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("，并在 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal(formatSeconds(Config.NECKLACE_STACK_TIMEOUT.get())).withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 秒内继续叠层。").withStyle(ChatFormatting.DARK_PURPLE)));
-            tooltip.add(Component.literal("-叠满 ")
-                    .withStyle(ChatFormatting.DARK_PURPLE)
-                    .append(Component.literal(Integer.toString(Config.NECKLACE_MAX_STACKS.get())).withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 层后爆裂为 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal(formatPercent(Config.NECKLACE_BURST_DAMAGE_MULTIPLIER.get())).withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 伤害；雨天额外 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("+" + formatPercentDelta(Config.NECKLACE_RAIN_BONUS_MULTIPLIER.get())).withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("，并赐予 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("伤害吸收" + getRomanLevel(Config.NECKLACE_RAIN_ABSORPTION_AMPLIFIER.get() + 1)).withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal(" 与 ").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("抗性提升" + getRomanLevel(Config.NECKLACE_RAIN_RESISTANCE_AMPLIFIER.get() + 1)).withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("。").withStyle(ChatFormatting.DARK_PURPLE)));
+            tooltip.add(Component.translatable(
+                            "item.ramesses_curse.uraeus_necklace.tooltip_stack",
+                            effectName.copy().withStyle(ChatFormatting.GOLD),
+                            Component.literal(formatSeconds(Config.NECKLACE_STACK_TIMEOUT.get())).withStyle(ChatFormatting.GOLD))
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+            tooltip.add(Component.translatable(
+                            "item.ramesses_curse.uraeus_necklace.tooltip_burst",
+                            Component.literal(Integer.toString(Config.NECKLACE_MAX_STACKS.get())).withStyle(ChatFormatting.GOLD),
+                            Component.literal(formatPercent(Config.NECKLACE_BURST_DAMAGE_MULTIPLIER.get())).withStyle(ChatFormatting.GOLD),
+                            Component.literal("+" + formatPercentDelta(Config.NECKLACE_RAIN_BONUS_MULTIPLIER.get())).withStyle(ChatFormatting.GOLD),
+                            Component.literal(getRomanLevel(Config.NECKLACE_RAIN_ABSORPTION_AMPLIFIER.get() + 1)).withStyle(ChatFormatting.GOLD),
+                            Component.literal(getRomanLevel(Config.NECKLACE_RAIN_RESISTANCE_AMPLIFIER.get() + 1)).withStyle(ChatFormatting.GOLD))
+                    .withStyle(ChatFormatting.DARK_PURPLE));
             return true;
         }
 
@@ -1245,36 +1124,23 @@ public class ModItems {
         }
         @Override
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-            tooltip.add(Component.literal("两地敕印不急于开口，它更愿意先让四周的喧声沉到底。")
+            tooltip.add(Component.translatable("item.ramesses_curse.edict_of_two_lands.desc")
                     .withStyle(ChatFormatting.DARK_PURPLE));
-            tooltip.add(Component.literal("按住 Shift 查看技能键位与敕令说明。")
+            tooltip.add(Component.translatable("item.ramesses_curse.edict_of_two_lands.hint_shift")
                     .withStyle(ChatFormatting.DARK_PURPLE));
             if (Screen.hasShiftDown()) {
                 tooltip.add(Component.empty());
-                tooltip.add(Component.literal("- 长按 ").withStyle(ChatFormatting.DARK_PURPLE)
-                        .append(Component.literal("X").withStyle(ChatFormatting.AQUA))
-                        .append(Component.literal(" 凝聚 ").withStyle(ChatFormatting.DARK_PURPLE))
-                        .append(Component.literal("3").withStyle(ChatFormatting.AQUA))
-                        .append(Component.literal(" s，将周围敌群掀离立足之处，再令其坠回尘土。")
-                                .withStyle(ChatFormatting.DARK_PURPLE)));
-                tooltip.add(Component.literal("- 长按 ").withStyle(ChatFormatting.DARK_PURPLE)
-                        .append(Component.literal("Y").withStyle(ChatFormatting.AQUA))
-                        .append(Component.literal(" 凝聚 ").withStyle(ChatFormatting.DARK_PURPLE))
-                        .append(Component.literal("3").withStyle(ChatFormatting.AQUA))
-                        .append(Component.literal(" s，于原地展开 ").withStyle(ChatFormatting.DARK_PURPLE))
-                        .append(Component.literal("15").withStyle(ChatFormatting.AQUA))
-                        .append(Component.literal(" 格矩阵，缓缓收束踏入者，终以尽数归寂的方式落幕。")
-                                .withStyle(ChatFormatting.DARK_PURPLE)));
-                tooltip.add(Component.literal("- X 索取 ").withStyle(ChatFormatting.DARK_PURPLE)
-                        .append(Component.literal(Integer.toString(GUILT_COST)).withStyle(ChatFormatting.AQUA))
-                        .append(Component.literal(" 点王罪，余响静默 ").withStyle(ChatFormatting.DARK_PURPLE))
-                        .append(Component.literal("90").withStyle(ChatFormatting.AQUA))
-                        .append(Component.literal(" s；Y 索取 ").withStyle(ChatFormatting.DARK_PURPLE))
-                        .append(Component.literal(Integer.toString(DOMAIN_GUILT_COST)).withStyle(ChatFormatting.AQUA))
-                        .append(Component.literal(" 点王罪，余响静默 ").withStyle(ChatFormatting.DARK_PURPLE))
-                        .append(Component.literal("360").withStyle(ChatFormatting.AQUA))
-                        .append(Component.literal(" s。两道敕令共用冷却。")
-                                .withStyle(ChatFormatting.DARK_PURPLE)));
+                tooltip.add(Component.translatable("item.ramesses_curse.edict_of_two_lands.tooltip_x", "X", 3)
+                        .withStyle(ChatFormatting.DARK_PURPLE));
+                tooltip.add(Component.translatable("item.ramesses_curse.edict_of_two_lands.tooltip_y", "Y", 3, 15)
+                        .withStyle(ChatFormatting.DARK_PURPLE));
+                tooltip.add(Component.translatable(
+                                "item.ramesses_curse.edict_of_two_lands.tooltip_cost",
+                                GUILT_COST,
+                                COOLDOWN_TICKS / 20,
+                                DOMAIN_GUILT_COST,
+                                DOMAIN_COOLDOWN_TICKS / 20)
+                        .withStyle(ChatFormatting.DARK_PURPLE));
             }
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.player == null) {
@@ -1402,46 +1268,12 @@ public class ModItems {
 
         @Override
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-            tooltip.add(Component.literal("-主动技能：玩家周围")
-                    .withStyle(ChatFormatting.DARK_PURPLE)
-                    .append(Component.literal("16").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("格敌对实体").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("≥6").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("时，给予玩家").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("力量III").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("并").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("高亮敌对实体").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("，每次开启消耗").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("3").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("级经验。").withStyle(ChatFormatting.DARK_PURPLE)));
-            tooltip.add(Component.literal("-被动I：玩家处于")
-                    .withStyle(ChatFormatting.DARK_PURPLE)
-                    .append(Component.literal("沙漠").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("、").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("恶地").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("时，给予玩家").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("幸运II").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("，").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("+5实体距离").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("。").withStyle(ChatFormatting.DARK_PURPLE)));
-            tooltip.add(Component.literal("-被动II：击杀敌对怪物时叠加")
-                    .withStyle(ChatFormatting.DARK_PURPLE)
-                    .append(Component.literal("1/10").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("层战意，间隔超过").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("5").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("秒将重置；每层").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("+3").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("攻击，最高").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("+30").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("；叠满").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("10").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("层后立即获得").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("5").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("秒免伤。触发后消耗").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("1").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("个杜阿特余烬并进入").withStyle(ChatFormatting.DARK_PURPLE))
-                    .append(Component.literal("360").withStyle(ChatFormatting.GOLD))
-                    .append(Component.literal("秒冷却。").withStyle(ChatFormatting.DARK_PURPLE)));
+            tooltip.add(Component.translatable("item.ramesses_curse.heart_of_duat.skill_active_detail", 16, 6, 3)
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+            tooltip.add(Component.translatable("item.ramesses_curse.heart_of_duat.skill_passive_detail")
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+            tooltip.add(Component.translatable("item.ramesses_curse.heart_of_duat.skill_battle_detail", 1, 10, 5, 3, 30, 10, 5, 1, 360)
+                    .withStyle(ChatFormatting.DARK_PURPLE));
 
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.player == null) {

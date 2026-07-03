@@ -17,6 +17,7 @@ public class GuiltSyncPacket {
     private final boolean curseOneReversed;
     private final boolean curseTwoReversed;
     private final boolean curseFiveReversed;
+    private final boolean curseFiveDeclined;
     private final boolean curseSevenKeywordUnlocked;
     private final boolean curseSevenTerminalSolved;
     private final boolean curseSevenReversed;
@@ -29,7 +30,7 @@ public class GuiltSyncPacket {
     private final int lockedSlot;
     private final int lockedSlotTicks;
 
-    public GuiltSyncPacket(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks) {
+    public GuiltSyncPacket(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks) {
         this.guilt = guilt;
         this.mercy = mercy;
         this.mercyChargeReady = mercyChargeReady;
@@ -38,6 +39,7 @@ public class GuiltSyncPacket {
         this.curseOneReversed = curseOneReversed;
         this.curseTwoReversed = curseTwoReversed;
         this.curseFiveReversed = curseFiveReversed;
+        this.curseFiveDeclined = curseFiveDeclined;
         this.curseSevenKeywordUnlocked = curseSevenKeywordUnlocked;
         this.curseSevenTerminalSolved = curseSevenTerminalSolved;
         this.curseSevenReversed = curseSevenReversed;
@@ -60,6 +62,7 @@ public class GuiltSyncPacket {
         buffer.writeBoolean(packet.curseOneReversed);
         buffer.writeBoolean(packet.curseTwoReversed);
         buffer.writeBoolean(packet.curseFiveReversed);
+        buffer.writeBoolean(packet.curseFiveDeclined);
         buffer.writeBoolean(packet.curseSevenKeywordUnlocked);
         buffer.writeBoolean(packet.curseSevenTerminalSolved);
         buffer.writeBoolean(packet.curseSevenReversed);
@@ -77,6 +80,7 @@ public class GuiltSyncPacket {
         return new GuiltSyncPacket(
                 buffer.readVarInt(),
                 buffer.readVarInt(),
+                buffer.readBoolean(),
                 buffer.readBoolean(),
                 buffer.readBoolean(),
                 buffer.readBoolean(),
@@ -108,6 +112,7 @@ public class GuiltSyncPacket {
                         packet.curseOneReversed,
                         packet.curseTwoReversed,
                         packet.curseFiveReversed,
+                        packet.curseFiveDeclined,
                         packet.curseSevenKeywordUnlocked,
                         packet.curseSevenTerminalSolved,
                         packet.curseSevenReversed,
