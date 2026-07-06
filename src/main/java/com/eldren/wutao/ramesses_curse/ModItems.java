@@ -163,6 +163,14 @@ public class ModItems {
         return UraeusNecklace.onAttack(player, target, damage);
     }
 
+    public static int getUraeusStormPassiveCooldownTicks(Player player) {
+        return UraeusNecklace.getStormPassiveCooldownTicks(player);
+    }
+
+    public static void setUraeusStormPassiveCooldown(ServerPlayer player) {
+        UraeusNecklace.setStormPassiveCooldown(player);
+    }
+
     public static boolean isEdictOfTwoLandsEquipped(Player player) {
         return EdictOfTwoLands.isEquipped(player);
     }
@@ -196,6 +204,26 @@ public class ModItems {
         NO_GUILT,
         NO_TARGETS,
         OTHER_MODE_ACTIVE
+    }
+
+    private static MutableComponent goldText(int value) {
+        return Component.literal(Integer.toString(value)).withStyle(ChatFormatting.GOLD);
+    }
+
+    private static MutableComponent goldText(String value) {
+        return Component.literal(value).withStyle(ChatFormatting.GOLD);
+    }
+
+    private static MutableComponent goldKey(String key) {
+        return Component.translatable(key).withStyle(ChatFormatting.GOLD);
+    }
+
+    private static MutableComponent aquaText(int value) {
+        return Component.literal(Integer.toString(value)).withStyle(ChatFormatting.AQUA);
+    }
+
+    private static MutableComponent aquaText(String value) {
+        return Component.literal(value).withStyle(ChatFormatting.AQUA);
     }
 
     public static class RamessesManual extends Item {
@@ -326,74 +354,96 @@ public class ModItems {
                 tooltip.add(Component.empty());
                 if (curseOneReversed) {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_1_title", "item.ramesses_curse.seal_of_kadesh.curse_1_detail_reversed", true,
-                            formatNumber(Math.max(1, Config.CURSE_1_REVERSED_EFFECT_COUNT.get())),
-                            formatNumber(formatTicksAsSeconds(Config.CURSE_1_REVERSED_EFFECT_DURATION.get())),
-                            formatNumber(Math.min(Config.CURSE_1_REVERSED_AMPLIFIER_MIN.get(), Config.CURSE_1_REVERSED_AMPLIFIER_MAX.get()) + 1),
-                            formatNumber(Math.max(Config.CURSE_1_REVERSED_AMPLIFIER_MIN.get(), Config.CURSE_1_REVERSED_AMPLIFIER_MAX.get()) + 1),
-                            formatNumber(formatTicksAsSeconds(Config.CURSE_1_REVERSED_TRIGGER_COOLDOWN.get()))));
+                            reversedNumber(Math.max(1, Config.CURSE_1_REVERSED_EFFECT_COUNT.get())),
+                            reversedNumber(formatTicksAsSeconds(Config.CURSE_1_REVERSED_EFFECT_DURATION.get())),
+                            reversedNumber(Math.min(Config.CURSE_1_REVERSED_AMPLIFIER_MIN.get(), Config.CURSE_1_REVERSED_AMPLIFIER_MAX.get()) + 1),
+                            reversedNumber(Math.max(Config.CURSE_1_REVERSED_AMPLIFIER_MIN.get(), Config.CURSE_1_REVERSED_AMPLIFIER_MAX.get()) + 1),
+                            reversedNumber(formatTicksAsSeconds(Config.CURSE_1_REVERSED_TRIGGER_COOLDOWN.get()))));
                 } else {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_1_title", "item.ramesses_curse.seal_of_kadesh.curse_1_detail", false,
-                            formatNumber(formatTicksAsMinutes(Config.RANDOM_CURSE_INTERVAL.get())),
-                            1,
-                            formatNumber(formatTicksAsSeconds(Config.RANDOM_CURSE_DURATION.get())),
-                            Config.RANDOM_CURSE_AMPLIFIER_MIN.get(),
-                            Math.max(Config.RANDOM_CURSE_AMPLIFIER_MIN.get(), Config.RANDOM_CURSE_AMPLIFIER_MAX.get())));
+                            yellowNumber(formatTicksAsMinutes(Config.RANDOM_CURSE_INTERVAL.get())),
+                            yellowNumber(1),
+                            yellowNumber(formatTicksAsSeconds(Config.RANDOM_CURSE_DURATION.get())),
+                            yellowNumber(Config.RANDOM_CURSE_AMPLIFIER_MIN.get()),
+                            yellowNumber(Math.max(Config.RANDOM_CURSE_AMPLIFIER_MIN.get(), Config.RANDOM_CURSE_AMPLIFIER_MAX.get()))));
                 }
                 if (minecraft.player != null && ModEvents.isCurseTwoReversed(minecraft.player)) {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_2_title", "item.ramesses_curse.seal_of_kadesh.curse_2_detail_reversed", true,
-                            formatNumber(Config.CURSE_2_REVERSED_LUCK_BONUS.get()),
-                            formatNumber(formatTicksAsMinutes(Config.CURSE_2_REVERSED_SPAWN_INTERVAL.get())),
-                            formatNumber(formatPercent(Config.CURSE_2_REVERSED_SPAWN_CHANCE.get())) + "%"));
+                            reversedNumber(formatNumber(Config.CURSE_2_REVERSED_LUCK_BONUS.get())),
+                            reversedNumber(formatTicksAsMinutes(Config.CURSE_2_REVERSED_SPAWN_INTERVAL.get())),
+                            reversedPercent(Config.CURSE_2_REVERSED_SPAWN_CHANCE.get())));
                 } else {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_2_title", "item.ramesses_curse.seal_of_kadesh.curse_2_detail", false,
-                            formatNumber(Config.CURSE_2_LUCK_PENALTY.get()),
-                            formatNumber(formatTicksAsMinutes(Config.CURSE_2_SPAWN_INTERVAL.get())),
-                            formatNumber(formatPercent(Config.CURSE_2_SPAWN_CHANCE.get())) + "%",
-                            1,
-                            Config.CURSE_2_SPAWN_RADIUS.get()));
+                            yellowNumber(formatNumber(Config.CURSE_2_LUCK_PENALTY.get())),
+                            yellowNumber(formatTicksAsMinutes(Config.CURSE_2_SPAWN_INTERVAL.get())),
+                            yellowPercent(Config.CURSE_2_SPAWN_CHANCE.get()),
+                            yellowNumber(1),
+                            yellowNumber(Config.CURSE_2_SPAWN_RADIUS.get())));
                 }
                 if (!curseThreeFourLifted) {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_3_title", "item.ramesses_curse.seal_of_kadesh.curse_3_detail", false,
-                            formatNumber(Config.CURSE_3_XP_MULTIPLIER.get() * 100.0D) + "%",
-                            formatNumber(Config.CURSE_3_ENCHANT_COST_MULTIPLIER.get()),
-                            formatNumber(Config.CURSE_3_ANVIL_COST_MULTIPLIER.get())));
+                            yellowPercentInverse(Config.CURSE_3_XP_MULTIPLIER.get()),
+                            yellowNumber(formatNumber(Config.CURSE_3_ENCHANT_COST_MULTIPLIER.get())),
+                            yellowNumber(formatNumber(Config.CURSE_3_ANVIL_COST_MULTIPLIER.get()))));
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_4_title", "item.ramesses_curse.seal_of_kadesh.curse_4_detail", false,
-                            formatNumber(formatPercent(Config.CURSE_4_TRADE_SURCHARGE.get())) + "%"));
+                            yellowPercent(Config.CURSE_4_TRADE_SURCHARGE.get())));
                 }
                 if (curseFiveReversed) {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_detail_reversed", true,
-                            1, 1, 1299, 1, 10, 30));
+                            reversedNumber(1),
+                            reversedKey("item.ramesses_curse.keyword.hostile_monsters"),
+                            reversedNumber(1),
+                            reversedKey("item.ramesses_curse.keyword.mercy"),
+                            fixedNumber(1299),
+                            reversedNumber(1),
+                            reversedKey("item.ramesses_curse.keyword.death_reversal"),
+                            reversedNumber(10),
+                            reversedKey("item.ramesses_curse.keyword.invulnerability"),
+                            reversedNumber(30),
+                            reversedKey("item.ramesses_curse.keyword.partial_attribute_doubling")));
                 } else if (curseFiveDeclined) {
-                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_declined_detail", true));
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_declined_detail", true,
+                            reversedKey("item.ramesses_curse.keyword.war_blood_armor_steps"),
+                            reversedKey("item.ramesses_curse.keyword.doubled_harvest")));
                 } else {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_detail", false,
-                            1, 1, Config.CURSE_5_MAX_GUILT.get(), formatNumber(formatTicksAsMinutes(Config.CURSE_5_LOCK_DURATION.get())), Config.CURSE_5_LIGHTNING_STRIKES.get()));
+                            yellowNumber(1),
+                            yellowNumber(1),
+                            yellowNumber(Config.CURSE_5_MAX_GUILT.get()),
+                            yellowNumber(formatTicksAsMinutes(Config.CURSE_5_LOCK_DURATION.get())),
+                            yellowNumber(Config.CURSE_5_LIGHTNING_STRIKES.get())));
                 }
                 if (curseSixReversed) {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_6_title", "item.ramesses_curse.seal_of_kadesh.curse_6_detail_reversed", true));
                 } else {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_6_title", "item.ramesses_curse.seal_of_kadesh.curse_6_detail", false,
-                            formatNumber(formatTicksAsMinutes(Config.MAIN_HAND_LOCK_DELAY.get())),
-                            formatNumber(formatTicksAsMinutes(Config.MAIN_HAND_LOCK_DURATION.get())),
-                            formatNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_INTERVAL.get())),
-                            1,
-                            formatNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_DURATION.get()))));
+                            yellowNumber(formatTicksAsMinutes(Config.MAIN_HAND_LOCK_DELAY.get())),
+                            yellowNumber(formatTicksAsMinutes(Config.MAIN_HAND_LOCK_DURATION.get())),
+                            yellowNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_INTERVAL.get())),
+                            yellowNumber(1),
+                            yellowNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_DURATION.get()))));
                 }
                 tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_7_title", "item.ramesses_curse.seal_of_kadesh.curse_7_detail", false,
-                        Config.END_WEAKNESS_AMPLIFIER.get() + 1));
+                        yellowNumber(Config.END_WEAKNESS_AMPLIFIER.get() + 1)));
                 if (curseEightReversed) {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_8_title", "item.ramesses_curse.seal_of_kadesh.curse_8_detail_reversed", true,
-                            formatNumber(formatPercent(Config.HELL_REBOUND_CHANCE.get())) + "%"));
+                            reversedPercent(Config.HELL_REBOUND_CHANCE.get())));
                 } else {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_8_title", "item.ramesses_curse.seal_of_kadesh.curse_8_detail", false,
-                            formatNumber(formatPercent(Config.HELL_REBOUND_CHANCE.get())) + "%",
-                            formatNumber(formatPercent(Config.HELL_REBOUND_DAMAGE_MULTIPLIER.get() - 1.0D)) + "%"));
+                            yellowPercent(Config.HELL_REBOUND_CHANCE.get()),
+                            yellowPercent(Config.HELL_REBOUND_DAMAGE_MULTIPLIER.get() - 1.0D)));
                 }
                 if (curseNineReversed) {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_9_title", "item.ramesses_curse.seal_of_kadesh.curse_9_detail_reversed", true));
                 } else {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_9_title", "item.ramesses_curse.seal_of_kadesh.curse_9_detail", false,
-                            2, 1, 5, Config.CURSE_9_MAX_SATIETY.get(), 3, 15));
+                            blueKey("item.ramesses_curse.keyword.two_hunger_points"),
+                            blueKey("item.ramesses_curse.keyword.one_satiety_crystal"),
+                            blueKey("item.ramesses_curse.keyword.hunger_debt"),
+                            blueText(Integer.toString(Config.CURSE_9_MAX_SATIETY.get())),
+                            blueKey("item.ramesses_curse.keyword.five_seconds_one_point"),
+                            blueKey("item.ramesses_curse.keyword.three_minutes"),
+                            blueKey("item.ramesses_curse.keyword.fifteen_foods")));
                 }
             }
             if (Screen.hasAltDown()) {
@@ -550,6 +600,10 @@ public class ModItems {
             return Component.literal(text).withStyle(ChatFormatting.GREEN);
         }
 
+        private static MutableComponent reversedKey(String key) {
+            return Component.translatable(key).withStyle(ChatFormatting.GREEN);
+        }
+
         private static MutableComponent reversedNumber(double value) {
             return Component.literal(formatNumber(value)).withStyle(ChatFormatting.YELLOW);
         }
@@ -634,6 +688,24 @@ public class ModItems {
 
         public SatietyCrystal() {
             super(new Item.Properties().stacksTo(64).rarity(Rarity.RARE));
+        }
+
+        @Override
+        public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+            ItemStack stack = player.getItemInHand(usedHand);
+            if (level.isClientSide) {
+                return InteractionResultHolder.pass(stack);
+            }
+            if (!(player instanceof ServerPlayer serverPlayer)) {
+                return InteractionResultHolder.pass(stack);
+            }
+            if (!ModEvents.tryUseSatietyCrystalFromInventory(serverPlayer)) {
+                return InteractionResultHolder.pass(stack);
+            }
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+            return InteractionResultHolder.success(stack);
         }
     }
 
@@ -963,6 +1035,10 @@ public class ModItems {
 
     public static class UraeusNecklace extends Item implements ICurioItem {
         private static final String BURST_GUARD_KEY = "RamessesUraeusBurst";
+        private static final String STACK_LEVEL_KEY = "RamessesUraeusStacks";
+        private static final String STACK_EXPIRES_AT_KEY = "RamessesUraeusStacksExpireAt";
+        private static final String STORM_COOLDOWN_UNTIL_KEY = "RamessesUraeusStormCooldownUntil";
+        private static final int STORM_COOLDOWN_TICKS = 30 * 20;
         public UraeusNecklace() {
             super(new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
         }
@@ -975,17 +1051,19 @@ public class ModItems {
         @Override
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
             if (appendConfiguredTooltip(tooltip)) {
+                appendStormTooltip(level, tooltip);
                 return;
             }
-            tooltip.add(Component.translatable("item.ramesses_curse.uraeus_necklace.tooltip_stack_default", 1, 10)
+            tooltip.add(Component.translatable("item.ramesses_curse.uraeus_necklace.tooltip_stack_default", goldText(1), goldText(10))
                     .withStyle(ChatFormatting.DARK_PURPLE));
-            tooltip.add(Component.translatable("item.ramesses_curse.uraeus_necklace.tooltip_burst_default", 8, "300%", "+50%", "V", "V")
+            tooltip.add(Component.translatable("item.ramesses_curse.uraeus_necklace.tooltip_burst_default", goldText(8), goldText("300%"), goldText("+50%"), goldText("V"), goldText("V"))
                     .withStyle(ChatFormatting.DARK_PURPLE));
+            appendStormTooltip(level, tooltip);
         }
 
         private static float onAttack(Player player, LivingEntity target, float damage) {
             if (player.level().isClientSide
-                    || !(target instanceof Enemy)
+                    || target instanceof Player
                     || damage <= 0.0F
                     || !hasNecklaceEquipped(player)
                     || !ModEvents.canUseSealBoundItem(player)
@@ -998,23 +1076,44 @@ public class ModItems {
                 return damage;
             }
 
-            MobEffectInstance existing = target.getEffect(effect);
-            int nextLevel = existing == null ? 1 : existing.getAmplifier() + 2;
+            long gameTime = player.level().getGameTime();
+            int currentLevel = getStoredStackLevel(target, effect, gameTime);
+            int nextLevel = currentLevel + 1;
 
             if (nextLevel >= Config.NECKLACE_MAX_STACKS.get()) {
+                target.getPersistentData().remove(STACK_LEVEL_KEY);
+                target.getPersistentData().remove(STACK_EXPIRES_AT_KEY);
                 target.removeEffect(effect);
 
                 float burstMultiplier = Config.NECKLACE_BURST_DAMAGE_MULTIPLIER.get().floatValue();
-                if (isRainEmpowered(player)) {
+                boolean rainEmpowered = isRainEmpowered(player);
+                if (rainEmpowered) {
                     burstMultiplier += (float) (Config.NECKLACE_RAIN_BONUS_MULTIPLIER.get() - 1.0D);
                     rewardRainBurst(player);
                 }
 
+                if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                    UraeusFlareEntity.spawn(serverLevel, player, target, UraeusFlareEntity.CHAIN_DAMAGE, rainEmpowered);
+                }
                 return damage * burstMultiplier;
             }
 
+            target.getPersistentData().putInt(STACK_LEVEL_KEY, nextLevel);
+            target.getPersistentData().putLong(STACK_EXPIRES_AT_KEY, gameTime + Config.NECKLACE_STACK_TIMEOUT.get());
             target.addEffect(new MobEffectInstance(effect, Config.NECKLACE_STACK_TIMEOUT.get(), nextLevel - 1, false, true, true));
             return damage;
+        }
+
+        private static int getStoredStackLevel(LivingEntity target, MobEffect effect, long gameTime) {
+            if (target.getPersistentData().getLong(STACK_EXPIRES_AT_KEY) > gameTime) {
+                return target.getPersistentData().getInt(STACK_LEVEL_KEY);
+            }
+
+            target.getPersistentData().remove(STACK_LEVEL_KEY);
+            target.getPersistentData().remove(STACK_EXPIRES_AT_KEY);
+
+            MobEffectInstance existing = target.getEffect(effect);
+            return existing == null ? 0 : existing.getAmplifier() + 1;
         }
 
         private static boolean isRainEmpowered(Player player) {
@@ -1024,6 +1123,20 @@ public class ModItems {
         private static void rewardRainBurst(Player player) {
             player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, Config.NECKLACE_RAIN_REWARD_DURATION.get(), Config.NECKLACE_RAIN_ABSORPTION_AMPLIFIER.get(), false, false, true));
             player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, Config.NECKLACE_RAIN_REWARD_DURATION.get(), Config.NECKLACE_RAIN_RESISTANCE_AMPLIFIER.get(), false, false, true));
+        }
+
+        private static int getStormPassiveCooldownTicks(Player player) {
+            if (player.level().isClientSide) {
+                return ModEvents.ClientOverlayEvents.getClientUraeusStormCooldownTicks();
+            }
+            long cooldownUntil = player.getPersistentData().getLong(STORM_COOLDOWN_UNTIL_KEY);
+            long remaining = cooldownUntil - player.level().getGameTime();
+            return remaining > 0L ? (int) Math.min(Integer.MAX_VALUE, remaining) : 0;
+        }
+
+        private static void setStormPassiveCooldown(ServerPlayer player) {
+            player.getPersistentData().putLong(STORM_COOLDOWN_UNTIL_KEY, player.level().getGameTime() + STORM_COOLDOWN_TICKS);
+            ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new UraeusStormCooldownSyncPacket(STORM_COOLDOWN_TICKS));
         }
 
         private static boolean hasNecklaceEquipped(Player player) {
@@ -1051,6 +1164,28 @@ public class ModItems {
                             Component.literal(getRomanLevel(Config.NECKLACE_RAIN_RESISTANCE_AMPLIFIER.get() + 1)).withStyle(ChatFormatting.GOLD))
                     .withStyle(ChatFormatting.DARK_PURPLE));
             return true;
+        }
+
+        private static void appendStormTooltip(@Nullable Level level, List<Component> tooltip) {
+            tooltip.add(Component.translatable(
+                            "item.ramesses_curse.uraeus_necklace.tooltip_storm_star",
+                            goldText(50),
+                            goldText(5),
+                            goldText(3),
+                            goldText(30))
+                    .withStyle(ChatFormatting.AQUA));
+
+            Player player = Minecraft.getInstance().player;
+            if (player == null) {
+                return;
+            }
+            int cooldownTicks = getStormPassiveCooldownTicks(player);
+            if (cooldownTicks > 0) {
+                tooltip.add(Component.translatable(
+                                "item.ramesses_curse.uraeus_necklace.tooltip_storm_cooldown",
+                                Component.literal(formatSeconds(cooldownTicks)).withStyle(ChatFormatting.GOLD))
+                        .withStyle(ChatFormatting.GRAY));
+            }
         }
 
         private static Component getConfiguredEffectName() {
@@ -1130,16 +1265,16 @@ public class ModItems {
                     .withStyle(ChatFormatting.DARK_PURPLE));
             if (Screen.hasShiftDown()) {
                 tooltip.add(Component.empty());
-                tooltip.add(Component.translatable("item.ramesses_curse.edict_of_two_lands.tooltip_x", "X", 3)
+                tooltip.add(Component.translatable("item.ramesses_curse.edict_of_two_lands.tooltip_x", aquaText("X"), aquaText(3))
                         .withStyle(ChatFormatting.DARK_PURPLE));
-                tooltip.add(Component.translatable("item.ramesses_curse.edict_of_two_lands.tooltip_y", "Y", 3, 15)
+                tooltip.add(Component.translatable("item.ramesses_curse.edict_of_two_lands.tooltip_y", aquaText("Y"), aquaText(3), aquaText(15))
                         .withStyle(ChatFormatting.DARK_PURPLE));
                 tooltip.add(Component.translatable(
                                 "item.ramesses_curse.edict_of_two_lands.tooltip_cost",
-                                GUILT_COST,
-                                COOLDOWN_TICKS / 20,
-                                DOMAIN_GUILT_COST,
-                                DOMAIN_COOLDOWN_TICKS / 20)
+                                aquaText(GUILT_COST),
+                                aquaText(COOLDOWN_TICKS / 20),
+                                aquaText(DOMAIN_GUILT_COST),
+                                aquaText(DOMAIN_COOLDOWN_TICKS / 20))
                         .withStyle(ChatFormatting.DARK_PURPLE));
             }
             Minecraft minecraft = Minecraft.getInstance();
@@ -1184,6 +1319,15 @@ public class ModItems {
             getData(player).putLong(COOLDOWN_UNTIL_KEY, player.level().getGameTime() + appliedCooldown);
             player.getCooldowns().addCooldown(ModItems.EDICT_OF_TWO_LANDS.get(), appliedCooldown);
             ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new EdictCooldownSyncPacket(appliedCooldown));
+            ModNetwork.CHANNEL.send(
+                    PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
+                    new EdictWorldEffectPacket(
+                            player.getX(),
+                            player.getY() + 0.08D,
+                            player.getZ(),
+                            domain ? 15.0F : 6.0F,
+                            domain ? 180 : 90,
+                            domain));
             return EdictActivationResult.SUCCESS;
         }
         private static int getCooldownTicks(Player player) {
@@ -1268,11 +1412,29 @@ public class ModItems {
 
         @Override
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-            tooltip.add(Component.translatable("item.ramesses_curse.heart_of_duat.skill_active_detail", 16, 6, 3)
+            tooltip.add(Component.translatable("item.ramesses_curse.heart_of_duat.skill_active_detail",
+                            goldText(16),
+                            goldText(6),
+                            goldKey("item.ramesses_curse.keyword.strength_iii"),
+                            goldKey("item.ramesses_curse.keyword.highlight_hostiles"),
+                            goldText(3))
                     .withStyle(ChatFormatting.DARK_PURPLE));
-            tooltip.add(Component.translatable("item.ramesses_curse.heart_of_duat.skill_passive_detail")
+            tooltip.add(Component.translatable("item.ramesses_curse.heart_of_duat.skill_passive_detail",
+                            goldKey("item.ramesses_curse.keyword.deserts"),
+                            goldKey("item.ramesses_curse.keyword.badlands"),
+                            goldKey("item.ramesses_curse.keyword.luck_ii"),
+                            goldKey("item.ramesses_curse.keyword.entity_reach_5"))
                     .withStyle(ChatFormatting.DARK_PURPLE));
-            tooltip.add(Component.translatable("item.ramesses_curse.heart_of_duat.skill_battle_detail", 1, 10, 5, 3, 30, 10, 5, 1, 360)
+            tooltip.add(Component.translatable("item.ramesses_curse.heart_of_duat.skill_battle_detail",
+                            goldText(1),
+                            goldText(10),
+                            goldText(5),
+                            goldText("+3"),
+                            goldText("+30"),
+                            goldText(10),
+                            goldText(5),
+                            goldText(1),
+                            goldText(360))
                     .withStyle(ChatFormatting.DARK_PURPLE));
 
             Minecraft minecraft = Minecraft.getInstance();

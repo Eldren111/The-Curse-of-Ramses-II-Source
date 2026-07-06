@@ -72,6 +72,12 @@ public class ModNetwork {
                 EdictOfTwoLandsTriggeredPacket::handle);
         CHANNEL.registerMessage(
                 packetId++,
+                EdictWorldEffectPacket.class,
+                EdictWorldEffectPacket::encode,
+                EdictWorldEffectPacket::decode,
+                EdictWorldEffectPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
                 EdictOfTwoLandsDomainActivatePacket.class,
                 EdictOfTwoLandsDomainActivatePacket::encode,
                 EdictOfTwoLandsDomainActivatePacket::decode,
@@ -82,6 +88,12 @@ public class ModNetwork {
                 EdictCooldownSyncPacket::encode,
                 EdictCooldownSyncPacket::decode,
                 EdictCooldownSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                UraeusStormCooldownSyncPacket.class,
+                UraeusStormCooldownSyncPacket::encode,
+                UraeusStormCooldownSyncPacket::decode,
+                UraeusStormCooldownSyncPacket::handle);
         CHANNEL.registerMessage(
                 packetId++,
                 EmberRiddleSyncPacket.class,

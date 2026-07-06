@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EDE",
+    "GNG",
+    "EGE"
+  ],
+  "key": {
+    "E": {
+      "item": "ramesses_curse:ember_of_duat"
+    },
+    "D": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "G": {
+      "item": "minecraft:diamond"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    }
+  },
+  "result": {
+    "item": "ramesses_curse:edict_of_two_lands"
+  }
+}
