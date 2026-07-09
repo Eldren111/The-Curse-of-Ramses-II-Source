@@ -1,0 +1,38 @@
+{
+  "name": "Dynasty Aegis",
+  "category": "ramesses_curse:prologue",
+  "icon": "minecraft:iron_chestplate",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Dynasty Aegis",
+      "text": "Dynasty Aegis is an outer shield placed on hostile creatures by the old dynasty. It is not normal armor and it is not health. While the aegis remains, incoming damage is absorbed before the creature's real health can be reached.$(br2)A shielded enemy must be broken open before it can be killed. Even attacks that try to bypass armor or deal direct damage are forced through the aegis first."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Threat",
+      "text": "The aegis appears on hostile entities. Stronger creatures usually receive higher shield tiers, while a player's Dynasty Threat determines how many affixes appear and how severe they become.$(br2)Killing a hostile creature that carried the aegis reduces Dynasty Threat. This is not a gift; it is the dynasty admitting that one pursuit has been pushed back."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Affixes",
+      "text": "Dynasty Aegis can carry extra affixes. They are shown in Jade's entity panel rather than floating above the creature.$(br2)Affix availability, strength, and behavior values can be adjusted by datapacks. If a modpack changes those files, trust the values used by that pack."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Dodge & Corrosion",
+      "text": "$(l)Dodge$(): the enemy may completely evade an incoming hit, slowing the rhythm of shield breaking.$(br2)$(l)Corrosion$(): fighting the enemy wears down the player's damageable equipment. Striking it or being struck by it can both trigger corrosion. The Corrosion Ward enchantment protects items from this loss."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Unyielding & Balance",
+      "text": "$(l)Unyielding$(): when the enemy dies, the dynasty may drag it back into battle. The revival uses a totem-like effect, but a revived entity does not keep Unyielding afterward.$(br2)$(l)Balance Ward$(): limits how much damage the enemy can take from a single hit. When it triggers, the enemy gains brief protection and resistance, preventing burst damage from skipping the dynasty's order."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Silence, Law & Ward",
+      "text": "$(l)Silence$(): the enemy may seal the player's main-hand and off-hand items. The remaining seal time appears on the affected item tooltips.$(br2)$(l)Purging Law$(): periodically removes harmful effects from the enemy, but it does not clear the Uraeus Necklace's configured exclusive effect.$(br2)$(l)Projectile Ward$(): blocks projectile attacks and pushes the player toward melee or other non-projectile answers."
+    }
+  ]
+}

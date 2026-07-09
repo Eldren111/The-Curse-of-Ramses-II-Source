@@ -1529,7 +1529,7 @@ public class ModEvents {
             return;
         }
 
-        if (event.getEntity() instanceof Enemy) {
+        if (event.getEntity().getPersistentData().getBoolean(DYNASTY_SHIELD_ASSIGNED)) {
             reduceDynastyPressure(player, 1);
         }
 
@@ -3130,6 +3130,7 @@ public class ModEvents {
         data.putInt(DYNASTY_PRESSURE, next);
         ensureDynastyPressureMultiplier(data);
         syncDynastyPressureSharedData(player, data);
+        syncClientState(player, true);
         return getDynastyPressure(player);
     }
 
@@ -3138,10 +3139,14 @@ public class ModEvents {
             return getDynastyPressure(player);
         }
         CompoundTag data = getCurseData(player);
-        int next = Mth.clamp(data.getInt(DYNASTY_PRESSURE) - amount, 0, DYNASTY_PRESSURE_MAX);
-        data.putInt(DYNASTY_PRESSURE, next);
         ensureDynastyPressureMultiplier(data);
+        int multiplierTenths = getDynastyPressureMultiplierTenths(data);
+        int currentEffective = getDynastyPressure(player);
+        int targetEffective = Mth.clamp(currentEffective - amount, 0, DYNASTY_PRESSURE_MAX);
+        int nextBase = Mth.clamp(Mth.ceil(targetEffective * 10.0F / multiplierTenths), 0, DYNASTY_PRESSURE_MAX);
+        data.putInt(DYNASTY_PRESSURE, nextBase);
         syncDynastyPressureSharedData(player, data);
+        syncClientState(player, true);
         return getDynastyPressure(player);
     }
 
@@ -3180,6 +3185,7 @@ public class ModEvents {
                 DYNASTY_PRESSURE_MULTIPLIER_MAX_TENTHS);
         data.putInt(DYNASTY_PRESSURE_MULTIPLIER_TENTHS, multiplierTenths);
         syncDynastyPressureSharedData(player, data);
+        syncClientState(player, true);
     }
 
     private static void ensureDynastyPressureMultiplier(CompoundTag data) {
