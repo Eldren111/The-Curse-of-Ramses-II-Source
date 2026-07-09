@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -75,6 +76,8 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.EnchantmentMenu;
@@ -91,6 +94,7 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.functions.EnchantRandomlyFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.phys.AABB;
@@ -119,6 +123,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
@@ -128,12 +133,14 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkDirection;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotResult;
@@ -171,6 +178,8 @@ public class ModEvents {
     private static final String CURSE_DATA = "RamessesCurseData";
     private static final String EQUIP_TICKS = "EquipTicks";
     private static final String MAIN_LOCK_UNTIL = "MainHandLockUntil";
+    private static final String DYNASTY_SILENCE_MAIN_HAND_UNTIL = "DynastySilenceMainHandUntil";
+    private static final String DYNASTY_SILENCE_OFF_HAND_UNTIL = "DynastySilenceOffHandUntil";
     private static final String NEXT_RANDOM_LOCK = "NextRandomLock";
     private static final String LOCKED_SLOT = "LockedSlot";
     private static final String LOCKED_SLOT_UNTIL = "LockedSlotUntil";
@@ -264,6 +273,9 @@ public class ModEvents {
     private static final String LAST_SYNC_CURSE_9_DEBT = "LastSyncCurseNineDebt";
     private static final String LAST_SYNC_LOCKED_SLOT = "LastSyncLockedSlot";
     private static final String LAST_SYNC_LOCKED_SLOT_TICKS = "LastSyncLockedSlotTicks";
+    private static final String LAST_SYNC_DYNASTY_PRESSURE = "LastSyncDynastyPressure";
+    private static final String LAST_SYNC_DYNASTY_SILENCE_MAIN_HAND_TICKS = "LastSyncDynastySilenceMainHandTicks";
+    private static final String LAST_SYNC_DYNASTY_SILENCE_OFF_HAND_TICKS = "LastSyncDynastySilenceOffHandTicks";
     private static final String LAST_SYNC_MERCY = "LastSyncMercy";
     private static final String LAST_SYNC_MERCY_CHARGE = "LastSyncMercyCharge";
     private static final String CURSE_3_ANVIL_COST = "Curse3AnvilCost";
@@ -316,10 +328,33 @@ public class ModEvents {
     private static final String DYNASTY_SHIELD_DODGE_LEVEL = "RamessesDynastyShieldDodgeLevel";
     private static final String DYNASTY_SHIELD_CORROSION_LEVEL = "RamessesDynastyShieldCorrosionLevel";
     private static final String DYNASTY_SHIELD_UNYIELDING_LEVEL = "RamessesDynastyShieldUnyieldingLevel";
+    private static final String DYNASTY_SHIELD_DAMAGE_CAP_LEVEL = "RamessesDynastyShieldDamageCapLevel";
+    private static final String DYNASTY_SHIELD_SILENCE_LEVEL = "RamessesDynastyShieldSilenceLevel";
+    private static final String DYNASTY_SHIELD_PURGE = "RamessesDynastyShieldPurge";
+    private static final String DYNASTY_SHIELD_PROJECTILE_WARD = "RamessesDynastyShieldProjectileWard";
+    public static final String URAEUS_NECKLACE_EFFECT_BYPASS_UNTIL = "RamessesUraeusNecklaceEffectBypassUntil";
     private static final String DYNASTY_SHIELD_UNYIELDING_REVIVES = "RamessesDynastyShieldUnyieldingRevives";
+    private static final String DYNASTY_SHIELD_UNYIELDING_FIXED = "RamessesDynastyShieldUnyieldingFixed";
     private static final String DYNASTY_SHIELD_LAST_SYNC_CURRENT = "RamessesDynastyShieldLastSyncCurrent";
     private static final String DYNASTY_SHIELD_LAST_SYNC_MAX = "RamessesDynastyShieldLastSyncMax";
     private static final int DYNASTY_SHIELD_UNYIELDING_MAX_REVIVES = 1;
+    private static final int[] DYNASTY_SHIELD_AUTO_LEVEL_SCORES = {0, 45, 100, 180, 320};
+    private static final String DYNASTY_PRESSURE = "DynastyPressure";
+    private static final String DYNASTY_PRESSURE_MULTIPLIER_TENTHS = "DynastyPressureMultiplierTenths";
+    private static final String DYNASTY_PRESSURE_LAST_DAY = "DynastyPressureLastDay";
+    private static final int DYNASTY_PRESSURE_POTION_AMOUNT = 100;
+    private static final int DYNASTY_PRESSURE_DAILY_AMOUNT = 10;
+    private static final int DYNASTY_PRESSURE_DIMENSION_CHANGE_AMOUNT = 10;
+    private static final int DYNASTY_PRESSURE_MAX = 1000;
+    private static final int DYNASTY_PRESSURE_MULTIPLIER_INITIAL_TENTHS = 10;
+    private static final int DYNASTY_PRESSURE_MULTIPLIER_MAX_TENTHS = 100;
+    private static final String DYNASTY_AFFIX_DODGE = "dodge";
+    private static final String DYNASTY_AFFIX_CORROSION = "corrosion";
+    private static final String DYNASTY_AFFIX_DAMAGE_CAP = "damage_cap";
+    private static final String DYNASTY_AFFIX_UNYIELDING = "unyielding";
+    private static final String DYNASTY_AFFIX_SILENCE = "silence";
+    private static final String DYNASTY_AFFIX_PURGE = "purge";
+    private static final String DYNASTY_AFFIX_PROJECTILE_WARD = "projectile_ward";
     private static final int CURSE_5_MERCY_MAX = 1299;
     private static final int CURSE_5_MERCY_INVULNERABLE_TICKS = 200;
     private static final int CURSE_5_MERCY_SURGE_TICKS = 600;
@@ -650,6 +685,7 @@ public class ModEvents {
         Player player = event.player;
         CompoundTag data = getCurseData(player);
         if (player instanceof ServerPlayer serverPlayer) {
+            tickDynastyPressureGrowth(serverPlayer, data);
             tickCurseFiveSleepChoice(serverPlayer, data);
         }
         boolean sealEquipped = sanitizeSealCurios(player);
@@ -669,6 +705,12 @@ public class ModEvents {
         int remainingMainHandLock = getRemainingMainHandLockTicks(player);
         if (remainingMainHandLock > 0 && player instanceof ServerPlayer serverPlayer) {
             applyMainHandCooldown(serverPlayer, remainingMainHandLock);
+        }
+
+        int remainingMainHandSilence = getRemainingDynastySilenceTicks(player, InteractionHand.MAIN_HAND);
+        int remainingOffHandSilence = getRemainingDynastySilenceTicks(player, InteractionHand.OFF_HAND);
+        if (player instanceof ServerPlayer serverPlayer) {
+            applyDynastySilenceCooldown(serverPlayer, remainingMainHandSilence, remainingOffHandSilence);
         }
 
         int remainingLockedSlotTicks = getRemainingLockedSlotTicks(player);
@@ -774,6 +816,7 @@ public class ModEvents {
             ensureStarterSeal(player);
             ensureStarterManual(player);
             ensureEmberRiddle(player);
+            syncDynastyPressureSharedData(player, getCurseData(player));
             syncClientState(player, true);
         }
     }
@@ -911,44 +954,15 @@ public class ModEvents {
                                         .executes(context -> setDynastyShieldEnabled(context.getSource(), true)))
                                 .then(literal("off")
                                         .executes(context -> setDynastyShieldEnabled(context.getSource(), false)))
-                                .then(literal("default_level")
-                                        .then(literal("1")
-                                                .executes(context -> setGlobalDynastyShieldDefaultLevel(context.getSource(), 1)))
-                                        .then(literal("3")
-                                                .executes(context -> setGlobalDynastyShieldDefaultLevel(context.getSource(), 3)))
-                                        .then(literal("5")
-                                                .executes(context -> setGlobalDynastyShieldDefaultLevel(context.getSource(), 5)))
-                                        .then(literal("7")
-                                                .executes(context -> setGlobalDynastyShieldDefaultLevel(context.getSource(), 7)))
-                                        .then(literal("9")
-                                                .executes(context -> setGlobalDynastyShieldDefaultLevel(context.getSource(), 9))))
-                                .then(literal("apply_loaded_level")
-                                        .then(literal("1")
-                                                .executes(context -> applyLoadedDynastyShieldLevel(context.getSource(), 1)))
-                                        .then(literal("3")
-                                                .executes(context -> applyLoadedDynastyShieldLevel(context.getSource(), 3)))
-                                        .then(literal("5")
-                                                .executes(context -> applyLoadedDynastyShieldLevel(context.getSource(), 5)))
-                                        .then(literal("7")
-                                                .executes(context -> applyLoadedDynastyShieldLevel(context.getSource(), 7)))
-                                        .then(literal("9")
-                                                .executes(context -> applyLoadedDynastyShieldLevel(context.getSource(), 9))))
+                                .then(literal("affixes")
+                                        .then(literal("on")
+                                                .executes(context -> setDynastyShieldAffixesEnabled(context.getSource(), true)))
+                                        .then(literal("off")
+                                                .executes(context -> setDynastyShieldAffixesEnabled(context.getSource(), false))))
                                 .then(literal("refill_loaded")
                                         .executes(context -> refillLoadedDynastyShields(context.getSource())))
                                 .then(literal("reset_loaded")
                                         .executes(context -> resetLoadedDynastyShields(context.getSource())))
-                                .then(literal("set_level")
-                                        .then(argument("targets", EntityArgument.entities())
-                                                .then(literal("1")
-                                                        .executes(context -> setDynastyShieldLevel(context.getSource(), EntityArgument.getEntities(context, "targets"), 1)))
-                                                .then(literal("3")
-                                                        .executes(context -> setDynastyShieldLevel(context.getSource(), EntityArgument.getEntities(context, "targets"), 3)))
-                                                .then(literal("5")
-                                                        .executes(context -> setDynastyShieldLevel(context.getSource(), EntityArgument.getEntities(context, "targets"), 5)))
-                                                .then(literal("7")
-                                                        .executes(context -> setDynastyShieldLevel(context.getSource(), EntityArgument.getEntities(context, "targets"), 7)))
-                                                .then(literal("9")
-                                                        .executes(context -> setDynastyShieldLevel(context.getSource(), EntityArgument.getEntities(context, "targets"), 9)))))
                                 .then(literal("set_current")
                                         .then(argument("targets", EntityArgument.entities())
                                                 .then(argument("value", IntegerArgumentType.integer(0))
@@ -989,6 +1003,7 @@ public class ModEvents {
             }
             if (event.getEntity() instanceof ServerPlayer player) {
                 finalizeCurseFiveMercyRevive(player);
+                syncDynastyPressureSharedData(player, getCurseData(player));
                 syncClientState(player, true);
             }
         }
@@ -996,19 +1011,37 @@ public class ModEvents {
 
     @SubscribeEvent
     public static void onLootTableLoad(LootTableLoadEvent event) {
-        if (!isNetherContainerLoot(event.getName())) {
-            return;
+        if (isContainerLoot(event.getName())) {
+            LootPool corrosionWardPool = LootPool.lootPool()
+                    .name("ramesses_curse_corrosion_ward_book")
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .when(LootItemRandomChanceCondition.randomChance(0.02F))
+                    .add(LootItem.lootTableItem(Items.ENCHANTED_BOOK)
+                            .apply(EnchantRandomlyFunction.randomEnchantment()
+                                    .withEnchantment(ModEnchantments.CORROSION_WARD.get())))
+                    .build();
+
+            event.getTable().addPool(corrosionWardPool);
         }
 
-        LootPool pool = LootPool.lootPool()
-                .name("ramesses_curse_ember_of_duat")
-                .setRolls(ConstantValue.exactly(1.0F))
-                .when(LootItemRandomChanceCondition.randomChance(0.05F))
-                .add(LootItem.lootTableItem(ModItems.EMBER_OF_DUAT.get())
-                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F))))
-                .build();
+        if (isNetherContainerLoot(event.getName())) {
+            LootPool emberPool = LootPool.lootPool()
+                    .name("ramesses_curse_ember_of_duat")
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .when(LootItemRandomChanceCondition.randomChance(0.05F))
+                    .add(LootItem.lootTableItem(ModItems.EMBER_OF_DUAT.get())
+                            .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F))))
+                    .build();
 
-        event.getTable().addPool(pool);
+            event.getTable().addPool(emberPool);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            addDynastyPressure(serverPlayer, DYNASTY_PRESSURE_DIMENSION_CHANGE_AMOUNT);
+        }
     }
 
     @SubscribeEvent
@@ -1025,6 +1058,10 @@ public class ModEvents {
             return;
         }
         if (isMainHandLocked(player) && event.getHand() == InteractionHand.MAIN_HAND) {
+            event.setCanceled(true);
+            return;
+        }
+        if (isDynastyHandSilenced(player, event.getHand())) {
             event.setCanceled(true);
             return;
         }
@@ -1050,6 +1087,10 @@ public class ModEvents {
             event.setCanceled(true);
             return;
         }
+        if (isDynastyHandSilenced(player, event.getHand())) {
+            event.setCanceled(true);
+            return;
+        }
         if (isLockedInventoryStack(player, event.getItemStack())) {
             event.setCanceled(true);
         }
@@ -1057,7 +1098,14 @@ public class ModEvents {
 
     @SubscribeEvent
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || !(event.getTarget() instanceof AbstractVillager villager)) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        if (isDynastyHandSilenced(player, event.getHand())) {
+            event.setCanceled(true);
+            return;
+        }
+        if (!(event.getTarget() instanceof AbstractVillager villager)) {
             return;
         }
         if (!isSealEquipped(player) || areCurseThreeAndFourLifted(player)) {
@@ -1083,6 +1131,10 @@ public class ModEvents {
             event.setCanceled(true);
             return;
         }
+        if (isDynastyHandSilenced(player, event.getHand())) {
+            event.setCanceled(true);
+            return;
+        }
         if (isLockedInventoryStack(player, player.getMainHandItem()) && event.getHand() == InteractionHand.MAIN_HAND) {
             event.setCanceled(true);
         }
@@ -1104,20 +1156,6 @@ public class ModEvents {
 
         DamageSource source = event.getSource();
         ServerPlayer player = source != null && source.getEntity() instanceof ServerPlayer serverPlayer ? serverPlayer : null;
-
-        if (event.getEntity() instanceof Enemy
-                && player != null
-                && !event.getEntity().level().isClientSide
-                && event.getEntity().getRandom().nextFloat() < 0.002F) {
-            ItemEntity emberDrop = new ItemEntity(
-                    event.getEntity().level(),
-                    event.getEntity().getX(),
-                    event.getEntity().getY(),
-                    event.getEntity().getZ(),
-                    new ItemStack(ModItems.EMBER_OF_DUAT.get()));
-            emberDrop.setPickUpDelay(10);
-            event.getDrops().add(emberDrop);
-        }
 
         if (player == null || !isCurseSevenReversed(player)) {
             return;
@@ -1148,7 +1186,7 @@ public class ModEvents {
     @SubscribeEvent
     public static void onAttackEntity(AttackEntityEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            if (isGuiltLocked(player) || isMainHandLocked(player) || isLockedInventoryStack(player, player.getMainHandItem())) {
+            if (isGuiltLocked(player) || isMainHandLocked(player) || isDynastyHandSilenced(player, InteractionHand.MAIN_HAND) || isLockedInventoryStack(player, player.getMainHandItem())) {
                 event.setCanceled(true);
                 return;
             }
@@ -1174,6 +1212,7 @@ public class ModEvents {
         tickEdictSeal(living);
         if (living.tickCount % 40 == 0) {
             ensureDynastyShield(living, false);
+            cleanseDynastyShieldHarmfulEffects(living);
         }
 
         if (living instanceof Mob mob) {
@@ -1195,7 +1234,23 @@ public class ModEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onMobEffectApplicable(MobEffectEvent.Applicable event) {
+        LivingEntity living = event.getEntity();
+        MobEffectInstance effect = event.getEffectInstance();
+        if (effect != null
+                && isDynastyShieldPurgeActive(living)
+                && effect.getEffect().getCategory() == MobEffectCategory.HARMFUL
+                && !isUraeusNecklaceBypassEffect(living, effect.getEffect())) {
+            event.setResult(Event.Result.DENY);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingAttack(LivingAttackEvent event) {
+        if (isDynastyShieldProjectileWardBlockedDamage(event.getEntity(), event.getSource())) {
+            event.setCanceled(true);
+            return;
+        }
         if (event.getEntity() instanceof ServerPlayer player) {
             tryTriggerCurseOneReversed(player, event.getSource());
             if (isCurseFiveMercyInvulnerable(player)) {
@@ -1219,6 +1274,11 @@ public class ModEvents {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingDamage(LivingDamageEvent event) {
+        if (isDynastyShieldProjectileWardBlockedDamage(event.getEntity(), event.getSource())) {
+            event.setCanceled(true);
+            event.setAmount(0.0F);
+            return;
+        }
         if (isCurseTwoMinionDotOrPotionDamage(event.getEntity(), event.getSource())) {
             event.setCanceled(true);
             event.setAmount(0.0F);
@@ -1293,7 +1353,7 @@ public class ModEvents {
         }
 
         if (tryAdvanceCurseNineFoodVariety(player, stack)) {
-            player.displayClientMessage(Component.literal("饥王遗罚已反转。").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), false);
+            player.displayClientMessage(Component.literal("Satiety king penalty reversed.").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), false);
             syncClientState(player, true);
         }
     }
@@ -1396,8 +1456,9 @@ public class ModEvents {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onAnvilUpdate(AnvilUpdateEvent event) {
+        boolean corrosionWardApplied = applyCorrosionWardAnvilResult(event);
         Player player = event.getPlayer();
         if (!isSealEquipped(player)) {
             clearCurseThreeAnvilCosts(player);
@@ -1408,9 +1469,48 @@ public class ModEvents {
             return;
         }
         int baseCost = Math.max(0, event.getCost());
+        if (corrosionWardApplied && baseCost <= 0) {
+            baseCost = 3;
+        }
         int adjustedCost = Math.max(0, Mth.ceil(baseCost * Config.CURSE_3_ANVIL_COST_MULTIPLIER.get()));
         event.setCost(adjustedCost);
         storeCurseThreeAnvilCosts(player, baseCost, adjustedCost);
+    }
+
+    private static boolean applyCorrosionWardAnvilResult(AnvilUpdateEvent event) {
+        ItemStack left = event.getLeft();
+        ItemStack right = event.getRight();
+        if (left.isEmpty() || right.isEmpty() || !canReceiveCorrosionWard(left)) {
+            return false;
+        }
+
+        int wardLevel = right.getEnchantmentLevel(ModEnchantments.CORROSION_WARD.get());
+        if (wardLevel <= 0) {
+            return false;
+        }
+
+        ItemStack output = event.getOutput().isEmpty() ? left.copy() : event.getOutput().copy();
+        if (!canReceiveCorrosionWard(output)) {
+            output = left.copy();
+        }
+
+        Map<Enchantment, Integer> enchantments = new LinkedHashMap<>(EnchantmentHelper.getEnchantments(output));
+        int currentLevel = enchantments.getOrDefault(ModEnchantments.CORROSION_WARD.get(), 0);
+        int finalLevel = Mth.clamp(Math.max(currentLevel, wardLevel), 1, ModEnchantments.CORROSION_WARD.get().getMaxLevel());
+        if (currentLevel >= finalLevel && !event.getOutput().isEmpty()) {
+            return true;
+        }
+
+        enchantments.put(ModEnchantments.CORROSION_WARD.get(), finalLevel);
+        EnchantmentHelper.setEnchantments(enchantments, output);
+        event.setOutput(output);
+        event.setMaterialCost(Math.max(1, event.getMaterialCost()));
+        event.setCost(Math.max(3, event.getCost()));
+        return true;
+    }
+
+    private static boolean canReceiveCorrosionWard(ItemStack stack) {
+        return !stack.isEmpty() && (stack.isDamageableItem() || stack.getMaxDamage() > 0);
     }
 
     @SubscribeEvent
@@ -1427,6 +1527,10 @@ public class ModEvents {
 
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) {
             return;
+        }
+
+        if (event.getEntity() instanceof Enemy) {
+            reduceDynastyPressure(player, 1);
         }
 
         if (canUseHeartSlot(player) && isHeartEquipped(player) && event.getEntity() instanceof Enemy) {
@@ -1768,13 +1872,13 @@ public class ModEvents {
             queueCurseFiveOutcomeHint(
                     player,
                     "the scales break and mercy begins to stain the world with a gentler cruelty",
-                    "天秤将碎，慈悲会以更温柔也更残酷的方式染上世界。");
+                    "????????????????????????");
         } else {
             player.displayClientMessage(Component.translatable("message.ramesses_curse.curse_5_declined").withStyle(net.minecraft.ChatFormatting.RED, net.minecraft.ChatFormatting.BOLD), false);
             queueCurseFiveOutcomeHint(
                     player,
                     "the old verdict remains and the world will go on measuring your name in thunder",
-                    "旧日判词仍在，世界会继续用雷霆衡量你的名字。");
+                    "??????????????????????");
         }
 
         syncClientState(player, true);
@@ -2977,7 +3081,10 @@ public class ModEvents {
                 getSatietyCrystalCount(player),
                 getCurseNineDebtTicks(player),
                 data.getInt(LOCKED_SLOT),
-                getRemainingLockedSlotTicks(player));
+                getRemainingLockedSlotTicks(player),
+                getDynastyPressure(player),
+                getRemainingDynastySilenceTicks(player, InteractionHand.MAIN_HAND),
+                getRemainingDynastySilenceTicks(player, InteractionHand.OFF_HAND));
     }
 
     public static int consumePurificationScroll(ServerPlayer player) {
@@ -3008,6 +3115,116 @@ public class ModEvents {
         data.putInt(GUILT_PROGRESS, clamped);
         data.putBoolean(GUILT_SENTENCE_PENDING, clamped >= Config.CURSE_5_MAX_GUILT.get());
         syncClientState(player, true);
+    }
+
+    public static int drinkDynastyPressurePotion(ServerPlayer player) {
+        return addDynastyPressure(player, DYNASTY_PRESSURE_POTION_AMOUNT);
+    }
+
+    public static int addDynastyPressure(ServerPlayer player, int amount) {
+        if (player == null || amount <= 0) {
+            return getDynastyPressure(player);
+        }
+        CompoundTag data = getCurseData(player);
+        int next = Mth.clamp(data.getInt(DYNASTY_PRESSURE) + amount, 0, DYNASTY_PRESSURE_MAX);
+        data.putInt(DYNASTY_PRESSURE, next);
+        ensureDynastyPressureMultiplier(data);
+        syncDynastyPressureSharedData(player, data);
+        return getDynastyPressure(player);
+    }
+
+    public static int reduceDynastyPressure(ServerPlayer player, int amount) {
+        if (player == null || amount <= 0) {
+            return getDynastyPressure(player);
+        }
+        CompoundTag data = getCurseData(player);
+        int next = Mth.clamp(data.getInt(DYNASTY_PRESSURE) - amount, 0, DYNASTY_PRESSURE_MAX);
+        data.putInt(DYNASTY_PRESSURE, next);
+        ensureDynastyPressureMultiplier(data);
+        syncDynastyPressureSharedData(player, data);
+        return getDynastyPressure(player);
+    }
+
+    public static int getDynastyPressure(Player player) {
+        if (player == null) {
+            return 0;
+        }
+        CompoundTag data = getCurseData(player);
+        int base = Mth.clamp(data.getInt(DYNASTY_PRESSURE), 0, DYNASTY_PRESSURE_MAX);
+        int multiplierTenths = getDynastyPressureMultiplierTenths(data);
+        return Mth.clamp(Mth.floor(base * (multiplierTenths / 10.0F)), 0, DYNASTY_PRESSURE_MAX);
+    }
+
+    private static void tickDynastyPressureGrowth(ServerPlayer player, CompoundTag data) {
+        if (player.server == null) {
+            return;
+        }
+        ensureDynastyPressureMultiplier(data);
+        long currentDay = Math.max(0L, player.server.overworld().getDayTime() / 24000L);
+        if (!data.contains(DYNASTY_PRESSURE_LAST_DAY, Tag.TAG_LONG)) {
+            data.putLong(DYNASTY_PRESSURE_LAST_DAY, currentDay);
+            syncDynastyPressureSharedData(player, data);
+            return;
+        }
+        long lastDay = data.getLong(DYNASTY_PRESSURE_LAST_DAY);
+        if (currentDay <= lastDay) {
+            return;
+        }
+
+        int daysPassed = Mth.clamp((int) (currentDay - lastDay), 1, 100000);
+        data.putLong(DYNASTY_PRESSURE_LAST_DAY, currentDay);
+        data.putInt(DYNASTY_PRESSURE, Mth.clamp(data.getInt(DYNASTY_PRESSURE) + DYNASTY_PRESSURE_DAILY_AMOUNT * daysPassed, 0, DYNASTY_PRESSURE_MAX));
+        int multiplierTenths = Mth.clamp(
+                getDynastyPressureMultiplierTenths(data) + daysPassed,
+                DYNASTY_PRESSURE_MULTIPLIER_INITIAL_TENTHS,
+                DYNASTY_PRESSURE_MULTIPLIER_MAX_TENTHS);
+        data.putInt(DYNASTY_PRESSURE_MULTIPLIER_TENTHS, multiplierTenths);
+        syncDynastyPressureSharedData(player, data);
+    }
+
+    private static void ensureDynastyPressureMultiplier(CompoundTag data) {
+        if (data.getInt(DYNASTY_PRESSURE_MULTIPLIER_TENTHS) < DYNASTY_PRESSURE_MULTIPLIER_INITIAL_TENTHS) {
+            data.putInt(DYNASTY_PRESSURE_MULTIPLIER_TENTHS, DYNASTY_PRESSURE_MULTIPLIER_INITIAL_TENTHS);
+        }
+    }
+
+    private static int getDynastyPressureMultiplierTenths(CompoundTag data) {
+        ensureDynastyPressureMultiplier(data);
+        return Mth.clamp(
+                data.getInt(DYNASTY_PRESSURE_MULTIPLIER_TENTHS),
+                DYNASTY_PRESSURE_MULTIPLIER_INITIAL_TENTHS,
+                DYNASTY_PRESSURE_MULTIPLIER_MAX_TENTHS);
+    }
+
+    private static void syncDynastyPressureSharedData(ServerPlayer player, CompoundTag data) {
+        int base = Mth.clamp(data.getInt(DYNASTY_PRESSURE), 0, DYNASTY_PRESSURE_MAX);
+        data.putInt(DYNASTY_PRESSURE, base);
+        int multiplierTenths = getDynastyPressureMultiplierTenths(data);
+        int effective = Mth.clamp(Mth.floor(base * (multiplierTenths / 10.0F)), 0, DYNASTY_PRESSURE_MAX);
+        data.putInt("L2LibraryDynastyPressure", effective);
+        data.putInt("L2LibraryDynastyPressureBase", base);
+        data.putInt("L2LibraryDynastyPressureMultiplierTenths", multiplierTenths);
+        CompoundTag persisted = player.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
+        persisted.putInt("ramesses_curse:dynasty_pressure", effective);
+        persisted.putInt("ramesses_curse:dynasty_pressure_base", base);
+        persisted.putInt("ramesses_curse:dynasty_pressure_multiplier_tenths", multiplierTenths);
+        persisted.putInt("l2library:dynasty_pressure", effective);
+        persisted.putInt("l2library:dynasty_pressure_base", base);
+        persisted.putInt("l2library:dynasty_pressure_multiplier_tenths", multiplierTenths);
+        player.getPersistentData().put(Player.PERSISTED_NBT_TAG, persisted);
+        syncDynastyPressureToL2Capability(player, base, multiplierTenths, effective);
+    }
+
+    private static void syncDynastyPressureToL2Capability(ServerPlayer player, int base, int multiplierTenths, int effective) {
+        if (!ModList.get().isLoaded("l2library")) {
+            return;
+        }
+        try {
+            Class.forName("com.eldren.wutao.ramesses_curse.integration.l2.L2LibraryCompat")
+                    .getMethod("sync", ServerPlayer.class, int.class, int.class, int.class)
+                    .invoke(null, player, base, multiplierTenths, effective);
+        } catch (ReflectiveOperationException ignored) {
+        }
     }
 
     public static void setMercyProgress(ServerPlayer player, int mercy) {
@@ -3503,6 +3720,16 @@ public class ModEvents {
     public static boolean isMainHandLocked(Player player) {
         CompoundTag data = getCurseData(player);
         return data.getLong(MAIN_LOCK_UNTIL) > player.level().getGameTime();
+    }
+
+    public static boolean isDynastyHandSilenced(Player player, InteractionHand hand) {
+        return getRemainingDynastySilenceTicks(player, hand) > 0;
+    }
+
+    private static int getRemainingDynastySilenceTicks(Player player, InteractionHand hand) {
+        CompoundTag data = getCurseData(player);
+        String key = hand == InteractionHand.OFF_HAND ? DYNASTY_SILENCE_OFF_HAND_UNTIL : DYNASTY_SILENCE_MAIN_HAND_UNTIL;
+        return (int) Math.max(0L, data.getLong(key) - player.level().getGameTime());
     }
 
     private static int getRemainingMainHandLockTicks(Player player) {
@@ -4677,7 +4904,7 @@ public class ModEvents {
         CompoundTag tag = living.getPersistentData();
         boolean assigned = tag.getBoolean(DYNASTY_SHIELD_ASSIGNED);
         if (!assigned) {
-            int level = getDefaultDynastyShieldLevel();
+            int level = getAssignedDynastyShieldLevel(living);
             float maxShield = getDynastyShieldMax(level);
             if (maxShield <= 0.0F) {
                 return;
@@ -4686,9 +4913,14 @@ public class ModEvents {
             tag.putInt(DYNASTY_SHIELD_LEVEL, level);
             tag.putFloat(DYNASTY_SHIELD_MAX, maxShield);
             tag.putFloat(DYNASTY_SHIELD_CURRENT, maxShield);
-            updateDynastyShieldDodgeTag(tag, level);
-            updateDynastyShieldCorrosionTag(tag, level);
-            updateDynastyShieldUnyieldingTag(tag, level);
+            int affixLevel = getDynastyShieldAffixLevelForShieldLevel(level);
+            updateDynastyShieldDodgeTag(tag, affixLevel);
+            updateDynastyShieldCorrosionTag(tag, affixLevel);
+            updateDynastyShieldDamageCapTag(tag, affixLevel);
+            updateDynastyShieldSilenceTag(tag, affixLevel);
+            updateDynastyShieldPurgeTag(tag, affixLevel);
+            updateDynastyShieldProjectileWardTag(tag, affixLevel);
+            cleanseDynastyShieldHarmfulEffects(living);
             syncDynastyShield(living, true);
             return;
         }
@@ -4701,9 +4933,13 @@ public class ModEvents {
         }
         float current = Mth.clamp(tag.getFloat(DYNASTY_SHIELD_CURRENT), 0.0F, maxShield);
         tag.putFloat(DYNASTY_SHIELD_CURRENT, current);
-        updateDynastyShieldDodgeTag(tag, level);
-        updateDynastyShieldCorrosionTag(tag, level);
-        updateDynastyShieldUnyieldingTag(tag, level);
+        int affixLevel = getDynastyShieldAffixLevelForShieldLevel(level);
+        updateDynastyShieldDodgeTag(tag, affixLevel);
+        updateDynastyShieldCorrosionTag(tag, affixLevel);
+        updateDynastyShieldDamageCapTag(tag, affixLevel);
+        updateDynastyShieldSilenceTag(tag, affixLevel);
+        updateDynastyShieldPurgeTag(tag, affixLevel);
+        updateDynastyShieldProjectileWardTag(tag, affixLevel);
         syncDynastyShield(living, forceSync);
     }
 
@@ -4724,6 +4960,9 @@ public class ModEvents {
             return;
         }
 
+        Player sourcePlayer = getSourcePlayer(event.getSource());
+        fixDynastyShieldUnyieldingLevel(tag, sourcePlayer);
+
         if (tryDodgeDynastyShieldDamage(target, tag, event.getSource())) {
             event.setCanceled(true);
             event.setAmount(0.0F);
@@ -4731,8 +4970,17 @@ public class ModEvents {
             return;
         }
 
-        float remainingDamage = event.getAmount() - current;
-        float newShield = Math.max(0.0F, current - event.getAmount());
+        triggerDynastyShieldSilence(sourcePlayer, tag);
+
+        float originalDamage = event.getAmount();
+        float damage = applyDynastyShieldDamageCap(tag, event.getSource(), originalDamage);
+        if (damage < originalDamage) {
+            triggerDynastyShieldDamageCapGuard(target);
+        }
+        event.setAmount(damage);
+
+        float remainingDamage = damage - current;
+        float newShield = Math.max(0.0F, current - damage);
         tag.putFloat(DYNASTY_SHIELD_CURRENT, newShield);
         syncDynastyShield(target, true);
 
@@ -4742,21 +4990,88 @@ public class ModEvents {
             event.setAmount(0.0F);
         } else {
             event.setAmount(remainingDamage);
+            triggerDynastyShieldBreakGuard(target);
             target.level().playSound(null, target.blockPosition(), SoundEvents.SHIELD_BREAK, SoundSource.HOSTILE, 0.8F, 0.9F);
         }
     }
 
     private static boolean tryDodgeDynastyShieldDamage(LivingEntity target, CompoundTag tag, DamageSource source) {
-        if (!Config.DYNASTY_SHIELD_DODGE_ENABLED.get() || getSourcePlayer(source) == null) {
+        Player sourcePlayer = getSourcePlayer(source);
+        int affixLevel = getDynastyShieldAffixLevel(sourcePlayer);
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_DODGE)
+                || sourcePlayer == null
+                || !isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_DODGE))) {
+            tag.remove(DYNASTY_SHIELD_DODGE_LEVEL);
             return false;
         }
-        int dodgeLevel = Mth.clamp(tag.getInt(DYNASTY_SHIELD_DODGE_LEVEL), 1, 5);
+        int dodgeLevel = getDynastyShieldDodgeLevel(affixLevel);
         tag.putInt(DYNASTY_SHIELD_DODGE_LEVEL, dodgeLevel);
-        return target.getRandom().nextFloat() < dodgeLevel * 0.10F;
+        return target.getRandom().nextFloat() < DynastyAffixData.number(DYNASTY_AFFIX_DODGE, dodgeLevel, "chance");
+    }
+
+    private static float applyDynastyShieldDamageCap(CompoundTag tag, DamageSource source, float amount) {
+        Player sourcePlayer = getSourcePlayer(source);
+        int affixLevel = getDynastyShieldAffixLevel(sourcePlayer);
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_DAMAGE_CAP)
+                || sourcePlayer == null
+                || !isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_DAMAGE_CAP))) {
+            tag.remove(DYNASTY_SHIELD_DAMAGE_CAP_LEVEL);
+            return amount;
+        }
+        int capLevel = getDynastyShieldDamageCapLevel(affixLevel);
+        tag.putInt(DYNASTY_SHIELD_DAMAGE_CAP_LEVEL, capLevel);
+        return Math.min(amount, getDynastyShieldDamageCap(capLevel));
+    }
+
+    private static void triggerDynastyShieldSilence(@Nullable Player sourcePlayer, CompoundTag tag) {
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_SILENCE) || !(sourcePlayer instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+        int affixLevel = getDynastyShieldAffixLevel(serverPlayer);
+        if (!isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_SILENCE))) {
+            tag.remove(DYNASTY_SHIELD_SILENCE_LEVEL);
+            return;
+        }
+        int silenceLevel = getDynastyShieldSilenceLevel(affixLevel);
+        tag.putInt(DYNASTY_SHIELD_SILENCE_LEVEL, silenceLevel);
+        if (serverPlayer.getRandom().nextDouble() >= getDynastyShieldSilenceChance(silenceLevel)) {
+            return;
+        }
+        long until = serverPlayer.level().getGameTime() + DynastyAffixData.intNumber(DYNASTY_AFFIX_SILENCE, silenceLevel, "duration_seconds") * 20L;
+        CompoundTag playerData = getCurseData(serverPlayer);
+        playerData.putLong(DYNASTY_SILENCE_MAIN_HAND_UNTIL, Math.max(playerData.getLong(DYNASTY_SILENCE_MAIN_HAND_UNTIL), until));
+        playerData.putLong(DYNASTY_SILENCE_OFF_HAND_UNTIL, Math.max(playerData.getLong(DYNASTY_SILENCE_OFF_HAND_UNTIL), until));
+        syncClientState(serverPlayer, true);
+    }
+
+    private static void triggerDynastyShieldDamageCapGuard(LivingEntity target) {
+        target.invulnerableTime = Math.max(target.invulnerableTime, 60);
+        addOrExtendDynastyShieldResistance(target, 300, 1);
+    }
+
+    private static void triggerDynastyShieldBreakGuard(LivingEntity target) {
+        target.invulnerableTime = Math.max(target.invulnerableTime, 40);
+        target.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 600, 0, false, false, true));
+    }
+
+    private static void addOrExtendDynastyShieldResistance(LivingEntity target, int addedTicks, int amplifier) {
+        MobEffectInstance current = target.getEffect(MobEffects.DAMAGE_RESISTANCE);
+        int duration = addedTicks;
+        if (current != null) {
+            if (current.getAmplifier() > amplifier) {
+                return;
+            }
+            duration += current.getDuration();
+        }
+        target.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, duration, amplifier, false, false, true));
+    }
+
+    private static float getDynastyShieldDamageCap(int capLevel) {
+        return (float) DynastyAffixData.number(DYNASTY_AFFIX_DAMAGE_CAP, capLevel, "max_damage");
     }
 
     private static void tryCorrodeDynastyShieldEquipment(LivingDamageEvent event) {
-        if (!Config.DYNASTY_SHIELD_ENABLED.get() || !Config.DYNASTY_SHIELD_CORROSION_ENABLED.get()) {
+        if (!Config.DYNASTY_SHIELD_ENABLED.get() || !DynastyAffixData.enabled(DYNASTY_AFFIX_CORROSION)) {
             return;
         }
 
@@ -4783,9 +5098,14 @@ public class ModEvents {
             return;
         }
 
-        int corrosionLevel = Mth.clamp(tag.getInt(DYNASTY_SHIELD_CORROSION_LEVEL), 1, 5);
+        int affixLevel = getDynastyShieldAffixLevel(player);
+        if (!isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_CORROSION))) {
+            tag.remove(DYNASTY_SHIELD_CORROSION_LEVEL);
+            return;
+        }
+        int corrosionLevel = getDynastyShieldCorrosionLevel(affixLevel);
         tag.putInt(DYNASTY_SHIELD_CORROSION_LEVEL, corrosionLevel);
-        float damageRatio = corrosionLevel / 1000.0F;
+        float damageRatio = (float) DynastyAffixData.number(DYNASTY_AFFIX_CORROSION, corrosionLevel, "durability_ratio");
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             ItemStack stack = player.getItemBySlot(slot);
             if (stack.isEmpty() || !stack.isDamageableItem()) {
@@ -4816,7 +5136,7 @@ public class ModEvents {
     private static boolean tryReviveDynastyShieldEntity(LivingDeathEvent event) {
         LivingEntity living = event.getEntity();
         if (!Config.DYNASTY_SHIELD_ENABLED.get()
-                || !Config.DYNASTY_SHIELD_UNYIELDING_ENABLED.get()
+                || !DynastyAffixData.enabled(DYNASTY_AFFIX_UNYIELDING)
                 || living.level().isClientSide
                 || !(living instanceof Enemy)
                 || living instanceof Player) {
@@ -4829,7 +5149,12 @@ public class ModEvents {
             return false;
         }
 
-        int unyieldingLevel = Mth.clamp(tag.getInt(DYNASTY_SHIELD_UNYIELDING_LEVEL), 1, 3);
+        Player sourcePlayer = getSourcePlayer(event.getSource());
+        fixDynastyShieldUnyieldingLevel(tag, sourcePlayer);
+        int unyieldingLevel = tag.getInt(DYNASTY_SHIELD_UNYIELDING_LEVEL);
+        if (unyieldingLevel <= 0) {
+            return false;
+        }
         int revives = Math.max(0, tag.getInt(DYNASTY_SHIELD_UNYIELDING_REVIVES));
         if (revives >= DYNASTY_SHIELD_UNYIELDING_MAX_REVIVES) {
             return false;
@@ -4847,6 +5172,8 @@ public class ModEvents {
         living.deathTime = 0;
         living.invulnerableTime = Math.max(living.invulnerableTime, 20);
         tag.putInt(DYNASTY_SHIELD_UNYIELDING_REVIVES, revives + 1);
+        tag.remove(DYNASTY_SHIELD_UNYIELDING_LEVEL);
+        tag.remove(DYNASTY_SHIELD_UNYIELDING_FIXED);
         living.level().broadcastEntityEvent(living, (byte) 35);
         living.level().playSound(null, living.blockPosition(), SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 1.0F, 0.9F + living.getRandom().nextFloat() * 0.2F);
         if (living.level() instanceof ServerLevel serverLevel) {
@@ -4856,19 +5183,11 @@ public class ModEvents {
     }
 
     private static float getDynastyShieldUnyieldingReviveChance(int unyieldingLevel) {
-        return switch (Mth.clamp(unyieldingLevel, 1, 3)) {
-            case 1 -> 0.20F;
-            case 2 -> 0.40F;
-            default -> 0.60F;
-        };
+        return (float) DynastyAffixData.number(DYNASTY_AFFIX_UNYIELDING, unyieldingLevel, "revive_chance");
     }
 
     private static float getDynastyShieldUnyieldingHealthRatio(int unyieldingLevel) {
-        return switch (Mth.clamp(unyieldingLevel, 1, 3)) {
-            case 1 -> 0.50F;
-            case 2 -> 0.60F;
-            default -> 0.70F;
-        };
+        return (float) DynastyAffixData.number(DYNASTY_AFFIX_UNYIELDING, unyieldingLevel, "health_ratio");
     }
 
     private static int getDefaultDynastyShieldLevel() {
@@ -4880,6 +5199,37 @@ public class ModEvents {
             }
         }
         return getShieldListValue(levels, 0, 3);
+    }
+
+    private static int getAssignedDynastyShieldLevel(LivingEntity living) {
+        if (!Config.DYNASTY_SHIELD_AUTO_LEVEL_BY_STATS.get()) {
+            return getDefaultDynastyShieldLevel();
+        }
+
+        List<? extends Integer> levels = Config.DYNASTY_SHIELD_LEVELS.get();
+        int count = Math.min(levels.size(), DYNASTY_SHIELD_AUTO_LEVEL_SCORES.length);
+        if (count <= 0) {
+            return getDefaultDynastyShieldLevel();
+        }
+
+        double score = getDynastyShieldEntityScore(living);
+        int selected = getShieldListValue(levels, 0, getDefaultDynastyShieldLevel());
+        int selectedScore = Integer.MIN_VALUE;
+        for (int i = 0; i < count; i++) {
+            int threshold = Math.max(0, DYNASTY_SHIELD_AUTO_LEVEL_SCORES[i]);
+            if (score >= threshold && threshold >= selectedScore) {
+                selected = Math.max(1, levels.get(i));
+                selectedScore = threshold;
+            }
+        }
+        return selected;
+    }
+
+    private static double getDynastyShieldEntityScore(LivingEntity living) {
+        double maxHealth = Math.max(1.0D, living.getMaxHealth());
+        double armor = Math.max(0.0D, living.getAttributeValue(Attributes.ARMOR));
+        double toughness = Math.max(0.0D, living.getAttributeValue(Attributes.ARMOR_TOUGHNESS));
+        return maxHealth + armor * 6.0D + toughness * 4.0D;
     }
 
     private static float getDynastyShieldMax(int level) {
@@ -4906,62 +5256,233 @@ public class ModEvents {
         return fallback;
     }
 
-    private static void updateDynastyShieldDodgeTag(CompoundTag tag, int level) {
-        if (!Config.DYNASTY_SHIELD_DODGE_ENABLED.get()) {
+    private static void updateDynastyShieldDodgeTag(CompoundTag tag, int affixLevel) {
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_DODGE)
+                || !isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_DODGE))) {
             tag.remove(DYNASTY_SHIELD_DODGE_LEVEL);
             return;
         }
-        tag.putInt(DYNASTY_SHIELD_DODGE_LEVEL, getDynastyShieldDodgeLevel(level));
+        tag.putInt(DYNASTY_SHIELD_DODGE_LEVEL, getDynastyShieldDodgeLevel(affixLevel));
     }
 
-    private static int getDynastyShieldDodgeLevel(int level) {
-        return getDynastyShieldAffixLevel(level);
+    private static int getDynastyShieldDodgeLevel(int affixLevel) {
+        return DynastyAffixData.level(DYNASTY_AFFIX_DODGE, affixLevel);
     }
 
-    private static void updateDynastyShieldCorrosionTag(CompoundTag tag, int level) {
-        if (!Config.DYNASTY_SHIELD_CORROSION_ENABLED.get()) {
+    private static void updateDynastyShieldCorrosionTag(CompoundTag tag, int affixLevel) {
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_CORROSION)
+                || !isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_CORROSION))) {
             tag.remove(DYNASTY_SHIELD_CORROSION_LEVEL);
             return;
         }
-        tag.putInt(DYNASTY_SHIELD_CORROSION_LEVEL, getDynastyShieldCorrosionLevel(level));
+        tag.putInt(DYNASTY_SHIELD_CORROSION_LEVEL, getDynastyShieldCorrosionLevel(affixLevel));
     }
 
-    private static int getDynastyShieldCorrosionLevel(int level) {
-        return getDynastyShieldAffixLevel(level);
+    private static int getDynastyShieldCorrosionLevel(int affixLevel) {
+        return DynastyAffixData.level(DYNASTY_AFFIX_CORROSION, affixLevel);
     }
 
-    private static void updateDynastyShieldUnyieldingTag(CompoundTag tag, int level) {
-        if (!Config.DYNASTY_SHIELD_UNYIELDING_ENABLED.get()) {
+    private static void updateDynastyShieldUnyieldingTag(CompoundTag tag, int affixLevel) {
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_UNYIELDING)
+                || !isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_UNYIELDING))) {
             tag.remove(DYNASTY_SHIELD_UNYIELDING_LEVEL);
             tag.remove(DYNASTY_SHIELD_UNYIELDING_REVIVES);
+            tag.remove(DYNASTY_SHIELD_UNYIELDING_FIXED);
             return;
         }
-        tag.putInt(DYNASTY_SHIELD_UNYIELDING_LEVEL, getDynastyShieldUnyieldingLevel(level));
+        if (tag.getInt(DYNASTY_SHIELD_UNYIELDING_REVIVES) >= DYNASTY_SHIELD_UNYIELDING_MAX_REVIVES) {
+            tag.remove(DYNASTY_SHIELD_UNYIELDING_LEVEL);
+            tag.remove(DYNASTY_SHIELD_UNYIELDING_FIXED);
+            return;
+        }
+        if (!tag.getBoolean(DYNASTY_SHIELD_UNYIELDING_FIXED)) {
+            int unyieldingLevel = getDynastyShieldUnyieldingLevel(affixLevel);
+            if (unyieldingLevel <= 0) {
+                tag.remove(DYNASTY_SHIELD_UNYIELDING_LEVEL);
+                tag.remove(DYNASTY_SHIELD_UNYIELDING_FIXED);
+                return;
+            }
+            tag.putInt(DYNASTY_SHIELD_UNYIELDING_LEVEL, unyieldingLevel);
+            tag.putBoolean(DYNASTY_SHIELD_UNYIELDING_FIXED, true);
+        }
     }
 
-    private static int getDynastyShieldUnyieldingLevel(int level) {
-        int affixLevel = getDynastyShieldAffixLevel(level);
-        if (affixLevel >= 5) {
-            return 3;
+    private static void fixDynastyShieldUnyieldingLevel(CompoundTag tag, @Nullable Player player) {
+        int affixLevel = getDynastyShieldAffixLevel(player);
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_UNYIELDING)
+                || !isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_UNYIELDING))
+                || tag.getInt(DYNASTY_SHIELD_UNYIELDING_REVIVES) >= DYNASTY_SHIELD_UNYIELDING_MAX_REVIVES) {
+            tag.remove(DYNASTY_SHIELD_UNYIELDING_LEVEL);
+            tag.remove(DYNASTY_SHIELD_UNYIELDING_FIXED);
+            return;
         }
-        if (affixLevel >= 3) {
-            return 2;
+        if (!tag.getBoolean(DYNASTY_SHIELD_UNYIELDING_FIXED)) {
+            int unyieldingLevel = getDynastyShieldUnyieldingLevel(affixLevel);
+            if (unyieldingLevel <= 0) {
+                tag.remove(DYNASTY_SHIELD_UNYIELDING_LEVEL);
+                tag.remove(DYNASTY_SHIELD_UNYIELDING_FIXED);
+                return;
+            }
+            tag.putInt(DYNASTY_SHIELD_UNYIELDING_LEVEL, unyieldingLevel);
+            tag.putBoolean(DYNASTY_SHIELD_UNYIELDING_FIXED, true);
         }
-        return 1;
     }
 
-    private static int getDynastyShieldAffixLevel(int level) {
-        if (level >= 9) {
+    private static int getDynastyShieldUnyieldingLevel(int affixLevel) {
+        if (!isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_UNYIELDING))) {
+            return 0;
+        }
+        return DynastyAffixData.level(DYNASTY_AFFIX_UNYIELDING, affixLevel);
+    }
+
+    private static void updateDynastyShieldDamageCapTag(CompoundTag tag, int affixLevel) {
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_DAMAGE_CAP)
+                || !isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_DAMAGE_CAP))) {
+            tag.remove(DYNASTY_SHIELD_DAMAGE_CAP_LEVEL);
+            return;
+        }
+        tag.putInt(DYNASTY_SHIELD_DAMAGE_CAP_LEVEL, getDynastyShieldDamageCapLevel(affixLevel));
+    }
+
+    private static int getDynastyShieldDamageCapLevel(int affixLevel) {
+        return DynastyAffixData.level(DYNASTY_AFFIX_DAMAGE_CAP, affixLevel);
+    }
+
+    private static void updateDynastyShieldSilenceTag(CompoundTag tag, int affixLevel) {
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_SILENCE)
+                || !isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_SILENCE))) {
+            tag.remove(DYNASTY_SHIELD_SILENCE_LEVEL);
+            return;
+        }
+        tag.putInt(DYNASTY_SHIELD_SILENCE_LEVEL, getDynastyShieldSilenceLevel(affixLevel));
+    }
+
+    private static int getDynastyShieldSilenceLevel(int affixLevel) {
+        return DynastyAffixData.level(DYNASTY_AFFIX_SILENCE, affixLevel);
+    }
+
+    private static void updateDynastyShieldPurgeTag(CompoundTag tag, int affixLevel) {
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_PURGE)
+                || !isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_PURGE))) {
+            tag.remove(DYNASTY_SHIELD_PURGE);
+            return;
+        }
+        tag.putBoolean(DYNASTY_SHIELD_PURGE, true);
+    }
+
+    private static void updateDynastyShieldProjectileWardTag(CompoundTag tag, int affixLevel) {
+        if (!DynastyAffixData.enabled(DYNASTY_AFFIX_PROJECTILE_WARD)
+                || !isDynastyShieldAffixUnlocked(affixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_PROJECTILE_WARD))) {
+            tag.remove(DYNASTY_SHIELD_PROJECTILE_WARD);
+            return;
+        }
+        tag.putBoolean(DYNASTY_SHIELD_PROJECTILE_WARD, true);
+    }
+
+    private static boolean isDynastyShieldPurgeActive(LivingEntity living) {
+        if (!Config.DYNASTY_SHIELD_ENABLED.get()
+                || !DynastyAffixData.enabled(DYNASTY_AFFIX_PURGE)
+                || living.level().isClientSide
+                || !(living instanceof Enemy)
+                || !living.isAlive()) {
+            return false;
+        }
+        CompoundTag tag = living.getPersistentData();
+        return tag.getBoolean(DYNASTY_SHIELD_ASSIGNED)
+                && tag.getBoolean(DYNASTY_SHIELD_PURGE)
+                && tag.getFloat(DYNASTY_SHIELD_CURRENT) > 0.0F;
+    }
+
+    private static boolean isUraeusNecklaceBypassEffect(LivingEntity living, MobEffect effect) {
+        MobEffect necklaceEffect = Config.getNecklaceEffect();
+        if (necklaceEffect == null || effect != necklaceEffect) {
+            return false;
+        }
+        return living.getPersistentData().getLong(URAEUS_NECKLACE_EFFECT_BYPASS_UNTIL) >= living.level().getGameTime();
+    }
+
+    private static boolean isDynastyShieldProjectileWardActive(LivingEntity living) {
+        if (!Config.DYNASTY_SHIELD_ENABLED.get()
+                || !DynastyAffixData.enabled(DYNASTY_AFFIX_PROJECTILE_WARD)
+                || living.level().isClientSide
+                || !(living instanceof Enemy)
+                || !living.isAlive()) {
+            return false;
+        }
+        CompoundTag tag = living.getPersistentData();
+        return tag.getBoolean(DYNASTY_SHIELD_ASSIGNED)
+                && tag.getBoolean(DYNASTY_SHIELD_PROJECTILE_WARD)
+                && tag.getFloat(DYNASTY_SHIELD_CURRENT) > 0.0F;
+    }
+
+    private static boolean isDynastyShieldProjectileWardBlockedDamage(LivingEntity living, DamageSource source) {
+        if (!isDynastyShieldProjectileWardActive(living)) {
+            return false;
+        }
+        Player sourcePlayer = getSourcePlayer(source);
+        if (sourcePlayer == null || !isDynastyShieldAffixUnlocked(getDynastyShieldAffixLevel(sourcePlayer), DynastyAffixData.unlockTier(DYNASTY_AFFIX_PROJECTILE_WARD))) {
+            return false;
+        }
+        Entity directEntity = source.getDirectEntity();
+        return source.is(DamageTypeTags.IS_PROJECTILE)
+                || directEntity instanceof Projectile
+                || isLikelyModdedProjectileEntity(directEntity);
+    }
+
+    private static boolean isLikelyModdedProjectileEntity(@Nullable Entity entity) {
+        if (entity == null || entity instanceof LivingEntity) {
+            return false;
+        }
+        String className = entity.getClass().getName().toLowerCase(Locale.ROOT);
+        return className.contains("projectile")
+                || className.contains("bullet")
+                || className.contains("ammo")
+                || className.contains("arrow")
+                || className.contains("bolt")
+                || className.contains("shell");
+    }
+
+    private static void cleanseDynastyShieldHarmfulEffects(LivingEntity living) {
+        if (!isDynastyShieldPurgeActive(living)) {
+            return;
+        }
+        List<MobEffect> harmfulEffects = new ArrayList<>();
+        for (MobEffectInstance effect : living.getActiveEffects()) {
+            if (effect.getEffect().getCategory() == MobEffectCategory.HARMFUL
+                    && !ModItems.isUraeusNecklaceStackEffect(living, effect.getEffect())) {
+                harmfulEffects.add(effect.getEffect());
+            }
+        }
+        for (MobEffect effect : harmfulEffects) {
+            living.removeEffect(effect);
+        }
+    }
+
+    private static double getDynastyShieldSilenceChance(int silenceLevel) {
+        return DynastyAffixData.number(DYNASTY_AFFIX_SILENCE, silenceLevel, "chance");
+    }
+
+    private static int getDynastyShieldAffixLevel(@Nullable Player player) {
+        int pressure = getDynastyPressure(player);
+        return Mth.clamp(pressure / DYNASTY_PRESSURE_POTION_AMOUNT + 1, 1, 10);
+    }
+
+    private static boolean isDynastyShieldAffixUnlocked(int affixLevel, int requiredLevel) {
+        return affixLevel >= requiredLevel;
+    }
+
+    private static int getDynastyShieldAffixLevelForShieldLevel(int shieldLevel) {
+        if (shieldLevel >= 9) {
+            return 10;
+        }
+        if (shieldLevel >= 7) {
+            return 7;
+        }
+        if (shieldLevel >= 5) {
             return 5;
         }
-        if (level >= 7) {
-            return 4;
-        }
-        if (level >= 5) {
+        if (shieldLevel >= 3) {
             return 3;
-        }
-        if (level >= 3) {
-            return 2;
         }
         return 1;
     }
@@ -4974,6 +5495,10 @@ public class ModEvents {
     }
 
     public static @Nullable DynastyShieldSnapshot getDynastyShieldSnapshot(LivingEntity living) {
+        return getDynastyShieldSnapshot(living, null);
+    }
+
+    public static @Nullable DynastyShieldSnapshot getDynastyShieldSnapshot(LivingEntity living, @Nullable Player viewer) {
         if (!Config.DYNASTY_SHIELD_ENABLED.get() || !(living instanceof Enemy)) {
             return null;
         }
@@ -4985,16 +5510,34 @@ public class ModEvents {
         if (max <= 0.0F) {
             return null;
         }
+        int viewerAffixLevel = getDynastyShieldAffixLevel(viewer);
+        int unyieldingLevel = 0;
+        if (DynastyAffixData.enabled(DYNASTY_AFFIX_UNYIELDING)
+                && isDynastyShieldAffixUnlocked(viewerAffixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_UNYIELDING))
+                && tag.getInt(DYNASTY_SHIELD_UNYIELDING_REVIVES) < DYNASTY_SHIELD_UNYIELDING_MAX_REVIVES) {
+            unyieldingLevel = tag.getBoolean(DYNASTY_SHIELD_UNYIELDING_FIXED)
+                    ? tag.getInt(DYNASTY_SHIELD_UNYIELDING_LEVEL)
+                    : getDynastyShieldUnyieldingLevel(viewerAffixLevel);
+        }
+        if (unyieldingLevel <= 0
+                && tag.getBoolean(DYNASTY_SHIELD_UNYIELDING_FIXED)
+                && isDynastyShieldAffixUnlocked(viewerAffixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_UNYIELDING))) {
+            unyieldingLevel = getDynastyShieldUnyieldingLevel(viewerAffixLevel);
+        }
         return new DynastyShieldSnapshot(
                 tag.getInt(DYNASTY_SHIELD_LEVEL),
                 Mth.clamp(tag.getFloat(DYNASTY_SHIELD_CURRENT), 0.0F, max),
                 max,
-                Config.DYNASTY_SHIELD_DODGE_ENABLED.get() ? getDynastyShieldDodgeLevel(tag.getInt(DYNASTY_SHIELD_LEVEL)) : 0,
-                Config.DYNASTY_SHIELD_CORROSION_ENABLED.get() ? getDynastyShieldCorrosionLevel(tag.getInt(DYNASTY_SHIELD_LEVEL)) : 0,
-                Config.DYNASTY_SHIELD_UNYIELDING_ENABLED.get() ? getDynastyShieldUnyieldingLevel(tag.getInt(DYNASTY_SHIELD_LEVEL)) : 0);
+                DynastyAffixData.enabled(DYNASTY_AFFIX_DODGE) && isDynastyShieldAffixUnlocked(viewerAffixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_DODGE)) ? getDynastyShieldDodgeLevel(viewerAffixLevel) : 0,
+                DynastyAffixData.enabled(DYNASTY_AFFIX_CORROSION) && isDynastyShieldAffixUnlocked(viewerAffixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_CORROSION)) ? getDynastyShieldCorrosionLevel(viewerAffixLevel) : 0,
+                Mth.clamp(unyieldingLevel, 0, 3),
+                DynastyAffixData.enabled(DYNASTY_AFFIX_DAMAGE_CAP) && isDynastyShieldAffixUnlocked(viewerAffixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_DAMAGE_CAP)) ? getDynastyShieldDamageCapLevel(viewerAffixLevel) : 0,
+                DynastyAffixData.enabled(DYNASTY_AFFIX_SILENCE) && isDynastyShieldAffixUnlocked(viewerAffixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_SILENCE)) ? getDynastyShieldSilenceLevel(viewerAffixLevel) : 0,
+                DynastyAffixData.enabled(DYNASTY_AFFIX_PURGE) && isDynastyShieldAffixUnlocked(viewerAffixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_PURGE)) && tag.getBoolean(DYNASTY_SHIELD_PURGE),
+                DynastyAffixData.enabled(DYNASTY_AFFIX_PROJECTILE_WARD) && isDynastyShieldAffixUnlocked(viewerAffixLevel, DynastyAffixData.unlockTier(DYNASTY_AFFIX_PROJECTILE_WARD)) && tag.getBoolean(DYNASTY_SHIELD_PROJECTILE_WARD));
     }
 
-    public record DynastyShieldSnapshot(int level, float current, float max, int dodgeLevel, int corrosionLevel, int unyieldingLevel) {
+    public record DynastyShieldSnapshot(int level, float current, float max, int dodgeLevel, int corrosionLevel, int unyieldingLevel, int damageCapLevel, int silenceLevel, boolean purge, boolean projectileWard) {
     }
 
     private static Player getSourcePlayer(net.minecraft.world.damagesource.DamageSource source) {
@@ -5207,12 +5750,22 @@ public class ModEvents {
     }
 
     private static boolean isNetherContainerLoot(ResourceLocation lootTableId) {
-        return NETHER_BRIDGE_CHEST.equals(lootTableId)
+        String id = lootTableId.toString();
+        String path = lootTableId.getPath();
+        return isContainerLoot(lootTableId)
+                && (NETHER_BRIDGE_CHEST.equals(lootTableId)
                 || BASTION_BRIDGE_CHEST.equals(lootTableId)
                 || BASTION_HOGLIN_STABLE_CHEST.equals(lootTableId)
                 || BASTION_OTHER_CHEST.equals(lootTableId)
                 || BASTION_TREASURE_CHEST.equals(lootTableId)
-                || RUINED_PORTAL_CHEST.equals(lootTableId);
+                || RUINED_PORTAL_CHEST.equals(lootTableId)
+                || id.contains("nether")
+                || id.contains("bastion")
+                || path.contains("ruined_portal"));
+    }
+
+    private static boolean isContainerLoot(ResourceLocation lootTableId) {
+        return lootTableId.getPath().startsWith("chests/");
     }
 
     private static boolean isHoldingEmberOfDuat(Player player) {
@@ -5622,48 +6175,13 @@ public class ModEvents {
         return affected;
     }
 
-    private static int setDynastyShieldLevel(CommandSourceStack source, Collection<? extends Entity> targets, int level) {
-        int changed = 0;
-        float max = getDynastyShieldMax(level);
-        for (Entity entity : targets) {
-            if (!(entity instanceof LivingEntity living) || !(living instanceof Enemy) || living.level().isClientSide || max <= 0.0F) {
-                continue;
-            }
-            CompoundTag tag = living.getPersistentData();
-            tag.putBoolean(DYNASTY_SHIELD_ASSIGNED, true);
-            tag.putInt(DYNASTY_SHIELD_LEVEL, level);
-            tag.putFloat(DYNASTY_SHIELD_MAX, max);
-            tag.putFloat(DYNASTY_SHIELD_CURRENT, max);
-            updateDynastyShieldDodgeTag(tag, level);
-            updateDynastyShieldCorrosionTag(tag, level);
-            updateDynastyShieldUnyieldingTag(tag, level);
-            syncDynastyShield(living, true);
-            changed++;
-        }
-        int result = changed;
-        source.sendSuccess(() -> Component.literal("已设置 " + result + " 个敌对实体的王朝护盾等级为 " + level + "，护盾值 " + Math.max(0, Mth.ceil(max)) + "。"), true);
-        return changed;
-    }
-
-    private static int setGlobalDynastyShieldDefaultLevel(CommandSourceStack source, int level) {
-        float max = getDynastyShieldMax(level);
-        if (max <= 0.0F) {
-            source.sendFailure(Component.literal("王朝护盾等级 " + level + " 没有可用护盾值，请检查 dynastyShieldMaxValues 配置。"));
-            return 0;
-        }
-        Config.DYNASTY_SHIELD_DEFAULT_LEVEL.set(level);
-        Config.SPEC.save();
-        source.sendSuccess(() -> Component.literal("已将新生成敌对生物的默认王朝护盾等级设置为 " + level + "，默认护盾值 " + Math.max(0, Mth.ceil(max)) + "。"), true);
-        return 1;
-    }
-
     private static int setDynastyShieldEnabled(CommandSourceStack source, boolean enabled) {
         Config.DYNASTY_SHIELD_ENABLED.set(enabled);
         Config.SPEC.save();
         if (!(source.getEntity() instanceof ServerPlayer)) {
             source.sendSuccess(() -> Component.literal(enabled
-                    ? "已开启王胄。新生成敌对生物会获得王朝护盾，已有护盾恢复生效。"
-                    : "已关闭王胄。敌对生物不会获得王朝护盾，已有护盾暂不生效。"), true);
+                    ? "Dynasty shield enabled."
+                    : "Dynasty shield disabled."), true);
         }
         queueDynastyShieldToggleHint(source, enabled);
         return 1;
@@ -5681,16 +6199,30 @@ public class ModEvents {
                 ? "royal aegis restored; hostile blood now wears the old dynasty again"
                 : "royal aegis withdrawn; hostile blood stands without the old dynasty";
         String translatedText = enabled
-                ? "王胄复归，敌对之血重新披上旧王朝的甲。"
-                : "王胄退去，敌对之血不再受旧王朝遮护。";
+                ? "royal aegis restored; hostile blood now wears the old dynasty again"
+                : "royal aegis withdrawn; hostile blood stands without the old dynasty";
         ModNetwork.CHANNEL.send(
                 PacketDistributor.PLAYER.with(() -> player),
                 new CurseSevenHintPacket(text, translatedText, "red_omen", DYNASTY_SHIELD_TOGGLE_HINT_TICKS));
     }
 
-    private static int applyLoadedDynastyShieldLevel(CommandSourceStack source, int level) {
-        return setDynastyShieldLevel(source, getLoadedHostileEntities(source), level);
+    private static int setDynastyShieldAffixesEnabled(CommandSourceStack source, boolean enabled) {
+        DynastyAffixData.setAffixesEnabled(enabled);
+        int refreshed = refreshLoadedDynastyShieldAffixes(source);
+        source.sendSuccess(() -> Component.literal("Dynasty shield affix generation " + (enabled ? "enabled" : "disabled")
+                + ". Refreshed " + refreshed + " loaded hostile entities."), true);
+        return 1;
     }
+
+    private static int refreshLoadedDynastyShieldAffixes(CommandSourceStack source) {
+        int changed = 0;
+        for (LivingEntity living : getLoadedHostileEntities(source)) {
+            ensureDynastyShield(living, true);
+            changed++;
+        }
+        return changed;
+    }
+
 
     private static int refillLoadedDynastyShields(CommandSourceStack source) {
         return refillDynastyShield(source, getLoadedHostileEntities(source));
@@ -5729,7 +6261,7 @@ public class ModEvents {
             changed++;
         }
         int result = changed;
-        source.sendSuccess(() -> Component.literal("已设置 " + result + " 个敌对实体的当前王朝护盾值为 " + value + "。"), true);
+        source.sendSuccess(() -> Component.literal("Updated dynasty shields for " + result + " hostile entities."), true);
         return changed;
     }
 
@@ -5751,7 +6283,7 @@ public class ModEvents {
             changed++;
         }
         int result = changed;
-        source.sendSuccess(() -> Component.literal("已设置 " + result + " 个敌对实体的最大王朝护盾值为 " + value + "。"), true);
+        source.sendSuccess(() -> Component.literal("Updated dynasty shields for " + result + " hostile entities."), true);
         return changed;
     }
 
@@ -5771,7 +6303,7 @@ public class ModEvents {
             changed++;
         }
         int result = changed;
-        source.sendSuccess(() -> Component.literal("已回满 " + result + " 个敌对实体的王朝护盾。"), true);
+        source.sendSuccess(() -> Component.literal("Updated dynasty shields for " + result + " hostile entities."), true);
         return changed;
     }
 
@@ -5789,14 +6321,19 @@ public class ModEvents {
             tag.remove(DYNASTY_SHIELD_DODGE_LEVEL);
             tag.remove(DYNASTY_SHIELD_CORROSION_LEVEL);
             tag.remove(DYNASTY_SHIELD_UNYIELDING_LEVEL);
+            tag.remove(DYNASTY_SHIELD_DAMAGE_CAP_LEVEL);
+            tag.remove(DYNASTY_SHIELD_SILENCE_LEVEL);
+            tag.remove(DYNASTY_SHIELD_PURGE);
+            tag.remove(DYNASTY_SHIELD_PROJECTILE_WARD);
             tag.remove(DYNASTY_SHIELD_UNYIELDING_REVIVES);
+            tag.remove(DYNASTY_SHIELD_UNYIELDING_FIXED);
             tag.remove(DYNASTY_SHIELD_LAST_SYNC_CURRENT);
             tag.remove(DYNASTY_SHIELD_LAST_SYNC_MAX);
             ensureDynastyShield(living, true);
             changed++;
         }
         int result = changed;
-        source.sendSuccess(() -> Component.literal("已重置 " + result + " 个敌对实体的王朝护盾为默认等级。"), true);
+        source.sendSuccess(() -> Component.literal("Updated dynasty shields for " + result + " hostile entities."), true);
         return changed;
     }
 
@@ -6058,11 +6595,11 @@ public class ModEvents {
         }
     }
 
-    private static void syncGuiltState(Player player, int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks) {
+    private static void syncGuiltState(Player player, int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks, int dynastyThreat, int dynastySilenceMainHandTicks, int dynastySilenceOffHandTicks) {
         if (player instanceof ServerPlayer serverPlayer) {
             ModNetwork.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> serverPlayer),
-                    new GuiltSyncPacket(guilt, mercy, mercyChargeReady, sealEquipped, netherAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockTicks, satietyCrystalCount, curseNineDebtTicks, lockedSlot, lockedSlotTicks));
+                    new GuiltSyncPacket(guilt, mercy, mercyChargeReady, sealEquipped, netherAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockTicks, satietyCrystalCount, curseNineDebtTicks, lockedSlot, lockedSlotTicks, dynastyThreat, dynastySilenceMainHandTicks, dynastySilenceOffHandTicks));
         }
     }
 
@@ -6088,6 +6625,9 @@ public class ModEvents {
         int curseNineDebtTicks = getCurseNineDebtTicks(player);
         int lockedSlot = data.getInt(LOCKED_SLOT);
         int lockedSlotTicks = getRemainingLockedSlotTicks(player);
+        int dynastyThreat = getDynastyPressure(player);
+        int dynastySilenceMainHandTicks = getRemainingDynastySilenceTicks(player, InteractionHand.MAIN_HAND);
+        int dynastySilenceOffHandTicks = getRemainingDynastySilenceTicks(player, InteractionHand.OFF_HAND);
 
         if (!force
                 && data.getInt(LAST_SYNC_GUILT) == guilt
@@ -6109,7 +6649,10 @@ public class ModEvents {
                 && data.getInt(LAST_SYNC_SATIETY) == satietyCrystalCount
                 && data.getInt(LAST_SYNC_CURSE_9_DEBT) == curseNineDebtTicks
                 && data.getInt(LAST_SYNC_LOCKED_SLOT) == lockedSlot
-                && data.getInt(LAST_SYNC_LOCKED_SLOT_TICKS) == lockedSlotTicks) {
+                && data.getInt(LAST_SYNC_LOCKED_SLOT_TICKS) == lockedSlotTicks
+                && data.getInt(LAST_SYNC_DYNASTY_PRESSURE) == dynastyThreat
+                && data.getInt(LAST_SYNC_DYNASTY_SILENCE_MAIN_HAND_TICKS) == dynastySilenceMainHandTicks
+                && data.getInt(LAST_SYNC_DYNASTY_SILENCE_OFF_HAND_TICKS) == dynastySilenceOffHandTicks) {
             return;
         }
 
@@ -6133,7 +6676,10 @@ public class ModEvents {
         data.putInt(LAST_SYNC_CURSE_9_DEBT, curseNineDebtTicks);
         data.putInt(LAST_SYNC_LOCKED_SLOT, lockedSlot);
         data.putInt(LAST_SYNC_LOCKED_SLOT_TICKS, lockedSlotTicks);
-        syncGuiltState(player, guilt, mercy, mercyChargeReady, sealEquipped, netherAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockSeconds * 20, satietyCrystalCount, curseNineDebtTicks, lockedSlot, lockedSlotTicks);
+        data.putInt(LAST_SYNC_DYNASTY_PRESSURE, dynastyThreat);
+        data.putInt(LAST_SYNC_DYNASTY_SILENCE_MAIN_HAND_TICKS, dynastySilenceMainHandTicks);
+        data.putInt(LAST_SYNC_DYNASTY_SILENCE_OFF_HAND_TICKS, dynastySilenceOffHandTicks);
+        syncGuiltState(player, guilt, mercy, mercyChargeReady, sealEquipped, netherAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockSeconds * 20, satietyCrystalCount, curseNineDebtTicks, lockedSlot, lockedSlotTicks, dynastyThreat, dynastySilenceMainHandTicks, dynastySilenceOffHandTicks);
     }
 
     private static void applyInventoryCooldowns(ServerPlayer player, int remainingTicks) {
@@ -6158,6 +6704,15 @@ public class ModEvents {
         ItemStack mainHand = player.getMainHandItem();
         if (!mainHand.isEmpty()) {
             player.getCooldowns().addCooldown(mainHand.getItem(), remainingTicks);
+        }
+    }
+
+    private static void applyDynastySilenceCooldown(ServerPlayer player, int mainHandTicks, int offHandTicks) {
+        if (mainHandTicks > 0) {
+            applyCooldown(player, player.getMainHandItem(), mainHandTicks);
+        }
+        if (offHandTicks > 0) {
+            applyCooldown(player, player.getOffhandItem(), offHandTicks);
         }
     }
 
@@ -6266,11 +6821,14 @@ public class ModEvents {
         private static int clientLockTicks;
         private static int clientSatietyCrystalCount;
         private static int clientCurseNineDebtTicks = 40;
+        private static int clientDynastyThreat;
         private static int clientHeartBattleStacks;
         private static int clientHeartCooldownTicks;
         private static boolean clientHeartWardReady;
         private static int clientLockedSlot = -1;
         private static int clientLockedSlotTicks;
+        private static int clientDynastySilenceMainHandTicks;
+        private static int clientDynastySilenceOffHandTicks;
         private static int clientEdictChargeTicks;
         private static boolean clientEdictTriggeredThisHold;
         private static EdictChargeMode clientEdictChargeMode = EdictChargeMode.NONE;
@@ -6292,7 +6850,7 @@ public class ModEvents {
         private static int clientEmberRiddleIndex;
         private static boolean clientEmberRiddleUnlocked;
 
-        public static void updateClientGuilt(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks) {
+        public static void updateClientGuilt(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks, int dynastyThreat, int dynastySilenceMainHandTicks, int dynastySilenceOffHandTicks) {
             clientGuilt = guilt;
             clientMercy = mercy;
             clientMercyChargeReady = mercyChargeReady;
@@ -6313,6 +6871,13 @@ public class ModEvents {
             clientCurseNineDebtTicks = curseNineDebtTicks;
             clientLockedSlot = lockedSlot;
             clientLockedSlotTicks = lockedSlotTicks;
+            clientDynastyThreat = dynastyThreat;
+            clientDynastySilenceMainHandTicks = dynastySilenceMainHandTicks;
+            clientDynastySilenceOffHandTicks = dynastySilenceOffHandTicks;
+        }
+
+        public static int getClientDynastyThreat() {
+            return clientDynastyThreat;
         }
 
         public static void openCurseFiveChoiceScreen() {
@@ -6560,6 +7125,20 @@ public class ModEvents {
                 float lockedSeconds = clientLockedSlotTicks / 20.0F;
                 event.getToolTip().add(Component.translatable("hud.ramesses_curse.locked_slot", String.format("%.1f", lockedSeconds))
                         .withStyle(net.minecraft.ChatFormatting.RED));
+            }
+
+            Player player = minecraft.player;
+            if (player != null) {
+                boolean hoveringMainHand = clientDynastySilenceMainHandTicks > 0
+                        && ItemStack.isSameItemSameTags(player.getMainHandItem(), event.getItemStack());
+                boolean hoveringOffHand = clientDynastySilenceOffHandTicks > 0
+                        && ItemStack.isSameItemSameTags(player.getOffhandItem(), event.getItemStack());
+                int silenceTicks = Math.max(hoveringMainHand ? clientDynastySilenceMainHandTicks : 0, hoveringOffHand ? clientDynastySilenceOffHandTicks : 0);
+                if (silenceTicks > 0) {
+                    float seconds = silenceTicks / 20.0F;
+                    event.getToolTip().add(Component.translatable("hud.ramesses_curse.dynasty_silence", String.format("%.1f", seconds))
+                            .withStyle(net.minecraft.ChatFormatting.DARK_PURPLE));
+                }
             }
         }
 
@@ -7154,7 +7733,7 @@ public class ModEvents {
             guiGraphics.fill(x + 2, y + 1, x + Math.max(2, fill - 1), y + 2, 0x44FFF1C2);
             guiGraphics.drawString(minecraft.font, Component.translatable("hud.ramesses_curse.curse_9_debt", debtTicks, max), x, y - 10, color, false);
             if (clientSatietyCrystalCount > 0) {
-                guiGraphics.drawString(minecraft.font, Component.literal("饱食水晶未归还").withStyle(ChatFormatting.DARK_RED), x, y + 10, 0xFFB85A5A, false);
+                guiGraphics.drawString(minecraft.font, Component.literal("Satiety crystal missing").withStyle(ChatFormatting.DARK_RED), x, y + 10, 0xFFB85A5A, false);
             }
         }
 

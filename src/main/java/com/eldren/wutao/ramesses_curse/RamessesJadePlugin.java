@@ -31,6 +31,10 @@ public class RamessesJadePlugin implements IWailaPlugin {
     private static final String SHIELD_DODGE_LEVEL = "RamessesDynastyShieldDodgeLevel";
     private static final String SHIELD_CORROSION_LEVEL = "RamessesDynastyShieldCorrosionLevel";
     private static final String SHIELD_UNYIELDING_LEVEL = "RamessesDynastyShieldUnyieldingLevel";
+    private static final String SHIELD_DAMAGE_CAP_LEVEL = "RamessesDynastyShieldDamageCapLevel";
+    private static final String SHIELD_SILENCE_LEVEL = "RamessesDynastyShieldSilenceLevel";
+    private static final String SHIELD_PURGE = "RamessesDynastyShieldPurge";
+    private static final String SHIELD_PROJECTILE_WARD = "RamessesDynastyShieldProjectileWard";
 
     @Override
     public void register(IWailaCommonRegistration registration) {
@@ -56,21 +60,34 @@ public class RamessesJadePlugin implements IWailaPlugin {
             if (!(accessor.getEntity() instanceof LivingEntity living)) {
                 return;
             }
-            ModEvents.DynastyShieldSnapshot shield = ModEvents.getDynastyShieldSnapshot(living);
-            if (shield == null || shield.max() <= 0.0F || shield.current() <= 0.0F) {
+            ModEvents.DynastyShieldSnapshot shield = ModEvents.getDynastyShieldSnapshot(living, accessor.getPlayer());
+            if (shield == null || shield.max() <= 0.0F || (shield.current() <= 0.0F && shield.unyieldingLevel() <= 0)) {
                 return;
             }
             data.putInt(SHIELD_LEVEL, shield.level());
             data.putFloat(SHIELD_CURRENT, shield.current());
             data.putFloat(SHIELD_MAX, shield.max());
-            if (shield.dodgeLevel() > 0) {
+            boolean shieldActive = shield.current() > 0.0F;
+            if (shieldActive && shield.dodgeLevel() > 0) {
                 data.putInt(SHIELD_DODGE_LEVEL, shield.dodgeLevel());
             }
-            if (shield.corrosionLevel() > 0) {
+            if (shieldActive && shield.corrosionLevel() > 0) {
                 data.putInt(SHIELD_CORROSION_LEVEL, shield.corrosionLevel());
             }
             if (shield.unyieldingLevel() > 0) {
                 data.putInt(SHIELD_UNYIELDING_LEVEL, shield.unyieldingLevel());
+            }
+            if (shieldActive && shield.damageCapLevel() > 0) {
+                data.putInt(SHIELD_DAMAGE_CAP_LEVEL, shield.damageCapLevel());
+            }
+            if (shieldActive && shield.silenceLevel() > 0) {
+                data.putInt(SHIELD_SILENCE_LEVEL, shield.silenceLevel());
+            }
+            if (shieldActive && shield.purge()) {
+                data.putBoolean(SHIELD_PURGE, true);
+            }
+            if (shieldActive && shield.projectileWard()) {
+                data.putBoolean(SHIELD_PROJECTILE_WARD, true);
             }
         }
 
@@ -84,18 +101,21 @@ public class RamessesJadePlugin implements IWailaPlugin {
             int level = data.getInt(SHIELD_LEVEL);
             float current = data.getFloat(SHIELD_CURRENT);
             float max = data.getFloat(SHIELD_MAX);
-            if (max <= 0.0F || current <= 0.0F) {
+            if (max <= 0.0F || (current <= 0.0F && !data.contains(SHIELD_UNYIELDING_LEVEL))) {
                 return;
             }
 
-            int currentDisplay = Math.max(0, Mth.ceil(current));
-            int maxDisplay = Math.max(1, Mth.ceil(max));
-            Component label = Component.translatable("jade.ramesses_curse.dynasty_shield", level, currentDisplay, maxDisplay)
-                    .withStyle(ChatFormatting.GOLD);
             IElementHelper elements = tooltip.getElementHelper();
-            tooltip.add(List.of(
-                    elements.smallItem(new ItemStack(Items.IRON_CHESTPLATE)),
-                    elements.text(label)));
+            boolean shieldActive = current > 0.0F;
+            if (shieldActive) {
+                int currentDisplay = Math.max(0, Mth.ceil(current));
+                int maxDisplay = Math.max(1, Mth.ceil(max));
+                Component label = Component.translatable("jade.ramesses_curse.dynasty_shield", level, currentDisplay, maxDisplay)
+                        .withStyle(ChatFormatting.GOLD);
+                tooltip.add(List.of(
+                        elements.smallItem(new ItemStack(Items.IRON_CHESTPLATE)),
+                        elements.text(label)));
+            }
             if (data.contains(SHIELD_DODGE_LEVEL)) {
                 int dodgeLevel = Mth.clamp(data.getInt(SHIELD_DODGE_LEVEL), 1, 5);
                 Component dodge = Component.translatable("jade.ramesses_curse.dynasty_shield.dodge", toRomanDodgeLevel(dodgeLevel))
@@ -113,6 +133,28 @@ public class RamessesJadePlugin implements IWailaPlugin {
                 Component unyielding = Component.translatable("jade.ramesses_curse.dynasty_shield.unyielding", toRomanDodgeLevel(unyieldingLevel))
                         .withStyle(ChatFormatting.DARK_RED);
                 tooltip.add(List.of(elements.text(unyielding)));
+            }
+            if (data.contains(SHIELD_DAMAGE_CAP_LEVEL)) {
+                int damageCapLevel = Mth.clamp(data.getInt(SHIELD_DAMAGE_CAP_LEVEL), 1, 5);
+                Component damageCap = Component.translatable("jade.ramesses_curse.dynasty_shield.damage_cap", toRomanDodgeLevel(damageCapLevel))
+                        .withStyle(ChatFormatting.BLUE);
+                tooltip.add(List.of(elements.text(damageCap)));
+            }
+            if (data.contains(SHIELD_SILENCE_LEVEL)) {
+                int silenceLevel = Mth.clamp(data.getInt(SHIELD_SILENCE_LEVEL), 1, 5);
+                Component silence = Component.translatable("jade.ramesses_curse.dynasty_shield.silence", toRomanDodgeLevel(silenceLevel))
+                        .withStyle(ChatFormatting.DARK_PURPLE);
+                tooltip.add(List.of(elements.text(silence)));
+            }
+            if (data.getBoolean(SHIELD_PURGE)) {
+                Component purge = Component.translatable("jade.ramesses_curse.dynasty_shield.purge")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE);
+                tooltip.add(List.of(elements.text(purge)));
+            }
+            if (data.getBoolean(SHIELD_PROJECTILE_WARD)) {
+                Component projectileWard = Component.translatable("jade.ramesses_curse.dynasty_shield.projectile_ward")
+                        .withStyle(ChatFormatting.GRAY);
+                tooltip.add(List.of(elements.text(projectileWard)));
             }
         }
 

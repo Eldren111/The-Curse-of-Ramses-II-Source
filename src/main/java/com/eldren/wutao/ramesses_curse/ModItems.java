@@ -30,6 +30,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
@@ -72,6 +73,8 @@ public class ModItems {
             ITEMS.register("seal_of_kadesh", SealOfKadesh::new);
     public static final RegistryObject<Item> PURIFICATION_SCROLL =
             ITEMS.register("purification_scroll", PurificationScroll::new);
+    public static final RegistryObject<Item> DYNASTY_PRESSURE_POTION =
+            ITEMS.register("dynasty_pressure_potion", DynastyPressurePotion::new);
     public static final RegistryObject<Item> SATIETY_CRYSTAL =
             ITEMS.register("satiety_crystal", SatietyCrystal::new);
     public static final RegistryObject<Item> EMBER_OF_DUAT =
@@ -161,6 +164,10 @@ public class ModItems {
 
     public static float onUraeusNecklaceAttack(Player player, LivingEntity target, float damage) {
         return UraeusNecklace.onAttack(player, target, damage);
+    }
+
+    public static boolean isUraeusNecklaceStackEffect(LivingEntity target, MobEffect effect) {
+        return UraeusNecklace.isStackEffect(target, effect);
     }
 
     public static int getUraeusStormPassiveCooldownTicks(Player player) {
@@ -295,6 +302,11 @@ public class ModItems {
             tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_ctrl"));
             tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_alt"));
             Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player != null) {
+                tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.dynasty_threat",
+                        Component.literal(Integer.toString(ModEvents.ClientOverlayEvents.getClientDynastyThreat())).withStyle(ChatFormatting.RED))
+                        .withStyle(ChatFormatting.GOLD));
+            }
             boolean curseOneReversed = minecraft.player != null
                     && ModEvents.isCurseOneReversed(minecraft.player);
             boolean curseFiveReversed = minecraft.player != null
@@ -681,6 +693,65 @@ public class ModItems {
             tooltip.add(Component.translatable("item.ramesses_curse.purification_scroll.desc").withStyle(ChatFormatting.GOLD));
             tooltip.add(Component.translatable("item.ramesses_curse.purification_scroll.effect", Component.literal(Integer.toString(Config.CURSE_5_PURIFICATION_AMOUNT.get())).withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.GOLD));
             tooltip.add(Component.translatable("item.ramesses_curse.requires_seal").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
+        }
+    }
+
+    public static class DynastyPressurePotion extends Item {
+
+        public DynastyPressurePotion() {
+            super(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON));
+        }
+
+        @Override
+        public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+            ItemStack stack = player.getItemInHand(usedHand);
+            player.startUsingItem(usedHand);
+            return InteractionResultHolder.consume(stack);
+        }
+
+        @Override
+        public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
+            if (livingEntity instanceof ServerPlayer player) {
+                int pressure = ModEvents.drinkDynastyPressurePotion(player);
+                player.displayClientMessage(Component.translatable("message.ramesses_curse.dynasty_pressure_increased", pressure)
+                        .withStyle(ChatFormatting.GOLD), true);
+                level.playSound(null, player.blockPosition(), SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS, 0.75F, 1.15F);
+            }
+
+            if (livingEntity instanceof Player player && player.getAbilities().instabuild) {
+                return stack;
+            }
+
+            stack.shrink(1);
+            ItemStack bottle = new ItemStack(Items.GLASS_BOTTLE);
+            if (stack.isEmpty()) {
+                return bottle;
+            }
+            if (livingEntity instanceof Player player && !player.getInventory().add(bottle)) {
+                player.drop(bottle, false);
+            }
+            return stack;
+        }
+
+        @Override
+        public int getUseDuration(ItemStack stack) {
+            return 32;
+        }
+
+        @Override
+        public UseAnim getUseAnimation(ItemStack stack) {
+            return UseAnim.DRINK;
+        }
+
+        @Override
+        public boolean isFoil(ItemStack stack) {
+            return true;
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.dynasty_pressure_potion.effect",
+                    Component.literal("+100").withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.YELLOW));
         }
     }
 
@@ -1100,6 +1171,7 @@ public class ModItems {
 
             target.getPersistentData().putInt(STACK_LEVEL_KEY, nextLevel);
             target.getPersistentData().putLong(STACK_EXPIRES_AT_KEY, gameTime + Config.NECKLACE_STACK_TIMEOUT.get());
+            target.getPersistentData().putLong(ModEvents.URAEUS_NECKLACE_EFFECT_BYPASS_UNTIL, gameTime);
             target.addEffect(new MobEffectInstance(effect, Config.NECKLACE_STACK_TIMEOUT.get(), nextLevel - 1, false, true, true));
             return damage;
         }
@@ -1114,6 +1186,15 @@ public class ModItems {
 
             MobEffectInstance existing = target.getEffect(effect);
             return existing == null ? 0 : existing.getAmplifier() + 1;
+        }
+
+        private static boolean isStackEffect(LivingEntity target, MobEffect effect) {
+            MobEffect necklaceEffect = Config.getNecklaceEffect();
+            if (necklaceEffect == null || effect != necklaceEffect) {
+                return false;
+            }
+            return target.getPersistentData().getLong(STACK_EXPIRES_AT_KEY) > target.level().getGameTime()
+                    && target.getPersistentData().getInt(STACK_LEVEL_KEY) > 0;
         }
 
         private static boolean isRainEmpowered(Player player) {

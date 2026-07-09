@@ -29,8 +29,11 @@ public class GuiltSyncPacket {
     private final int curseNineDebtTicks;
     private final int lockedSlot;
     private final int lockedSlotTicks;
+    private final int dynastyThreat;
+    private final int dynastySilenceMainHandTicks;
+    private final int dynastySilenceOffHandTicks;
 
-    public GuiltSyncPacket(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks) {
+    public GuiltSyncPacket(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks, int dynastyThreat, int dynastySilenceMainHandTicks, int dynastySilenceOffHandTicks) {
         this.guilt = guilt;
         this.mercy = mercy;
         this.mercyChargeReady = mercyChargeReady;
@@ -51,6 +54,9 @@ public class GuiltSyncPacket {
         this.curseNineDebtTicks = curseNineDebtTicks;
         this.lockedSlot = lockedSlot;
         this.lockedSlotTicks = lockedSlotTicks;
+        this.dynastyThreat = dynastyThreat;
+        this.dynastySilenceMainHandTicks = dynastySilenceMainHandTicks;
+        this.dynastySilenceOffHandTicks = dynastySilenceOffHandTicks;
     }
 
     public static void encode(GuiltSyncPacket packet, FriendlyByteBuf buffer) {
@@ -74,6 +80,9 @@ public class GuiltSyncPacket {
         buffer.writeVarInt(packet.curseNineDebtTicks);
         buffer.writeVarInt(packet.lockedSlot);
         buffer.writeVarInt(packet.lockedSlotTicks);
+        buffer.writeVarInt(packet.dynastyThreat);
+        buffer.writeVarInt(packet.dynastySilenceMainHandTicks);
+        buffer.writeVarInt(packet.dynastySilenceOffHandTicks);
     }
 
     public static GuiltSyncPacket decode(FriendlyByteBuf buffer) {
@@ -93,6 +102,9 @@ public class GuiltSyncPacket {
                 buffer.readBoolean(),
                 buffer.readBoolean(),
                 buffer.readBoolean(),
+                buffer.readVarInt(),
+                buffer.readVarInt(),
+                buffer.readVarInt(),
                 buffer.readVarInt(),
                 buffer.readVarInt(),
                 buffer.readVarInt(),
@@ -123,7 +135,10 @@ public class GuiltSyncPacket {
                         packet.satietyCrystalCount,
                         packet.curseNineDebtTicks,
                         packet.lockedSlot,
-                        packet.lockedSlotTicks)));
+                        packet.lockedSlotTicks,
+                        packet.dynastyThreat,
+                        packet.dynastySilenceMainHandTicks,
+                        packet.dynastySilenceOffHandTicks)));
         context.setPacketHandled(true);
     }
 }

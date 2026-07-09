@@ -12,10 +12,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+import net.minecraftforge.common.brewing.IBrewingRecipe;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -26,11 +33,13 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.InterModComms;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import org.slf4j.Logger;
 import software.bernie.geckolib.GeckoLib;
 import top.theillusivec4.curios.api.SlotTypeMessage;
@@ -81,6 +90,7 @@ public class RamessesCurseMod {
                         output.accept(ModItems.SEAL_OF_KADESH.get());
                         output.accept(ModItems.RAMASSES_MANUAL.get());
                         output.accept(ModItems.PURIFICATION_SCROLL.get());
+                        output.accept(ModItems.DYNASTY_PRESSURE_POTION.get());
                         output.accept(ModItems.SATIETY_CRYSTAL.get());
                         output.accept(ModItems.EMBER_OF_DUAT.get());
                         output.accept(ModItems.HEART_OF_DUAT.get());
@@ -97,6 +107,7 @@ public class RamessesCurseMod {
 
         IEventBus modEventBus = context.getModEventBus();
         modEventBus.addListener(this::commonSetup);
+        registerOptionalL2LibraryCompat(modEventBus);
 
         ITEMS.register(modEventBus);
         ENCHANTMENTS.register(modEventBus);
@@ -110,6 +121,20 @@ public class RamessesCurseMod {
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
+    private static void registerOptionalL2LibraryCompat(IEventBus modEventBus) {
+        if (!ModList.get().isLoaded("l2library")) {
+            return;
+        }
+        try {
+            Class.forName("com.eldren.wutao.ramesses_curse.integration.l2.L2LibraryCompat")
+                    .getMethod("register", IEventBus.class)
+                    .invoke(null, modEventBus);
+            LOGGER.info("L2 Library compatibility enabled");
+        } catch (ReflectiveOperationException exception) {
+            LOGGER.warn("Failed to initialize L2 Library compatibility", exception);
+        }
+    }
+
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             registerCuriosSlot(CURSE_SLOT_ID);
@@ -117,7 +142,32 @@ public class RamessesCurseMod {
             registerCuriosSlot(MUSIC_SLOT_ID);
             registerCuriosSlot(HAND_SLOT_ID);
             registerCuriosSlot("necklace");
+            registerBrewingRecipes();
             ModNetwork.register();
+        });
+    }
+
+    private static void registerBrewingRecipes() {
+        BrewingRecipeRegistry.addRecipe(new IBrewingRecipe() {
+            private final Ingredient ingredient = Ingredient.of(Items.ECHO_SHARD);
+
+            @Override
+            public boolean isInput(ItemStack input) {
+                return input.is(Items.POTION) && PotionUtils.getPotion(input) == Potions.AWKWARD;
+            }
+
+            @Override
+            public boolean isIngredient(ItemStack ingredient) {
+                return this.ingredient.test(ingredient);
+            }
+
+            @Override
+            public ItemStack getOutput(ItemStack input, ItemStack ingredient) {
+                if (!isInput(input) || !isIngredient(ingredient)) {
+                    return ItemStack.EMPTY;
+                }
+                return new ItemStack(ModItems.DYNASTY_PRESSURE_POTION.get());
+            }
         });
     }
 
@@ -154,6 +204,12 @@ public class RamessesCurseMod {
             event.register(HEART_WARD_KEY);
             event.register(EDICT_OF_TWO_LANDS_KEY);
             event.register(EDICT_OF_TWO_LANDS_DOMAIN_KEY);
+        }
+
+        @SubscribeEvent
+        public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
+            event.register((stack, tintIndex) -> tintIndex == 0 ? 0x932423 : 0xFFFFFFFF,
+                    ModItems.DYNASTY_PRESSURE_POTION.get());
         }
     }
 }

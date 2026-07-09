@@ -311,21 +311,13 @@ public class Config {
                 .comment("[通用] 王朝护盾每个等级对应的最大护盾值。")
                 .defineList("dynastyShieldMaxValues", List.of(120, 160, 220, 300, 400), Config::validatePositiveInteger);
 
+        DYNASTY_SHIELD_AUTO_LEVEL_BY_STATS = BUILDER
+                .comment("[通用] 为 true 时，敌对生物按最大生命值、护甲值、护甲韧性自动分配王胄等级；为 false 时使用 dynastyShieldDefaultLevel。")
+                .define("dynastyShieldAutoLevelByStats", true);
+
         DYNASTY_SHIELD_DEFAULT_LEVEL = BUILDER
                 .comment("[通用] 新套盾敌对生物的默认王朝护盾等级。也可以通过指令覆盖单个实体。")
                 .defineInRange("dynastyShieldDefaultLevel", 3, 1, 100000);
-
-        DYNASTY_SHIELD_DODGE_ENABLED = BUILDER
-                .comment("[通用] 为 true 时，王胄护盾会生成闪避词条；为 false 时不生成该词条。闪避等级随王胄等级提高。")
-                .define("dynastyShieldDodgeEnabled", true);
-
-        DYNASTY_SHIELD_CORROSION_ENABLED = BUILDER
-                .comment("[通用] 为 true 时，王胄护盾会生成腐蚀词条；为 false 时不生成该词条。腐蚀会在玩家破盾时按等级损耗装备耐久。")
-                .define("dynastyShieldCorrosionEnabled", true);
-
-        DYNASTY_SHIELD_UNYIELDING_ENABLED = BUILDER
-                .comment("[通用] 为 true 时，王胄护盾会生成不屈词条；为 false 时不生成该词条。不屈可使被杀死的敌对实体仅复活 1 次。")
-                .define("dynastyShieldUnyieldingEnabled", true);
 
         START_WITH_SEAL = BUILDER
                 .comment("[通用] 为 true 时，新玩家开局获得卡迭石咒印。")
@@ -435,10 +427,8 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue DYNASTY_SHIELD_ENABLED;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_LEVELS;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_MAX_VALUES;
+    public static final ForgeConfigSpec.BooleanValue DYNASTY_SHIELD_AUTO_LEVEL_BY_STATS;
     public static final ForgeConfigSpec.IntValue DYNASTY_SHIELD_DEFAULT_LEVEL;
-    public static final ForgeConfigSpec.BooleanValue DYNASTY_SHIELD_DODGE_ENABLED;
-    public static final ForgeConfigSpec.BooleanValue DYNASTY_SHIELD_CORROSION_ENABLED;
-    public static final ForgeConfigSpec.BooleanValue DYNASTY_SHIELD_UNYIELDING_ENABLED;
     public static final ForgeConfigSpec.ConfigValue<String> NECKLACE_EFFECT_ID;
     public static final ForgeConfigSpec.IntValue NECKLACE_STACK_TIMEOUT;
     public static final ForgeConfigSpec.IntValue NECKLACE_MAX_STACKS;
