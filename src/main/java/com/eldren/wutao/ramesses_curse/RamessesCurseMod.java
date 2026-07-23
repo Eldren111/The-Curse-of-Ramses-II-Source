@@ -5,6 +5,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
@@ -53,26 +56,6 @@ public class RamessesCurseMod {
     public static final String HEART_SLOT_ID = "ramesses_curse_heart";
     public static final String MUSIC_SLOT_ID = "ramesses_curse_music";
     public static final String HAND_SLOT_ID = "ramesses_curse_hand";
-    public static final KeyMapping HEART_AWAKENING_KEY = new KeyMapping(
-            "key.ramesses_curse.heart_awakening",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_V,
-            "key.categories.ramesses_curse");
-    public static final KeyMapping HEART_WARD_KEY = new KeyMapping(
-            "key.ramesses_curse.heart_ward",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_P,
-            "key.categories.ramesses_curse");
-    public static final KeyMapping EDICT_OF_TWO_LANDS_KEY = new KeyMapping(
-            "key.ramesses_curse.edict_of_two_lands",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_X,
-            "key.categories.ramesses_curse");
-    public static final KeyMapping EDICT_OF_TWO_LANDS_DOMAIN_KEY = new KeyMapping(
-            "key.ramesses_curse.edict_of_two_lands_domain",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_Y,
-            "key.categories.ramesses_curse");
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
@@ -93,11 +76,31 @@ public class RamessesCurseMod {
                         output.accept(ModItems.DYNASTY_PRESSURE_POTION.get());
                         output.accept(ModItems.SATIETY_CRYSTAL.get());
                         output.accept(ModItems.EMBER_OF_DUAT.get());
+                        output.accept(ModItems.ETERNAL_SILENCE_GRANULE.get());
+                        output.accept(ModItems.ETERNAL_SILENCE_INGOT.get());
+                        output.accept(ModItems.ETERNAL_SILENCE_TOTEM.get());
+                        output.accept(ModItems.ETERNAL_SILENCE_REBIRTH_TOTEM.get());
+                        output.accept(ModItems.TWILIGHT_CRYSTAL_RING.get());
+                        output.accept(ModItems.SILENT_SEPULCHER_WITHERED_VINE.get());
+                        output.accept(ModItems.ETERNAL_SILENCE_RITUAL_STAFF.get());
+                        output.accept(ModItems.ETERNAL_SILENCE_UPGRADE_SMITHING_TEMPLATE.get());
                         output.accept(ModItems.HEART_OF_DUAT.get());
                         output.accept(ModItems.HYMN_OF_THE_TWO_LANDS.get());
                         output.accept(ModItems.RESONANT_SCARAB.get());
                         output.accept(ModItems.URAEUS_NECKLACE.get());
                         output.accept(ModItems.EDICT_OF_TWO_LANDS.get());
+                        output.accept(ModItems.DUAT_DUNGEON_TILE.get());
+                        output.accept(ModItems.DUAT_DUNGEON_TILE_WALL.get());
+                        output.accept(ModItems.DUAT_DUNGEON_TILE_SLAB.get());
+                        output.accept(ModItems.DUAT_DUNGEON_TILE_STAIRS.get());
+                        output.accept(ModItems.DUAT_DUNGEON_PILLAR.get());
+                        output.accept(ModItems.SOLAR_RITE_BRICK.get());
+                        output.accept(ModItems.DATE_PALM_LOG.get());
+                        output.accept(ModItems.DATE_PALM_LEAVES.get());
+                        output.accept(ModItems.DATE_PALM_SAPLING.get());
+                        output.accept(ModItems.DATE_PALM_FRUIT.get());
+                        output.accept(ModItems.INSCRIPTION_BAG.get());
+                        ModItems.INSCRIPTION_FRAGMENTS.forEach(fragment -> output.accept(fragment.get()));
                         output.accept(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.CORROSION_WARD.get(), 1)));
                     })
                     .build());
@@ -113,7 +116,11 @@ public class RamessesCurseMod {
         ENCHANTMENTS.register(modEventBus);
         MOB_EFFECTS.register(modEventBus);
         SOUND_EVENTS.register(modEventBus);
+        ModBlocks.BLOCKS.register(modEventBus);
+        ModFeatures.FEATURES.register(modEventBus);
+        ModStructures.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
+        ModMenus.MENUS.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -142,6 +149,9 @@ public class RamessesCurseMod {
             registerCuriosSlot(MUSIC_SLOT_ID);
             registerCuriosSlot(HAND_SLOT_ID);
             registerCuriosSlot("necklace");
+            registerCuriosSlot(ModItems.EternalSilenceTotem.BODY_SLOT_ID);
+            registerCuriosSlot(ModItems.TwilightCrystalRing.RING_SLOT_ID);
+            registerCuriosSlot(InscriptionBagItem.SLOT_ID);
             registerBrewingRecipes();
             ModNetwork.register();
         });
@@ -186,24 +196,53 @@ public class RamessesCurseMod {
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
+        public static final KeyMapping HEART_AWAKENING_KEY = new KeyMapping(
+                "key.ramesses_curse.heart_awakening",
+                InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_V,
+                "key.categories.ramesses_curse");
+        public static final KeyMapping HEART_WARD_KEY = new KeyMapping(
+                "key.ramesses_curse.heart_ward",
+                InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_P,
+                "key.categories.ramesses_curse");
+        public static final KeyMapping EDICT_OF_TWO_LANDS_KEY = new KeyMapping(
+                "key.ramesses_curse.edict_of_two_lands",
+                InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_X,
+                "key.categories.ramesses_curse");
+        public static final KeyMapping EDICT_OF_TWO_LANDS_DOMAIN_KEY = new KeyMapping(
+                "key.ramesses_curse.edict_of_two_lands_domain",
+                InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_Y,
+                "key.categories.ramesses_curse");
+
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
             event.enqueueWork(() -> {
+                MenuScreens.register(ModMenus.INSCRIPTION_BAG.get(), InscriptionBagScreen::new);
                 EntityRenderers.register(ModEntities.URAEUS_FLARE.get(), UraeusFlareRenderer::new);
                 EntityRenderers.register(ModEntities.URAEUS_RAIN_SHARD.get(), UraeusRainShardRenderer::new);
                 EntityRenderers.register(ModEntities.URAEUS_STORM_STAR.get(), UraeusStormStarRenderer::new);
                 EntityRenderers.register(ModEntities.SATIETY_CRYSTAL.get(), SatietyCrystalRenderer::new);
+                EntityRenderers.register(ModEntities.NEBUKA_GUARDIAN.get(), NebukaGuardianRenderer::new);
+                EntityRenderers.register(ModEntities.NEBUKA_SUMMONING_RITUAL.get(), NebukaSummoningRitualRenderer::new);
+                EntityRenderers.register(ModEntities.INSCRIPTION_FRAGMENT.get(), net.minecraft.client.renderer.entity.ItemFrameRenderer::new);
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.DUAT_PORTAL.get(), RenderType.translucent());
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.SILENT_SEPULCHER_WITHERED_VINE.get(), RenderType.cutout());
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.DATE_PALM_LEAVES.get(), RenderType.cutoutMipped());
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.DATE_PALM_SAPLING.get(), RenderType.cutout());
             });
         }
 
         @SubscribeEvent
         public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
-            event.register(HEART_AWAKENING_KEY);
-            event.register(HEART_WARD_KEY);
-            event.register(EDICT_OF_TWO_LANDS_KEY);
-            event.register(EDICT_OF_TWO_LANDS_DOMAIN_KEY);
+            event.register(ClientModEvents.HEART_AWAKENING_KEY);
+            event.register(ClientModEvents.HEART_WARD_KEY);
+            event.register(ClientModEvents.EDICT_OF_TWO_LANDS_KEY);
+            event.register(ClientModEvents.EDICT_OF_TWO_LANDS_DOMAIN_KEY);
         }
 
         @SubscribeEvent

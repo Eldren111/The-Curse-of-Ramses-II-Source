@@ -67,6 +67,16 @@ public class Config {
                 .defineListAllowEmpty("curse1ReversedEffectWhitelist",
                         List.of("minecraft:regeneration", "minecraft:resistance", "minecraft:speed", "minecraft:fire_resistance", "minecraft:damage_boost"),
                         Config::validateEffectName);
+
+        CURSE_1_REVERSAL_CAULDRON_ITEMS = BUILDER
+                .comment("[诅咒一-反转] 双神试杯需要投入水炼药锅附近的供物，格式为 物品ID=数量。支持其他模组物品；空列表会禁用该反转仪式。")
+                .defineListAllowEmpty("curse1ReversalCauldronItems",
+                        List.of(
+                                "minecraft:enchanted_golden_apple=1",
+                                "minecraft:milk_bucket=2",
+                                "ramesses_curse:ember_of_duat=1",
+                                "minecraft:honey_bottle=1"),
+                        Config::validateItemAmountEntry);
         BUILDER.pop();
 
         BUILDER.push("诅咒二");
@@ -195,6 +205,14 @@ public class Config {
                 .comment("[诅咒八] 未反转时额外追加的固定反伤。最终反伤 = 原伤害 * 倍率 + 固定值。")
                 .defineInRange("hellReboundFlatDamage", 0.0D, 0.0D, 100.0D);
 
+        HELL_REBOUND_DAMAGE_CAP = BUILDER
+                .comment("[诅咒八] 未反转时单次反伤的最高伤害。默认最高反弹 50 点伤害。")
+                .defineInRange("hellReboundDamageCap", 50.0D, 0.0D, 1000000.0D);
+
+        HELL_REVERSED_ASSIST_DAMAGE_CAP = BUILDER
+                .comment("[诅咒八-反转] 单次助推能够额外追加的最高伤害。默认最高追加 200 点伤害。")
+                .defineInRange("hellReversedAssistDamageCap", 200.0D, 0.0D, 1000000.0D);
+
         CURSE_8_BOSS_WHITELIST = BUILDER
                 .comment("[诅咒八] 用于完成诅咒八反转的 Boss 实体 ID 白名单，支持其他模组生物。")
                 .defineListAllowEmpty(
@@ -205,11 +223,15 @@ public class Config {
 
         BUILDER.push("诅咒九");
         CURSE_9_MAX_SATIETY = BUILDER
-                .comment("[诅咒九] 饥饿债 HUD 与内部最大饱食值。反转前未取回饱食水晶时会从这里开始递减。")
+                .comment("[诅咒九] 饥饿债与内部最大饱食值。反转前未取回饱食水晶时会从这里开始递减。")
                 .defineInRange("curse9MaxSatiety", 40, 1, 200);
         CURSE_9_REVERSED_KILL_TARGET = BUILDER
                 .comment("[诅咒九-反转] 击杀这里配置的生物后，才会开始累计不同食物种类。支持其他模组实体 ID。")
                 .define("curse9ReversedKillTarget", "minecraft:husk", Config::validateEntityTypeName);
+
+        CURSE_9_REVERSED_FOOD_TYPES = BUILDER
+                .comment("[诅咒九-反转] 击杀指定生物后，需要累计食用多少种不同的可恢复饱食度食物才会完成反转。")
+                .defineInRange("curse9ReversedFoodTypes", 16, 1, 1000);
         BUILDER.pop();
 
         BUILDER.pop();
@@ -371,6 +393,7 @@ public class Config {
     public static final ForgeConfigSpec.IntValue CURSE_1_REVERSED_AMPLIFIER_MIN;
     public static final ForgeConfigSpec.IntValue CURSE_1_REVERSED_AMPLIFIER_MAX;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_1_REVERSED_EFFECT_WHITELIST;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_1_REVERSAL_CAULDRON_ITEMS;
     public static final ForgeConfigSpec.IntValue CURSE_2_SPAWN_INTERVAL;
     public static final ForgeConfigSpec.DoubleValue CURSE_2_SPAWN_CHANCE;
     public static final ForgeConfigSpec.DoubleValue CURSE_2_LUCK_PENALTY;
@@ -398,9 +421,12 @@ public class Config {
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_CHANCE;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_DAMAGE_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_FLAT_DAMAGE;
+    public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_DAMAGE_CAP;
+    public static final ForgeConfigSpec.DoubleValue HELL_REVERSED_ASSIST_DAMAGE_CAP;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_8_BOSS_WHITELIST;
     public static final ForgeConfigSpec.IntValue CURSE_9_MAX_SATIETY;
     public static final ForgeConfigSpec.ConfigValue<String> CURSE_9_REVERSED_KILL_TARGET;
+    public static final ForgeConfigSpec.IntValue CURSE_9_REVERSED_FOOD_TYPES;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL_EQUIPPED;
     public static final ForgeConfigSpec.BooleanValue START_WITH_RAMASSES_MANUAL;
@@ -450,6 +476,26 @@ public class Config {
         return obj instanceof final String itemId && ForgeRegistries.ITEMS.containsKey(new ResourceLocation(itemId));
     }
 
+    private static boolean validateItemAmountEntry(final Object obj) {
+        if (!(obj instanceof String entry) || entry.isBlank()) {
+            return false;
+        }
+        int separator = entry.lastIndexOf('=');
+        String itemId = separator >= 0 ? entry.substring(0, separator).trim() : entry.trim();
+        if (ResourceLocation.tryParse(itemId) == null) {
+            return false;
+        }
+        if (separator < 0) {
+            return true;
+        }
+        try {
+            int amount = Integer.parseInt(entry.substring(separator + 1).trim());
+            return amount > 0 && amount <= 1000000;
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
+    }
+
     private static boolean validatePositiveInteger(final Object obj) {
         return obj instanceof Integer value && value > 0;
     }
@@ -469,7 +515,7 @@ public class Config {
     public static EntityType<?> getRandomCurseTwoEntityType(int seed) {
         List<EntityType<?>> filteredPool = CURSE_2_ENTITY_WHITELIST.get().stream()
                 .map(ResourceLocation::new)
-                .map(ForgeRegistries.ENTITY_TYPES::getValue)
+                .<EntityType<?>>map(ForgeRegistries.ENTITY_TYPES::getValue)
                 .filter(entityType -> entityType != null && entityType.getCategory() == MobCategory.MONSTER)
                 .toList();
         return getEntityTypeFromPool(filteredPool, seed);
@@ -478,7 +524,7 @@ public class Config {
     public static EntityType<?> getRandomCurseTwoMinionEntityType(int seed) {
         List<EntityType<?>> filteredPool = CURSE_2_REVERSED_ENTITY_WHITELIST.get().stream()
                 .map(ResourceLocation::new)
-                .map(ForgeRegistries.ENTITY_TYPES::getValue)
+                .<EntityType<?>>map(ForgeRegistries.ENTITY_TYPES::getValue)
                 .filter(entityType -> entityType != null)
                 .toList();
         return getEntityTypeFromPool(filteredPool, seed);

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "ramesses_curse:item/eternal_silence_ritual_staff"
+  }
+}

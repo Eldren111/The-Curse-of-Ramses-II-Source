@@ -42,6 +42,18 @@ public class ModNetwork {
                 HeartWardTriggeredPacket::handle);
         CHANNEL.registerMessage(
                 packetId++,
+                EternalSilenceTotemTriggeredPacket.class,
+                EternalSilenceTotemTriggeredPacket::encode,
+                EternalSilenceTotemTriggeredPacket::decode,
+                EternalSilenceTotemTriggeredPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                EternalSilenceRebirthCooldownPacket.class,
+                EternalSilenceRebirthCooldownPacket::encode,
+                EternalSilenceRebirthCooldownPacket::decode,
+                EternalSilenceRebirthCooldownPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
                 HeartWardActivatePacket.class,
                 HeartWardActivatePacket::encode,
                 HeartWardActivatePacket::decode,
@@ -160,5 +172,17 @@ public class ModNetwork {
                 CurseFiveMercyReviveAckPacket::encode,
                 CurseFiveMercyReviveAckPacket::decode,
                 CurseFiveMercyReviveAckPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                DuatPalaceWeatherPacket.class,
+                DuatPalaceWeatherPacket::encode,
+                DuatPalaceWeatherPacket::decode,
+                DuatPalaceWeatherPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                NebukaRitualShakePacket.class,
+                NebukaRitualShakePacket::encode,
+                NebukaRitualShakePacket::decode,
+                NebukaRitualShakePacket::handle);
     }
 }

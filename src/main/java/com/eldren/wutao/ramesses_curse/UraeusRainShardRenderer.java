@@ -25,32 +25,56 @@ public class UraeusRainShardRenderer extends EntityRenderer<UraeusRainShardEntit
 
     @Override
     public void render(UraeusRainShardEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        renderTrail(entity, partialTick, poseStack, bufferSource);
-
+        Vec3 origin = entity.getPosition(partialTick);
+        Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        VertexConsumer trailConsumer = bufferSource.getBuffer(RenderType.eyes(TRAIL_TEXTURE));
+        VertexConsumer shardConsumer = bufferSource.getBuffer(RenderType.eyes(TEXTURE));
         float age = entity.tickCount + partialTick;
-        float pulse = 0.82F + 0.18F * Mth.sin(age * 0.35F);
-        float size = (entity.isThunder() ? 0.16F : 0.13F) * pulse;
         int red = entity.isThunder() ? 170 : 95;
         int green = entity.isThunder() ? 230 : 220;
         int blue = entity.isThunder() ? 255 : 245;
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.eyes(TEXTURE));
-        drawBox(poseStack, consumer, size, red, green, blue, entity.isThunder() ? 235 : 210);
+
+        for (int shardIndex = 0; shardIndex < entity.getShardCount(); shardIndex++) {
+            if (!entity.isShardActive(shardIndex)) {
+                continue;
+            }
+
+            renderTrail(entity, shardIndex, partialTick, origin, cameraPosition, poseStack, trailConsumer);
+            Vec3 localPosition = entity.getShardPosition(shardIndex, partialTick).subtract(origin);
+            float pulse = 0.82F + 0.18F * Mth.sin(age * 0.35F + shardIndex * 0.31F);
+            float size = (entity.isThunder() ? 0.16F : 0.13F) * pulse;
+
+            poseStack.pushPose();
+            poseStack.translate(localPosition.x, localPosition.y, localPosition.z);
+            drawBox(
+                    poseStack,
+                    shardConsumer,
+                    size,
+                    red,
+                    green,
+                    blue,
+                    entity.isThunder() ? 235 : 210);
+            poseStack.popPose();
+        }
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    private void renderTrail(UraeusRainShardEntity entity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource) {
-        int length = entity.getTrailLength();
+    private void renderTrail(
+            UraeusRainShardEntity entity,
+            int shardIndex,
+            float partialTick,
+            Vec3 origin,
+            Vec3 cameraPosition,
+            PoseStack poseStack,
+            VertexConsumer consumer) {
+        int length = entity.getShardTrailLength(shardIndex);
         if (length < 3) {
             return;
         }
 
-        Vec3 origin = entity.getPosition(partialTick);
-        Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.eyes(TRAIL_TEXTURE));
-
         for (int i = 0; i < length - 1; i++) {
-            Vec3 current = entity.getTrailPosition(i, partialTick).subtract(origin);
-            Vec3 next = entity.getTrailPosition(i + 1, partialTick).subtract(origin);
+            Vec3 current = entity.getShardTrailPosition(shardIndex, i, partialTick).subtract(origin);
+            Vec3 next = entity.getShardTrailPosition(shardIndex, i + 1, partialTick).subtract(origin);
             Vec3 direction = next.subtract(current);
             if (direction.lengthSqr() < 1.0E-5D) {
                 continue;

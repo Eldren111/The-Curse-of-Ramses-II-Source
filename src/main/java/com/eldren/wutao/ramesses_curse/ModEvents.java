@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.gui.components.Button;
@@ -93,6 +94,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.predicates.LocationCheck;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.functions.EnchantRandomlyFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
@@ -101,6 +103,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.BossEvent;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.client.event.ScreenEvent;
@@ -115,6 +118,8 @@ import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.living.LivingExperienceDropEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingUseTotemEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -155,10 +160,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -168,6 +175,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 @Mod.EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModEvents {
+    private static final Set<UUID> ETERNAL_TOTEM_SECOND_HIT_GUARD = new HashSet<>();
     private static final ResourceLocation NETHER_BRIDGE_CHEST = new ResourceLocation("minecraft", "chests/nether_bridge");
     private static final ResourceLocation BASTION_BRIDGE_CHEST = new ResourceLocation("minecraft", "chests/bastion_bridge");
     private static final ResourceLocation BASTION_HOGLIN_STABLE_CHEST = new ResourceLocation("minecraft", "chests/bastion_hoglin_stable");
@@ -364,12 +372,9 @@ public class ModEvents {
     private static final int DYNASTY_SHIELD_TOGGLE_HINT_TICKS = 110;
     private static final Map<String, UUID> CURSE_5_SURGE_MODIFIER_IDS = new HashMap<>();
     private static final int CURSE_9_HUNGER_LOSS = 2;
-    private static final int CURSE_9_REVERSED_FOOD_TARGET = 16;
     private static final int CURSE_9_DEBT_DRAIN_INTERVAL = 100;
     private static final int CURSE_9_PENALTY_REFRESH_INTERVAL = 40;
     private static final int CURSE_9_PENALTY_DURATION = 20 * 60 * 3;
-    private static final float CURSE_8_REBOUND_DAMAGE_CAP = 50.0F;
-    private static final float CURSE_8_REVERSED_ASSIST_DAMAGE_CAP = 200.0F;
     private static final int EDICT_RANGE = 12;
     private static final int EDICT_DOMAIN_RANGE = 15;
     private static final int EDICT_CHARGE_TICKS = 60;
@@ -683,12 +688,19 @@ public class ModEvents {
         }
 
         Player player = event.player;
+        ModItems.EternalSilenceTotem.tickRevivalEffects(player);
+        ModItems.TwilightCrystalRing.tickEquippedAttributes(player);
+        ModMobEffects.tickDrought(player);
         CompoundTag data = getCurseData(player);
         if (player instanceof ServerPlayer serverPlayer) {
             tickDynastyPressureGrowth(serverPlayer, data);
             tickCurseFiveSleepChoice(serverPlayer, data);
         }
         boolean sealEquipped = sanitizeSealCurios(player);
+        boolean curseSixReversed = data.getBoolean(CURSE_6_REVERSED);
+        if (curseSixReversed && player instanceof ServerPlayer serverPlayer) {
+            clearCurseSixLockState(serverPlayer, data);
+        }
         int remainingGuiltLock = getRemainingGuiltLockTicks(player);
         normalizeLockedSlotState(player, data);
 
@@ -719,7 +731,7 @@ public class ModEvents {
         }
 
         if (player.level() instanceof ServerLevel serverLevel) {
-            updateCurseNineHunger(serverLevel, player);
+            updateCurseNineHunger(serverLevel, player, sealEquipped);
         }
 
         if (player instanceof ServerPlayer serverPlayer) {
@@ -772,21 +784,22 @@ public class ModEvents {
             syncClientState(player, true);
         }
 
-        if (data.getInt(EQUIP_TICKS) >= Config.MAIN_HAND_LOCK_DELAY.get() && data.getLong(MAIN_LOCK_UNTIL) == 0L) {
-            data.putLong(MAIN_LOCK_UNTIL, gameTime + Config.MAIN_HAND_LOCK_DURATION.get());
-            data.putLong(NEXT_RANDOM_LOCK, gameTime + Config.INVENTORY_LOCK_INTERVAL.get());
-            if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.displayClientMessage(Component.translatable("message.ramesses_curse.main_hand_lock_started").withStyle(net.minecraft.ChatFormatting.GOLD), true);
+        if (!curseSixReversed) {
+            if (data.getInt(EQUIP_TICKS) >= Config.MAIN_HAND_LOCK_DELAY.get() && data.getLong(MAIN_LOCK_UNTIL) == 0L) {
+                data.putLong(MAIN_LOCK_UNTIL, gameTime + Config.MAIN_HAND_LOCK_DURATION.get());
+                data.putLong(NEXT_RANDOM_LOCK, gameTime + Config.INVENTORY_LOCK_INTERVAL.get());
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.displayClientMessage(Component.translatable("message.ramesses_curse.main_hand_lock_started").withStyle(net.minecraft.ChatFormatting.GOLD), true);
+                }
+            }
+
+            if (data.getLong(MAIN_LOCK_UNTIL) > 0L && gameTime >= data.getLong(MAIN_LOCK_UNTIL) && data.getLong(NEXT_RANDOM_LOCK) > 0L && gameTime >= data.getLong(NEXT_RANDOM_LOCK)) {
+                lockRandomInventorySlot(player, data, gameTime);
+                data.putLong(NEXT_RANDOM_LOCK, gameTime + Config.INVENTORY_LOCK_INTERVAL.get());
             }
         }
 
-        if (data.getLong(MAIN_LOCK_UNTIL) > 0L && gameTime >= data.getLong(MAIN_LOCK_UNTIL) && data.getLong(NEXT_RANDOM_LOCK) > 0L && gameTime >= data.getLong(NEXT_RANDOM_LOCK)) {
-            lockRandomInventorySlot(player, data, gameTime);
-            data.putLong(NEXT_RANDOM_LOCK, gameTime + Config.INVENTORY_LOCK_INTERVAL.get());
-        }
-
         boolean curseSevenReversed = data.getBoolean(CURSE_7_REVERSED);
-        boolean curseSixReversed = data.getBoolean(CURSE_6_REVERSED);
         if (player.level().dimension() == Level.END && !curseSevenReversed) {
             player.addEffect(new MobEffectInstance(
                     MobEffects.WEAKNESS,
@@ -818,6 +831,7 @@ public class ModEvents {
             ensureEmberRiddle(player);
             syncDynastyPressureSharedData(player, getCurseData(player));
             syncClientState(player, true);
+            ModItems.EternalSilenceRebirthTotem.syncCooldown(player);
         }
     }
 
@@ -1005,6 +1019,7 @@ public class ModEvents {
                 finalizeCurseFiveMercyRevive(player);
                 syncDynastyPressureSharedData(player, getCurseData(player));
                 syncClientState(player, true);
+                ModItems.EternalSilenceRebirthTotem.syncCooldown(player);
             }
         }
     }
@@ -1022,6 +1037,35 @@ public class ModEvents {
                     .build();
 
             event.getTable().addPool(corrosionWardPool);
+
+            LootPool twilightCrystalRingPool = LootPool.lootPool()
+                    .name("ramesses_curse_twilight_crystal_ring")
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .when(LootItemRandomChanceCondition.randomChance(0.02F))
+                    .add(LootItem.lootTableItem(ModItems.TWILIGHT_CRYSTAL_RING.get()))
+                    .build();
+
+            event.getTable().addPool(twilightCrystalRingPool);
+
+            LootPool eternalSilenceGranulePool = LootPool.lootPool()
+                    .name("ramesses_curse_eternal_silence_granule")
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .when(LootItemRandomChanceCondition.randomChance(0.0002F))
+                    .add(LootItem.lootTableItem(ModItems.ETERNAL_SILENCE_GRANULE.get())
+                            .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
+                    .build();
+
+            event.getTable().addPool(eternalSilenceGranulePool);
+
+            LootPool.Builder inscriptionFragmentPool = LootPool.lootPool()
+                    .name("ramesses_curse_end_inscription_fragment")
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .when(LootItemRandomChanceCondition.randomChance(0.10F))
+                    .when(LocationCheck.checkLocation(
+                            LocationPredicate.Builder.location().setDimension(Level.END)));
+            ModItems.INSCRIPTION_FRAGMENTS.forEach(fragment ->
+                    inscriptionFragmentPool.add(LootItem.lootTableItem(fragment.get())));
+            event.getTable().addPool(inscriptionFragmentPool.build());
         }
 
         if (isNetherContainerLoot(event.getName())) {
@@ -1041,6 +1085,7 @@ public class ModEvents {
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             addDynastyPressure(serverPlayer, DYNASTY_PRESSURE_DIMENSION_CHANGE_AMOUNT);
+            ModItems.EternalSilenceRebirthTotem.syncCooldown(serverPlayer);
         }
     }
 
@@ -1202,6 +1247,56 @@ public class ModEvents {
         }
     }
 
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onTwilightCrystalRingMeleeHit(LivingHurtEvent event) {
+        DamageSource source = event.getSource();
+        if (source.getEntity() instanceof ServerPlayer player
+                && source.getDirectEntity() == player
+                && !player.level().isClientSide
+                && event.getAmount() > 0.0F) {
+            ModItems.TwilightCrystalRing.onMeleeHit(player, event.getEntity());
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onEternalSilenceTotemMeleeHit(LivingHurtEvent event) {
+        DamageSource source = event.getSource();
+        if (!(source.getEntity() instanceof ServerPlayer player)
+                || source.getDirectEntity() != player
+                || player.level().isClientSide
+                || event.getAmount() <= 0.0F
+                || !ModItems.EternalSilenceTotem.isEquipped(player)) {
+            return;
+        }
+
+        LivingEntity target = event.getEntity();
+        UUID targetId = target.getUUID();
+        if (ETERNAL_TOTEM_SECOND_HIT_GUARD.contains(targetId)) {
+            return;
+        }
+
+        MinecraftServer server = player.getServer();
+        if (server == null) {
+            return;
+        }
+        float secondHitDamage = event.getAmount();
+        server.execute(() -> {
+            if (!player.isAlive()
+                    || !target.isAlive()
+                    || player.level() != target.level()
+                    || !ModItems.EternalSilenceTotem.isEquipped(player)
+                    || !ETERNAL_TOTEM_SECOND_HIT_GUARD.add(targetId)) {
+                return;
+            }
+            try {
+                target.invulnerableTime = 0;
+                target.hurt(source, secondHitDamage);
+            } finally {
+                ETERNAL_TOTEM_SECOND_HIT_GUARD.remove(targetId);
+            }
+        });
+    }
+
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
         LivingEntity living = event.getEntity();
@@ -1252,6 +1347,10 @@ public class ModEvents {
             return;
         }
         if (event.getEntity() instanceof ServerPlayer player) {
+            if (ModItems.EternalSilenceTotem.isRevivalInvulnerable(player)) {
+                event.setCanceled(true);
+                return;
+            }
             tryTriggerCurseOneReversed(player, event.getSource());
             if (isCurseFiveMercyInvulnerable(player)) {
                 event.setCanceled(true);
@@ -1309,9 +1408,25 @@ public class ModEvents {
             }
         }
 
+        if (event.getEntity() instanceof ServerPlayer player
+                && ModItems.EternalSilenceTotem.isRevivalInvulnerable(player)) {
+            event.setCanceled(true);
+            event.setAmount(0.0F);
+            return;
+        }
+
         if (event.getEntity() instanceof ServerPlayer player && isCurseFiveMercyInvulnerable(player)) {
             event.setCanceled(true);
             event.setAmount(0.0F);
+            return;
+        }
+
+        if (!event.isCanceled() && event.getEntity() instanceof ServerPlayer player) {
+            float adjusted = InscriptionBagItem.modifyIncomingDamage(player, event.getSource(), event.getAmount());
+            event.setAmount(adjusted);
+            if (adjusted <= 0.0F) {
+                event.setCanceled(true);
+            }
         }
     }
 
@@ -1386,7 +1501,7 @@ public class ModEvents {
             if (isSealEquipped(player) && data.getBoolean(NETHER_AWAKENED)) {
                 if (data.getBoolean(CURSE_8_REVERSED)) {
                     if (player.getRandom().nextDouble() < Config.HELL_REBOUND_CHANCE.get()) {
-                        float assistDamage = Math.min(CURSE_8_REVERSED_ASSIST_DAMAGE_CAP, event.getAmount());
+                        float assistDamage = Math.min(Config.HELL_REVERSED_ASSIST_DAMAGE_CAP.get().floatValue(), event.getAmount());
                         event.setAmount(event.getAmount() + assistDamage);
                         player.displayClientMessage(Component.translatable("message.ramesses_curse.curse_8_assist", String.format(java.util.Locale.ROOT, "%.1f", assistDamage))
                                 .withStyle(net.minecraft.ChatFormatting.GREEN), true);
@@ -1394,7 +1509,7 @@ public class ModEvents {
                     }
                 } else if (player.getRandom().nextDouble() < Config.HELL_REBOUND_CHANCE.get()) {
                     float rebound = (float) Math.max(1.0D, event.getAmount() * Config.HELL_REBOUND_DAMAGE_MULTIPLIER.get() + Config.HELL_REBOUND_FLAT_DAMAGE.get());
-                    rebound = Math.min(CURSE_8_REBOUND_DAMAGE_CAP, rebound);
+                    rebound = Math.min(Config.HELL_REBOUND_DAMAGE_CAP.get().floatValue(), rebound);
                     player.hurt(player.damageSources().magic(), rebound);
                     player.displayClientMessage(Component.translatable("message.ramesses_curse.hell_rebound", String.format(java.util.Locale.ROOT, "%.1f", rebound))
                             .withStyle(net.minecraft.ChatFormatting.RED), true);
@@ -1403,13 +1518,31 @@ public class ModEvents {
             }
         }
 
+        ServerPlayer inscriptionAttacker = event.getSource().getEntity() instanceof ServerPlayer serverPlayer
+                ? serverPlayer
+                : null;
+        if (inscriptionAttacker != null && !event.isCanceled()) {
+            event.setAmount(InscriptionBagItem.modifyOutgoingDamage(
+                    inscriptionAttacker, target, event.getSource(), event.getAmount()));
+        }
+
         tryCorrodeDynastyShieldEquipment(event);
         absorbDynastyShieldDamage(event);
+        if (inscriptionAttacker != null && !event.isCanceled()) {
+            InscriptionBagItem.afterDamageDealt(
+                    inscriptionAttacker, target, event.getSource(), event.getAmount());
+        }
     }
 
     @SubscribeEvent
     public static void onLivingExperienceDrop(LivingExperienceDropEvent event) {
-        if (!(event.getAttackingPlayer() instanceof ServerPlayer player) || !isSealEquipped(player)) {
+        if (!(event.getAttackingPlayer() instanceof ServerPlayer player)) {
+            return;
+        }
+        if (event.getEntity() instanceof Enemy) {
+            event.setDroppedExperience(InscriptionBagItem.modifyExperience(player, event.getDroppedExperience()));
+        }
+        if (!isSealEquipped(player)) {
             return;
         }
         double multiplier = areCurseThreeAndFourLifted(player) ? 1.0D : Config.CURSE_3_XP_MULTIPLIER.get();
@@ -1513,6 +1646,23 @@ public class ModEvents {
         return !stack.isEmpty() && (stack.isDamageableItem() || stack.getMaxDamage() > 0);
     }
 
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onEternalSilenceTotemDeath(LivingDeathEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player
+                && ModItems.EternalSilenceTotem.tryRevive(player)) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void prioritizeEternalSilenceTotem(LivingUseTotemEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player
+                && event.getTotem().is(Items.TOTEM_OF_UNDYING)
+                && ModItems.EternalSilenceTotem.canRevive(player)) {
+            event.setCanceled(true);
+        }
+    }
+
     @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
         if (tryReviveDynastyShieldEntity(event)) {
@@ -1528,6 +1678,8 @@ public class ModEvents {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) {
             return;
         }
+
+        InscriptionBagItem.onKill(player, event.getEntity());
 
         if (event.getEntity().getPersistentData().getBoolean(DYNASTY_SHIELD_ASSIGNED)) {
             reduceDynastyPressure(player, 1);
@@ -1692,10 +1844,47 @@ public class ModEvents {
         }
         return isCurseOneReversed(player)
                 && isCurseTwoReversed(player)
-                && isCurseFiveReversed(player)
+                && isCurseFiveFateDecided(player)
                 && isCurseSevenReversed(player)
                 && isCurseEightReversed(player)
                 && isCurseNineReversed(player);
+    }
+
+    private static boolean isCurseFiveFateDecided(Player player) {
+        if (player.level().isClientSide) {
+            return ClientOverlayEvents.isClientCurseFiveReversed()
+                    || ClientOverlayEvents.isClientCurseFiveDeclined();
+        }
+        return getCurseData(player).getBoolean(CURSE_5_FATE_DECIDED);
+    }
+
+    public static boolean areAllSealCursesReversed(Player player) {
+        return areCurseThreeAndFourLifted(player);
+    }
+
+    public static void dropEquippedRamessesCurios(Player player) {
+        if (player == null || player.level().isClientSide) {
+            return;
+        }
+
+        CuriosApi.getCuriosInventory(player).ifPresent(inv ->
+                inv.getCurios().forEach((slotId, handler) -> {
+                    top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler stacks = handler.getStacks();
+                    for (int slot = 0; slot < stacks.getSlots(); slot++) {
+                        ItemStack equipped = stacks.getStackInSlot(slot);
+                        ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(equipped.getItem());
+                        if (equipped.isEmpty()
+                                || equipped.is(ModItems.SEAL_OF_KADESH.get())
+                                || itemId == null
+                                || !RamessesCurseMod.MODID.equals(itemId.getNamespace())) {
+                            continue;
+                        }
+
+                        ItemStack dropped = equipped.copy();
+                        stacks.setStackInSlot(slot, ItemStack.EMPTY);
+                        player.drop(dropped, false);
+                    }
+                }));
     }
 
     private static boolean tryAdvanceCurseNineFoodVariety(ServerPlayer player, ItemStack stack) {
@@ -1716,7 +1905,7 @@ public class ModEvents {
 
         history.add(StringTag.valueOf(itemId));
         data.put(CURSE_9_FOOD_HISTORY, history);
-        if (history.size() < CURSE_9_REVERSED_FOOD_TARGET) {
+        if (history.size() < Config.CURSE_9_REVERSED_FOOD_TYPES.get()) {
             syncClientState(player, true);
             return false;
         }
@@ -1872,13 +2061,13 @@ public class ModEvents {
             queueCurseFiveOutcomeHint(
                     player,
                     "the scales break and mercy begins to stain the world with a gentler cruelty",
-                    "????????????????????????");
+                    "天秤已碎，慈悲自此以更温柔的残酷浸染世间");
         } else {
             player.displayClientMessage(Component.translatable("message.ramesses_curse.curse_5_declined").withStyle(net.minecraft.ChatFormatting.RED, net.minecraft.ChatFormatting.BOLD), false);
             queueCurseFiveOutcomeHint(
                     player,
                     "the old verdict remains and the world will go on measuring your name in thunder",
-                    "??????????????????????");
+                    "旧日裁决依然高悬，世界仍将在雷鸣中衡量你的名讳");
         }
 
         syncClientState(player, true);
@@ -2297,10 +2486,39 @@ public class ModEvents {
         if (!level.getBlockState(pos).is(Blocks.WATER_CAULDRON)) {
             return false;
         }
-        return countItemEntities(level, pos, Items.ENCHANTED_GOLDEN_APPLE) >= 1
-                && countItemEntities(level, pos, Items.MILK_BUCKET) >= 2
-                && countItemEntities(level, pos, ModItems.EMBER_OF_DUAT.get()) >= 1
-                && countItemEntities(level, pos, Items.HONEY_BOTTLE) >= 1;
+        Map<Item, Integer> ingredients = getCurseOneRitualIngredients();
+        if (ingredients.isEmpty()) {
+            return false;
+        }
+        for (Map.Entry<Item, Integer> ingredient : ingredients.entrySet()) {
+            if (countItemEntities(level, pos, ingredient.getKey()) < ingredient.getValue()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static Map<Item, Integer> getCurseOneRitualIngredients() {
+        Map<Item, Integer> ingredients = new LinkedHashMap<>();
+        for (String entry : Config.CURSE_1_REVERSAL_CAULDRON_ITEMS.get()) {
+            int separator = entry.lastIndexOf('=');
+            String itemId = separator >= 0 ? entry.substring(0, separator).trim() : entry.trim();
+            int amount = 1;
+            if (separator >= 0) {
+                try {
+                    amount = Integer.parseInt(entry.substring(separator + 1).trim());
+                } catch (NumberFormatException ignored) {
+                    return Collections.emptyMap();
+                }
+            }
+            ResourceLocation resourceLocation = ResourceLocation.tryParse(itemId);
+            Item item = resourceLocation == null ? null : ForgeRegistries.ITEMS.getValue(resourceLocation);
+            if (item == null || item == Items.AIR || amount <= 0) {
+                return Collections.emptyMap();
+            }
+            ingredients.merge(item, amount, (left, right) -> (int) Math.min(1000000L, (long) left + right));
+        }
+        return ingredients;
     }
 
     private static int countItemEntities(ServerLevel level, BlockPos pos, Item item) {
@@ -2327,10 +2545,9 @@ public class ModEvents {
     }
 
     private static void consumeCurseOneRitualItems(ServerLevel level, BlockPos pos) {
-        consumeItemEntities(level, pos, Items.ENCHANTED_GOLDEN_APPLE, 1);
-        consumeItemEntities(level, pos, Items.MILK_BUCKET, 2);
-        consumeItemEntities(level, pos, ModItems.EMBER_OF_DUAT.get(), 1);
-        consumeItemEntities(level, pos, Items.HONEY_BOTTLE, 1);
+        for (Map.Entry<Item, Integer> ingredient : getCurseOneRitualIngredients().entrySet()) {
+            consumeItemEntities(level, pos, ingredient.getKey(), ingredient.getValue());
+        }
     }
 
     private static void consumeItemEntities(ServerLevel level, BlockPos pos, Item item, int required) {
@@ -2592,6 +2809,7 @@ public class ModEvents {
         level.sendParticles(ParticleTypes.REVERSE_PORTAL, player.getX(), player.getY() + 1.0D, player.getZ(), 160, 2.8D, 0.8D, 2.8D, 0.05D);
         level.sendParticles(new DustParticleOptions(new Vector3f(0.2F, 0.9F, 0.4F), 1.3F), player.getX(), player.getY() + 1.0D, player.getZ(), 45, 1.5D, 0.5D, 1.5D, 0.02D);
         data.putBoolean(CURSE_6_REVERSED, true);
+        clearCurseSixLockState(player, data);
         clearCurseSevenRitualState(data);
         queueCurseSevenHint(player, CURSE_7_SUCCESS_LINE, CURSE_7_SUCCESS_LINE_ZH, "green_shadow");
         syncClientState(player, true);
@@ -2663,6 +2881,7 @@ public class ModEvents {
         return getCurseSevenBookCipherLine();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static boolean shouldShowCurseSevenSentenceInDuatUi() {
         Minecraft minecraft = Minecraft.getInstance();
         return minecraft.player != null
@@ -2672,10 +2891,12 @@ public class ModEvents {
                 && !ClientOverlayEvents.isClientCurseSevenReversed();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Component getClientCurseSevenSentenceUiHint() {
         return Component.literal("余烬侧壁浮现出一段被遮蔽的残句，试着将它重组为完整的英文句子。");
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static String getClientCurseSevenSentenceUiInscription() {
         return getCurseSevenBookMaskedLine() + "\n" + getCurseSevenBookCipherLine();
     }
@@ -2776,6 +2997,7 @@ public class ModEvents {
         return getAdjustedEnchantSpend(player, vanillaSpend);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Component getCurseThreeEnchantTooltip(Player player, int vanillaCost) {
         if (player == null || areCurseThreeAndFourLifted(player)) {
             return Component.empty();
@@ -2787,6 +3009,7 @@ public class ModEvents {
                 .withStyle(net.minecraft.ChatFormatting.RED);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Component getCurseThreeAnvilTooltip(Player player, int vanillaCost) {
         if (player == null || areCurseThreeAndFourLifted(player)) {
             return Component.empty();
@@ -2798,6 +3021,7 @@ public class ModEvents {
                 .withStyle(net.minecraft.ChatFormatting.RED);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Component getCurseThreeInsufficientXpMessage() {
         if (Minecraft.getInstance().player != null && areCurseThreeAndFourLifted(Minecraft.getInstance().player)) {
             return Component.empty();
@@ -3725,7 +3949,8 @@ public class ModEvents {
 
     public static boolean isMainHandLocked(Player player) {
         CompoundTag data = getCurseData(player);
-        return data.getLong(MAIN_LOCK_UNTIL) > player.level().getGameTime();
+        return !data.getBoolean(CURSE_6_REVERSED)
+                && data.getLong(MAIN_LOCK_UNTIL) > player.level().getGameTime();
     }
 
     public static boolean isDynastyHandSilenced(Player player, InteractionHand hand) {
@@ -3740,6 +3965,9 @@ public class ModEvents {
 
     private static int getRemainingMainHandLockTicks(Player player) {
         CompoundTag data = getCurseData(player);
+        if (data.getBoolean(CURSE_6_REVERSED)) {
+            return 0;
+        }
         return (int) Math.max(0L, data.getLong(MAIN_LOCK_UNTIL) - player.level().getGameTime());
     }
 
@@ -3748,6 +3976,9 @@ public class ModEvents {
             return !stack.isEmpty();
         }
         CompoundTag data = getCurseData(player);
+        if (data.getBoolean(CURSE_6_REVERSED)) {
+            return false;
+        }
         if (!hasActiveLockedSlot(player, data)) {
             return false;
         }
@@ -3771,6 +4002,9 @@ public class ModEvents {
 
     private static int getRemainingLockedSlotTicks(Player player) {
         CompoundTag data = getCurseData(player);
+        if (data.getBoolean(CURSE_6_REVERSED)) {
+            return 0;
+        }
         if (!hasActiveLockedSlot(player, data)) {
             return 0;
         }
@@ -3845,6 +4079,10 @@ public class ModEvents {
                         .map(handler -> containsSeal(handler.getStacks()))
                         .orElse(false))
                 .orElse(false);
+    }
+
+    static boolean isSealEquippedForPalace(Player player) {
+        return isSealEquipped(player);
     }
 
     private static boolean sanitizeSealCurios(Player player) {
@@ -5615,7 +5853,11 @@ public class ModEvents {
         return Vec3.atCenterOf(level.getSharedSpawnPos().above());
     }
 
-    private static void updateCurseNineHunger(ServerLevel level, Player player) {
+    private static void updateCurseNineHunger(ServerLevel level, Player player, boolean sealEquipped) {
+        if (!sealEquipped) {
+            return;
+        }
+
         if (isCurseNineReversed(player)) {
             player.removeEffect(MobEffects.HUNGER);
             player.getFoodData().setFoodLevel(20);
@@ -5637,7 +5879,6 @@ public class ModEvents {
         tickCurseNineDebt(level, player);
         int crystalCount = getSatietyCrystalCount(player);
         if (crystalCount <= 0) {
-            player.removeEffect(MobEffects.HUNGER);
             return;
         }
 
@@ -5646,6 +5887,13 @@ public class ModEvents {
             player.getFoodData().setFoodLevel(maxFoodLevel);
         }
         player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 220, 4, false, false, true));
+    }
+
+    public static void clearSealUnequipEffects(Player player) {
+        if (player == null || player.level().isClientSide) {
+            return;
+        }
+        player.removeEffect(MobEffects.HUNGER);
     }
 
     private static void tickCurseNineDebt(ServerLevel level, Player player) {
@@ -6205,8 +6453,8 @@ public class ModEvents {
                 ? "royal aegis restored; hostile blood now wears the old dynasty again"
                 : "royal aegis withdrawn; hostile blood stands without the old dynasty";
         String translatedText = enabled
-                ? "royal aegis restored; hostile blood now wears the old dynasty again"
-                : "royal aegis withdrawn; hostile blood stands without the old dynasty";
+                ? "王胄已归位；敌对之血重新披上旧王朝的律甲"
+                : "王胄已撤回；敌对之血暂离旧王朝的庇护";
         ModNetwork.CHANNEL.send(
                 PacketDistributor.PLAYER.with(() -> player),
                 new CurseSevenHintPacket(text, translatedText, "red_omen", DYNASTY_SHIELD_TOGGLE_HINT_TICKS));
@@ -6450,6 +6698,7 @@ public class ModEvents {
         return input == null ? "" : input.toLowerCase(Locale.ROOT).replace(" ", "").replace("銆€", "");
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Component getClientCurrentEmberRiddleHint() {
         EmberRiddle riddle = ClientOverlayEvents.getClientCurrentRiddle();
         if (riddle == null) {
@@ -6458,6 +6707,7 @@ public class ModEvents {
         return Component.translatable("message.ramesses_curse.ember_riddle_hint", riddle.title(), riddle.question());
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static String getClientCurrentEmberRiddleInscription() {
         EmberRiddle riddle = ClientOverlayEvents.getClientCurrentRiddle();
         if (riddle == null || riddle.answers().isEmpty()) {
@@ -6466,6 +6716,7 @@ public class ModEvents {
         return getEmberCipherGlyphs(riddle.answers().get(0));
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static boolean shouldShowCurseSevenDuatEntry() {
         Minecraft minecraft = Minecraft.getInstance();
         return minecraft.player != null
@@ -6474,6 +6725,7 @@ public class ModEvents {
                 && !ClientOverlayEvents.isClientCurseSevenReversed();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static boolean isClientCurseSevenKeywordLockedForRiddleRefresh() {
         Minecraft minecraft = Minecraft.getInstance();
         return minecraft.player != null
@@ -6482,10 +6734,12 @@ public class ModEvents {
                 && !ClientOverlayEvents.isClientCurseSevenReversed();
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static Component getClientCurseSevenDuatHint() {
         return Component.literal("余烬侧壁浮现出一行更古老的抄录，它不再追问答案，而是指向终末王座下的虚空。");
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static String getClientCurseSevenDuatInscription() {
         return getEmberCipherGlyphs("end main island");
     }
@@ -6558,6 +6812,7 @@ public class ModEvents {
                 + "\uE018 Y  \uE019 Z";
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static String getClientCurrentEmberRiddleAnswerLetters() {
         EmberRiddle riddle = ClientOverlayEvents.getClientCurrentRiddle();
         if (riddle == null || riddle.answers().isEmpty()) {
@@ -6566,6 +6821,7 @@ public class ModEvents {
         return getEmberCipherLetters(riddle.answers().get(0));
     }
 
+    @OnlyIn(Dist.CLIENT)
     public static String getClientCurrentEmberRiddleGlyphs() {
         EmberRiddle riddle = ClientOverlayEvents.getClientCurrentRiddle();
         if (riddle == null || riddle.answers().isEmpty()) {
@@ -6768,6 +7024,38 @@ public class ModEvents {
         data.remove(LOCKED_SLOT_STACK);
     }
 
+    private static void clearCurseSixLockState(ServerPlayer player, CompoundTag data) {
+        boolean hasMainLock = data.getLong(MAIN_LOCK_UNTIL) > 0L;
+        boolean hasRandomLock = data.getLong(LOCKED_SLOT_UNTIL) > 0L
+                || data.contains(LOCKED_SLOT_STACK, Tag.TAG_COMPOUND);
+        boolean hasSchedule = data.getLong(NEXT_RANDOM_LOCK) > 0L;
+        if (!hasMainLock && !hasRandomLock && !hasSchedule) {
+            return;
+        }
+
+        if (hasMainLock && !player.getMainHandItem().isEmpty()) {
+            player.getCooldowns().removeCooldown(player.getMainHandItem().getItem());
+        }
+
+        int slot = data.getInt(LOCKED_SLOT);
+        if (slot >= 0 && slot < player.getInventory().items.size()) {
+            ItemStack current = player.getInventory().items.get(slot);
+            if (!current.isEmpty()) {
+                player.getCooldowns().removeCooldown(current.getItem());
+            }
+        }
+        if (data.contains(LOCKED_SLOT_STACK, Tag.TAG_COMPOUND)) {
+            ItemStack snapshot = ItemStack.of(data.getCompound(LOCKED_SLOT_STACK));
+            if (!snapshot.isEmpty()) {
+                player.getCooldowns().removeCooldown(snapshot.getItem());
+            }
+        }
+
+        data.putLong(MAIN_LOCK_UNTIL, 0L);
+        data.putLong(NEXT_RANDOM_LOCK, 0L);
+        clearLockedSlotState(data);
+    }
+
     private static void suppressDefenses(ServerPlayer player) {
         applyOrRefreshModifier(player, Attributes.ARMOR, GUILT_ARMOR_MODIFIER, -1024.0D);
         applyOrRefreshModifier(player, Attributes.ARMOR_TOUGHNESS, GUILT_TOUGHNESS_MODIFIER, -1024.0D);
@@ -6802,6 +7090,7 @@ public class ModEvents {
     }
 
     @Mod.EventBusSubscriber(modid = RamessesCurseMod.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    @OnlyIn(Dist.CLIENT)
     public static class ClientOverlayEvents {
         private enum EdictChargeMode {
             NONE,
@@ -6851,6 +7140,22 @@ public class ModEvents {
         private static int clientCurseSevenHintTicks;
         private static int clientCurseSevenHintTotalTicks;
         private static int clientCurseSevenLastVisibleChars;
+        private static final String[] ETERNAL_TOTEM_TYPEWRITER_KEYS = {
+                "item.ramesses_curse.eternal_silence_totem.double_strike",
+                "item.ramesses_curse.eternal_silence_totem.revive",
+                "item.ramesses_curse.eternal_silence_totem.surge"
+        };
+        private static final String[] ETERNAL_REBIRTH_TOTEM_TYPEWRITER_KEYS = {
+                "item.ramesses_curse.eternal_silence_rebirth_totem.double_strike",
+                "item.ramesses_curse.eternal_silence_rebirth_totem.revive",
+                "item.ramesses_curse.eternal_silence_rebirth_totem.surge"
+        };
+        private static final long ETERNAL_TOTEM_TYPEWRITER_CHAR_MILLIS = 30L;
+        private static final long ETERNAL_TOTEM_HOVER_RESET_MILLIS = 250L;
+        private static long clientEternalTotemTooltipStartedAt;
+        private static long clientEternalTotemTooltipLastSeenAt;
+        private static Screen clientEternalTotemTooltipScreen;
+        private static Slot clientEternalTotemTooltipSlot;
         private static final List<String> clientEmberRiddleRound = new ArrayList<>();
         private static final List<Boolean> clientEmberRiddleSolved = new ArrayList<>();
         private static int clientEmberRiddleIndex;
@@ -7101,6 +7406,7 @@ public class ModEvents {
         @SubscribeEvent
         public static void onItemTooltip(ItemTooltipEvent event) {
             Minecraft minecraft = Minecraft.getInstance();
+            applyEternalTotemTypewriter(event, minecraft);
 
             if (!(minecraft.screen instanceof AbstractContainerScreen<?> screen)) {
                 return;
@@ -7146,6 +7452,69 @@ public class ModEvents {
                             .withStyle(net.minecraft.ChatFormatting.DARK_PURPLE));
                 }
             }
+        }
+
+        private static void applyEternalTotemTypewriter(ItemTooltipEvent event, Minecraft minecraft) {
+            if (!event.getItemStack().is(ModItems.ETERNAL_SILENCE_TOTEM.get())
+                    && !event.getItemStack().is(ModItems.ETERNAL_SILENCE_REBIRTH_TOTEM.get())) {
+                return;
+            }
+
+            String[] typewriterKeys = event.getItemStack().is(ModItems.ETERNAL_SILENCE_REBIRTH_TOTEM.get())
+                    ? ETERNAL_REBIRTH_TOTEM_TYPEWRITER_KEYS
+                    : ETERNAL_TOTEM_TYPEWRITER_KEYS;
+
+            Screen currentScreen = minecraft.screen;
+            Slot currentSlot = currentScreen instanceof AbstractContainerScreen<?> containerScreen
+                    ? containerScreen.getSlotUnderMouse()
+                    : null;
+            long now = System.currentTimeMillis();
+            if (currentScreen != clientEternalTotemTooltipScreen
+                    || currentSlot != clientEternalTotemTooltipSlot
+                    || now - clientEternalTotemTooltipLastSeenAt > ETERNAL_TOTEM_HOVER_RESET_MILLIS) {
+                clientEternalTotemTooltipStartedAt = now;
+                clientEternalTotemTooltipScreen = currentScreen;
+                clientEternalTotemTooltipSlot = currentSlot;
+            }
+            clientEternalTotemTooltipLastSeenAt = now;
+
+            int visibleCharacters = (int) Math.min(
+                    Integer.MAX_VALUE,
+                    (now - clientEternalTotemTooltipStartedAt) / ETERNAL_TOTEM_TYPEWRITER_CHAR_MILLIS + 1L);
+            int consumedCharacters = 0;
+            List<Component> tooltip = event.getToolTip();
+            for (String translationKey : typewriterKeys) {
+                String expectedText = Component.translatable(translationKey).getString();
+                int lineIndex = findTooltipLine(tooltip, expectedText);
+                if (lineIndex < 0) {
+                    consumedCharacters += expectedText.codePointCount(0, expectedText.length());
+                    continue;
+                }
+
+                Component original = tooltip.get(lineIndex);
+                int lineLength = expectedText.codePointCount(0, expectedText.length());
+                int lineVisible = Mth.clamp(visibleCharacters - consumedCharacters, 0, lineLength);
+                consumedCharacters += lineLength;
+                if (lineVisible >= lineLength) {
+                    continue;
+                }
+
+                int splitIndex = expectedText.offsetByCodePoints(0, lineVisible);
+                MutableComponent animatedLine = Component.literal(expectedText.substring(0, splitIndex))
+                        .setStyle(original.getStyle());
+                animatedLine.append(Component.literal(expectedText.substring(splitIndex))
+                        .setStyle(original.getStyle().withColor(0x050308)));
+                tooltip.set(lineIndex, animatedLine);
+            }
+        }
+
+        private static int findTooltipLine(List<Component> tooltip, String expectedText) {
+            for (int index = 0; index < tooltip.size(); index++) {
+                if (tooltip.get(index).getString().equals(expectedText)) {
+                    return index;
+                }
+            }
+            return -1;
         }
 
         @SubscribeEvent
@@ -7244,8 +7613,8 @@ public class ModEvents {
                 return;
             }
 
-            boolean xDown = RamessesCurseMod.EDICT_OF_TWO_LANDS_KEY.isDown();
-            boolean yDown = RamessesCurseMod.EDICT_OF_TWO_LANDS_DOMAIN_KEY.isDown();
+            boolean xDown = RamessesCurseMod.ClientModEvents.EDICT_OF_TWO_LANDS_KEY.isDown();
+            boolean yDown = RamessesCurseMod.ClientModEvents.EDICT_OF_TWO_LANDS_DOMAIN_KEY.isDown();
 
             if (yDown && !hasEdictDomainTargets(player)) {
                 if (!clientEdictCooldownPromptedThisHold) {
@@ -7448,11 +7817,11 @@ public class ModEvents {
                 return;
             }
 
-            while (RamessesCurseMod.HEART_AWAKENING_KEY.consumeClick()) {
+            while (RamessesCurseMod.ClientModEvents.HEART_AWAKENING_KEY.consumeClick()) {
                 ModNetwork.CHANNEL.sendToServer(new HeartAwakeningPacket());
             }
 
-            while (RamessesCurseMod.HEART_WARD_KEY.consumeClick()) {
+            while (RamessesCurseMod.ClientModEvents.HEART_WARD_KEY.consumeClick()) {
                 ModNetwork.CHANNEL.sendToServer(new HeartWardActivatePacket());
             }
         }

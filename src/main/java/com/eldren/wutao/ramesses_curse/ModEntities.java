@@ -23,7 +23,7 @@ public class ModEntities {
                     .<UraeusRainShardEntity>of(UraeusRainShardEntity::new, MobCategory.MISC)
                     .sized(0.22F, 0.22F)
                     .clientTrackingRange(48)
-                    .updateInterval(1)
+                    .updateInterval(3)
                     .build("uraeus_rain_shard"));
 
     public static final RegistryObject<EntityType<UraeusStormStarEntity>> URAEUS_STORM_STAR =
@@ -41,4 +41,29 @@ public class ModEntities {
                     .clientTrackingRange(64)
                     .updateInterval(1)
                     .build("satiety_crystal"));
+
+    public static final RegistryObject<EntityType<NebukaGuardianEntity>> NEBUKA_GUARDIAN =
+            ENTITY_TYPES.register("nebuka_guardian", () -> EntityType.Builder
+                    .of(NebukaGuardianEntity::new, MobCategory.MONSTER)
+                    .sized(1.6F, 4.8F)
+                    .clientTrackingRange(12)
+                    .updateInterval(1)
+                    .fireImmune()
+                    .build("nebuka_guardian"));
+
+    public static final RegistryObject<EntityType<NebukaSummoningRitualEntity>> NEBUKA_SUMMONING_RITUAL =
+            ENTITY_TYPES.register("nebuka_summoning_ritual", () -> EntityType.Builder
+                    .<NebukaSummoningRitualEntity>of(NebukaSummoningRitualEntity::new, MobCategory.MISC)
+                    .sized(0.1F, 0.1F)
+                    .clientTrackingRange(96)
+                    .updateInterval(1)
+                    .build("nebuka_summoning_ritual"));
+
+    public static final RegistryObject<EntityType<InscriptionFragmentEntity>> INSCRIPTION_FRAGMENT =
+            ENTITY_TYPES.register("inscription_fragment", () -> EntityType.Builder
+                    .<InscriptionFragmentEntity>of(InscriptionFragmentEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .clientTrackingRange(10)
+                    .updateInterval(Integer.MAX_VALUE)
+                    .build("inscription_fragment"));
 }

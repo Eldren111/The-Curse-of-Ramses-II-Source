@@ -1,0 +1,26 @@
+Ramesses' Curse 1.2.0 Changelog
+
+New Content
+
+- Added the Duat dimension, sandstone portal, Duat desert biomes, oasis areas, date palms, and the Silent Royal Court structure content.
+- Added the Silent Sepulcher building set, Withered Vine of the Silent Sepulcher, date fruit, Eternal Silence Granules, Eternal Silence Ingots, the Eternal Silence Ritual Staff, and the Eternal Silence Upgrade Smithing Template.
+- Added the Eternal Silence Totem and Eternal Silence Rebirth Totem. The Rebirth Totem is upgraded from the base totem at a smithing table and uses a cooldown system.
+- Added the Twilight Crystal Ring. It grants movement and attack speed bonuses while worn; consecutive melee hits on the same target build Twilight Marks, and the third hit deals bonus magic damage.
+- Added 26 Inscription Fragments, the Inscription Satchel, and its dedicated Curios slot. The satchel can hold up to 16 different inscriptions and activates all stored effects while equipped.
+- Inscription Fragments can be found at random in End chests. Obtaining a fragment triggers its corresponding hidden advancement toast.
+- Added a crafting recipe for the Inscription Satchel: 4 leather, 2 string, and 1 chest.
+- Added an initial acquisition recipe for the Eternal Silence Upgrade Smithing Template while keeping its duplication recipe.
+
+Loot and Recipes
+
+- The Twilight Crystal Ring now has an independent 2% chance to appear in standard chest loot tables across all dimensions.
+- Eternal Silence Granules now have an independent 0.02% chance to appear in standard chest loot tables across all dimensions, yielding 1 to 3 granules.
+- The Dynasty Pressure Potion brewing recipe is now visible in JEI: brew an Awkward Potion with an Echo Shard.
+
+Mechanics and Compatibility
+
+- Accessory attribute sections now prioritize Curios standard attribute displays. The Twilight Crystal Ring, Resonant Scarab, both Eternal Silence Totems, and the Inscription Satchel display their real attributes in Curios slots; duplicate manual worn-effect tooltip sections were removed.
+- Fixed Inscription Satchel contents reverting after reopening, allowing fragments to be duplicated, and fixed capacity and attribute desynchronization after re-equipping.
+- Adjusted the Curse Three and Four removal condition. Once Curses One, Two, Seven, Eight, and Nine are reversed, completing the Curse Five sleep choice removes Curses Three and Four whether the player accepts or declines reversal.
+- The King\u0027s Guilt system and its exclusive empowerment remain active when Curse Five reversal is declined.
+

@@ -1,0 +1,28 @@
+{
+  "parent": "ramesses_curse:obtain_edict_of_two_lands",
+  "display": {
+    "icon": {
+      "item": "minecraft:chiseled_sandstone"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.visit_duat_palace.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.visit_duat_palace.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "x": 8,
+    "y": -1
+  },
+  "criteria": {
+    "visit_palace": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "rewards": {
+    "experience": 200
+  }
+}

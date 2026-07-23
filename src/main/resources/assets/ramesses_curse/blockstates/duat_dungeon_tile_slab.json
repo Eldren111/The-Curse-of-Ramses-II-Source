@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=bottom": { "model": "ramesses_curse:block/duat_dungeon_tile_slab" },
+    "type=double": { "model": "ramesses_curse:block/duat_dungeon_tile" },
+    "type=top": { "model": "ramesses_curse:block/duat_dungeon_tile_slab_top" }
+  }
+}

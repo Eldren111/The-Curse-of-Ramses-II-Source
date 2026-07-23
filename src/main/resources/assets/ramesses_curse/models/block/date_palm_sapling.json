@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "ramesses_curse:block/date_palm_sapling"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "ramesses_curse:block/duat_dungeon_tile"
+  }
+}

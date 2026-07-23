@@ -1,0 +1,51 @@
+{
+  "has_precipitation": false,
+  "temperature": 1.5,
+  "downfall": 0.0,
+  "effects": {
+    "fog_color": 11832638,
+    "sky_color": 9526106,
+    "water_color": 3567733,
+    "water_fog_color": 2105376,
+    "grass_color": 11052476,
+    "foliage_color": 10059085,
+    "mood_sound": {
+      "sound": "minecraft:ambient.cave",
+      "tick_delay": 6000,
+      "block_search_extent": 8,
+      "offset": 2.0
+    }
+  },
+  "carvers": {
+    "air": ["minecraft:cave", "minecraft:cave_extra_underground", "minecraft:canyon"]
+  },
+  "features": [
+    [],
+    ["minecraft:lake_lava_underground"],
+    [],
+    ["minecraft:monster_room", "minecraft:monster_room_deep"],
+    [],
+    [],
+    ["minecraft:disk_sand", "minecraft:disk_clay", "minecraft:disk_gravel"],
+    [],
+    ["minecraft:spring_water", "minecraft:spring_lava"],
+    ["minecraft:patch_dead_bush_2", "minecraft:patch_sugar_cane", "minecraft:seagrass_river"],
+    []
+  ],
+  "spawners": {
+    "monster": [
+      {"type": "minecraft:drowned", "weight": 100, "minCount": 1, "maxCount": 2},
+      {"type": "minecraft:husk", "weight": 80, "minCount": 2, "maxCount": 4},
+      {"type": "minecraft:skeleton", "weight": 70, "minCount": 2, "maxCount": 4},
+      {"type": "minecraft:zombie", "weight": 30, "minCount": 2, "maxCount": 4}
+    ],
+    "creature": [],
+    "ambient": [],
+    "axolotls": [],
+    "underground_water_creature": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "misc": []
+  },
+  "spawn_costs": {}
+}

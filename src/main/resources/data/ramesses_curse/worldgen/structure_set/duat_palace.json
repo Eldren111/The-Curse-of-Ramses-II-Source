@@ -1,0 +1,16 @@
+{
+  "structures": [
+    {
+      "structure": "ramesses_curse:duat_palace",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:concentric_rings",
+    "distance": 64,
+    "spread": 3,
+    "count": 9,
+    "salt": 1380275283,
+    "preferred_biomes": "#ramesses_curse:has_structure/duat_palace"
+  }
+}

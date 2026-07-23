@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "ramesses_curse:block/duat_dungeon_tile",
+    "top": "ramesses_curse:block/duat_dungeon_tile",
+    "side": "ramesses_curse:block/duat_dungeon_tile"
+  }
+}

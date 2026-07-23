@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "stage=0": {
+      "model": "ramesses_curse:block/date_palm_sapling"
+    },
+    "stage=1": {
+      "model": "ramesses_curse:block/date_palm_sapling"
+    }
+  }
+}

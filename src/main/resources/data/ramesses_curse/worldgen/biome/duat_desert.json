@@ -1,0 +1,58 @@
+{
+  "has_precipitation": false,
+  "temperature": 2.0,
+  "downfall": 0.0,
+  "effects": {
+    "fog_color": 11832638,
+    "sky_color": 9526106,
+    "water_color": 3836269,
+    "water_fog_color": 2236962,
+    "grass_color": 11382189,
+    "foliage_color": 10387789,
+    "mood_sound": {
+      "sound": "minecraft:ambient.cave",
+      "tick_delay": 6000,
+      "block_search_extent": 8,
+      "offset": 2.0
+    },
+    "music": {
+      "sound": "minecraft:music.overworld.desert",
+      "min_delay": 12000,
+      "max_delay": 24000,
+      "replace_current_music": false
+    }
+  },
+  "carvers": {
+    "air": ["minecraft:cave", "minecraft:cave_extra_underground", "minecraft:canyon"]
+  },
+  "features": [
+    [],
+    ["minecraft:lake_lava_underground", "minecraft:lake_lava_surface"],
+    [],
+    ["minecraft:fossil_upper", "minecraft:fossil_lower", "minecraft:monster_room", "minecraft:monster_room_deep"],
+    ["minecraft:desert_well"],
+    [],
+    ["minecraft:disk_sand", "minecraft:disk_clay", "minecraft:disk_gravel"],
+    [],
+    ["minecraft:spring_water", "minecraft:spring_lava"],
+    ["minecraft:patch_dead_bush_2", "minecraft:patch_sugar_cane_desert", "minecraft:patch_cactus_desert"],
+    []
+  ],
+  "spawners": {
+    "monster": [
+      {"type": "minecraft:husk", "weight": 100, "minCount": 2, "maxCount": 4},
+      {"type": "minecraft:skeleton", "weight": 80, "minCount": 2, "maxCount": 4},
+      {"type": "minecraft:zombie", "weight": 35, "minCount": 2, "maxCount": 4},
+      {"type": "minecraft:zombie_villager", "weight": 5, "minCount": 1, "maxCount": 1},
+      {"type": "minecraft:zombified_piglin", "weight": 12, "minCount": 1, "maxCount": 3}
+    ],
+    "creature": [],
+    "ambient": [],
+    "axolotls": [],
+    "underground_water_creature": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "misc": []
+  },
+  "spawn_costs": {}
+}

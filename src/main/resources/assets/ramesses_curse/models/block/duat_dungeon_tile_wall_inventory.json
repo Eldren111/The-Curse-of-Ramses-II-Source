@@ -1,0 +1,4 @@
+{
+  "parent": "minecraft:block/wall_inventory",
+  "textures": { "wall": "ramesses_curse:block/duat_dungeon_tile" }
+}

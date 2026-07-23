@@ -5,11 +5,16 @@ import com.eldren.wutao.ramesses_curse.ModEnchantments;
 import com.eldren.wutao.ramesses_curse.RamessesCurseMod;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.RecipeTypes;
+import mezz.jei.api.recipe.vanilla.IJeiBrewingRecipe;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 
 import java.util.List;
@@ -25,6 +30,14 @@ public class RamessesCurseJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
+        ItemStack awkwardPotion = PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD);
+        IJeiBrewingRecipe dynastyPressureBrewing = registration.getVanillaRecipeFactory().createBrewingRecipe(
+                List.of(new ItemStack(Items.ECHO_SHARD)),
+                awkwardPotion,
+                new ItemStack(ModItems.DYNASTY_PRESSURE_POTION.get()),
+                new ResourceLocation(RamessesCurseMod.MODID, "dynasty_pressure_potion_brewing"));
+        registration.addRecipes(RecipeTypes.BREWING, List.of(dynastyPressureBrewing));
+
         registration.addItemStackInfo(
                 List.of(new ItemStack(ModItems.SEAL_OF_KADESH.get())),
                 Component.translatable("jei.ramesses_curse.seal_of_kadesh.line1"),
