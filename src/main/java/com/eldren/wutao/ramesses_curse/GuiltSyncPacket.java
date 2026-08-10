@@ -13,13 +13,16 @@ public class GuiltSyncPacket {
     private final int mercy;
     private final boolean mercyChargeReady;
     private final boolean sealEquipped;
+    private final int sealEquipSeconds;
     private final boolean netherAwakened;
+    private final boolean endAwakened;
     private final boolean curseOneReversed;
     private final boolean curseTwoReversed;
     private final boolean curseFiveReversed;
     private final boolean curseFiveDeclined;
     private final boolean curseSevenKeywordUnlocked;
     private final boolean curseSevenTerminalSolved;
+    private final boolean curseSixReversed;
     private final boolean curseSevenReversed;
     private final boolean curseSevenSentenceUnlocked;
     private final boolean curseEightReversed;
@@ -33,18 +36,21 @@ public class GuiltSyncPacket {
     private final int dynastySilenceMainHandTicks;
     private final int dynastySilenceOffHandTicks;
 
-    public GuiltSyncPacket(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, boolean netherAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks, int dynastyThreat, int dynastySilenceMainHandTicks, int dynastySilenceOffHandTicks) {
+    public GuiltSyncPacket(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, int sealEquipSeconds, boolean netherAwakened, boolean endAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSixReversed, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int lockedSlot, int lockedSlotTicks, int dynastyThreat, int dynastySilenceMainHandTicks, int dynastySilenceOffHandTicks) {
         this.guilt = guilt;
         this.mercy = mercy;
         this.mercyChargeReady = mercyChargeReady;
         this.sealEquipped = sealEquipped;
+        this.sealEquipSeconds = sealEquipSeconds;
         this.netherAwakened = netherAwakened;
+        this.endAwakened = endAwakened;
         this.curseOneReversed = curseOneReversed;
         this.curseTwoReversed = curseTwoReversed;
         this.curseFiveReversed = curseFiveReversed;
         this.curseFiveDeclined = curseFiveDeclined;
         this.curseSevenKeywordUnlocked = curseSevenKeywordUnlocked;
         this.curseSevenTerminalSolved = curseSevenTerminalSolved;
+        this.curseSixReversed = curseSixReversed;
         this.curseSevenReversed = curseSevenReversed;
         this.curseSevenSentenceUnlocked = curseSevenSentenceUnlocked;
         this.curseEightReversed = curseEightReversed;
@@ -64,13 +70,16 @@ public class GuiltSyncPacket {
         buffer.writeVarInt(packet.mercy);
         buffer.writeBoolean(packet.mercyChargeReady);
         buffer.writeBoolean(packet.sealEquipped);
+        buffer.writeVarInt(packet.sealEquipSeconds);
         buffer.writeBoolean(packet.netherAwakened);
+        buffer.writeBoolean(packet.endAwakened);
         buffer.writeBoolean(packet.curseOneReversed);
         buffer.writeBoolean(packet.curseTwoReversed);
         buffer.writeBoolean(packet.curseFiveReversed);
         buffer.writeBoolean(packet.curseFiveDeclined);
         buffer.writeBoolean(packet.curseSevenKeywordUnlocked);
         buffer.writeBoolean(packet.curseSevenTerminalSolved);
+        buffer.writeBoolean(packet.curseSixReversed);
         buffer.writeBoolean(packet.curseSevenReversed);
         buffer.writeBoolean(packet.curseSevenSentenceUnlocked);
         buffer.writeBoolean(packet.curseEightReversed);
@@ -86,30 +95,39 @@ public class GuiltSyncPacket {
     }
 
     public static GuiltSyncPacket decode(FriendlyByteBuf buffer) {
+        int guilt = buffer.readVarInt();
+        int mercy = buffer.readVarInt();
+        boolean mercyChargeReady = buffer.readBoolean();
+        boolean sealEquipped = buffer.readBoolean();
+        int sealEquipSeconds = buffer.readVarInt();
+        boolean netherAwakened = buffer.readBoolean();
+        boolean endAwakened = buffer.readBoolean();
+        boolean curseOneReversed = buffer.readBoolean();
+        boolean curseTwoReversed = buffer.readBoolean();
+        boolean curseFiveReversed = buffer.readBoolean();
+        boolean curseFiveDeclined = buffer.readBoolean();
+        boolean curseSevenKeywordUnlocked = buffer.readBoolean();
+        boolean curseSevenTerminalSolved = buffer.readBoolean();
+        boolean curseSixReversed = buffer.readBoolean();
+        boolean curseSevenReversed = buffer.readBoolean();
+        boolean curseSevenSentenceUnlocked = buffer.readBoolean();
+        boolean curseEightReversed = buffer.readBoolean();
+        boolean curseNineReversed = buffer.readBoolean();
+        int lockTicks = buffer.readVarInt();
+        int satietyCrystalCount = buffer.readVarInt();
+        int curseNineDebtTicks = buffer.readVarInt();
+        int lockedSlot = buffer.readVarInt();
+        int lockedSlotTicks = buffer.readVarInt();
+        int dynastyThreat = buffer.readVarInt();
+        int dynastySilenceMainHandTicks = buffer.readVarInt();
+        int dynastySilenceOffHandTicks = buffer.readVarInt();
         return new GuiltSyncPacket(
-                buffer.readVarInt(),
-                buffer.readVarInt(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readBoolean(),
-                buffer.readVarInt(),
-                buffer.readVarInt(),
-                buffer.readVarInt(),
-                buffer.readVarInt(),
-                buffer.readVarInt(),
-                buffer.readVarInt(),
-                buffer.readVarInt(),
-                buffer.readVarInt());
+                guilt, mercy, mercyChargeReady, sealEquipped, sealEquipSeconds, netherAwakened, endAwakened,
+                curseOneReversed, curseTwoReversed, curseFiveReversed, curseFiveDeclined,
+                curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSixReversed, curseSevenReversed,
+                curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockTicks,
+                satietyCrystalCount, curseNineDebtTicks, lockedSlot, lockedSlotTicks, dynastyThreat,
+                dynastySilenceMainHandTicks, dynastySilenceOffHandTicks);
     }
 
     public static void handle(GuiltSyncPacket packet, Supplier<NetworkEvent.Context> contextSupplier) {
@@ -120,13 +138,16 @@ public class GuiltSyncPacket {
                         packet.mercy,
                         packet.mercyChargeReady,
                         packet.sealEquipped,
+                        packet.sealEquipSeconds,
                         packet.netherAwakened,
+                        packet.endAwakened,
                         packet.curseOneReversed,
                         packet.curseTwoReversed,
                         packet.curseFiveReversed,
                         packet.curseFiveDeclined,
                         packet.curseSevenKeywordUnlocked,
                         packet.curseSevenTerminalSolved,
+                        packet.curseSixReversed,
                         packet.curseSevenReversed,
                         packet.curseSevenSentenceUnlocked,
                         packet.curseEightReversed,

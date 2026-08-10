@@ -7,18 +7,16 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -59,7 +57,6 @@ public class RamessesCurseMod {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    public static final DeferredRegister<Enchantment> ENCHANTMENTS = ModEnchantments.ENCHANTMENTS;
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = ModMobEffects.MOB_EFFECTS;
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS = ModSounds.SOUND_EVENTS;
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
@@ -78,6 +75,21 @@ public class RamessesCurseMod {
                         output.accept(ModItems.EMBER_OF_DUAT.get());
                         output.accept(ModItems.ETERNAL_SILENCE_GRANULE.get());
                         output.accept(ModItems.ETERNAL_SILENCE_INGOT.get());
+                        output.accept(ModItems.CALMING_TIBIA.get());
+                        output.accept(ModItems.PITCHFIRE_CRYSTAL.get());
+                        output.accept(ModItems.HEART_DEVOURING_REMNANT.get());
+                        output.accept(ModItems.RAVENOUS_CLAW_FRAGMENT.get());
+                        output.accept(ModItems.FAMINE_CORE.get());
+                        output.accept(ModItems.VENOM_ORB.get());
+                        output.accept(ModItems.KA_REMNANT_BREATH.get());
+                        output.accept(ModItems.LIFE_BINDING_REMNANT_CRYSTAL.get());
+                        output.accept(ModItems.AUTHORITY_FRAGMENT.get());
+                        output.accept(ModItems.TRUTH.get());
+                        output.accept(ModItems.REVERSE_SCALE.get());
+                        output.accept(ModItems.FISSION_WRAITH_HEART.get());
+                        output.accept(ModItems.ETERNAL_SILENCE_COMPOUND_BOW.get());
+                        output.accept(ModItems.CHANCE_DIE_SIX_SIDED.get());
+                        output.accept(ModItems.CHANCE_DIE_LARGE.get());
                         output.accept(ModItems.ETERNAL_SILENCE_TOTEM.get());
                         output.accept(ModItems.ETERNAL_SILENCE_REBIRTH_TOTEM.get());
                         output.accept(ModItems.TWILIGHT_CRYSTAL_RING.get());
@@ -101,7 +113,7 @@ public class RamessesCurseMod {
                         output.accept(ModItems.DATE_PALM_FRUIT.get());
                         output.accept(ModItems.INSCRIPTION_BAG.get());
                         ModItems.INSCRIPTION_FRAGMENTS.forEach(fragment -> output.accept(fragment.get()));
-                        output.accept(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(ModEnchantments.CORROSION_WARD.get(), 1)));
+                        ModItems.AFFIX_KNOWLEDGE_BOOKS.values().forEach(book -> output.accept(book.get()));
                     })
                     .build());
 
@@ -113,7 +125,6 @@ public class RamessesCurseMod {
         registerOptionalL2LibraryCompat(modEventBus);
 
         ITEMS.register(modEventBus);
-        ENCHANTMENTS.register(modEventBus);
         MOB_EFFECTS.register(modEventBus);
         SOUND_EVENTS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
@@ -216,6 +227,11 @@ public class RamessesCurseMod {
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_Y,
                 "key.categories.ramesses_curse");
+        public static final KeyMapping COMPOUND_BOW_AMMO_KEY = new KeyMapping(
+                "key.ramesses_curse.compound_bow_ammo",
+                InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_R,
+                "key.categories.ramesses_curse");
 
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
@@ -223,6 +239,7 @@ public class RamessesCurseMod {
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
             event.enqueueWork(() -> {
                 MenuScreens.register(ModMenus.INSCRIPTION_BAG.get(), InscriptionBagScreen::new);
+                MenuScreens.register(ModMenus.COMPOUND_BOW_AMMO.get(), CompoundBowAmmoScreen::new);
                 EntityRenderers.register(ModEntities.URAEUS_FLARE.get(), UraeusFlareRenderer::new);
                 EntityRenderers.register(ModEntities.URAEUS_RAIN_SHARD.get(), UraeusRainShardRenderer::new);
                 EntityRenderers.register(ModEntities.URAEUS_STORM_STAR.get(), UraeusStormStarRenderer::new);
@@ -234,6 +251,19 @@ public class RamessesCurseMod {
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.SILENT_SEPULCHER_WITHERED_VINE.get(), RenderType.cutout());
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.DATE_PALM_LEAVES.get(), RenderType.cutoutMipped());
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.DATE_PALM_SAPLING.get(), RenderType.cutout());
+                registerBowPullProperties(ModItems.ETERNAL_SILENCE_COMPOUND_BOW.get());
+                registerBowPullProperties(ModItems.DRAGON_BREATH_COMPOUND_BOW.get());
+            });
+        }
+
+        private static void registerBowPullProperties(Item bow) {
+            ItemProperties.register(bow, new ResourceLocation("pulling"), (stack, level, entity, seed) ->
+                    entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F);
+            ItemProperties.register(bow, new ResourceLocation("pull"), (stack, level, entity, seed) -> {
+                if (entity == null || entity.getUseItem() != stack) {
+                    return 0.0F;
+                }
+                return (float) (stack.getUseDuration() - entity.getUseItemRemainingTicks()) / 20.0F;
             });
         }
 
@@ -243,12 +273,18 @@ public class RamessesCurseMod {
             event.register(ClientModEvents.HEART_WARD_KEY);
             event.register(ClientModEvents.EDICT_OF_TWO_LANDS_KEY);
             event.register(ClientModEvents.EDICT_OF_TWO_LANDS_DOMAIN_KEY);
+            event.register(ClientModEvents.COMPOUND_BOW_AMMO_KEY);
         }
 
         @SubscribeEvent
         public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
             event.register((stack, tintIndex) -> tintIndex == 0 ? 0x932423 : 0xFFFFFFFF,
                     ModItems.DYNASTY_PRESSURE_POTION.get());
+            event.register((stack, tintIndex) -> stack.hasTag()
+                            && stack.getTag().getBoolean(ModItems.FISSION_WRAITH_HEART_RITUAL_ACTIVE)
+                            ? 0x3A123F
+                            : 0xFFFFFF,
+                    ModItems.FISSION_WRAITH_HEART.get());
         }
     }
 }

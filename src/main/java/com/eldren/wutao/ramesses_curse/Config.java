@@ -89,7 +89,7 @@ public class Config {
                 .defineInRange("curse2SpawnChance", 0.15D, 0.0D, 1.0D);
 
         CURSE_2_LUCK_PENALTY = BUILDER
-                .comment("[诅咒二] 佩戴卡迭石咒印时减少的幸运值。")
+                .comment("[诅咒二] 每累计佩戴 5 分钟减少的幸运值。")
                 .defineInRange("curse2LuckPenalty", 2.0D, 0.0D, 1024.0D);
 
         CURSE_2_SPAWN_RADIUS = BUILDER
@@ -104,8 +104,8 @@ public class Config {
                         Config::validateEntityTypeName);
 
         CURSE_2_REVERSED_LUCK_BONUS = BUILDER
-                .comment("[诅咒二-反转] 反转后持续给予玩家的幸运值加成。")
-                .defineInRange("curse2ReversedLuckBonus", 10.0D, 0.0D, 1024.0D);
+                .comment("[诅咒二-反转] 返还既有幸运损失后，每继续佩戴 5 分钟增加的幸运值。")
+                .defineInRange("curse2ReversedLuckPerFiveMinutes", 2.0D, 0.0D, 1024.0D);
 
         CURSE_2_REVERSED_SPAWN_INTERVAL = BUILDER
                 .comment("[诅咒二-反转] 王权奴仆召唤检测间隔，单位为 tick。12000 tick = 10 分钟。")
@@ -151,6 +151,9 @@ public class Config {
         CURSE_5_MAX_GUILT = BUILDER
                 .comment("[诅咒五] 王罪最大值。达到后会触发处决、雷暴、雷击与背包封印。")
                 .defineInRange("curse5MaxGuilt", 399, 1, 100000);
+        CURSE_5_MERCY_MAX = BUILDER
+                .comment("[诅咒五-反转] 接受反转后，慈悲值达到该数值即可储存一次逆转死亡。范围：299-99999。")
+                .defineInRange("curse5MercyMax", 1299, 299, 99999);
         CURSE_5_PURIFICATION_AMOUNT = BUILDER
                 .comment("[诅咒五] 每张净化卷轴可消除的王罪值。")
                 .defineInRange("curse5PurificationAmount", 50, 1, 100000);
@@ -162,6 +165,13 @@ public class Config {
         CURSE_5_LOCK_DURATION = BUILDER
                 .comment("[诅咒五] 王罪满值后背包被封印的持续时间，单位为 tick。1200 tick = 1 分钟。")
                 .defineInRange("curse5LockDuration", 1200, 20, 72000);
+
+        CURSE_5_INNOCENT_ENTITY_WHITELIST = BUILDER
+                .comment("[诅咒五] 杀死后会增加王罪值的额外实体 ID 白名单，支持其他模组生物。白名单优先于原版中立生物分类判定。")
+                .defineListAllowEmpty(
+                        "curse5InnocentEntityWhitelist",
+                        List.<String>of(),
+                        Config::validateEntityTypeName);
         BUILDER.pop();
 
         BUILDER.push("诅咒六");
@@ -187,15 +197,19 @@ public class Config {
         BUILDER.pop();
 
         BUILDER.push("诅咒七");
-        END_WEAKNESS_AMPLIFIER = BUILDER
-                .comment("[诅咒七] 玩家位于末地时获得的虚弱效果等级。0 表示虚弱 I。")
-                .defineInRange("endWeaknessAmplifier", 0, 0, 10);
+        CURSE_7_LOOT_SUPPRESSION_CHANCE = BUILDER
+                .comment("[诅咒七] 踏足末地并留下印记后，玩家击杀实体时不产生任何战利品的概率。0.05 表示 5%。")
+                .defineInRange("curse7LootSuppressionChance", 0.05D, 0.0D, 1.0D);
         BUILDER.pop();
 
         BUILDER.push("诅咒八");
         HELL_REBOUND_CHANCE = BUILDER
                 .comment("[诅咒八] 诅咒八在下界生效后，攻击怪物时触发反伤或反转助攻的概率。")
                 .defineInRange("hellReboundChance", 0.25D, 0.0D, 1.0D);
+
+        HELL_REBOUND_COOLDOWN = BUILDER
+                .comment("[诅咒八] 反伤或反转助攻成功触发后的冷却时间，单位为 tick。默认 60 tick = 3 秒。")
+                .defineInRange("hellReboundCooldown", 60, 0, 72000);
 
         HELL_REBOUND_DAMAGE_MULTIPLIER = BUILDER
                 .comment("[诅咒八] 未反转时玩家承受反伤的倍率。1.25 表示造成伤害的 125%。")
@@ -333,13 +347,9 @@ public class Config {
                 .comment("[通用] 王朝护盾每个等级对应的最大护盾值。")
                 .defineList("dynastyShieldMaxValues", List.of(120, 160, 220, 300, 400), Config::validatePositiveInteger);
 
-        DYNASTY_SHIELD_AUTO_LEVEL_BY_STATS = BUILDER
-                .comment("[通用] 为 true 时，敌对生物按最大生命值、护甲值、护甲韧性自动分配王胄等级；为 false 时使用 dynastyShieldDefaultLevel。")
-                .define("dynastyShieldAutoLevelByStats", true);
-
-        DYNASTY_SHIELD_DEFAULT_LEVEL = BUILDER
-                .comment("[通用] 新套盾敌对生物的默认王朝护盾等级。也可以通过指令覆盖单个实体。")
-                .defineInRange("dynastyShieldDefaultLevel", 3, 1, 100000);
+        DYNASTY_SHIELD_THREAT_THRESHOLDS = BUILDER
+                .comment("[通用] 每个王胄等级所需的最低有效王朝威胁值。需要与 dynastyShieldLevels 一一对应。")
+                .defineList("dynastyShieldThreatThresholds", List.of(0, 1000, 2500, 4500, 7000), Config::validateNonNegativeInteger);
 
         START_WITH_SEAL = BUILDER
                 .comment("[通用] 为 true 时，新玩家开局获得卡迭石咒印。")
@@ -409,16 +419,19 @@ public class Config {
     public static final ForgeConfigSpec.DoubleValue CURSE_3_ANVIL_COST_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue CURSE_4_TRADE_SURCHARGE;
     public static final ForgeConfigSpec.IntValue CURSE_5_MAX_GUILT;
+    public static final ForgeConfigSpec.IntValue CURSE_5_MERCY_MAX;
     public static final ForgeConfigSpec.IntValue CURSE_5_PURIFICATION_AMOUNT;
     public static final ForgeConfigSpec.IntValue CURSE_5_LIGHTNING_STRIKES;
     public static final ForgeConfigSpec.IntValue CURSE_5_LOCK_DURATION;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_5_INNOCENT_ENTITY_WHITELIST;
     public static final ForgeConfigSpec.IntValue MAIN_HAND_LOCK_DELAY;
     public static final ForgeConfigSpec.IntValue MAIN_HAND_LOCK_DURATION;
     public static final ForgeConfigSpec.IntValue INVENTORY_LOCK_INTERVAL;
     public static final ForgeConfigSpec.IntValue INVENTORY_LOCK_DURATION;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_6_VOID_OFFERINGS;
-    public static final ForgeConfigSpec.IntValue END_WEAKNESS_AMPLIFIER;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_LOOT_SUPPRESSION_CHANCE;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_CHANCE;
+    public static final ForgeConfigSpec.IntValue HELL_REBOUND_COOLDOWN;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_DAMAGE_MULTIPLIER;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_FLAT_DAMAGE;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_DAMAGE_CAP;
@@ -453,8 +466,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue DYNASTY_SHIELD_ENABLED;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_LEVELS;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_MAX_VALUES;
-    public static final ForgeConfigSpec.BooleanValue DYNASTY_SHIELD_AUTO_LEVEL_BY_STATS;
-    public static final ForgeConfigSpec.IntValue DYNASTY_SHIELD_DEFAULT_LEVEL;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_THREAT_THRESHOLDS;
     public static final ForgeConfigSpec.ConfigValue<String> NECKLACE_EFFECT_ID;
     public static final ForgeConfigSpec.IntValue NECKLACE_STACK_TIMEOUT;
     public static final ForgeConfigSpec.IntValue NECKLACE_MAX_STACKS;
@@ -500,6 +512,10 @@ public class Config {
         return obj instanceof Integer value && value > 0;
     }
 
+    private static boolean validateNonNegativeInteger(final Object obj) {
+        return obj instanceof Integer value && value >= 0;
+    }
+
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
     }
@@ -541,6 +557,17 @@ public class Config {
         }
         return CURSE_8_BOSS_WHITELIST.get().stream()
                 .map(ResourceLocation::new)
+                .anyMatch(entityId::equals);
+    }
+
+    public static boolean isCurseFiveInnocentEntity(EntityType<?> entityType) {
+        ResourceLocation entityId = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
+        if (entityId == null) {
+            return false;
+        }
+        return CURSE_5_INNOCENT_ENTITY_WHITELIST.get().stream()
+                .map(ResourceLocation::tryParse)
+                .filter(java.util.Objects::nonNull)
                 .anyMatch(entityId::equals);
     }
 

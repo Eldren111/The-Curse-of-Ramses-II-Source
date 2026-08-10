@@ -2,6 +2,7 @@ package com.eldren.wutao.ramesses_curse;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -33,6 +34,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.RecordItem;
@@ -59,6 +63,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.SlotResult;
@@ -69,10 +74,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import vazkii.patchouli.api.PatchouliAPI;
 
 public class ModItems {
+
+    public static final String FISSION_WRAITH_HEART_RITUAL_ACTIVE = "RamessesCurseFissionHeartRitualActive";
+    public static final String FISSION_WRAITH_HEART_OWNER = "RamessesCurseFissionHeartOwner";
+    public static final String FISSION_WRAITH_HEART_OWNER_NAME = "RamessesCurseFissionHeartOwnerName";
+    public static final String CHANCE_DIE_HEALTH_DAMAGE_UNTIL = "RamessesChanceDieHealthDamageUntil";
+    public static final String CHANCE_DIE_FALL_IMMUNITY = "RamessesChanceDieFallImmunity";
+    public static final String CHANCE_DIE_UNDYING_CHARGES = "RamessesChanceDieUndyingCharges";
+    public static final String CHANCE_DIE_DODGE = "RamessesChanceDieDodge";
+    public static final String CHANCE_DIE_TRUE_DAMAGE_UNTIL = "RamessesChanceDieTrueDamageUntil";
+    private static final UUID CHANCE_DIE_ATTACK_SPEED_MODIFIER_ID =
+            UUID.fromString("8f13d5b1-74a8-44e8-92d5-9e0e2b71437d");
 
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, RamessesCurseMod.MODID);
@@ -91,6 +109,38 @@ public class ModItems {
             ITEMS.register("eternal_silence_granule", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
     public static final RegistryObject<Item> ETERNAL_SILENCE_INGOT =
             ITEMS.register("eternal_silence_ingot", GoldenNamedItem::new);
+    public static final RegistryObject<Item> CALMING_TIBIA =
+            ITEMS.register("calming_tibia", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> PITCHFIRE_CRYSTAL =
+            ITEMS.register("pitchfire_crystal", PitchfireCrystal::new);
+    public static final RegistryObject<Item> HEART_DEVOURING_REMNANT =
+            ITEMS.register("heart_devouring_remnant", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> RAVENOUS_CLAW_FRAGMENT =
+            ITEMS.register("ravenous_claw_fragment", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> FAMINE_CORE =
+            ITEMS.register("famine_core", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> VENOM_ORB =
+            ITEMS.register("venom_orb", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> KA_REMNANT_BREATH =
+            ITEMS.register("ka_remnant_breath", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> LIFE_BINDING_REMNANT_CRYSTAL =
+            ITEMS.register("life_binding_remnant_crystal", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> AUTHORITY_FRAGMENT =
+            ITEMS.register("authority_fragment", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> TRUTH =
+            ITEMS.register("truth", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> REVERSE_SCALE =
+            ITEMS.register("reverse_scale", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> FISSION_WRAITH_HEART =
+            ITEMS.register("fission_wraith_heart", FissionWraithHeart::new);
+    public static final RegistryObject<Item> ETERNAL_SILENCE_COMPOUND_BOW =
+            ITEMS.register("eternal_silence_compound_bow", EternalSilenceCompoundBow::new);
+    public static final RegistryObject<Item> DRAGON_BREATH_COMPOUND_BOW =
+            ITEMS.register("dragon_breath_compound_bow", DragonBreathCompoundBow::new);
+    public static final RegistryObject<Item> CHANCE_DIE_SIX_SIDED =
+            ITEMS.register("chance_die_six_sided", ChanceDieSixSided::new);
+    public static final RegistryObject<Item> CHANCE_DIE_LARGE =
+            ITEMS.register("chance_die_large", ChanceDieLarge::new);
     public static final RegistryObject<Item> ETERNAL_SILENCE_TOTEM =
             ITEMS.register("eternal_silence_totem", EternalSilenceTotem::new);
     public static final RegistryObject<Item> ETERNAL_SILENCE_REBIRTH_TOTEM =
@@ -138,6 +188,7 @@ public class ModItems {
     public static final RegistryObject<Item> INSCRIPTION_BAG =
             ITEMS.register("inscription_bag", InscriptionBagItem::new);
     public static final List<RegistryObject<Item>> INSCRIPTION_FRAGMENTS = registerInscriptionFragments();
+    public static final Map<String, RegistryObject<Item>> AFFIX_KNOWLEDGE_BOOKS = registerAffixKnowledgeBooks();
 
     private static List<RegistryObject<Item>> registerInscriptionFragments() {
         List<RegistryObject<Item>> fragments = new ArrayList<>(26);
@@ -148,6 +199,16 @@ public class ModItems {
                     () -> new InscriptionFragmentItem(new Item.Properties(), fragmentIndex)));
         }
         return List.copyOf(fragments);
+    }
+
+    private static Map<String, RegistryObject<Item>> registerAffixKnowledgeBooks() {
+        Map<String, RegistryObject<Item>> books = new LinkedHashMap<>();
+        for (String affixId : DynastyAffixData.KNOWN_AFFIXES) {
+            books.put(affixId, ITEMS.register(
+                    "dynasty_knowledge_" + affixId,
+                    () -> new AffixKnowledgeBookItem(affixId)));
+        }
+        return Map.copyOf(books);
     }
 
     public static int getHeartOfDuatCooldownTicks(Player player) {
@@ -162,6 +223,541 @@ public class ModItems {
         @Override
         public Component getName(ItemStack stack) {
             return super.getName(stack).copy().withStyle(ChatFormatting.GOLD);
+        }
+    }
+
+    public static class ChanceDieSixSided extends Item {
+        private static final int[] OUTCOME_WEIGHTS = {195, 195, 117, 181, 234, 78};
+        private static final int TOTAL_WEIGHT = 1000;
+        private static final int ONE_MINUTE_TICKS = 60 * 20;
+        private static final int ROLL_TICKS = 70;
+        private static final String PENDING_OUTCOME_KEY = "RamessesChanceDiePendingOutcome";
+        private static final String PENDING_RESOLVE_AT_KEY = "RamessesChanceDieResolveAt";
+
+        public ChanceDieSixSided() {
+            super(new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
+        }
+
+        @Override
+        public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+            ItemStack stack = player.getItemInHand(hand);
+            if (!level.isClientSide) {
+                if (player.getPersistentData().getInt(PENDING_OUTCOME_KEY) > 0) {
+                    return InteractionResultHolder.fail(stack);
+                }
+                int outcome = rollOutcome(player);
+                queueOutcome(player, outcome);
+                level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP,
+                        SoundSource.PLAYERS, 0.8F, 1.0F);
+                player.awardStat(Stats.ITEM_USED.get(this));
+                stack.shrink(1);
+            }
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable(
+                    "item.ramesses_curse.chance_die_six_sided.hint_shift",
+                    Component.literal("Shift").withStyle(ChatFormatting.GOLD))
+                    .withStyle(ChatFormatting.GRAY));
+            if (Screen.hasShiftDown()) {
+                tooltip.add(Component.empty());
+                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.desc").withStyle(ChatFormatting.GRAY));
+                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_1").withStyle(ChatFormatting.YELLOW));
+                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_2").withStyle(ChatFormatting.YELLOW));
+                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_3").withStyle(ChatFormatting.YELLOW));
+                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_4").withStyle(ChatFormatting.YELLOW));
+                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_5").withStyle(ChatFormatting.YELLOW));
+                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_6").withStyle(ChatFormatting.YELLOW));
+            }
+        }
+
+        static int rollOutcome(Player player) {
+            int roll = player.getRandom().nextInt(TOTAL_WEIGHT);
+            int cumulative = 0;
+            for (int index = 0; index < OUTCOME_WEIGHTS.length; index++) {
+                cumulative += OUTCOME_WEIGHTS[index];
+                if (roll < cumulative) {
+                    return index + 1;
+                }
+            }
+            return OUTCOME_WEIGHTS.length;
+        }
+
+        private static void applyOutcome(Player player, int outcome) {
+            CompoundTag data = player.getPersistentData();
+            long until = player.level().getGameTime() + ONE_MINUTE_TICKS;
+            switch (outcome) {
+                case 1 -> {
+                    data.putBoolean("RamessesChanceDieAttackSpeed", true);
+                    applyAttackSpeedModifier(player);
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.chance_die.outcome_1"), true);
+                }
+                case 2 -> {
+                    data.putLong(CHANCE_DIE_HEALTH_DAMAGE_UNTIL, until);
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.chance_die.outcome_2"), true);
+                }
+                case 3 -> {
+                    data.putBoolean(CHANCE_DIE_FALL_IMMUNITY, true);
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.chance_die.outcome_3"), true);
+                }
+                case 4 -> {
+                    data.putInt(CHANCE_DIE_UNDYING_CHARGES, data.getInt(CHANCE_DIE_UNDYING_CHARGES) + 1);
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.chance_die.outcome_4"), true);
+                }
+                case 5 -> {
+                    data.putBoolean(CHANCE_DIE_DODGE, true);
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.chance_die.outcome_5"), true);
+                }
+                case 6 -> {
+                    if (data.getLong(CHANCE_DIE_TRUE_DAMAGE_UNTIL) <= player.level().getGameTime()) {
+                        data.putLong(CHANCE_DIE_TRUE_DAMAGE_UNTIL, until);
+                    }
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.chance_die.outcome_6"), true);
+                }
+                default -> {
+                }
+            }
+        }
+
+        private static void queueOutcome(Player player, int outcome) {
+            CompoundTag data = player.getPersistentData();
+            data.putInt(PENDING_OUTCOME_KEY, outcome);
+            data.putLong(PENDING_RESOLVE_AT_KEY, player.level().getGameTime() + ROLL_TICKS);
+            if (player instanceof ServerPlayer serverPlayer) {
+                ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer),
+                        new ChanceDieRollPacket(outcome));
+            }
+        }
+
+        public static boolean hasHealthDamage(Player player) {
+            return player.getPersistentData().getLong(CHANCE_DIE_HEALTH_DAMAGE_UNTIL) > player.level().getGameTime();
+        }
+        public static boolean hasAttackSpeed(Player player) {
+            return player.getPersistentData().getBoolean("RamessesChanceDieAttackSpeed");
+        }
+        public static boolean hasFallImmunity(Player player) {
+            return player.getPersistentData().getBoolean(CHANCE_DIE_FALL_IMMUNITY);
+        }
+        public static boolean hasDodge(Player player) {
+            return player.getPersistentData().getBoolean(CHANCE_DIE_DODGE);
+        }
+        public static boolean hasTrueDamage(Player player) {
+            return player.getPersistentData().getLong(CHANCE_DIE_TRUE_DAMAGE_UNTIL) > player.level().getGameTime();
+        }
+        public static int getUndyingCharges(Player player) {
+            return Math.max(0, player.getPersistentData().getInt(CHANCE_DIE_UNDYING_CHARGES));
+        }
+        public static int getHealthDamageRemainingSeconds(Player player) {
+            return remainingSeconds(player, CHANCE_DIE_HEALTH_DAMAGE_UNTIL);
+        }
+        public static int getTrueDamageRemainingSeconds(Player player) {
+            return remainingSeconds(player, CHANCE_DIE_TRUE_DAMAGE_UNTIL);
+        }
+        private static int remainingSeconds(Player player, String key) {
+            long remaining = player.getPersistentData().getLong(key) - player.level().getGameTime();
+            return remaining <= 0L ? 0 : Mth.ceil(remaining / 20.0F);
+        }
+        public static boolean tryRevive(ServerPlayer player) {
+            CompoundTag data = player.getPersistentData();
+            int charges = data.getInt(CHANCE_DIE_UNDYING_CHARGES);
+            if (charges <= 0) {
+                return false;
+            }
+            data.putInt(CHANCE_DIE_UNDYING_CHARGES, charges - 1);
+            player.setHealth(1.0F);
+            player.removeAllEffects();
+            player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 45 * 20, 1));
+            player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 5 * 20, 1));
+            player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 40 * 20, 0));
+            player.level().broadcastEntityEvent(player, (byte) 35);
+            return true;
+        }
+        public static void tick(Player player) {
+            if (player.getPersistentData().getBoolean("RamessesChanceDieAttackSpeed")) {
+                applyAttackSpeedModifier(player);
+            }
+            if (player instanceof ServerPlayer) {
+                CompoundTag data = player.getPersistentData();
+                int outcome = data.getInt(PENDING_OUTCOME_KEY);
+                if (outcome > 0 && player.level().getGameTime() >= data.getLong(PENDING_RESOLVE_AT_KEY)) {
+                    data.remove(PENDING_OUTCOME_KEY);
+                    data.remove(PENDING_RESOLVE_AT_KEY);
+                    applyOutcome(player, outcome);
+                    player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP,
+                            SoundSource.PLAYERS, 0.75F, 0.85F + outcome * 0.07F);
+                }
+            }
+            ChanceDieLarge.tick(player);
+            if (player instanceof ServerPlayer serverPlayer
+                    && serverPlayer.level().getGameTime() % 20L == 0L) {
+                syncState(serverPlayer);
+            }
+        }
+        private static void syncState(ServerPlayer player) {
+            ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                    new ChanceDieStateSyncPacket(
+                            hasAttackSpeed(player),
+                            hasFallImmunity(player),
+                            hasDodge(player),
+                            getUndyingCharges(player),
+                            getHealthDamageRemainingSeconds(player),
+                            getTrueDamageRemainingSeconds(player)));
+        }
+        private static void applyAttackSpeedModifier(Player player) {
+            AttributeInstance instance = player.getAttribute(Attributes.ATTACK_SPEED);
+            if (instance != null && instance.getModifier(CHANCE_DIE_ATTACK_SPEED_MODIFIER_ID) == null) {
+                instance.addTransientModifier(new AttributeModifier(CHANCE_DIE_ATTACK_SPEED_MODIFIER_ID,
+                        "chance_die_attack_speed", 0.50D, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            }
+        }
+    }
+
+    public static class ChanceDieLarge extends Item {
+        private static final int SERVER_UNLOCK_TICKS = 165;
+        private static final String PENDING_PREFIX = "RamessesChanceDieLargeOutcome";
+        private static final String CHOSEN_MASK = "RamessesChanceDieLargeChosenMask";
+        private static final String RESOLVE_AT = "RamessesChanceDieLargeResolveAt";
+
+        public ChanceDieLarge() {
+            super(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+        }
+
+        @Override
+        public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+            ItemStack stack = player.getItemInHand(hand);
+            if (!level.isClientSide) {
+                CompoundTag data = player.getPersistentData();
+                if (isPending(player)) {
+                    data.putLong(RESOLVE_AT, level.getGameTime() + SERVER_UNLOCK_TICKS);
+                    if (player instanceof ServerPlayer serverPlayer) {
+                        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer),
+                                new ChanceDieLargeRollPacket(getPendingOutcomes(player)));
+                    }
+                    return InteractionResultHolder.sidedSuccess(stack, false);
+                }
+                for (int index = 0; index < 6; index++) {
+                    data.putInt(PENDING_PREFIX + index, ChanceDieSixSided.rollOutcome(player));
+                }
+                data.putInt(CHOSEN_MASK, 0);
+                data.putLong(RESOLVE_AT, level.getGameTime() + SERVER_UNLOCK_TICKS);
+                if (player instanceof ServerPlayer serverPlayer) {
+                    ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer),
+                            new ChanceDieLargeRollPacket(getPendingOutcomes(player)));
+                }
+                level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP,
+                        SoundSource.PLAYERS, 1.0F, 0.75F);
+                player.awardStat(Stats.ITEM_USED.get(this));
+                stack.shrink(1);
+            }
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.chance_die_large.desc")
+                    .withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("item.ramesses_curse.chance_die_large.hint_shift",
+                    Component.literal("Shift").withStyle(ChatFormatting.GOLD))
+                    .withStyle(ChatFormatting.GRAY));
+            if (Screen.hasShiftDown()) {
+                for (int index = 1; index <= 6; index++) {
+                    tooltip.add(Component.translatable(
+                            "item.ramesses_curse.chance_die_six_sided.outcome_" + index)
+                            .withStyle(ChatFormatting.YELLOW));
+                }
+            }
+        }
+
+        private static int[] getPendingOutcomes(Player player) {
+            CompoundTag data = player.getPersistentData();
+            int[] outcomes = new int[6];
+            for (int index = 0; index < outcomes.length; index++) {
+                outcomes[index] = data.getInt(PENDING_PREFIX + index);
+            }
+            return outcomes;
+        }
+
+        private static boolean isPending(Player player) {
+            CompoundTag data = player.getPersistentData();
+            return data.getLong(RESOLVE_AT) > 0L && data.getInt(CHOSEN_MASK) != 63;
+        }
+
+        public static void choose(ServerPlayer player, int index, boolean accept) {
+            if (index < 0 || index >= 6 || !isPending(player)) {
+                return;
+            }
+            CompoundTag data = player.getPersistentData();
+            if (player.level().getGameTime() < data.getLong(RESOLVE_AT)) {
+                return;
+            }
+            int bit = 1 << index;
+            int chosenMask = data.getInt(CHOSEN_MASK);
+            if ((chosenMask & bit) != 0) {
+                return;
+            }
+            if (accept) {
+                ChanceDieSixSided.applyOutcome(player, data.getInt(PENDING_PREFIX + index));
+            }
+            data.putInt(CHOSEN_MASK, chosenMask | bit);
+            if ((chosenMask | bit) == 63) {
+                clearPending(data);
+            }
+        }
+
+        public static void cancel(ServerPlayer player) {
+            if (isPending(player)) {
+                clearPending(player.getPersistentData());
+            }
+        }
+
+        public static void tick(Player player) {
+            if (!(player instanceof ServerPlayer)) {
+                return;
+            }
+            CompoundTag data = player.getPersistentData();
+            if (isPending(player) && player.level().getGameTime() >= data.getLong(RESOLVE_AT)) {
+                data.putBoolean("RamessesChanceDieLargeReady", true);
+            }
+        }
+
+        private static void clearPending(CompoundTag data) {
+            for (int index = 0; index < 6; index++) {
+                data.remove(PENDING_PREFIX + index);
+            }
+            data.remove(CHOSEN_MASK);
+            data.remove(RESOLVE_AT);
+            data.remove("RamessesChanceDieLargeReady");
+        }
+    }
+
+    public static class FissionWraithHeart extends Item {
+        public FissionWraithHeart() {
+            super(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+        }
+
+        @Override
+        public boolean isFoil(ItemStack stack) {
+            return stack.hasTag() && stack.getTag().getBoolean(FISSION_WRAITH_HEART_RITUAL_ACTIVE);
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            String ownerName = Component.translatable("item.ramesses_curse.fission_wraith_heart.unbound").getString();
+            if (stack.hasTag() && stack.getTag().contains(FISSION_WRAITH_HEART_OWNER_NAME, net.minecraft.nbt.Tag.TAG_STRING)) {
+                ownerName = stack.getTag().getString(FISSION_WRAITH_HEART_OWNER_NAME);
+            }
+            tooltip.add(Component.translatable(
+                    "item.ramesses_curse.fission_wraith_heart.owner",
+                    Component.literal(ownerName).withStyle(ChatFormatting.DARK_PURPLE))
+                    .withStyle(ChatFormatting.GRAY));
+        }
+    }
+
+    public static class EternalSilenceCompoundBow extends BowItem {
+        private static final String SPECIAL_PROJECTILE = "RamessesEternalSilenceBowProjectile";
+
+        public EternalSilenceCompoundBow() {
+            // durability() already forces a single-item stack in Minecraft 1.20.1.
+            super(new Item.Properties().durability(2400).rarity(Rarity.EPIC));
+        }
+
+        @Override
+        public ItemStack getDefaultInstance() {
+            ItemStack stack = super.getDefaultInstance();
+            addDefaultEnchantments(stack);
+            return stack;
+        }
+
+        @Override
+        public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+            ItemStack stack = player.getItemInHand(hand);
+            addDefaultEnchantments(stack);
+            InteractionResultHolder<ItemStack> result = super.use(level, player, hand);
+            return result;
+        }
+
+        @Override
+        public @Nullable net.minecraftforge.common.capabilities.ICapabilityProvider initCapabilities(
+                ItemStack stack, @Nullable CompoundTag nbt) {
+            return new CompoundBowAmmoCapabilityProvider(stack, nbt);
+        }
+
+        @Override
+        public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeLeft) {
+            if (level.isClientSide || !(livingEntity instanceof ServerPlayer player)) {
+                return;
+            }
+            int usedTicks = getUseDuration(stack) - timeLeft;
+            float power = BowItem.getPowerForTime(usedTicks);
+            if (power < 0.1F) {
+                return;
+            }
+            ItemStack selectedAmmo = CompoundBowAmmoCapabilityProvider.getSelectedAmmo(stack);
+            if (!selectedAmmo.isEmpty()) {
+                if (!player.getAbilities().instabuild
+                        && !CompoundBowAmmoCapabilityProvider.consumeMatchingInventoryItem(player, selectedAmmo)) {
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.compound_bow_ammo_missing")
+                            .withStyle(ChatFormatting.RED), true);
+                    return;
+                }
+                fireSelectedAmmo(level, player, stack, selectedAmmo, power);
+                stack.hurtAndBreak(1, player, broken -> player.broadcastBreakEvent(player.getUsedItemHand()));
+                player.awardStat(Stats.ITEM_USED.get(this));
+                level.playSound(null, player.blockPosition(), SoundEvents.ARROW_SHOOT,
+                        SoundSource.PLAYERS, 0.9F, 1.05F);
+                return;
+            }
+            ItemStack projectileStack = player.getProjectile(stack);
+            if (projectileStack.isEmpty() || !(projectileStack.getItem() instanceof ArrowItem arrowItem)) {
+                return;
+            }
+            net.minecraft.world.entity.projectile.AbstractArrow arrow = arrowItem.createArrow(level, projectileStack, player);
+            arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, power * 3.0F, 1.0F);
+            int powerLevel = stack.getEnchantmentLevel(Enchantments.POWER_ARROWS);
+            if (powerLevel > 0) {
+                arrow.setBaseDamage(arrow.getBaseDamage() + powerLevel * 0.5D + 0.5D);
+            }
+            arrow.getPersistentData().putBoolean(SPECIAL_PROJECTILE, true);
+            arrow.pickup = net.minecraft.world.entity.projectile.AbstractArrow.Pickup.ALLOWED;
+            level.addFreshEntity(arrow);
+            if (!player.getAbilities().instabuild && stack.getEnchantmentLevel(Enchantments.INFINITY_ARROWS) <= 0) {
+                projectileStack.shrink(1);
+            }
+            stack.hurtAndBreak(1, player, broken -> player.broadcastBreakEvent(player.getUsedItemHand()));
+            player.awardStat(Stats.ITEM_USED.get(this));
+            level.playSound(null, player.blockPosition(), SoundEvents.ARROW_SHOOT,
+                    SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+
+        private static void fireSelectedAmmo(
+                Level level, ServerPlayer player, ItemStack bow, ItemStack ammo, float power) {
+            Vec3 origin = player.getEyePosition().add(player.getLookAngle().scale(1.1D));
+            Vec3 forward = player.getLookAngle().normalize();
+            Vec3 side = forward.cross(player.getUpVector(1.0F)).normalize();
+            if (side.lengthSqr() < 0.0001D) {
+                side = new Vec3(1.0D, 0.0D, 0.0D);
+            }
+
+            for (int index = -1; index <= 1; index++) {
+                Vec3 direction = forward.add(side.scale(index * 0.10D)).normalize();
+                fireAmmoProjectile(level, player, bow, ammo, origin, direction, power);
+            }
+        }
+
+        private static void fireAmmoProjectile(
+                Level level,
+                ServerPlayer player,
+                ItemStack bow,
+                ItemStack ammo,
+                Vec3 origin,
+                Vec3 direction,
+                float power) {
+            if (ammo.getItem() instanceof ArrowItem arrowItem) {
+                net.minecraft.world.entity.projectile.AbstractArrow arrow =
+                        arrowItem.createArrow(level, ammo.copyWithCount(1), player);
+                arrow.setPos(origin.x, origin.y, origin.z);
+                arrow.shoot(direction.x, direction.y, direction.z, power * 3.0F, 1.0F);
+                int powerLevel = bow.getEnchantmentLevel(Enchantments.POWER_ARROWS);
+                if (powerLevel > 0) {
+                    arrow.setBaseDamage(arrow.getBaseDamage() + powerLevel * 0.5D + 0.5D);
+                }
+                arrow.getPersistentData().putBoolean(SPECIAL_PROJECTILE, true);
+                arrow.pickup = net.minecraft.world.entity.projectile.AbstractArrow.Pickup.ALLOWED;
+                level.addFreshEntity(arrow);
+                return;
+            }
+
+            if (ammo.is(Items.DRAGON_BREATH)) {
+                net.minecraft.world.entity.projectile.DragonFireball fireball =
+                        new net.minecraft.world.entity.projectile.DragonFireball(
+                                level, player, direction.x * 0.12D, direction.y * 0.12D, direction.z * 0.12D);
+                fireball.setPos(origin.x, origin.y, origin.z);
+                level.addFreshEntity(fireball);
+                return;
+            }
+
+            if (ammo.is(Items.FIRE_CHARGE)) {
+                net.minecraft.world.entity.projectile.SmallFireball fireball =
+                        new net.minecraft.world.entity.projectile.SmallFireball(
+                                level, player, direction.x * 0.12D, direction.y * 0.12D, direction.z * 0.12D);
+                fireball.setPos(origin.x, origin.y, origin.z);
+                level.addFreshEntity(fireball);
+                return;
+            }
+
+            if (ammo.is(Items.FIREWORK_ROCKET)) {
+                net.minecraft.world.entity.projectile.FireworkRocketEntity rocket =
+                        new net.minecraft.world.entity.projectile.FireworkRocketEntity(
+                                level, ammo.copyWithCount(1), origin.x, origin.y, origin.z, false);
+                rocket.setOwner(player);
+                rocket.shoot(direction.x, direction.y, direction.z, Math.max(1.0F, power * 2.0F), 1.0F);
+                level.addFreshEntity(rocket);
+                return;
+            }
+
+            if (ammo.getItem() instanceof net.minecraft.world.item.PotionItem) {
+                net.minecraft.world.entity.projectile.ThrownPotion potion =
+                        new net.minecraft.world.entity.projectile.ThrownPotion(level, player);
+                potion.setItem(ammo.copyWithCount(1));
+                potion.setPos(origin.x, origin.y, origin.z);
+                potion.shoot(direction.x, direction.y, direction.z, Math.max(1.0F, power * 2.0F), 1.0F);
+                level.addFreshEntity(potion);
+                return;
+            }
+
+            net.minecraft.world.entity.projectile.Snowball thrownItem =
+                    new net.minecraft.world.entity.projectile.Snowball(level, player);
+            thrownItem.setItem(ammo.copyWithCount(1));
+            thrownItem.setPos(origin.x, origin.y, origin.z);
+            thrownItem.shoot(direction.x, direction.y, direction.z, Math.max(1.0F, power * 2.0F), 1.0F);
+            level.addFreshEntity(thrownItem);
+        }
+
+        public static boolean isCompoundBow(ItemStack stack) {
+            return stack.getItem() instanceof EternalSilenceCompoundBow;
+        }
+
+        public static boolean isSpecialProjectile(Entity entity) {
+            return entity != null && entity.getPersistentData().getBoolean(SPECIAL_PROJECTILE);
+        }
+
+        @Override
+        public boolean isFoil(ItemStack stack) {
+            return true;
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.desc")
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.ammo_selector")
+                    .withStyle(ChatFormatting.GOLD));
+        }
+
+        private static void addDefaultEnchantments(ItemStack stack) {
+            if (stack.getEnchantmentLevel(Enchantments.INFINITY_ARROWS) < 1) {
+                stack.enchant(Enchantments.INFINITY_ARROWS, 1);
+            }
+            if (stack.getEnchantmentLevel(Enchantments.POWER_ARROWS) < 3) {
+                stack.enchant(Enchantments.POWER_ARROWS, 3);
+            }
+        }
+
+    }
+
+    public static class DragonBreathCompoundBow extends EternalSilenceCompoundBow {
+        public DragonBreathCompoundBow() {
+            super();
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.desc")
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.ammo_selector")
+                    .withStyle(ChatFormatting.GOLD));
         }
     }
 
@@ -575,6 +1171,7 @@ public class ModItems {
 
     public static class SealOfKadesh extends Item implements ICurioItem {
         private static final UUID CURSE_2_LUCK_MODIFIER_ID = UUID.fromString("d5b8dc2a-6541-46b2-8d8a-f642f6f40b91");
+        private static final UUID MAX_HEALTH_MODIFIER_ID = UUID.fromString("8f31df78-92c9-4f0d-9b3f-2a7e7d8a4a16");
 
         public SealOfKadesh() {
             super(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
@@ -593,6 +1190,21 @@ public class ModItems {
             LivingEntity wearer = slotContext.entity();
             return wearer instanceof Player player
                     && (player.getAbilities().instabuild || ModEvents.areAllSealCursesReversed(player));
+        }
+
+        @Override
+        public Multimap<Attribute, AttributeModifier> getAttributeModifiers(
+                SlotContext slotContext, UUID uuid, ItemStack stack) {
+            if (!RamessesCurseMod.CURSE_SLOT_ID.equals(slotContext.identifier())) {
+                return ImmutableMultimap.of();
+            }
+            return ImmutableMultimap.of(
+                    Attributes.MAX_HEALTH,
+                    new AttributeModifier(
+                            MAX_HEALTH_MODIFIER_ID,
+                            "seal_of_kadesh_max_health",
+                            -5.0D,
+                            AttributeModifier.Operation.ADDITION));
         }
 
         @Override
@@ -623,11 +1235,32 @@ public class ModItems {
             tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_shift"));
             tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_ctrl"));
             tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_alt"));
+            tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_tab"));
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.player != null) {
                 tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.dynasty_threat",
                         Component.literal(Integer.toString(ModEvents.ClientOverlayEvents.getClientDynastyThreat())).withStyle(ChatFormatting.RED))
                         .withStyle(ChatFormatting.GOLD));
+                if (ModEvents.ClientOverlayEvents.isClientSealEquipped()) {
+                    MutableComponent wearerName = minecraft.player.getDisplayName().copy()
+                            .withStyle(ChatFormatting.RED, ChatFormatting.BOLD, ChatFormatting.ITALIC);
+                    int totalSeconds = Math.max(0, ModEvents.ClientOverlayEvents.getClientSealEquipSeconds());
+                    int hours = totalSeconds / 3600;
+                    int minutes = totalSeconds / 60 % 60;
+                    int seconds = totalSeconds % 60;
+                    MutableComponent wearTime = Component.literal(String.format(
+                                    Locale.ROOT,
+                                    "%02d : %02d : %02d",
+                                    hours,
+                                    minutes,
+                                    seconds))
+                            .withStyle(ChatFormatting.YELLOW);
+                    tooltip.add(Component.translatable(
+                                    "item.ramesses_curse.seal_of_kadesh.bond_status",
+                                    wearerName,
+                                    wearTime)
+                            .withStyle(ChatFormatting.GRAY));
+                }
             }
             boolean curseOneReversed = minecraft.player != null
                     && ModEvents.isCurseOneReversed(minecraft.player);
@@ -636,6 +1269,8 @@ public class ModItems {
             boolean curseFiveDeclined = minecraft.player != null
                     && ModEvents.isCurseFiveDeclined(minecraft.player);
             boolean curseSixReversed = minecraft.player != null
+                    && ModEvents.isCurseSixReversed(minecraft.player);
+            boolean curseSevenReversed = minecraft.player != null
                     && ModEvents.isCurseSevenReversed(minecraft.player);
             boolean curseEightReversed = minecraft.player != null
                     && ModEvents.isNetherAwakened(minecraft.player)
@@ -651,6 +1286,10 @@ public class ModItems {
                 } else if (ModEvents.isNetherAwakened(minecraft.player)) {
                     tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.nether_awakened")
                             .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+                }
+                if (ModEvents.isEndAwakened(minecraft.player)) {
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.end_awakened")
+                            .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
                 }
             }
             if (Screen.hasShiftDown()) {
@@ -676,7 +1315,9 @@ public class ModItems {
                 tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_6_title",
                         curseSixReversed ? "item.ramesses_curse.seal_of_kadesh.curse_6_intro_reversed" : "item.ramesses_curse.seal_of_kadesh.curse_6_intro",
                         curseSixReversed));
-                tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_7_title", "item.ramesses_curse.seal_of_kadesh.curse_7_intro", false));
+                tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_7_title",
+                        curseSevenReversed ? "item.ramesses_curse.seal_of_kadesh.curse_7_intro_reversed" : "item.ramesses_curse.seal_of_kadesh.curse_7_intro",
+                        curseSevenReversed));
                 tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_8_title",
                         curseEightReversed ? "item.ramesses_curse.seal_of_kadesh.curse_8_intro_reversed" : "item.ramesses_curse.seal_of_kadesh.curse_8_intro",
                         curseEightReversed));
@@ -703,13 +1344,15 @@ public class ModItems {
                 }
                 if (minecraft.player != null && ModEvents.isCurseTwoReversed(minecraft.player)) {
                     tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_2_title", "item.ramesses_curse.seal_of_kadesh.curse_2_detail_reversed", true,
+                            tooltipArgument("luck_interval", reversedNumber(5)),
                             tooltipArgument("luck", reversedNumber(formatNumber(Config.CURSE_2_REVERSED_LUCK_BONUS.get()))),
-                            tooltipArgument("interval", reversedNumber(formatTicksAsMinutes(Config.CURSE_2_REVERSED_SPAWN_INTERVAL.get()))),
+                            tooltipArgument("spawn_interval", reversedNumber(formatTicksAsMinutes(Config.CURSE_2_REVERSED_SPAWN_INTERVAL.get()))),
                             tooltipArgument("chance", reversedPercent(Config.CURSE_2_REVERSED_SPAWN_CHANCE.get()))));
                 } else {
                     tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_2_title", "item.ramesses_curse.seal_of_kadesh.curse_2_detail", false,
                             tooltipArgument("luck", yellowNumber(formatNumber(Config.CURSE_2_LUCK_PENALTY.get()))),
-                            tooltipArgument("interval", yellowNumber(formatTicksAsMinutes(Config.CURSE_2_SPAWN_INTERVAL.get()))),
+                            tooltipArgument("luck_interval", yellowNumber(5)),
+                            tooltipArgument("spawn_interval", yellowNumber(formatTicksAsMinutes(Config.CURSE_2_SPAWN_INTERVAL.get()))),
                             tooltipArgument("chance", yellowPercent(Config.CURSE_2_SPAWN_CHANCE.get())),
                             tooltipArgument("count", yellowNumber(1)),
                             tooltipArgument("radius", yellowNumber(Config.CURSE_2_SPAWN_RADIUS.get()))));
@@ -728,13 +1371,16 @@ public class ModItems {
                             tooltipArgument("target", reversedKey("item.ramesses_curse.keyword.hostile_monsters")),
                             tooltipArgument("gain", reversedNumber(1)),
                             tooltipArgument("mercy", reversedKey("item.ramesses_curse.keyword.mercy")),
-                            tooltipArgument("mercy_max", fixedNumber(1299)),
+                            tooltipArgument("mercy_max", fixedNumber(Config.CURSE_5_MERCY_MAX.get())),
                             tooltipArgument("charges", reversedNumber(1)),
                             tooltipArgument("reversal", reversedKey("item.ramesses_curse.keyword.death_reversal")),
                             tooltipArgument("invulnerable_seconds", reversedNumber(10)),
                             tooltipArgument("invulnerability", reversedKey("item.ramesses_curse.keyword.invulnerability")),
                             tooltipArgument("surge_seconds", reversedNumber(30)),
-                            tooltipArgument("surge", reversedKey("item.ramesses_curse.keyword.partial_attribute_doubling"))));
+                            tooltipArgument("surge", reversedKey("item.ramesses_curse.keyword.partial_attribute_doubling")),
+                            tooltipArgument("fatal_health", reversedNumber(1)),
+                            tooltipArgument("fatal_invulnerability", reversedNumber(30)),
+                            tooltipArgument("fatal_cooldown", reversedNumber(180))));
                 } else if (curseFiveDeclined) {
                     tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_5_title", "item.ramesses_curse.seal_of_kadesh.curse_5_declined_detail", true,
                             tooltipArgument("attributes", reversedKey("item.ramesses_curse.keyword.war_blood_armor_steps")),
@@ -757,8 +1403,15 @@ public class ModItems {
                             tooltipArgument("count", yellowNumber(1)),
                             tooltipArgument("duration", yellowNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_DURATION.get())))));
                 }
-                tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_7_title", "item.ramesses_curse.seal_of_kadesh.curse_7_detail", false,
-                        tooltipArgument("weakness", yellowNumber(Config.END_WEAKNESS_AMPLIFIER.get() + 1))));
+                if (curseSevenReversed) {
+                    tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_7_title",
+                            "item.ramesses_curse.seal_of_kadesh.curse_7_detail_reversed", true));
+                } else {
+                    tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_7_title", "item.ramesses_curse.seal_of_kadesh.curse_7_detail", false,
+                            tooltipArgument("dimension", blueKey("item.ramesses_curse.keyword.end")),
+                            tooltipArgument("chance", yellowPercent(Config.CURSE_7_LOOT_SUPPRESSION_CHANCE.get())),
+                            tooltipArgument("loot", blueKey("item.ramesses_curse.keyword.all_loot"))));
+                }
                 if (curseEightReversed) {
                     tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_8_title", "item.ramesses_curse.seal_of_kadesh.curse_8_detail_reversed", true,
                             tooltipArgument("chance", reversedPercent(Config.HELL_REBOUND_CHANCE.get()))));
@@ -776,7 +1429,8 @@ public class ModItems {
                             tooltipArgument("debt", blueKey("item.ramesses_curse.keyword.hunger_debt")),
                             tooltipArgument("debt_max", blueText(Integer.toString(Config.CURSE_9_MAX_SATIETY.get()))),
                             tooltipArgument("drain_rate", blueKey("item.ramesses_curse.keyword.five_seconds_one_point")),
-                            tooltipArgument("penalty_duration", blueKey("item.ramesses_curse.keyword.three_minutes")),
+                            tooltipArgument("attributes", blueKey("item.ramesses_curse.keyword.all_attributes")),
+                            tooltipArgument("penalty", yellowPercent(0.99D)),
                             tooltipArgument("food_types", blueText(Integer.toString(Config.CURSE_9_REVERSED_FOOD_TYPES.get())))));
                 }
             }
@@ -787,6 +1441,54 @@ public class ModItems {
                     tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.story_" + i).withStyle(ChatFormatting.DARK_PURPLE));
                 }
             }
+            if (isTabDown() && minecraft.player != null) {
+                tooltip.add(Component.empty());
+                tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.section_chance_die")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
+                boolean hasChanceDieEffect = false;
+                if (ModEvents.ClientOverlayEvents.hasClientChanceDieAttackSpeed()) {
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.attack_speed")
+                            .withStyle(ChatFormatting.GOLD));
+                    hasChanceDieEffect = true;
+                }
+                int healthDamageSeconds = ModEvents.ClientOverlayEvents.getClientChanceDieHealthDamageSeconds();
+                if (healthDamageSeconds > 0) {
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.health_damage",
+                            healthDamageSeconds).withStyle(ChatFormatting.RED));
+                    hasChanceDieEffect = true;
+                }
+                if (ModEvents.ClientOverlayEvents.hasClientChanceDieFallImmunity()) {
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.fall_immunity")
+                            .withStyle(ChatFormatting.GREEN));
+                    hasChanceDieEffect = true;
+                }
+                int undyingCharges = ModEvents.ClientOverlayEvents.getClientChanceDieUndyingCharges();
+                if (undyingCharges > 0) {
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.undying",
+                            undyingCharges).withStyle(ChatFormatting.YELLOW));
+                    hasChanceDieEffect = true;
+                }
+                if (ModEvents.ClientOverlayEvents.hasClientChanceDieDodge()) {
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.dodge")
+                            .withStyle(ChatFormatting.AQUA));
+                    hasChanceDieEffect = true;
+                }
+                int trueDamageSeconds = ModEvents.ClientOverlayEvents.getClientChanceDieTrueDamageSeconds();
+                if (trueDamageSeconds > 0) {
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.true_damage",
+                            trueDamageSeconds).withStyle(ChatFormatting.DARK_RED));
+                    hasChanceDieEffect = true;
+                }
+                if (!hasChanceDieEffect) {
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.none")
+                            .withStyle(ChatFormatting.GRAY));
+                }
+            }
+        }
+
+        private static boolean isTabDown() {
+            Minecraft minecraft = Minecraft.getInstance();
+            return InputConstants.isKeyDown(minecraft.getWindow().getWindow(), GLFW.GLFW_KEY_TAB);
         }
 
         private static void applyLuckPenalty(Player player) {
@@ -795,9 +1497,7 @@ public class ModItems {
                 return;
             }
 
-            double amount = ModEvents.isCurseTwoReversed(player)
-                    ? Config.CURSE_2_REVERSED_LUCK_BONUS.get()
-                    : -Config.CURSE_2_LUCK_PENALTY.get();
+            double amount = ModEvents.getCurseTwoLuckModifier(player);
             AttributeModifier existing = luck.getModifier(CURSE_2_LUCK_MODIFIER_ID);
             if (existing != null) {
                 if (Math.abs(existing.getAmount() - amount) < 1.0E-6D) {
@@ -830,7 +1530,14 @@ public class ModItems {
             removeLuckPenalty(player);
         }
 
+        public static void refreshCurseTwoLuck(Player player) {
+            applyLuckPenalty(player);
+        }
+
         private static void applyFavorOrDamnation(ServerPlayer player, int equipTicks) {
+            if (ModEvents.isCurseOneReversed(player)) {
+                return;
+            }
             int interval = Config.RANDOM_CURSE_INTERVAL.get();
             if (equipTicks <= 0 || equipTicks % interval != 0) {
                 return;
@@ -1091,7 +1798,52 @@ public class ModItems {
         @Override
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
             tooltip.add(Component.translatable("item.ramesses_curse.dynasty_pressure_potion.effect",
-                    Component.literal("+100").withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.YELLOW));
+                    Component.literal("+1000").withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.YELLOW));
+        }
+    }
+
+    public static class PitchfireCrystal extends Item {
+        private static final int EFFECT_DURATION_TICKS = 60 * 20;
+
+        public PitchfireCrystal() {
+            super(new Item.Properties().stacksTo(64).rarity(Rarity.EPIC));
+        }
+
+        @Override
+        public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+            player.startUsingItem(usedHand);
+            return InteractionResultHolder.consume(player.getItemInHand(usedHand));
+        }
+
+        @Override
+        public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
+            if (livingEntity instanceof ServerPlayer player) {
+                player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, EFFECT_DURATION_TICKS, 0));
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, EFFECT_DURATION_TICKS, 1));
+                ModEvents.activatePitchfireLavaWalking(player, EFFECT_DURATION_TICKS);
+                level.playSound(null, player.blockPosition(), SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 0.8F, 0.8F);
+            }
+            if (!(livingEntity instanceof Player player) || !player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+            return stack;
+        }
+
+        @Override
+        public int getUseDuration(ItemStack stack) {
+            return 24;
+        }
+
+        @Override
+        public UseAnim getUseAnimation(ItemStack stack) {
+            return UseAnim.EAT;
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.pitchfire_crystal.fire_resistance").withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable("item.ramesses_curse.pitchfire_crystal.lava_walk").withStyle(ChatFormatting.DARK_RED));
+            tooltip.add(Component.translatable("item.ramesses_curse.pitchfire_crystal.speed").withStyle(ChatFormatting.AQUA));
         }
     }
 
@@ -1105,18 +1857,26 @@ public class ModItems {
         public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
             ItemStack stack = player.getItemInHand(usedHand);
             if (level.isClientSide) {
-                return InteractionResultHolder.pass(stack);
+                return InteractionResultHolder.sidedSuccess(stack, true);
             }
             if (!(player instanceof ServerPlayer serverPlayer)) {
                 return InteractionResultHolder.pass(stack);
             }
+            if (!ModEvents.bindOrValidateSatietyCrystal(serverPlayer, stack)) {
+                return InteractionResultHolder.fail(stack);
+            }
             if (!ModEvents.tryUseSatietyCrystalFromInventory(serverPlayer)) {
                 return InteractionResultHolder.pass(stack);
             }
-            if (!player.getAbilities().instabuild) {
-                stack.shrink(1);
-            }
             return InteractionResultHolder.success(stack);
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.satiety_crystal.tooltip_1")
+                    .withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("item.ramesses_curse.satiety_crystal.tooltip_2")
+                    .withStyle(ChatFormatting.GOLD));
         }
     }
 

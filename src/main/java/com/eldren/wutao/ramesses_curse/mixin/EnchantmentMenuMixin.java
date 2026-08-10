@@ -28,6 +28,7 @@ public class EnchantmentMenuMixin {
             return;
         }
 
-        ModEvents.setPendingEnchantCost(player, requiredCost);
+        int vanillaSpend = buttonId + 1;
+        ModEvents.setPendingEnchantCost(player, ModEvents.getAdjustedEnchantSpend(player, vanillaSpend));
     }
 }

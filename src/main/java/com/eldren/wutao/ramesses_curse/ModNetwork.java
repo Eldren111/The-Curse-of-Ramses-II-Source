@@ -132,6 +132,24 @@ public class ModNetwork {
                 EmberRiddleSelectPacket::handle);
         CHANNEL.registerMessage(
                 packetId++,
+                SatietyRiddleSyncPacket.class,
+                SatietyRiddleSyncPacket::encode,
+                SatietyRiddleSyncPacket::decode,
+                SatietyRiddleSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                SatietyRiddleSubmitPacket.class,
+                SatietyRiddleSubmitPacket::encode,
+                SatietyRiddleSubmitPacket::decode,
+                SatietyRiddleSubmitPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                SatietyRiddleSelectPacket.class,
+                SatietyRiddleSelectPacket::encode,
+                SatietyRiddleSelectPacket::decode,
+                SatietyRiddleSelectPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
                 CurseSevenRevealPacket.class,
                 CurseSevenRevealPacket::encode,
                 CurseSevenRevealPacket::decode,
@@ -184,5 +202,53 @@ public class ModNetwork {
                 NebukaRitualShakePacket::encode,
                 NebukaRitualShakePacket::decode,
                 NebukaRitualShakePacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                DuatSandstormSyncPacket.class,
+                DuatSandstormSyncPacket::encode,
+                DuatSandstormSyncPacket::decode,
+                DuatSandstormSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                AffixKnowledgeSyncPacket.class,
+                AffixKnowledgeSyncPacket::encode,
+                AffixKnowledgeSyncPacket::decode,
+                AffixKnowledgeSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                ChanceDieRollPacket.class,
+                ChanceDieRollPacket::encode,
+                ChanceDieRollPacket::decode,
+                ChanceDieRollPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                ChanceDieLargeRollPacket.class,
+                ChanceDieLargeRollPacket::encode,
+                ChanceDieLargeRollPacket::decode,
+                ChanceDieLargeRollPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                ChanceDieLargeChoicePacket.class,
+                ChanceDieLargeChoicePacket::encode,
+                ChanceDieLargeChoicePacket::decode,
+                ChanceDieLargeChoicePacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                ChanceDieLargeCancelPacket.class,
+                ChanceDieLargeCancelPacket::encode,
+                ChanceDieLargeCancelPacket::decode,
+                ChanceDieLargeCancelPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                ChanceDieStateSyncPacket.class,
+                ChanceDieStateSyncPacket::encode,
+                ChanceDieStateSyncPacket::decode,
+                ChanceDieStateSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                OpenCompoundBowAmmoPacket.class,
+                OpenCompoundBowAmmoPacket::encode,
+                OpenCompoundBowAmmoPacket::decode,
+                OpenCompoundBowAmmoPacket::handle);
     }
 }

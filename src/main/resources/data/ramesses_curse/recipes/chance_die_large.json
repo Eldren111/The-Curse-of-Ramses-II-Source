@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "ramesses_curse:chance_die_six_sided" },
+    { "item": "ramesses_curse:chance_die_six_sided" },
+    { "item": "ramesses_curse:chance_die_six_sided" },
+    { "item": "ramesses_curse:chance_die_six_sided" },
+    { "item": "ramesses_curse:chance_die_six_sided" },
+    { "item": "ramesses_curse:chance_die_six_sided" }
+  ],
+  "result": {
+    "item": "ramesses_curse:chance_die_large"
+  }
+}

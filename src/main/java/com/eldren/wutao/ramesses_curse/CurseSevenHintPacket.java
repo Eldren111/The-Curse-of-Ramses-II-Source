@@ -52,10 +52,7 @@ public class CurseSevenHintPacket {
         context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             ModEvents.ClientOverlayEvents.showCurseSevenHint(packet.text, packet.translatedText, packet.style, packet.durationTicks);
             if (packet.closeScreen) {
-                net.minecraft.client.Minecraft minecraft = net.minecraft.client.Minecraft.getInstance();
-                if (minecraft.screen instanceof EmberRiddleInputScreen) {
-                    minecraft.setScreen(null);
-                }
+                ClientPacketHandlers.closeEmberRiddleScreen();
             }
         }));
         context.setPacketHandled(true);

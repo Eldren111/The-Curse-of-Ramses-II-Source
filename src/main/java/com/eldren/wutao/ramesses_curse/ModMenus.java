@@ -12,6 +12,8 @@ public final class ModMenus {
 
     public static final RegistryObject<MenuType<InscriptionBagMenu>> INSCRIPTION_BAG =
             MENUS.register("inscription_bag", () -> IForgeMenuType.create(InscriptionBagMenu::fromNetwork));
+    public static final RegistryObject<MenuType<CompoundBowAmmoMenu>> COMPOUND_BOW_AMMO =
+            MENUS.register("compound_bow_ammo", () -> IForgeMenuType.create(CompoundBowAmmoMenu::fromNetwork));
 
     private ModMenus() {
     }

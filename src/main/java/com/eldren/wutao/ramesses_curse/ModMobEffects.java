@@ -24,6 +24,7 @@ public class ModMobEffects {
     private static final UUID DROUGHT_ATTACK_MODIFIER = UUID.fromString("f5f43cf5-4e02-4c9c-8a2d-8f8b0d31e101");
     private static final UUID DROUGHT_ARMOR_MODIFIER = UUID.fromString("ccaf8268-ae3b-44ca-9c14-2c58a8a2f102");
     private static final String DROUGHT_IMMUNITY_UNTIL = "RamessesDroughtImmunityUntil";
+    private static final UUID HIT_SLOW_ATTACK_SPEED_MODIFIER = UUID.fromString("ae23b569-8d4b-49f0-b35e-599bc09b9006");
 
     public static final DeferredRegister<MobEffect> MOB_EFFECTS =
             DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, RamessesCurseMod.MODID);
@@ -33,6 +34,14 @@ public class ModMobEffects {
 
     public static final RegistryObject<MobEffect> DROUGHT =
             MOB_EFFECTS.register("drought", DroughtMobEffect::new);
+    public static final RegistryObject<MobEffect> HIT_SLOW =
+            MOB_EFFECTS.register("hit_slow", HitSlowMobEffect::new);
+    public static final RegistryObject<MobEffect> FLIGHT_FALL =
+            MOB_EFFECTS.register("flight_fall", FlightFallMobEffect::new);
+    public static final RegistryObject<MobEffect> PITCHFIRE_LAVA_WALK =
+            MOB_EFFECTS.register("pitchfire_lava_walk", PitchfireLavaWalkMobEffect::new);
+    public static final RegistryObject<MobEffect> BLOOD_FORFEIT =
+            MOB_EFFECTS.register("blood_forfeit", BloodForfeitMobEffect::new);
 
     public static void tickDrought(Player player) {
         if (!ModDimensions.DUAT_DESERT.equals(player.level().dimension())) {
@@ -179,6 +188,152 @@ public class ModMobEffects {
                             ICON_SIZE,
                             ICON_SIZE,
                             ICON_SIZE);
+                    guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    return true;
+                }
+            });
+        }
+    }
+
+    public static class HitSlowMobEffect extends MobEffect {
+        private static final ResourceLocation HIT_SLOW_ICON = new ResourceLocation(
+                RamessesCurseMod.MODID,
+                "textures/mob_effect/hit_slow.png");
+        private static final int ICON_SIZE = 18;
+
+        public HitSlowMobEffect() {
+            super(MobEffectCategory.HARMFUL, 0x65708A);
+            addAttributeModifier(
+                    Attributes.ATTACK_SPEED,
+                    HIT_SLOW_ATTACK_SPEED_MODIFIER.toString(),
+                    -0.50D,
+                    AttributeModifier.Operation.MULTIPLY_TOTAL);
+        }
+
+        @Override
+        public double getAttributeModifierValue(int amplifier, AttributeModifier modifier) {
+            return -Math.min(1.0D, Math.max(0.0D,
+                    DynastyAffixData.number("hit_slow", 1, "attack_speed_reduction")));
+        }
+
+        @Override
+        public void initializeClient(Consumer<IClientMobEffectExtensions> consumer) {
+            consumer.accept(new IClientMobEffectExtensions() {
+                @Override
+                public boolean renderInventoryIcon(
+                        MobEffectInstance instance,
+                        EffectRenderingInventoryScreen<?> screen,
+                        GuiGraphics guiGraphics,
+                        int x,
+                        int y,
+                        int blitOffset) {
+                    guiGraphics.blit(HIT_SLOW_ICON, x, y, blitOffset, 0.0F, 0.0F, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+                    return true;
+                }
+
+                @Override
+                public boolean renderGuiIcon(
+                        MobEffectInstance instance,
+                        Gui gui,
+                        GuiGraphics guiGraphics,
+                        int x,
+                        int y,
+                        float z,
+                        float alpha) {
+                    guiGraphics.setColor(1.0F, 1.0F, 1.0F, alpha);
+                    guiGraphics.blit(HIT_SLOW_ICON, x, y, (int) z, 0.0F, 0.0F, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+                    guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    return true;
+                }
+            });
+        }
+    }
+
+    public static class FlightFallMobEffect extends MobEffect {
+        private static final ResourceLocation FLIGHT_FALL_ICON = new ResourceLocation(
+                RamessesCurseMod.MODID,
+                "textures/mob_effect/flight_fall.png");
+        private static final int ICON_SIZE = 18;
+
+        public FlightFallMobEffect() {
+            super(MobEffectCategory.HARMFUL, 0xC9952E);
+        }
+
+        @Override
+        public void initializeClient(Consumer<IClientMobEffectExtensions> consumer) {
+            consumer.accept(new IClientMobEffectExtensions() {
+                @Override
+                public boolean renderInventoryIcon(
+                        MobEffectInstance instance,
+                        EffectRenderingInventoryScreen<?> screen,
+                        GuiGraphics guiGraphics,
+                        int x,
+                        int y,
+                        int blitOffset) {
+                    guiGraphics.blit(FLIGHT_FALL_ICON, x, y, blitOffset, 0.0F, 0.0F, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+                    return true;
+                }
+
+                @Override
+                public boolean renderGuiIcon(
+                        MobEffectInstance instance,
+                        Gui gui,
+                        GuiGraphics guiGraphics,
+                        int x,
+                        int y,
+                        float z,
+                        float alpha) {
+                    guiGraphics.setColor(1.0F, 1.0F, 1.0F, alpha);
+                    guiGraphics.blit(FLIGHT_FALL_ICON, x, y, (int) z, 0.0F, 0.0F, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+                    guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    return true;
+                }
+            });
+        }
+    }
+
+    public static class PitchfireLavaWalkMobEffect extends MobEffect {
+        public PitchfireLavaWalkMobEffect() {
+            super(MobEffectCategory.BENEFICIAL, 0xD65A18);
+        }
+    }
+
+    public static class BloodForfeitMobEffect extends MobEffect {
+        private static final ResourceLocation BLOOD_FORFEIT_ICON = new ResourceLocation(
+                RamessesCurseMod.MODID,
+                "textures/mob_effect/blood_forfeit.png");
+        private static final int ICON_SIZE = 18;
+
+        public BloodForfeitMobEffect() {
+            super(MobEffectCategory.HARMFUL, 0x7A1018);
+        }
+
+        @Override
+        public void initializeClient(Consumer<IClientMobEffectExtensions> consumer) {
+            consumer.accept(new IClientMobEffectExtensions() {
+                @Override
+                public boolean renderInventoryIcon(
+                        MobEffectInstance instance,
+                        EffectRenderingInventoryScreen<?> screen,
+                        GuiGraphics guiGraphics,
+                        int x,
+                        int y,
+                        int blitOffset) {
+                    guiGraphics.blit(BLOOD_FORFEIT_ICON, x, y, blitOffset, 0.0F, 0.0F, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+                    return true;
+                }
+
+                @Override
+                public boolean renderGuiIcon(
+                        MobEffectInstance instance,
+                        Gui gui,
+                        GuiGraphics guiGraphics,
+                        int x,
+                        int y,
+                        float z,
+                        float alpha) {
+                    guiGraphics.setColor(1.0F, 1.0F, 1.0F, alpha);
+                    guiGraphics.blit(BLOOD_FORFEIT_ICON, x, y, (int) z, 0.0F, 0.0F, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
                     guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
                     return true;
                 }

@@ -7,13 +7,21 @@
   "mixins": [
     "ApothEnchantmentMenuMixin",
     "AnvilMenuMixin",
+    "CelestialTableMenuAccessor",
+    "CelestialTableMenuMixin",
+    "EntityMoltenWebMixin",
     "EnchantmentMenuMixin",
+    "GoetyDarkAnvilMenuMixin",
     "InfuserMenuMixin",
-    "ItemCombinerMenuAccessor"
+    "ItemCombinerMenuAccessor",
+    "LivingEntityPitchfireLavaMixin",
+    "MeleeAttackGoalMixin"
   ],
   "client": [
     "AnvilScreenMixin",
+    "CelestialTableScreenMixin",
     "EnchantmentScreenMixin",
+    "GoetyDarkAnvilScreenMixin",
     "InfuserScreenMixin"
   ],
   "injectors": {

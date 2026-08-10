@@ -14,7 +14,7 @@
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:satiety_crystal",
       "title": "饱食水晶",
-      "text": "诅咒九留下的结晶债据。死后若被索走饱食度，寻回它便是把债追回来的唯一方法。"
+      "text": "A material record of Curse IX's Hunger Debt, delivered after respawning. If the inventory is full, delivery waits until a slot opens. It is bound to the debtor, cannot be discarded, and is reissued if lost. Solving three inscriptions consumes one crystal and restores the debt and lost attributes."
     },
     {
       "type": "patchouli:spotlight",

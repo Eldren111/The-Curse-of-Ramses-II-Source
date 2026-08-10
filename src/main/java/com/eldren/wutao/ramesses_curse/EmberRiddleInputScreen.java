@@ -38,12 +38,20 @@ public class EmberRiddleInputScreen extends Screen {
     private int referenceScroll = 0;
     private final List<ReferenceEntry> referenceEntries = new ArrayList<>();
     private int referenceContentHeight = 0;
+    private final boolean satietyMode;
 
     public EmberRiddleInputScreen() {
-        super(Component.translatable("message.ramesses_curse.ember_riddle_book_title"));
-        this.subtitle = ModEvents.getClientCurrentEmberRiddleHint();
-        this.inscription = ModEvents.getClientCurrentEmberRiddleInscription();
-        this.roundTitles.addAll(ModEvents.ClientOverlayEvents.getClientEmberRiddleTitles());
+        this(false);
+    }
+
+    public EmberRiddleInputScreen(boolean satietyMode) {
+        super(Component.translatable(satietyMode
+                ? "message.ramesses_curse.satiety_riddle_book_title"
+                : "message.ramesses_curse.ember_riddle_book_title"));
+        this.satietyMode = satietyMode;
+        this.subtitle = currentHint();
+        this.inscription = currentInscription();
+        this.roundTitles.addAll(currentTitles());
     }
 
     @Override
@@ -101,8 +109,9 @@ public class EmberRiddleInputScreen extends Screen {
                         button -> refreshRiddle())
                 .bounds(left - scaled(92, scale), top + scaled(44, scale), scaled(84, scale), scaled(20, scale))
                 .build());
+        this.refreshButton.visible = !this.satietyMode;
 
-        if (ModEvents.shouldShowCurseSevenDuatEntry()) {
+        if (!this.satietyMode && ModEvents.shouldShowCurseSevenDuatEntry()) {
             this.curseSevenButton = this.addRenderableWidget(Button.builder(
                             Component.literal("终末碑录"),
                             button -> {
@@ -149,7 +158,7 @@ public class EmberRiddleInputScreen extends Screen {
             this.submitButton.active = !this.answerBox.getValue().trim().isEmpty();
         }
         if (this.refreshButton != null) {
-            this.refreshButton.active = !ModEvents.isClientCurseSevenKeywordLockedForRiddleRefresh();
+            this.refreshButton.active = !this.satietyMode && !ModEvents.isClientCurseSevenKeywordLockedForRiddleRefresh();
         }
         if (this.curseSevenButton != null) {
             this.curseSevenButton.active = ModEvents.shouldShowCurseSevenDuatEntry();
@@ -172,12 +181,17 @@ public class EmberRiddleInputScreen extends Screen {
         if (value.isEmpty()) {
             return;
         }
-        ModNetwork.CHANNEL.sendToServer(new EmberRiddleSubmitPacket(value));
+        ModNetwork.CHANNEL.sendToServer(this.satietyMode
+                ? new SatietyRiddleSubmitPacket(value)
+                : new EmberRiddleSubmitPacket(value));
         this.answerBox.setValue("");
         updateSubmitButton();
     }
 
     private void refreshRiddle() {
+        if (this.satietyMode) {
+            return;
+        }
         if (this.showingCurseSevenPage) {
             this.showingCurseSevenPage = false;
             refreshClientSnapshot();
@@ -228,8 +242,8 @@ public class EmberRiddleInputScreen extends Screen {
 
         renderTitleCartouche(graphics, left, top, width, scale);
         graphics.drawCenteredString(this.font, this.title, left + width / 2 + scaled(2, scale), top + scaled(11, scale), 0xFFF5E6C1);
-        int roundSize = this.showingCurseSevenPage ? 1 : Math.max(1, ModEvents.ClientOverlayEvents.getClientEmberRiddleRoundSize());
-        int currentIndex = this.showingCurseSevenPage ? 1 : Math.max(0, ModEvents.ClientOverlayEvents.getClientEmberRiddleIndex() + 1);
+        int roundSize = this.showingCurseSevenPage ? 1 : Math.max(1, currentRoundSize());
+        int currentIndex = this.showingCurseSevenPage ? 1 : Math.max(0, currentIndex() + 1);
         graphics.drawCenteredString(
                 this.font,
                 Component.translatable("screen.ramesses_curse.ember_riddle_input.progress", currentIndex, roundSize),
@@ -332,7 +346,9 @@ public class EmberRiddleInputScreen extends Screen {
 
         y += scaled(15, scale);
         if (y + 9 >= contentTop && y <= contentBottom) {
-            graphics.drawString(this.font, Component.translatable("screen.ramesses_curse.ember_riddle_input.round_titles"), contentLeft, y, 0xFFE7D39C, false);
+            graphics.drawString(this.font, Component.translatable(this.satietyMode
+                    ? "screen.ramesses_curse.satiety_riddle_input.round_titles"
+                    : "screen.ramesses_curse.ember_riddle_input.round_titles"), contentLeft, y, 0xFFE7D39C, false);
         }
         y += scaled(12, scale);
 
@@ -343,8 +359,8 @@ public class EmberRiddleInputScreen extends Screen {
                 continue;
             }
 
-            boolean solved = entry.selectable() && ModEvents.ClientOverlayEvents.isClientEmberRiddleSolved(entry.index());
-            boolean selected = entry.selectable() && entry.index() == ModEvents.ClientOverlayEvents.getClientEmberRiddleIndex();
+            boolean solved = entry.selectable() && currentSolved(entry.index());
+            boolean selected = entry.selectable() && entry.index() == currentIndex();
             int entryLeft = contentLeft - 2;
             int entryRight = left + width - 24;
             int clippedTop = Math.max(contentTop, entryTop - 1);
@@ -546,13 +562,13 @@ public class EmberRiddleInputScreen extends Screen {
         int scale = layout.scalePercent();
         int wrapWidth = Math.max(72, layout.sidebarWidth() - scaled(34, scale));
         int offsetY = 0;
-        for (int i = 0; i < Math.min(this.roundTitles.size(), 12); i++) {
+        for (int i = 0; i < Math.min(this.roundTitles.size(), this.satietyMode ? 3 : 12); i++) {
             List<FormattedCharSequence> wrapped = this.font.split(this.roundTitles.get(i), wrapWidth);
             int height = wrapped.size() * scaled(9, scale) + scaled(2, scale);
             this.referenceEntries.add(new ReferenceEntry(i, offsetY, height, wrapped, true));
             offsetY += height;
         }
-        if (ModEvents.shouldShowCurseSevenSentenceInDuatUi()) {
+        if (!this.satietyMode && ModEvents.shouldShowCurseSevenSentenceInDuatUi()) {
             offsetY += scaled(8, scale);
             List<FormattedCharSequence> clueLines = new ArrayList<>();
             clueLines.addAll(this.font.split(Component.literal("余烬残句"), wrapWidth));
@@ -571,10 +587,10 @@ public class EmberRiddleInputScreen extends Screen {
             this.subtitle = ModEvents.getClientCurseSevenDuatHint();
             this.inscription = ModEvents.getClientCurseSevenDuatInscription();
         } else {
-            this.subtitle = ModEvents.getClientCurrentEmberRiddleHint();
-            this.inscription = ModEvents.getClientCurrentEmberRiddleInscription();
+            this.subtitle = currentHint();
+            this.inscription = currentInscription();
         }
-        List<Component> latestTitles = ModEvents.ClientOverlayEvents.getClientEmberRiddleTitles();
+        List<Component> latestTitles = currentTitles();
         if (!this.roundTitles.equals(latestTitles)) {
             this.roundTitles.clear();
             this.roundTitles.addAll(latestTitles);
@@ -615,16 +631,58 @@ public class EmberRiddleInputScreen extends Screen {
             int entryTop = titleStartY + entry.offsetY();
             int entryBottom = entryTop + entry.height();
             if (mouseX >= contentLeft && mouseX <= contentRight && mouseY >= entryTop - 1 && mouseY <= entryBottom) {
-                if (ModEvents.ClientOverlayEvents.isClientEmberRiddleSolved(entry.index())) {
+                if (currentSolved(entry.index())) {
                     return true;
                 }
-                if (entry.index() != ModEvents.ClientOverlayEvents.getClientEmberRiddleIndex()) {
-                    ModNetwork.CHANNEL.sendToServer(new EmberRiddleSelectPacket(entry.index()));
+                if (entry.index() != currentIndex()) {
+                    ModNetwork.CHANNEL.sendToServer(this.satietyMode
+                            ? new SatietyRiddleSelectPacket(entry.index())
+                            : new EmberRiddleSelectPacket(entry.index()));
                 }
                 return true;
             }
         }
         return false;
+    }
+
+    private Component currentHint() {
+        return this.satietyMode
+                ? ModEvents.getClientCurrentSatietyRiddleHint()
+                : ModEvents.getClientCurrentEmberRiddleHint();
+    }
+
+    private String currentInscription() {
+        return this.satietyMode
+                ? ModEvents.getClientCurrentSatietyRiddleInscription()
+                : ModEvents.getClientCurrentEmberRiddleInscription();
+    }
+
+    private List<Component> currentTitles() {
+        return this.satietyMode
+                ? ModEvents.ClientOverlayEvents.getClientSatietyRiddleTitles()
+                : ModEvents.ClientOverlayEvents.getClientEmberRiddleTitles();
+    }
+
+    private int currentRoundSize() {
+        return this.satietyMode
+                ? ModEvents.ClientOverlayEvents.getClientSatietyRiddleRoundSize()
+                : ModEvents.ClientOverlayEvents.getClientEmberRiddleRoundSize();
+    }
+
+    private int currentIndex() {
+        return this.satietyMode
+                ? ModEvents.ClientOverlayEvents.getClientSatietyRiddleIndex()
+                : ModEvents.ClientOverlayEvents.getClientEmberRiddleIndex();
+    }
+
+    private boolean currentSolved(int index) {
+        return this.satietyMode
+                ? ModEvents.ClientOverlayEvents.isClientSatietyRiddleSolved(index)
+                : ModEvents.ClientOverlayEvents.isClientEmberRiddleSolved(index);
+    }
+
+    public boolean isSatietyMode() {
+        return this.satietyMode;
     }
 
     @Override

@@ -61,6 +61,17 @@ public final class ClientPacketHandlers {
         }
     }
 
+    public static void showLargeChanceDieScreen(int[] outcomes) {
+        Minecraft.getInstance().setScreen(new ChanceDieLargeScreen(outcomes));
+    }
+
+    public static void closeEmberRiddleScreen() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.screen instanceof EmberRiddleInputScreen) {
+            minecraft.setScreen(null);
+        }
+    }
+
     private static void addBurst(Player player, RandomSource random, ParticleOptions particle,
                                  int count, double horizontalSpread, double verticalSpread) {
         for (int i = 0; i < count; i++) {

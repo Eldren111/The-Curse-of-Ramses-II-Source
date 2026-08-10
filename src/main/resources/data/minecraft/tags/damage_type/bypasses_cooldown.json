@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "ramesses_curse:seal_assist",
+    "ramesses_curse:percentage_damage",
+    "ramesses_curse:death_authority",
+    "ramesses_curse:vulnerability",
+    "ramesses_curse:molten_burn"
+  ]
+}

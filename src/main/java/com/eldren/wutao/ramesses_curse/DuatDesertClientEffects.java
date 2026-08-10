@@ -1,89 +1,103 @@
 package com.eldren.wutao.ramesses_curse;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.joml.Vector3f;
 
 @Mod.EventBusSubscriber(modid = RamessesCurseMod.MODID, value = Dist.CLIENT)
 public final class DuatDesertClientEffects {
-    private static final BlockParticleOption WIND_BLOWN_SAND =
-            new BlockParticleOption(ParticleTypes.FALLING_DUST, Blocks.SAND.defaultBlockState());
-    private static final DustParticleOptions AIRBORNE_SAND =
-            new DustParticleOptions(new Vector3f(0.78F, 0.58F, 0.28F), 0.8F);
+    private static final int SYNC_TIMEOUT_TICKS = 40;
+    private static boolean sandstormActive;
+    private static double stormCenterX;
+    private static double stormCenterZ;
+    private static double stormVelocityX;
+    private static double stormVelocityZ;
+    private static double stormRadius;
+    private static float stormIntensity;
+    private static int stormRemainingTicks;
+    private static int syncTimeout;
 
     private DuatDesertClientEffects() {
     }
 
     @SubscribeEvent
-    public static void onComputeFogColor(ViewportEvent.ComputeFogColor event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (!isInDuatDesert(minecraft)) {
-            return;
-        }
-
-        float fogTime = (float) (minecraft.level.getGameTime() + event.getPartialTick());
-        float pulse = 0.025F * Mth.sin(fogTime * 0.025F);
-        event.setRed(Mth.clamp(0.72F + pulse, 0.0F, 1.0F));
-        event.setGreen(Mth.clamp(0.54F + pulse * 0.7F, 0.0F, 1.0F));
-        event.setBlue(Mth.clamp(0.29F + pulse * 0.35F, 0.0F, 1.0F));
-    }
-
-    @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) {
+        if (event.phase != TickEvent.Phase.END || Minecraft.getInstance().isPaused()) {
             return;
         }
-
-        Minecraft minecraft = Minecraft.getInstance();
-        if (!isInDuatDesert(minecraft) || minecraft.isPaused()) {
-            return;
-        }
-
-        RandomSource random = minecraft.level.random;
-        double windAngle = minecraft.level.getGameTime() * 0.0025D;
-        double windX = Math.cos(windAngle) * 0.42D;
-        double windZ = Math.sin(windAngle) * 0.42D;
-
-        for (int i = 0; i < 8; i++) {
-            double x = minecraft.player.getX() + (random.nextDouble() - 0.5D) * 12.0D - windX * 5.0D;
-            double y = minecraft.player.getY() + random.nextDouble() * 5.0D - 1.0D;
-            double z = minecraft.player.getZ() + (random.nextDouble() - 0.5D) * 12.0D - windZ * 5.0D;
-            double gust = 2.4D + random.nextDouble() * 1.8D;
-            minecraft.level.addParticle(
-                    AIRBORNE_SAND,
-                    x,
-                    y,
-                    z,
-                    windX * gust,
-                    (random.nextDouble() - 0.5D) * 0.035D,
-                    windZ * gust);
-        }
-
-        for (int i = 0; i < 3; i++) {
-            minecraft.level.addParticle(
-                    WIND_BLOWN_SAND,
-                    minecraft.player.getX() + (random.nextDouble() - 0.5D) * 10.0D,
-                    minecraft.player.getY() + random.nextDouble() * 4.0D,
-                    minecraft.player.getZ() + (random.nextDouble() - 0.5D) * 10.0D,
-                    0.0D,
-                    0.0D,
-                    0.0D);
-        }
+        tickSyncedStorm();
     }
 
-    private static boolean isInDuatDesert(Minecraft minecraft) {
-        return minecraft.level != null
+    static void applySandstormSync(DuatSandstormSyncPacket packet) {
+        sandstormActive = packet.active();
+        stormCenterX = packet.centerX();
+        stormCenterZ = packet.centerZ();
+        stormVelocityX = packet.velocityX();
+        stormVelocityZ = packet.velocityZ();
+        stormRadius = packet.radius();
+        stormIntensity = packet.intensity();
+        stormRemainingTicks = packet.remainingTicks();
+        syncTimeout = packet.active() ? SYNC_TIMEOUT_TICKS : 0;
+    }
+
+    static boolean shouldRender(Minecraft minecraft) {
+        return sandstormActive
+                && minecraft.level != null
                 && minecraft.player != null
-                && minecraft.level.dimension() == ModDimensions.DUAT_DESERT;
+                && minecraft.level.dimension() == ModDimensions.DUAT_DESERT
+                && localIntensity(minecraft, 0.0F) > 0.001F;
+    }
+
+    static float localIntensity(Minecraft minecraft, float partialTick) {
+        if (!sandstormActive || minecraft.player == null) {
+            return 0.0F;
+        }
+
+        double centerX = stormCenterX + stormVelocityX * partialTick;
+        double centerZ = stormCenterZ + stormVelocityZ * partialTick;
+        double dx = minecraft.player.getX() - centerX;
+        double dz = minecraft.player.getZ() - centerZ;
+        double distance = Math.sqrt(dx * dx + dz * dz);
+        float influence = 1.0F - Mth.clamp((float) ((distance - stormRadius * 0.25D) / stormRadius), 0.0F, 1.0F);
+        return Mth.clamp(stormIntensity * influence, 0.0F, 1.0F);
+    }
+
+    static float stormCenterOffsetX(Minecraft minecraft, float partialTick) {
+        return (float) (stormCenterX + stormVelocityX * partialTick - minecraft.gameRenderer.getMainCamera().getPosition().x);
+    }
+
+    static float stormCenterOffsetZ(Minecraft minecraft, float partialTick) {
+        return (float) (stormCenterZ + stormVelocityZ * partialTick - minecraft.gameRenderer.getMainCamera().getPosition().z);
+    }
+
+    static float stormRadius() {
+        return (float) stormRadius;
+    }
+
+    static float windX() {
+        double length = Math.sqrt(stormVelocityX * stormVelocityX + stormVelocityZ * stormVelocityZ);
+        return length > 1.0E-5D ? (float) (stormVelocityX / length) : 1.0F;
+    }
+
+    static float windZ() {
+        double length = Math.sqrt(stormVelocityX * stormVelocityX + stormVelocityZ * stormVelocityZ);
+        return length > 1.0E-5D ? (float) (stormVelocityZ / length) : 0.0F;
+    }
+
+    private static void tickSyncedStorm() {
+        if (!sandstormActive) {
+            return;
+        }
+
+        stormCenterX += stormVelocityX;
+        stormCenterZ += stormVelocityZ;
+        stormRemainingTicks--;
+        syncTimeout--;
+        if (stormRemainingTicks <= 0 || syncTimeout <= 0) {
+            sandstormActive = false;
+        }
     }
 }

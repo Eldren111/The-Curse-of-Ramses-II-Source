@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +27,11 @@ public class DynastyAffixData extends SimpleJsonResourceReloadListener {
     private static final String LEGACY_DIRECTORY = "dynasty_affixes/";
     private static final Map<String, AffixDefinition> DEFINITIONS = new HashMap<>();
     private static boolean affixesEnabled = true;
-    private static final Set<String> KNOWN_AFFIXES = Set.of("dodge", "corrosion", "damage_cap", "unyielding", "silence", "purge", "projectile_ward");
+    public static final List<String> KNOWN_AFFIXES = List.of(
+            "dodge", "corrosion", "damage_cap", "unyielding", "silence", "purge", "projectile_ward",
+            "rage", "molten", "blood_forfeit", "flight_fall", "claw_rage", "steel_bone", "flesh_feast",
+            "miasma", "restoration", "blood_limit", "shield_shatter", "death_authority", "hit_slow",
+            "vulnerability", "counter");
 
     public DynastyAffixData() {
         super(GSON, DIRECTORY);
@@ -165,6 +170,21 @@ public class DynastyAffixData extends SimpleJsonResourceReloadListener {
                 case "silence" -> silenceDefault();
                 case "purge" -> new AffixDefinition(id, true, 9, 1, 1, Map.of());
                 case "projectile_ward" -> new AffixDefinition(id, true, 10, 1, 1, Map.of());
+                case "rage" -> rageDefault();
+                case "molten" -> moltenDefault();
+                case "blood_forfeit" -> bloodForfeitDefault();
+                case "flight_fall" -> flightFallDefault();
+                case "claw_rage" -> clawRageDefault();
+                case "steel_bone" -> new AffixDefinition(id, true, 9, 1, 1, Map.of());
+                case "flesh_feast" -> fleshFeastDefault();
+                case "miasma" -> miasmaDefault();
+                case "restoration" -> restorationDefault();
+                case "blood_limit" -> bloodLimitDefault();
+                case "shield_shatter" -> shieldShatterDefault();
+                case "death_authority" -> deathAuthorityDefault();
+                case "hit_slow" -> hitSlowDefault();
+                case "vulnerability" -> vulnerabilityDefault();
+                case "counter" -> counterDefault();
                 default -> new AffixDefinition(id, true, 1, 1, 1, Map.of());
             };
         }
@@ -207,6 +227,162 @@ public class DynastyAffixData extends SimpleJsonResourceReloadListener {
                 levels.put((int) value[0], json);
             }
             return new AffixDefinition("silence", true, 7, 5, 2, levels);
+        }
+
+        private static AffixDefinition rageDefault() {
+            Map<Integer, JsonObject> levels = new HashMap<>();
+            double[][] values = {{1, 0.40D, 0.10D}, {2, 0.60D, 0.15D}, {3, 0.80D, 0.20D}};
+            for (double[] value : values) {
+                JsonObject json = new JsonObject();
+                json.addProperty("attack_speed_bonus", value[1]);
+                json.addProperty("movement_speed_bonus", value[2]);
+                json.addProperty("drop_chance", 0.002D);
+                levels.put((int) value[0], json);
+            }
+            return new AffixDefinition("rage", true, 5, 3, 2, levels);
+        }
+
+        private static AffixDefinition moltenDefault() {
+            JsonObject values = new JsonObject();
+            values.addProperty("radius", 8.0D);
+            values.addProperty("interval_ticks", 60);
+            values.addProperty("cobweb_duration_ticks", 60);
+            values.addProperty("fireball_count", 1);
+            values.addProperty("upward_fireball_count", 2);
+            values.addProperty("burn_duration_ticks", 100);
+            values.addProperty("burn_interval_ticks", 20);
+            values.addProperty("burn_true_damage", 1.0D);
+            values.addProperty("drop_chance", 0.002D);
+            return new AffixDefinition("molten", true, 5, 1, 1, Map.of(1, values));
+        }
+
+        private static AffixDefinition bloodForfeitDefault() {
+            JsonObject values = new JsonObject();
+            values.addProperty("max_health_loss", 2.0D);
+            values.addProperty("minimum_max_health", 2.0D);
+            values.addProperty("drop_chance", 0.002D);
+            return new AffixDefinition("blood_forfeit", true, 9, 1, 1, Map.of(1, values));
+        }
+
+        private static AffixDefinition flightFallDefault() {
+            JsonObject values = new JsonObject();
+            values.addProperty("grounded_duration_ticks", 100);
+            return new AffixDefinition("flight_fall", true, 7, 1, 1, Map.of(1, values));
+        }
+
+        private static AffixDefinition clawRageDefault() {
+            Map<Integer, JsonObject> levels = new HashMap<>();
+            double[][] values = {
+                    {1, 0.10D, 5.0D},
+                    {2, 0.20D, 7.0D},
+                    {3, 0.30D, 9.0D},
+                    {4, 0.40D, 11.0D},
+                    {5, 0.50D, 13.0D}
+            };
+            for (double[] value : values) {
+                JsonObject json = new JsonObject();
+                json.addProperty("trigger_chance", value[1]);
+                json.addProperty("bonus_damage", value[2]);
+                json.addProperty("drop_chance", 0.002D);
+                levels.put((int) value[0], json);
+            }
+            return new AffixDefinition("claw_rage", true, 1, 5, 2, levels);
+        }
+
+        private static AffixDefinition fleshFeastDefault() {
+            Map<Integer, JsonObject> levels = new HashMap<>();
+            double[][] values = {
+                    {1, 0.10D},
+                    {2, 0.30D},
+                    {3, 0.50D}
+            };
+            for (double[] value : values) {
+                JsonObject json = new JsonObject();
+                json.addProperty("radius", 5.0D);
+                json.addProperty("health_bonus_per_player", value[1]);
+                json.addProperty("armor_bonus_per_player", value[1]);
+                json.addProperty("drop_chance", 0.002D);
+                levels.put((int) value[0], json);
+            }
+            return new AffixDefinition("flesh_feast", true, 5, 3, 2, levels);
+        }
+
+        private static AffixDefinition miasmaDefault() {
+            Map<Integer, JsonObject> levels = new HashMap<>();
+            for (int level = 1; level <= 3; level++) {
+                JsonObject json = new JsonObject();
+                json.addProperty("chance", 0.15D);
+                json.addProperty("duration_ticks", 100);
+                json.addProperty("poison_level", level);
+                json.addProperty("drop_chance", 0.002D);
+                levels.put(level, json);
+            }
+            return new AffixDefinition("miasma", true, 5, 3, 2, levels);
+        }
+
+        private static AffixDefinition restorationDefault() {
+            Map<Integer, JsonObject> levels = new HashMap<>();
+            double[][] values = {{1, 0.50D}, {2, 1.00D}};
+            for (double[] value : values) {
+                JsonObject json = new JsonObject();
+                json.addProperty("heal_ratio", value[1]);
+                json.addProperty("drop_chance", 0.002D);
+                levels.put((int) value[0], json);
+            }
+            return new AffixDefinition("restoration", true, 7, 2, 2, levels);
+        }
+
+        private static AffixDefinition bloodLimitDefault() {
+            JsonObject values = new JsonObject();
+            values.addProperty("window_ticks", 100);
+            values.addProperty("max_health_loss_ratio", 0.35D);
+            values.addProperty("minimum_health", 1.0D);
+            values.addProperty("drop_chance", 0.002D);
+            return new AffixDefinition("blood_limit", true, 9, 1, 1, Map.of(1, values));
+        }
+
+        private static AffixDefinition shieldShatterDefault() {
+            JsonObject values = new JsonObject();
+            values.addProperty("radius", 5.0D);
+            values.addProperty("damage", 8.0D);
+            values.addProperty("knockback_strength", 1.5D);
+            return new AffixDefinition("shield_shatter", true, 1, 1, 1, Map.of(1, values));
+        }
+
+        private static AffixDefinition deathAuthorityDefault() {
+            JsonObject values = new JsonObject();
+            values.addProperty("damage_ratio", 0.15D);
+            values.addProperty("cooldown_ticks", 80);
+            values.addProperty("drop_chance", 0.002D);
+            return new AffixDefinition("death_authority", true, 9, 1, 1, Map.of(1, values));
+        }
+
+        private static AffixDefinition hitSlowDefault() {
+            JsonObject values = new JsonObject();
+            values.addProperty("attack_speed_reduction", 0.50D);
+            values.addProperty("duration_ticks", 100);
+            return new AffixDefinition("hit_slow", true, 5, 1, 1, Map.of(1, values));
+        }
+
+        private static AffixDefinition vulnerabilityDefault() {
+            Map<Integer, JsonObject> levels = new HashMap<>();
+            JsonObject levelOne = new JsonObject();
+            levelOne.addProperty("true_damage", 5.0D);
+            levelOne.addProperty("drop_chance", 0.002D);
+            levels.put(1, levelOne);
+            JsonObject levelTwo = new JsonObject();
+            levelTwo.addProperty("true_damage", 10.0D);
+            levelTwo.addProperty("drop_chance", 0.002D);
+            levels.put(2, levelTwo);
+            return new AffixDefinition("vulnerability", true, 7, 2, 2, levels);
+        }
+
+        private static AffixDefinition counterDefault() {
+            JsonObject values = new JsonObject();
+            values.addProperty("revival_chance", 0.25D);
+            values.addProperty("revival_ratio", 1.0D);
+            values.addProperty("drop_chance", 0.002D);
+            return new AffixDefinition("counter", true, 9, 1, 1, Map.of(1, values));
         }
 
         private static int readInt(JsonObject json, String key, int fallback) {

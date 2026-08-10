@@ -1,0 +1,32 @@
+package com.eldren.wutao.ramesses_curse;
+
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.function.Supplier;
+
+public record ChanceDieLargeRollPacket(int[] outcomes) {
+    public static void encode(ChanceDieLargeRollPacket packet, FriendlyByteBuf buffer) {
+        for (int outcome : packet.outcomes) {
+            buffer.writeVarInt(outcome);
+        }
+    }
+
+    public static ChanceDieLargeRollPacket decode(FriendlyByteBuf buffer) {
+        int[] outcomes = new int[6];
+        for (int index = 0; index < outcomes.length; index++) {
+            outcomes[index] = buffer.readVarInt();
+        }
+        return new ChanceDieLargeRollPacket(outcomes);
+    }
+
+    public static void handle(ChanceDieLargeRollPacket packet, Supplier<NetworkEvent.Context> contextSupplier) {
+        NetworkEvent.Context context = contextSupplier.get();
+        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(
+                Dist.CLIENT,
+                () -> () -> ClientPacketHandlers.showLargeChanceDieScreen(packet.outcomes)));
+        context.setPacketHandled(true);
+    }
+}

@@ -2,7 +2,6 @@ package com.eldren.wutao.ramesses_curse.mixin;
 
 import com.eldren.wutao.ramesses_curse.ModEvents;
 import dev.shadowsoffire.apotheosis.ench.table.ApothEnchantmentMenu;
-import dev.shadowsoffire.apotheosis.util.ApothMiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +43,7 @@ public class ApothEnchantmentMenuMixin {
             remap = false)
     private boolean ramessesCurse$chargeAdjustedApothXp(Player player, int vanillaXpCost, ItemStack stack, int slot, Player enchantingPlayer, int vanillaLevelCost, ItemStack lapisStack, int lapisCost, Level level, BlockPos pos) {
         int adjustedLevelCost = ModEvents.getAdjustedEnchantLevelCost(player, vanillaLevelCost);
-        int adjustedXpCost = ApothMiscUtil.getExpCostForSlot(adjustedLevelCost, slot);
+        int adjustedXpCost = ModEvents.getAdjustedEnchantPointCost(player, vanillaXpCost);
         if (player.getAbilities().instabuild) {
             return true;
         }

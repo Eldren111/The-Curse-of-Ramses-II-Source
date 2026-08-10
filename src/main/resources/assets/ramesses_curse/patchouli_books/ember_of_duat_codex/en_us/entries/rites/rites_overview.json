@@ -17,7 +17,7 @@
     {
       "type": "patchouli:text",
       "title": "非配方获得",
-      "text": "$(li)杜阿特余烬：下界结构容器低概率出现$(li)饱食水晶：咒印九触发后生成$(li)净化卷轴、圣甲虫、项链、敕印等：请结合战利品、推进与后续更新内容取得。"
+      "text": "$(li)Ember of Duat: Rarely found in Nether structure containers.$(li)Satiety Crystal: Automatically delivered after Curse IX triggers on death.$(li)Other relics are obtained through loot and progression."
     }
   ]
 }
