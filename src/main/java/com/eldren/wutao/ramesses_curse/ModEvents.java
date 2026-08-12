@@ -135,6 +135,7 @@ import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.SmallFireball;
 import net.minecraft.world.phys.EntityHitResult;
@@ -183,6 +184,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 @Mod.EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModEvents {
+    private static final String NATURAL_GROUP_U_PIG = "RamessesNaturalGroupUPig";
     private static final Set<UUID> ETERNAL_TOTEM_SECOND_HIT_GUARD = new HashSet<>();
     private static final ResourceLocation NETHER_BRIDGE_CHEST = new ResourceLocation("minecraft", "chests/nether_bridge");
     private static final ResourceLocation BASTION_BRIDGE_CHEST = new ResourceLocation("minecraft", "chests/bastion_bridge");
@@ -1329,6 +1331,17 @@ public class ModEvents {
         }
 
         DamageSource dropSource = event.getSource();
+        if (event.getEntity().getType() == EntityType.PIG
+                && event.getEntity().getPersistentData().getBoolean(NATURAL_GROUP_U_PIG)
+                && getSourcePlayer(dropSource) != null
+                && event.getEntity().getRandom().nextFloat() < 0.05F) {
+            event.getDrops().add(new ItemEntity(
+                    event.getEntity().level(),
+                    event.getEntity().getX(),
+                    event.getEntity().getY(),
+                    event.getEntity().getZ(),
+                    new ItemStack(ModItems.RAW_GROUP_U.get())));
+        }
         if (event.getEntity() instanceof WitherBoss
                 && dropSource != null
                 && dropSource.is(DamageTypes.SONIC_BOOM)
@@ -1528,6 +1541,14 @@ public class ModEvents {
             doubledDrops.add(duplicate);
         }
         event.getDrops().addAll(doubledDrops);
+    }
+
+    @SubscribeEvent
+    public static void onMobFinalizeSpawn(MobSpawnEvent.FinalizeSpawn event) {
+        if (event.getEntity().getType() == EntityType.PIG
+                && event.getSpawnType() == MobSpawnType.NATURAL) {
+            event.getEntity().getPersistentData().putBoolean(NATURAL_GROUP_U_PIG, true);
+        }
     }
 
     private static boolean isDynastyAffixMaterial(ItemStack stack) {

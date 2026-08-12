@@ -24,6 +24,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -113,6 +114,10 @@ public class ModItems {
             ITEMS.register("calming_tibia", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
     public static final RegistryObject<Item> PITCHFIRE_CRYSTAL =
             ITEMS.register("pitchfire_crystal", PitchfireCrystal::new);
+    public static final RegistryObject<Item> RAW_GROUP_U =
+            ITEMS.register("raw_group_u", RawGroupUItem::new);
+    public static final RegistryObject<Item> COOKED_GROUP_U =
+            ITEMS.register("cooked_group_u", CookedGroupUItem::new);
     public static final RegistryObject<Item> HEART_DEVOURING_REMNANT =
             ITEMS.register("heart_devouring_remnant", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
     public static final RegistryObject<Item> RAVENOUS_CLAW_FRAGMENT =
@@ -671,7 +676,7 @@ public class ModItems {
                 arrow.setBaseDamage(arrow.getBaseDamage() + powerLevel * 0.5D + 0.5D);
             }
             arrow.getPersistentData().putBoolean(SPECIAL_PROJECTILE, true);
-            arrow.pickup = net.minecraft.world.entity.projectile.AbstractArrow.Pickup.ALLOWED;
+            arrow.pickup = net.minecraft.world.entity.projectile.AbstractArrow.Pickup.DISALLOWED;
             level.addFreshEntity(arrow);
             if (!player.getAbilities().instabuild && stack.getEnchantmentLevel(Enchantments.INFINITY_ARROWS) <= 0) {
                 projectileStack.shrink(1);
@@ -712,6 +717,21 @@ public class ModItems {
                 Vec3 origin,
                 Vec3 direction,
                 float power) {
+            if (ammo.is(TRUTH.get())) {
+                net.minecraft.world.entity.animal.Pig pig = EntityType.PIG.create(level);
+                if (pig != null) {
+                    pig.setPos(origin.x, origin.y, origin.z);
+                    pig.setYRot(player.getYRot());
+                    pig.setXRot(player.getXRot());
+                    pig.setCustomName(Component.translatable("entity.ramesses_curse.group_u_pig"));
+                    pig.setCustomNameVisible(true);
+                    pig.getPersistentData().putBoolean("RamessesCompoundBowGroupUPig", true);
+                    pig.setDeltaMovement(direction.scale(Math.max(0.9D, power * 2.0D)));
+                    level.addFreshEntity(pig);
+                }
+                return;
+            }
+
             if (ammo.getItem() instanceof ArrowItem arrowItem) {
                 net.minecraft.world.entity.projectile.AbstractArrow arrow =
                         arrowItem.createArrow(level, ammo.copyWithCount(1), player);
@@ -722,7 +742,7 @@ public class ModItems {
                     arrow.setBaseDamage(arrow.getBaseDamage() + powerLevel * 0.5D + 0.5D);
                 }
                 arrow.getPersistentData().putBoolean(SPECIAL_PROJECTILE, true);
-                arrow.pickup = net.minecraft.world.entity.projectile.AbstractArrow.Pickup.ALLOWED;
+                arrow.pickup = net.minecraft.world.entity.projectile.AbstractArrow.Pickup.DISALLOWED;
                 level.addFreshEntity(arrow);
                 return;
             }
@@ -769,7 +789,8 @@ public class ModItems {
                     || stack.is(ARMOR_PIERCING_ARROW.get())
                     || stack.is(Items.TNT)
                     || stack.is(Items.DRAGON_BREATH)
-                    || stack.is(Items.FIRE_CHARGE));
+                    || stack.is(Items.FIRE_CHARGE)
+                    || stack.is(TRUTH.get()));
         }
 
         public static boolean isRapidFireAmmo(ItemStack stack) {
@@ -777,7 +798,8 @@ public class ModItems {
                     || stack.is(Items.TIPPED_ARROW)
                     || stack.is(ARMOR_PIERCING_ARROW.get())
                     || stack.is(Items.DRAGON_BREATH)
-                    || stack.is(Items.FIRE_CHARGE);
+                    || stack.is(Items.FIRE_CHARGE)
+                    || stack.is(TRUTH.get());
         }
 
         public static boolean isRapidFireMode(ItemStack bow) {
@@ -1119,6 +1141,37 @@ public class ModItems {
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
             tooltip.add(Component.translatable("item.ramesses_curse.truth.signature")
                     .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
+        }
+    }
+
+    public static class RawGroupUItem extends Item {
+        public RawGroupUItem() {
+            super(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(10)
+                    .saturationMod(0.4F)
+                    .build()));
+        }
+    }
+
+    public static class CookedGroupUItem extends Item {
+        private static final int EFFECT_DURATION_TICKS = 60 * 20;
+
+        public CookedGroupUItem() {
+            super(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(20)
+                    .saturationMod(0.8F)
+                    .build()));
+        }
+
+        @Override
+        public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity living) {
+            ItemStack result = super.finishUsingItem(stack, level, living);
+            if (!level.isClientSide) {
+                living.addEffect(new MobEffectInstance(MobEffects.REGENERATION, EFFECT_DURATION_TICKS, 4));
+                living.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, EFFECT_DURATION_TICKS, 1));
+                living.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, EFFECT_DURATION_TICKS, 0));
+            }
+            return result;
         }
     }
 

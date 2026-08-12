@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smoking",
+  "category": "food",
+  "ingredient": {
+    "item": "ramesses_curse:raw_group_u"
+  },
+  "result": "ramesses_curse:cooked_group_u",
+  "experience": 0.35,
+  "cookingtime": 100
+}

@@ -78,6 +78,8 @@ public class RamessesCurseMod {
                         output.accept(ModItems.ETERNAL_SILENCE_INGOT.get());
                         output.accept(ModItems.CALMING_TIBIA.get());
                         output.accept(ModItems.PITCHFIRE_CRYSTAL.get());
+                        output.accept(ModItems.RAW_GROUP_U.get());
+                        output.accept(ModItems.COOKED_GROUP_U.get());
                         output.accept(ModItems.HEART_DEVOURING_REMNANT.get());
                         output.accept(ModItems.RAVENOUS_CLAW_FRAGMENT.get());
                         output.accept(ModItems.FAMINE_CORE.get());

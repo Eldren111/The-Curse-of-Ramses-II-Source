@@ -24,7 +24,7 @@ public final class CompoundBowAmmoRecipeCategory implements IRecipeCategory<Comp
     private final IDrawable icon;
 
     public CompoundBowAmmoRecipeCategory(IGuiHelper guiHelper) {
-        this.background = guiHelper.createBlankDrawable(126, 86);
+        this.background = guiHelper.createBlankDrawable(148, 86);
         this.icon = guiHelper.createDrawableItemLike(ModItems.ETERNAL_SILENCE_COMPOUND_BOW.get());
     }
 
@@ -58,15 +58,15 @@ public final class CompoundBowAmmoRecipeCategory implements IRecipeCategory<Comp
                 .addItemStack(recipe.bow());
 
         for (int index = 0; index < recipe.ammunition().size(); index++) {
-            int column = index % 3;
-            int row = index / 3;
+            int column = index % 4;
+            int row = index / 4;
             builder.addSlot(RecipeIngredientRole.INPUT, 55 + column * 22, 8 + row * 22)
                     .setStandardSlotBackground()
                     .addItemStack(recipe.ammunition().get(index));
         }
 
         for (int index = 0; index < recipe.rapidFireAmmunition().size(); index++) {
-            builder.addSlot(RecipeIngredientRole.INPUT, 11 + index * 22, 66)
+            builder.addSlot(RecipeIngredientRole.INPUT, 8 + index * 22, 66)
                     .setStandardSlotBackground()
                     .addItemStack(recipe.rapidFireAmmunition().get(index));
         }

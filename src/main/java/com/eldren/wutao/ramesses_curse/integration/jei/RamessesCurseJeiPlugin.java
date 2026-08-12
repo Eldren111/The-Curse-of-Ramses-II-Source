@@ -57,13 +57,15 @@ public class RamessesCurseJeiPlugin implements IModPlugin {
                                 new ItemStack(ModItems.ARMOR_PIERCING_ARROW.get()),
                                 new ItemStack(Items.TNT),
                                 new ItemStack(Items.DRAGON_BREATH),
-                                new ItemStack(Items.FIRE_CHARGE)),
+                                new ItemStack(Items.FIRE_CHARGE),
+                                new ItemStack(ModItems.TRUTH.get())),
                         List.of(
                                 new ItemStack(Items.ARROW),
                                 new ItemStack(Items.TIPPED_ARROW),
                                 new ItemStack(ModItems.ARMOR_PIERCING_ARROW.get()),
                                 new ItemStack(Items.DRAGON_BREATH),
-                                new ItemStack(Items.FIRE_CHARGE)))));
+                                new ItemStack(Items.FIRE_CHARGE),
+                                new ItemStack(ModItems.TRUTH.get())))));
 
         ItemStack awkwardPotion = PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD);
         IJeiBrewingRecipe dynastyPressureBrewing = registration.getVanillaRecipeFactory().createBrewingRecipe(
@@ -120,6 +122,10 @@ public class RamessesCurseJeiPlugin implements IModPlugin {
                 Component.translatable("jei.ramesses_curse.ruin_talisman.line1"),
                 Component.translatable("jei.ramesses_curse.ruin_talisman.line2"),
                 Component.translatable("jei.ramesses_curse.ruin_talisman.line3"));
+
+        registration.addItemStackInfo(
+                List.of(new ItemStack(ModItems.RAW_GROUP_U.get())),
+                Component.translatable("jei.ramesses_curse.raw_group_u.drop"));
 
         registerAffixMaterialInfo(registration, ModItems.CALMING_TIBIA.get(), "rage");
         registerAffixMaterialInfo(registration, ModItems.PITCHFIRE_CRYSTAL.get(), "molten");
