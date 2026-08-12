@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:life_binding_remnant_crystal"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_life_binding_remnant_crystal.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_life_binding_remnant_crystal.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_life_binding_remnant_crystal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:life_binding_remnant_crystal"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

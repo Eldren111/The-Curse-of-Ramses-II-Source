@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:venom_orb"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_venom_orb.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_venom_orb.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_venom_orb": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:venom_orb"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:reverse_scale"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_reverse_scale.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_reverse_scale.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_reverse_scale": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:reverse_scale"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

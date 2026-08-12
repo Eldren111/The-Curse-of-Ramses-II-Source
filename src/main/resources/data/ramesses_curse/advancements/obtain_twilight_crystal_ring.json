@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:twilight_crystal_ring"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_twilight_crystal_ring.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_twilight_crystal_ring.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_twilight_crystal_ring": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:twilight_crystal_ring"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

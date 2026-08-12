@@ -66,4 +66,20 @@ public class ModEntities {
                     .clientTrackingRange(10)
                     .updateInterval(Integer.MAX_VALUE)
                     .build("inscription_fragment"));
+
+    public static final RegistryObject<EntityType<DragonBreathArrowEntity>> DRAGON_BREATH_ARROW =
+            ENTITY_TYPES.register("dragon_breath_arrow", () -> EntityType.Builder
+                    .<DragonBreathArrowEntity>of(DragonBreathArrowEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build("dragon_breath_arrow"));
+
+    public static final RegistryObject<EntityType<FissionHeartDropEntity>> FISSION_HEART_DROP =
+            ENTITY_TYPES.register("fission_heart_drop", () -> EntityType.Builder
+                    .<FissionHeartDropEntity>of(FissionHeartDropEntity::new, MobCategory.MISC)
+                    .sized(0.35F, 0.35F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build("fission_heart_drop"));
 }

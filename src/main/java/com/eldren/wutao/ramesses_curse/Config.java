@@ -351,6 +351,42 @@ public class Config {
                 .comment("[通用] 每个王胄等级所需的最低有效王朝威胁值。需要与 dynastyShieldLevels 一一对应。")
                 .defineList("dynastyShieldThreatThresholds", List.of(0, 1000, 2500, 4500, 7000), Config::validateNonNegativeInteger);
 
+        BUILDER.push("词条材料掉落");
+        CALMING_TIBIA_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许狂怒词条掉落镇定胫骨。")
+                .define("calmingTibiaDropEnabled", true);
+        PITCHFIRE_CRYSTAL_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许熔融词条掉落沥火凝晶。")
+                .define("pitchfireCrystalDropEnabled", true);
+        HEART_DEVOURING_REMNANT_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许弃血词条掉落噬心残印。")
+                .define("heartDevouringRemnantDropEnabled", true);
+        RAVENOUS_CLAW_FRAGMENT_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许嗜爪之怒词条掉落嗜爪碎片。")
+                .define("ravenousClawFragmentDropEnabled", true);
+        FAMINE_CORE_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许血肉盛宴词条掉落饥荒之核。")
+                .define("famineCoreDropEnabled", true);
+        VENOM_ORB_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许瘴气词条掉落剧毒宝珠。")
+                .define("venomOrbDropEnabled", true);
+        KA_REMNANT_BREATH_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许复原词条掉落卡之残息。")
+                .define("kaRemnantBreathDropEnabled", true);
+        LIFE_BINDING_REMNANT_CRYSTAL_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许血限桎梏词条掉落缚命残晶。")
+                .define("lifeBindingRemnantCrystalDropEnabled", true);
+        AUTHORITY_FRAGMENT_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许死亡权柄词条掉落权柄碎片。")
+                .define("authorityFragmentDropEnabled", true);
+        TRUTH_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许易伤词条掉落真理。")
+                .define("truthDropEnabled", true);
+        REVERSE_SCALE_DROP_ENABLED = BUILDER
+                .comment("[词条材料掉落] 是否允许反制词条掉落逆鳞片。")
+                .define("reverseScaleDropEnabled", true);
+        BUILDER.pop();
+
         START_WITH_SEAL = BUILDER
                 .comment("[通用] 为 true 时，新玩家开局获得卡迭石咒印。")
                 .define("startWithSeal", true);
@@ -467,6 +503,17 @@ public class Config {
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_LEVELS;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_MAX_VALUES;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_THREAT_THRESHOLDS;
+    public static final ForgeConfigSpec.BooleanValue CALMING_TIBIA_DROP_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue PITCHFIRE_CRYSTAL_DROP_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue HEART_DEVOURING_REMNANT_DROP_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue RAVENOUS_CLAW_FRAGMENT_DROP_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue FAMINE_CORE_DROP_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue VENOM_ORB_DROP_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue KA_REMNANT_BREATH_DROP_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue LIFE_BINDING_REMNANT_CRYSTAL_DROP_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue AUTHORITY_FRAGMENT_DROP_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue TRUTH_DROP_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue REVERSE_SCALE_DROP_ENABLED;
     public static final ForgeConfigSpec.ConfigValue<String> NECKLACE_EFFECT_ID;
     public static final ForgeConfigSpec.IntValue NECKLACE_STACK_TIMEOUT;
     public static final ForgeConfigSpec.IntValue NECKLACE_MAX_STACKS;

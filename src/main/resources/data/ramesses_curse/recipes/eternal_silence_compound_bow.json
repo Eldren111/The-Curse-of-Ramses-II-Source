@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " SI",
+    "SBI",
+    " SI"
+  ],
+  "key": {
+    "S": {
+      "item": "ramesses_curse:eternal_silence_ritual_staff"
+    },
+    "B": {
+      "item": "minecraft:bow"
+    },
+    "I": {
+      "item": "ramesses_curse:eternal_silence_ingot"
+    }
+  },
+  "result": {
+    "item": "ramesses_curse:eternal_silence_compound_bow",
+    "count": 1
+  },
+  "show_notification": true
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:fission_wraith_heart"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_fission_wraith_heart.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_fission_wraith_heart.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_fission_wraith_heart": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:fission_wraith_heart"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

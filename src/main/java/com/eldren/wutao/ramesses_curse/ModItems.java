@@ -128,13 +128,15 @@ public class ModItems {
     public static final RegistryObject<Item> AUTHORITY_FRAGMENT =
             ITEMS.register("authority_fragment", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
     public static final RegistryObject<Item> TRUTH =
-            ITEMS.register("truth", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
+            ITEMS.register("truth", TruthItem::new);
     public static final RegistryObject<Item> REVERSE_SCALE =
             ITEMS.register("reverse_scale", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
     public static final RegistryObject<Item> FISSION_WRAITH_HEART =
             ITEMS.register("fission_wraith_heart", FissionWraithHeart::new);
     public static final RegistryObject<Item> ETERNAL_SILENCE_COMPOUND_BOW =
             ITEMS.register("eternal_silence_compound_bow", EternalSilenceCompoundBow::new);
+    public static final RegistryObject<Item> ARMOR_PIERCING_ARROW =
+            ITEMS.register("armor_piercing_arrow", ArmorPiercingArrow::new);
     public static final RegistryObject<Item> DRAGON_BREATH_COMPOUND_BOW =
             ITEMS.register("dragon_breath_compound_bow", DragonBreathCompoundBow::new);
     public static final RegistryObject<Item> CHANCE_DIE_SIX_SIDED =
@@ -161,6 +163,10 @@ public class ModItems {
             ITEMS.register("resonant_scarab", ResonantScarab::new);
     public static final RegistryObject<Item> URAEUS_NECKLACE =
             ITEMS.register("uraeus_necklace", UraeusNecklace::new);
+    public static final RegistryObject<Item> HUSHED_DEPTHS_AMULET =
+            ITEMS.register("hushed_depths_amulet", HushedDepthsAmulet::new);
+    public static final RegistryObject<Item> RUIN_TALISMAN =
+            ITEMS.register("ruin_talisman", RuinTalisman::new);
     public static final RegistryObject<Item> EDICT_OF_TWO_LANDS =
             ITEMS.register("edict_of_two_lands", EdictOfTwoLands::new);
     public static final RegistryObject<Item> RAMASSES_MANUAL =
@@ -557,6 +563,11 @@ public class ModItems {
 
     public static class EternalSilenceCompoundBow extends BowItem {
         private static final String SPECIAL_PROJECTILE = "RamessesEternalSilenceBowProjectile";
+        private static final String ARMOR_PIERCING_PROJECTILE = "RamessesArmorPiercingArrow";
+        private static final String RAPID_FIRE_MODE = "RamessesCompoundBowRapidFireMode";
+        private static final int RAPID_FIRE_DURATION_TICKS = 5 * 20;
+        private static final int RAPID_FIRE_COOLDOWN_TICKS = 5 * 20;
+        private static final int RAPID_FIRE_INTERVAL_TICKS = 2;
 
         public EternalSilenceCompoundBow() {
             // durability() already forces a single-item stack in Minecraft 1.20.1.
@@ -574,8 +585,48 @@ public class ModItems {
         public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
             ItemStack stack = player.getItemInHand(hand);
             addDefaultEnchantments(stack);
-            InteractionResultHolder<ItemStack> result = super.use(level, player, hand);
-            return result;
+            ItemStack selectedAmmo = CompoundBowAmmoCapabilityProvider.getSelectedAmmo(stack);
+            if (isRapidFireMode(stack) && isRapidFireAmmo(selectedAmmo)) {
+                if (player.getCooldowns().isOnCooldown(this)) {
+                    return InteractionResultHolder.fail(stack);
+                }
+                player.startUsingItem(hand);
+                return InteractionResultHolder.consume(stack);
+            }
+            if (!selectedAmmo.isEmpty()) {
+                player.startUsingItem(hand);
+                return InteractionResultHolder.consume(stack);
+            }
+            return super.use(level, player, hand);
+        }
+
+        @Override
+        public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseTicks) {
+            if (level.isClientSide || !(livingEntity instanceof ServerPlayer player)) {
+                return;
+            }
+            ItemStack selectedAmmo = CompoundBowAmmoCapabilityProvider.getSelectedAmmo(stack);
+            if (!isRapidFireMode(stack) || !isRapidFireAmmo(selectedAmmo)) {
+                return;
+            }
+
+            int usedTicks = getUseDuration(stack) - remainingUseTicks;
+            if (usedTicks >= RAPID_FIRE_DURATION_TICKS) {
+                player.releaseUsingItem();
+                return;
+            }
+            if (usedTicks % RAPID_FIRE_INTERVAL_TICKS != 0) {
+                return;
+            }
+
+            fireRapidProjectile(level, player, stack, selectedAmmo);
+            stack.hurtAndBreak(1, player, broken -> player.broadcastBreakEvent(player.getUsedItemHand()));
+            player.awardStat(Stats.ITEM_USED.get(this));
+            level.playSound(null, player.blockPosition(), SoundEvents.ARROW_SHOOT,
+                    SoundSource.PLAYERS, 0.65F, 1.25F + level.random.nextFloat() * 0.12F);
+            if (stack.isEmpty()) {
+                player.stopUsingItem();
+            }
         }
 
         @Override
@@ -596,10 +647,10 @@ public class ModItems {
             }
             ItemStack selectedAmmo = CompoundBowAmmoCapabilityProvider.getSelectedAmmo(stack);
             if (!selectedAmmo.isEmpty()) {
-                if (!player.getAbilities().instabuild
-                        && !CompoundBowAmmoCapabilityProvider.consumeMatchingInventoryItem(player, selectedAmmo)) {
-                    player.displayClientMessage(Component.translatable("message.ramesses_curse.compound_bow_ammo_missing")
-                            .withStyle(ChatFormatting.RED), true);
+                if (isRapidFireMode(stack) && isRapidFireAmmo(selectedAmmo)) {
+                    if (usedTicks > 0) {
+                        player.getCooldowns().addCooldown(this, RAPID_FIRE_COOLDOWN_TICKS);
+                    }
                     return;
                 }
                 fireSelectedAmmo(level, player, stack, selectedAmmo, power);
@@ -646,6 +697,13 @@ public class ModItems {
             }
         }
 
+        private static void fireRapidProjectile(
+                Level level, ServerPlayer player, ItemStack bow, ItemStack ammo) {
+            Vec3 origin = player.getEyePosition().add(player.getLookAngle().scale(1.1D));
+            Vec3 direction = player.getLookAngle().normalize();
+            fireAmmoProjectile(level, player, bow, ammo, origin, direction, 1.0F);
+        }
+
         private static void fireAmmoProjectile(
                 Level level,
                 ServerPlayer player,
@@ -669,12 +727,29 @@ public class ModItems {
                 return;
             }
 
+            if (ammo.is(Items.TNT)) {
+                net.minecraft.world.entity.item.PrimedTnt tnt =
+                        new net.minecraft.world.entity.item.PrimedTnt(
+                                level, origin.x, origin.y, origin.z, player);
+                tnt.setFuse(40);
+                tnt.setDeltaMovement(direction.scale(Math.max(0.8D, power * 1.6D)));
+                level.addFreshEntity(tnt);
+                return;
+            }
+
             if (ammo.is(Items.DRAGON_BREATH)) {
-                net.minecraft.world.entity.projectile.DragonFireball fireball =
-                        new net.minecraft.world.entity.projectile.DragonFireball(
-                                level, player, direction.x * 0.12D, direction.y * 0.12D, direction.z * 0.12D);
-                fireball.setPos(origin.x, origin.y, origin.z);
-                level.addFreshEntity(fireball);
+                DragonBreathArrowEntity breathArrow = new DragonBreathArrowEntity(level, player);
+                breathArrow.setPos(origin.x, origin.y, origin.z);
+                float velocity = power * 3.0F;
+                breathArrow.shoot(direction.x, direction.y, direction.z, velocity, 1.0F);
+                breathArrow.setBaseDamage(20.0D / Math.max(0.1D, velocity));
+                int powerLevel = bow.getEnchantmentLevel(Enchantments.POWER_ARROWS);
+                if (powerLevel > 0) {
+                    breathArrow.setBaseDamage(
+                            breathArrow.getBaseDamage() + powerLevel * 0.5D + 0.5D);
+                }
+                breathArrow.getPersistentData().putBoolean(SPECIAL_PROJECTILE, true);
+                level.addFreshEntity(breathArrow);
                 return;
             }
 
@@ -684,35 +759,44 @@ public class ModItems {
                                 level, player, direction.x * 0.12D, direction.y * 0.12D, direction.z * 0.12D);
                 fireball.setPos(origin.x, origin.y, origin.z);
                 level.addFreshEntity(fireball);
-                return;
             }
+        }
 
-            if (ammo.is(Items.FIREWORK_ROCKET)) {
-                net.minecraft.world.entity.projectile.FireworkRocketEntity rocket =
-                        new net.minecraft.world.entity.projectile.FireworkRocketEntity(
-                                level, ammo.copyWithCount(1), origin.x, origin.y, origin.z, false);
-                rocket.setOwner(player);
-                rocket.shoot(direction.x, direction.y, direction.z, Math.max(1.0F, power * 2.0F), 1.0F);
-                level.addFreshEntity(rocket);
-                return;
+        public static boolean isSupportedAmmo(ItemStack stack) {
+            return !stack.isEmpty()
+                    && (stack.is(Items.ARROW)
+                    || stack.is(Items.TIPPED_ARROW)
+                    || stack.is(ARMOR_PIERCING_ARROW.get())
+                    || stack.is(Items.TNT)
+                    || stack.is(Items.DRAGON_BREATH)
+                    || stack.is(Items.FIRE_CHARGE));
+        }
+
+        public static boolean isRapidFireAmmo(ItemStack stack) {
+            return stack.is(Items.ARROW)
+                    || stack.is(Items.TIPPED_ARROW)
+                    || stack.is(ARMOR_PIERCING_ARROW.get())
+                    || stack.is(Items.DRAGON_BREATH)
+                    || stack.is(Items.FIRE_CHARGE);
+        }
+
+        public static boolean isRapidFireMode(ItemStack bow) {
+            CompoundTag tag = bow.getTag();
+            return tag == null || !tag.contains(RAPID_FIRE_MODE) || tag.getBoolean(RAPID_FIRE_MODE);
+        }
+
+        public static boolean toggleFireMode(ItemStack bow) {
+            boolean rapidFire = !isRapidFireMode(bow);
+            bow.getOrCreateTag().putBoolean(RAPID_FIRE_MODE, rapidFire);
+            return rapidFire;
+        }
+
+        public static float getDrawProgress(ItemStack stack, @Nullable LivingEntity entity) {
+            if (entity == null || entity.getUseItem() != stack) {
+                return 0.0F;
             }
-
-            if (ammo.getItem() instanceof net.minecraft.world.item.PotionItem) {
-                net.minecraft.world.entity.projectile.ThrownPotion potion =
-                        new net.minecraft.world.entity.projectile.ThrownPotion(level, player);
-                potion.setItem(ammo.copyWithCount(1));
-                potion.setPos(origin.x, origin.y, origin.z);
-                potion.shoot(direction.x, direction.y, direction.z, Math.max(1.0F, power * 2.0F), 1.0F);
-                level.addFreshEntity(potion);
-                return;
-            }
-
-            net.minecraft.world.entity.projectile.Snowball thrownItem =
-                    new net.minecraft.world.entity.projectile.Snowball(level, player);
-            thrownItem.setItem(ammo.copyWithCount(1));
-            thrownItem.setPos(origin.x, origin.y, origin.z);
-            thrownItem.shoot(direction.x, direction.y, direction.z, Math.max(1.0F, power * 2.0F), 1.0F);
-            level.addFreshEntity(thrownItem);
+            int usedTicks = stack.getUseDuration() - entity.getUseItemRemainingTicks();
+            return Mth.clamp(usedTicks / 20.0F, 0.0F, 1.0F);
         }
 
         public static boolean isCompoundBow(ItemStack stack) {
@@ -720,7 +804,14 @@ public class ModItems {
         }
 
         public static boolean isSpecialProjectile(Entity entity) {
-            return entity != null && entity.getPersistentData().getBoolean(SPECIAL_PROJECTILE);
+            return entity != null
+                    && (entity.getPersistentData().getBoolean(SPECIAL_PROJECTILE)
+                    || entity.getPersistentData().getBoolean(ARMOR_PIERCING_PROJECTILE));
+        }
+
+        public static boolean isArmorPiercingProjectile(Entity entity) {
+            return entity != null
+                    && entity.getPersistentData().getBoolean(ARMOR_PIERCING_PROJECTILE);
         }
 
         @Override
@@ -734,6 +825,16 @@ public class ModItems {
                     .withStyle(ChatFormatting.DARK_PURPLE));
             tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.ammo_selector")
                     .withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable(
+                            isRapidFireMode(stack)
+                                    ? "item.ramesses_curse.eternal_silence_compound_bow.mode.rapid"
+                                    : "item.ramesses_curse.eternal_silence_compound_bow.mode.triple")
+                    .withStyle(isRapidFireMode(stack) ? ChatFormatting.RED : ChatFormatting.AQUA));
+            int drawSpeedPercent = ModEvents.getClientSealDrawSpeedPercent();
+            tooltip.add(Component.translatable(
+                            "item.ramesses_curse.eternal_silence_compound_bow.draw_speed",
+                            drawSpeedPercent)
+                    .withStyle(ChatFormatting.YELLOW));
         }
 
         private static void addDefaultEnchantments(ItemStack stack) {
@@ -747,6 +848,33 @@ public class ModItems {
 
     }
 
+    public static class ArmorPiercingArrow extends ArrowItem {
+        public ArmorPiercingArrow() {
+            super(new Item.Properties().rarity(Rarity.RARE));
+        }
+
+        @Override
+        public net.minecraft.world.entity.projectile.AbstractArrow createArrow(
+                Level level, ItemStack stack, LivingEntity shooter) {
+            net.minecraft.world.entity.projectile.Arrow arrow =
+                    new net.minecraft.world.entity.projectile.Arrow(level, shooter);
+            arrow.setEffectsFromItem(stack);
+            arrow.getPersistentData().putBoolean(
+                    EternalSilenceCompoundBow.ARMOR_PIERCING_PROJECTILE, true);
+            return arrow;
+        }
+
+        @Override
+        public void appendHoverText(
+                ItemStack stack,
+                @Nullable Level level,
+                List<Component> tooltip,
+                TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.armor_piercing_arrow.desc")
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+        }
+    }
+
     public static class DragonBreathCompoundBow extends EternalSilenceCompoundBow {
         public DragonBreathCompoundBow() {
             super();
@@ -758,6 +886,16 @@ public class ModItems {
                     .withStyle(ChatFormatting.DARK_PURPLE));
             tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.ammo_selector")
                     .withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable(
+                            isRapidFireMode(stack)
+                                    ? "item.ramesses_curse.eternal_silence_compound_bow.mode.rapid"
+                                    : "item.ramesses_curse.eternal_silence_compound_bow.mode.triple")
+                    .withStyle(isRapidFireMode(stack) ? ChatFormatting.RED : ChatFormatting.AQUA));
+            int drawSpeedPercent = ModEvents.getClientSealDrawSpeedPercent();
+            tooltip.add(Component.translatable(
+                            "item.ramesses_curse.eternal_silence_compound_bow.draw_speed",
+                            drawSpeedPercent)
+                    .withStyle(ChatFormatting.YELLOW));
         }
     }
 
@@ -964,6 +1102,23 @@ public class ModItems {
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
             tooltip.add(Component.translatable("item.ramesses_curse.date_palm_fruit.desc")
                     .withStyle(ChatFormatting.GOLD));
+        }
+    }
+
+    public static class TruthItem extends Item {
+        public TruthItem() {
+            super(new Item.Properties()
+                    .rarity(Rarity.EPIC)
+                    .food(new FoodProperties.Builder()
+                            .nutrition(20)
+                            .saturationMod(0.6F)
+                            .build()));
+        }
+
+        @Override
+        public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            tooltip.add(Component.translatable("item.ramesses_curse.truth.signature")
+                    .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
         }
     }
 
@@ -2815,6 +2970,89 @@ public class ModItems {
                 case 10 -> "X";
                 default -> Integer.toString(level);
             };
+        }
+    }
+
+    public static class HushedDepthsAmulet extends Item implements ICurioItem {
+        private static final String CHARM_SLOT_ID = "charm";
+
+        public HushedDepthsAmulet() {
+            super(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+        }
+
+        @Override
+        public boolean canEquip(SlotContext slotContext, ItemStack stack) {
+            return CHARM_SLOT_ID.equals(slotContext.identifier())
+                    && slotContext.entity() instanceof Player;
+        }
+
+        @Override
+        public List<Component> getAttributesTooltip(List<Component> tooltips, ItemStack stack) {
+            List<Component> result = new ArrayList<>(tooltips);
+            result.add(CommonComponents.EMPTY);
+            result.add(Component.translatable("item.ramesses_curse.hushed_depths_amulet.worn_as")
+                    .withStyle(ChatFormatting.GOLD));
+            result.add(Component.translatable("item.ramesses_curse.hushed_depths_amulet.effect")
+                    .withStyle(ChatFormatting.BLUE));
+            result.add(Component.translatable("item.ramesses_curse.hushed_depths_amulet.warden_effect")
+                    .withStyle(ChatFormatting.BLUE));
+            return result;
+        }
+
+        public static boolean isEquipped(Player player) {
+            return CuriosApi.getCuriosInventory(player)
+                    .resolve()
+                    .flatMap(inventory -> inventory.findFirstCurio(HUSHED_DEPTHS_AMULET.get()))
+                    .map(SlotResult::stack)
+                    .filter(stack -> !stack.isEmpty())
+                    .isPresent();
+        }
+    }
+
+    public static class RuinTalisman extends Item implements ICurioItem {
+        private static final String CHARM_SLOT_ID = "charm";
+        private static int clientCounter;
+
+        public RuinTalisman() {
+            super(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+        }
+
+        @Override
+        public boolean canEquip(SlotContext slotContext, ItemStack stack) {
+            return CHARM_SLOT_ID.equals(slotContext.identifier())
+                    && slotContext.entity() instanceof Player;
+        }
+
+        @Override
+        public List<Component> getAttributesTooltip(List<Component> tooltips, ItemStack stack) {
+            List<Component> result = new ArrayList<>(tooltips);
+            result.add(CommonComponents.EMPTY);
+            result.add(Component.translatable("item.ramesses_curse.ruin_talisman.worn_as")
+                    .withStyle(ChatFormatting.GOLD));
+            result.add(Component.translatable(
+                            "message.ramesses_curse.ruin_talisman.counter", clientCounter)
+                    .withStyle(ChatFormatting.YELLOW));
+            result.add(Component.translatable("item.ramesses_curse.ruin_talisman.effect.count")
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+            result.add(Component.translatable("item.ramesses_curse.ruin_talisman.effect.attack")
+                    .withStyle(ChatFormatting.RED));
+            result.add(Component.translatable("item.ramesses_curse.ruin_talisman.effect.revive")
+                    .withStyle(ChatFormatting.LIGHT_PURPLE));
+            return result;
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        public static void setClientCounter(int counter) {
+            clientCounter = Math.max(0, counter);
+        }
+
+        public static boolean isEquipped(Player player) {
+            return CuriosApi.getCuriosInventory(player)
+                    .resolve()
+                    .flatMap(inventory -> inventory.findFirstCurio(RUIN_TALISMAN.get()))
+                    .map(SlotResult::stack)
+                    .filter(stack -> !stack.isEmpty())
+                    .isPresent();
         }
     }
 

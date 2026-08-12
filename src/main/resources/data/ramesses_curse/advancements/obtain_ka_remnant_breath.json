@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:ka_remnant_breath"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_ka_remnant_breath.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_ka_remnant_breath.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_ka_remnant_breath": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:ka_remnant_breath"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

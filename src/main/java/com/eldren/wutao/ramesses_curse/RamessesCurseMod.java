@@ -41,6 +41,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.client.event.RegisterItemDecorationsEvent;
 import org.slf4j.Logger;
 import software.bernie.geckolib.GeckoLib;
 import top.theillusivec4.curios.api.SlotTypeMessage;
@@ -88,6 +89,7 @@ public class RamessesCurseMod {
                         output.accept(ModItems.REVERSE_SCALE.get());
                         output.accept(ModItems.FISSION_WRAITH_HEART.get());
                         output.accept(ModItems.ETERNAL_SILENCE_COMPOUND_BOW.get());
+                        output.accept(ModItems.ARMOR_PIERCING_ARROW.get());
                         output.accept(ModItems.CHANCE_DIE_SIX_SIDED.get());
                         output.accept(ModItems.CHANCE_DIE_LARGE.get());
                         output.accept(ModItems.ETERNAL_SILENCE_TOTEM.get());
@@ -100,6 +102,8 @@ public class RamessesCurseMod {
                         output.accept(ModItems.HYMN_OF_THE_TWO_LANDS.get());
                         output.accept(ModItems.RESONANT_SCARAB.get());
                         output.accept(ModItems.URAEUS_NECKLACE.get());
+                        output.accept(ModItems.HUSHED_DEPTHS_AMULET.get());
+                        output.accept(ModItems.RUIN_TALISMAN.get());
                         output.accept(ModItems.EDICT_OF_TWO_LANDS.get());
                         output.accept(ModItems.DUAT_DUNGEON_TILE.get());
                         output.accept(ModItems.DUAT_DUNGEON_TILE_WALL.get());
@@ -160,6 +164,7 @@ public class RamessesCurseMod {
             registerCuriosSlot(MUSIC_SLOT_ID);
             registerCuriosSlot(HAND_SLOT_ID);
             registerCuriosSlot("necklace");
+            registerCuriosSlot("charm");
             registerCuriosSlot(ModItems.EternalSilenceTotem.BODY_SLOT_ID);
             registerCuriosSlot(ModItems.TwilightCrystalRing.RING_SLOT_ID);
             registerCuriosSlot(InscriptionBagItem.SLOT_ID);
@@ -232,6 +237,11 @@ public class RamessesCurseMod {
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
                 "key.categories.ramesses_curse");
+        public static final KeyMapping COMPOUND_BOW_MODE_KEY = new KeyMapping(
+                "key.ramesses_curse.compound_bow_mode",
+                InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_K,
+                "key.categories.ramesses_curse");
 
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
@@ -247,6 +257,8 @@ public class RamessesCurseMod {
                 EntityRenderers.register(ModEntities.NEBUKA_GUARDIAN.get(), NebukaGuardianRenderer::new);
                 EntityRenderers.register(ModEntities.NEBUKA_SUMMONING_RITUAL.get(), NebukaSummoningRitualRenderer::new);
                 EntityRenderers.register(ModEntities.INSCRIPTION_FRAGMENT.get(), net.minecraft.client.renderer.entity.ItemFrameRenderer::new);
+                EntityRenderers.register(ModEntities.DRAGON_BREATH_ARROW.get(), DragonBreathArrowRenderer::new);
+                EntityRenderers.register(ModEntities.FISSION_HEART_DROP.get(), FissionHeartDropRenderer::new);
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.DUAT_PORTAL.get(), RenderType.translucent());
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.SILENT_SEPULCHER_WITHERED_VINE.get(), RenderType.cutout());
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.DATE_PALM_LEAVES.get(), RenderType.cutoutMipped());
@@ -260,10 +272,7 @@ public class RamessesCurseMod {
             ItemProperties.register(bow, new ResourceLocation("pulling"), (stack, level, entity, seed) ->
                     entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F);
             ItemProperties.register(bow, new ResourceLocation("pull"), (stack, level, entity, seed) -> {
-                if (entity == null || entity.getUseItem() != stack) {
-                    return 0.0F;
-                }
-                return (float) (stack.getUseDuration() - entity.getUseItemRemainingTicks()) / 20.0F;
+                return ModItems.EternalSilenceCompoundBow.getDrawProgress(stack, entity);
             });
         }
 
@@ -274,6 +283,7 @@ public class RamessesCurseMod {
             event.register(ClientModEvents.EDICT_OF_TWO_LANDS_KEY);
             event.register(ClientModEvents.EDICT_OF_TWO_LANDS_DOMAIN_KEY);
             event.register(ClientModEvents.COMPOUND_BOW_AMMO_KEY);
+            event.register(ClientModEvents.COMPOUND_BOW_MODE_KEY);
         }
 
         @SubscribeEvent
@@ -285,6 +295,24 @@ public class RamessesCurseMod {
                             ? 0x3A123F
                             : 0xFFFFFF,
                     ModItems.FISSION_WRAITH_HEART.get());
+        }
+
+        @SubscribeEvent
+        public static void registerItemDecorations(RegisterItemDecorationsEvent event) {
+            event.register(ModItems.CALMING_TIBIA.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(ModItems.PITCHFIRE_CRYSTAL.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(ModItems.HEART_DEVOURING_REMNANT.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(ModItems.RAVENOUS_CLAW_FRAGMENT.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(ModItems.FAMINE_CORE.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(ModItems.VENOM_ORB.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(ModItems.KA_REMNANT_BREATH.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(ModItems.LIFE_BINDING_REMNANT_CRYSTAL.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(ModItems.AUTHORITY_FRAGMENT.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(ModItems.TRUTH.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(ModItems.REVERSE_SCALE.get(), DynastyAffixMaterialDecorator.INSTANCE);
+            event.register(
+                    ModItems.ETERNAL_SILENCE_COMPOUND_BOW.get(),
+                    DynastyAffixMaterialDecorator.DEEP_PURPLE);
         }
     }
 }

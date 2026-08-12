@@ -249,9 +249,6 @@ public class DynastyAffixData extends SimpleJsonResourceReloadListener {
             values.addProperty("cobweb_duration_ticks", 60);
             values.addProperty("fireball_count", 1);
             values.addProperty("upward_fireball_count", 2);
-            values.addProperty("burn_duration_ticks", 100);
-            values.addProperty("burn_interval_ticks", 20);
-            values.addProperty("burn_true_damage", 1.0D);
             values.addProperty("drop_chance", 0.002D);
             return new AffixDefinition("molten", true, 5, 1, 1, Map.of(1, values));
         }

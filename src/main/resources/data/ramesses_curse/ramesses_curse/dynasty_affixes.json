@@ -61,9 +61,6 @@
         "cobweb_duration_ticks": 60,
         "fireball_count": 1,
         "upward_fireball_count": 2,
-        "burn_duration_ticks": 100,
-        "burn_interval_ticks": 20,
-        "burn_true_damage": 1.0,
         "drop_chance": 0.002
       }
     }

@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:calming_tibia"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_calming_tibia.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_calming_tibia.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_calming_tibia": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:calming_tibia"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

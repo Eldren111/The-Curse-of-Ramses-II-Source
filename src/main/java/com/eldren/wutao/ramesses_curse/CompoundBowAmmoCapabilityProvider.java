@@ -1,8 +1,6 @@
 package com.eldren.wutao.ramesses_curse;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -39,21 +37,6 @@ public final class CompoundBowAmmoCapabilityProvider implements ICapabilityProvi
                 .orElse(ItemStack.EMPTY);
     }
 
-    public static boolean consumeMatchingInventoryItem(Player player, ItemStack selectedAmmo) {
-        if (selectedAmmo.isEmpty()) {
-            return false;
-        }
-        for (int slot = 0; slot < player.getInventory().items.size(); slot++) {
-            ItemStack candidate = player.getInventory().getItem(slot);
-            if (ItemStack.isSameItemSameTags(candidate, selectedAmmo)) {
-                candidate.shrink(1);
-                player.getInventory().setChanged();
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public <T> @NotNull LazyOptional<T> getCapability(
             @NotNull Capability<T> capability,
@@ -87,7 +70,7 @@ public final class CompoundBowAmmoCapabilityProvider implements ICapabilityProvi
 
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-            return !stack.isEmpty() && !(stack.getItem() instanceof BowItem);
+            return ModItems.EternalSilenceCompoundBow.isSupportedAmmo(stack);
         }
 
         @Override

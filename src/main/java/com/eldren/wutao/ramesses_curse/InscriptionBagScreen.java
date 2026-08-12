@@ -10,7 +10,10 @@ public class InscriptionBagScreen extends AbstractContainerScreen<InscriptionBag
     private static final int INNER_COLOR = 0xFF120E18;
     private static final int GOLD_DARK = 0xFF73511E;
     private static final int GOLD = 0xFFC99A43;
-    private static final int SLOT_COLOR = 0xFF33243D;
+    private static final int INSCRIPTION_SLOT_BORDER = 0xFFB9C9CC;
+    private static final int INSCRIPTION_SLOT_RIM = 0xFF60777C;
+    private static final int INSCRIPTION_SLOT_FILL = 0xFF31464B;
+    private static final int INSCRIPTION_SLOT_HIGHLIGHT = 0xFFE0EAEB;
 
     public InscriptionBagScreen(InscriptionBagMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -52,10 +55,12 @@ public class InscriptionBagScreen extends AbstractContainerScreen<InscriptionBag
     }
 
     private static void drawInscriptionSlot(GuiGraphics graphics, int x, int y, int row, int column) {
-        graphics.fill(x, y, x + 18, y + 18, GOLD_DARK);
-        graphics.fill(x + 1, y + 1, x + 17, y + 17, SLOT_COLOR);
-        graphics.fill(x + 2, y + 2, x + 16, y + 16, INNER_COLOR);
-        int accent = (row + column) % 2 == 0 ? GOLD : GOLD_DARK;
+        graphics.fill(x, y, x + 18, y + 18, INSCRIPTION_SLOT_BORDER);
+        graphics.fill(x + 1, y + 1, x + 17, y + 17, INSCRIPTION_SLOT_RIM);
+        graphics.fill(x + 2, y + 2, x + 16, y + 16, INSCRIPTION_SLOT_FILL);
+        int accent = (row + column) % 2 == 0
+                ? INSCRIPTION_SLOT_HIGHLIGHT
+                : INSCRIPTION_SLOT_BORDER;
         graphics.fill(x, y, x + 4, y + 1, accent);
         graphics.fill(x, y, x + 1, y + 4, accent);
         graphics.fill(x + 14, y + 17, x + 18, y + 18, accent);

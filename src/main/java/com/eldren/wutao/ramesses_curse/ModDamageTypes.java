@@ -26,12 +26,12 @@ public final class ModDamageTypes {
     public static final ResourceKey<DamageType> VULNERABILITY = ResourceKey.create(
             Registries.DAMAGE_TYPE,
             new ResourceLocation(RamessesCurseMod.MODID, "vulnerability"));
-    public static final ResourceKey<DamageType> MOLTEN_BURN = ResourceKey.create(
-            Registries.DAMAGE_TYPE,
-            new ResourceLocation(RamessesCurseMod.MODID, "molten_burn"));
     public static final ResourceKey<DamageType> CHANCE_DIE_TRUE_DAMAGE = ResourceKey.create(
             Registries.DAMAGE_TYPE,
             new ResourceLocation(RamessesCurseMod.MODID, "chance_die_true_damage"));
+    public static final ResourceKey<DamageType> RUIN_BURST = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            new ResourceLocation(RamessesCurseMod.MODID, "ruin_burst"));
     public static final TagKey<DamageType> PERCENTAGE_DAMAGE = TagKey.create(
             Registries.DAMAGE_TYPE,
             new ResourceLocation(RamessesCurseMod.MODID, "percentage_damage"));
@@ -69,15 +69,15 @@ public final class ModDamageTypes {
                 .getHolderOrThrow(VULNERABILITY), attacker);
     }
 
-    public static DamageSource moltenBurn(Level level, LivingEntity attacker) {
-        return new DamageSource(level.registryAccess()
-                .registryOrThrow(Registries.DAMAGE_TYPE)
-                .getHolderOrThrow(MOLTEN_BURN), attacker);
-    }
-
     public static DamageSource chanceDieTrueDamage(Level level, Player player) {
         return new DamageSource(level.registryAccess()
                 .registryOrThrow(Registries.DAMAGE_TYPE)
                 .getHolderOrThrow(CHANCE_DIE_TRUE_DAMAGE), player);
+    }
+
+    public static DamageSource ruinBurst(Level level, Player player) {
+        return new DamageSource(level.registryAccess()
+                .registryOrThrow(Registries.DAMAGE_TYPE)
+                .getHolderOrThrow(RUIN_BURST), player);
     }
 }

@@ -246,9 +246,21 @@ public class ModNetwork {
                 ChanceDieStateSyncPacket::handle);
         CHANNEL.registerMessage(
                 packetId++,
+                RuinCounterSyncPacket.class,
+                RuinCounterSyncPacket::encode,
+                RuinCounterSyncPacket::decode,
+                RuinCounterSyncPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
                 OpenCompoundBowAmmoPacket.class,
                 OpenCompoundBowAmmoPacket::encode,
                 OpenCompoundBowAmmoPacket::decode,
                 OpenCompoundBowAmmoPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                ToggleCompoundBowModePacket.class,
+                ToggleCompoundBowModePacket::encode,
+                ToggleCompoundBowModePacket::decode,
+                ToggleCompoundBowModePacket::handle);
     }
 }

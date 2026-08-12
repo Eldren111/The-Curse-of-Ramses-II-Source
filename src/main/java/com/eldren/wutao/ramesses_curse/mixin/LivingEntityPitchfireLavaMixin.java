@@ -35,10 +35,14 @@ public abstract class LivingEntityPitchfireLavaMixin {
         BlockPos pos = living.blockPosition();
         if (CollisionContext.of(living).isAbove(LiquidBlock.STABLE_SHAPE, pos, true)
                 && !living.level().getFluidState(pos.above()).is(FluidTags.LAVA)) {
-            living.setOnGround(true);
             Vec3 movement = living.getDeltaMovement();
             if (movement.y < 0.0D) {
                 living.setDeltaMovement(movement.x, 0.0D, movement.z);
+                living.setOnGround(true);
+            } else if (movement.y > 0.0D) {
+                living.setOnGround(false);
+            } else {
+                living.setOnGround(true);
             }
             return;
         }
@@ -61,10 +65,11 @@ public abstract class LivingEntityPitchfireLavaMixin {
 
         living.moveRelative(0.1F, travelVector);
         Vec3 movement = living.getDeltaMovement();
-        living.move(MoverType.SELF, new Vec3(movement.x, 0.0D, movement.z));
+        double verticalMovement = Math.max(0.0D, movement.y);
+        living.move(MoverType.SELF, new Vec3(movement.x, verticalMovement, movement.z));
         Vec3 afterMove = living.getDeltaMovement();
-        living.setDeltaMovement(afterMove.x * 0.91D, 0.0D, afterMove.z * 0.91D);
-        living.setOnGround(true);
+        living.setDeltaMovement(afterMove.x * 0.91D, verticalMovement, afterMove.z * 0.91D);
+        living.setOnGround(verticalMovement <= 0.0D);
         living.fallDistance = 0.0F;
         callback.cancel();
     }

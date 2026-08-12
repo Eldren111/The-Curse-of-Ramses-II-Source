@@ -15,7 +15,11 @@
     "InfuserMenuMixin",
     "ItemCombinerMenuAccessor",
     "LivingEntityPitchfireLavaMixin",
-    "MeleeAttackGoalMixin"
+    "LivingEntitySealDrawSpeedMixin",
+    "MeleeAttackGoalMixin",
+    "SculkShriekerBlockEntityMixin",
+    "WardenMixin",
+    "WardenVibrationUserMixin"
   ],
   "client": [
     "AnvilScreenMixin",

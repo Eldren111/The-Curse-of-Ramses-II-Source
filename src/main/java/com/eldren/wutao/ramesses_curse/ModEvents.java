@@ -313,6 +313,7 @@ public class ModEvents {
     private static final String LAST_SYNC_DYNASTY_PRESSURE = "LastSyncDynastyPressure";
     private static final String LAST_SYNC_DYNASTY_SILENCE_MAIN_HAND_TICKS = "LastSyncDynastySilenceMainHandTicks";
     private static final String LAST_SYNC_DYNASTY_SILENCE_OFF_HAND_TICKS = "LastSyncDynastySilenceOffHandTicks";
+    private static final String LAST_SYNC_RUIN_COUNTER = "LastSyncRuinCounter";
     private static final String LAST_SYNC_MERCY = "LastSyncMercy";
     private static final String LAST_SYNC_MERCY_CHARGE = "LastSyncMercyCharge";
     private static final String CURSE_3_ANVIL_COST = "Curse3AnvilCost";
@@ -371,6 +372,7 @@ public class ModEvents {
     private static final String DYNASTY_SHIELD_LEVEL = "RamessesDynastyShieldLevel";
     private static final String DYNASTY_SHIELD_CURRENT = "RamessesDynastyShieldCurrent";
     private static final String DYNASTY_SHIELD_MAX = "RamessesDynastyShieldMax";
+    private static final String DYNASTY_SHIELD_BROKEN_BY_ARMOR_PIERCING = "RamessesDynastyShieldBrokenByArmorPiercing";
     private static final String DYNASTY_SHIELD_DODGE_LEVEL = "RamessesDynastyShieldDodgeLevel";
     private static final String DYNASTY_SHIELD_CORROSION_LEVEL = "RamessesDynastyShieldCorrosionLevel";
     private static final String DYNASTY_SHIELD_UNYIELDING_LEVEL = "RamessesDynastyShieldUnyieldingLevel";
@@ -455,8 +457,12 @@ public class ModEvents {
     private static final String PITCHFIRE_LAVA_WALK_UNTIL = "RamessesPitchfireLavaWalkUntil";
     private static final String DYNASTY_MOLTEN_FIREBALL = "RamessesDynastyMoltenFireball";
     private static final String DYNASTY_MOLTEN_BURN_UNTIL = "RamessesDynastyMoltenBurnUntil";
-    private static final String DYNASTY_MOLTEN_BURN_NEXT_DAMAGE_AT = "RamessesDynastyMoltenBurnNextDamageAt";
-    private static final String DYNASTY_MOLTEN_BURN_SOURCE = "RamessesDynastyMoltenBurnSource";
+    private static final String RUIN_ACCUMULATED_DAMAGE = "RamessesRuinAccumulatedDamage";
+    private static final String RUIN_COUNTER = "RamessesRuinCounter";
+    private static final String RUIN_COUNTER_READY_AT = "RamessesRuinCounterReadyAt";
+    private static final String RUIN_ATTACKS = "RamessesRuinAttacks";
+    private static final int RUIN_COUNTER_COOLDOWN_TICKS = 10;
+    private static final int RUIN_REVIVE_COST = 10;
     private static final int CURSE_5_MERCY_INVULNERABLE_TICKS = 200;
     private static final int CURSE_5_MERCY_SURGE_TICKS = 600;
     private static final int CURSE_5_FATAL_GUARD_INVULNERABLE_TICKS = 600;
@@ -1170,15 +1176,14 @@ public class ModEvents {
 
             event.getTable().addPool(twilightCrystalRingPool);
 
-            LootPool eternalSilenceGranulePool = LootPool.lootPool()
-                    .name("ramesses_curse_eternal_silence_granule")
+            LootPool hymnOfTheTwoLandsPool = LootPool.lootPool()
+                    .name("ramesses_curse_hymn_of_the_two_lands")
                     .setRolls(ConstantValue.exactly(1.0F))
-                    .when(LootItemRandomChanceCondition.randomChance(0.0002F))
-                    .add(LootItem.lootTableItem(ModItems.ETERNAL_SILENCE_GRANULE.get())
-                            .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 3.0F))))
+                    .when(LootItemRandomChanceCondition.randomChance(0.002F))
+                    .add(LootItem.lootTableItem(ModItems.HYMN_OF_THE_TWO_LANDS.get()))
                     .build();
 
-            event.getTable().addPool(eternalSilenceGranulePool);
+            event.getTable().addPool(hymnOfTheTwoLandsPool);
 
             LootPool.Builder inscriptionFragmentPool = LootPool.lootPool()
                     .name("ramesses_curse_end_inscription_fragment")
@@ -1329,7 +1334,7 @@ public class ModEvents {
                 && dropSource.is(DamageTypes.SONIC_BOOM)
                 && dropSource.getEntity() != null
                 && dropSource.getEntity().getType() == EntityType.WARDEN) {
-            event.getDrops().add(new ItemEntity(
+            event.getDrops().add(new FissionHeartDropEntity(
                     event.getEntity().level(),
                     event.getEntity().getX(),
                     event.getEntity().getY(),
@@ -1338,8 +1343,11 @@ public class ModEvents {
         }
 
         CompoundTag defeatedData = event.getEntity().getPersistentData();
+        boolean allowShieldBoundAffixDrops = !defeatedData.getBoolean(DYNASTY_SHIELD_BROKEN_BY_ARMOR_PIERCING);
         int rageLevel = defeatedData.getInt(DYNASTY_SHIELD_RAGE_LEVEL);
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_RAGE)
+        if (allowShieldBoundAffixDrops
+                && Config.CALMING_TIBIA_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_RAGE)
                 && rageLevel > 0
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_RAGE, rageLevel, "drop_chance")) {
@@ -1350,7 +1358,9 @@ public class ModEvents {
                     event.getEntity().getZ(),
                     new ItemStack(ModItems.CALMING_TIBIA.get())));
         }
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_MOLTEN)
+        if (allowShieldBoundAffixDrops
+                && Config.PITCHFIRE_CRYSTAL_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_MOLTEN)
                 && defeatedData.getBoolean(DYNASTY_SHIELD_MOLTEN)
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_MOLTEN, 1, "drop_chance")) {
@@ -1361,7 +1371,8 @@ public class ModEvents {
                     event.getEntity().getZ(),
                     new ItemStack(ModItems.PITCHFIRE_CRYSTAL.get())));
         }
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_BLOOD_FORFEIT)
+        if (Config.HEART_DEVOURING_REMNANT_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_BLOOD_FORFEIT)
                 && defeatedData.getBoolean(DYNASTY_SHIELD_BLOOD_FORFEIT)
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_BLOOD_FORFEIT, 1, "drop_chance")) {
@@ -1373,7 +1384,9 @@ public class ModEvents {
                     new ItemStack(ModItems.HEART_DEVOURING_REMNANT.get())));
         }
         int clawRageLevel = defeatedData.getInt(DYNASTY_SHIELD_CLAW_RAGE_LEVEL);
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_CLAW_RAGE)
+        if (allowShieldBoundAffixDrops
+                && Config.RAVENOUS_CLAW_FRAGMENT_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_CLAW_RAGE)
                 && clawRageLevel > 0
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_CLAW_RAGE, clawRageLevel, "drop_chance")) {
@@ -1385,7 +1398,9 @@ public class ModEvents {
                     new ItemStack(ModItems.RAVENOUS_CLAW_FRAGMENT.get())));
         }
         int fleshFeastLevel = defeatedData.getInt(DYNASTY_SHIELD_FLESH_FEAST_LEVEL);
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_FLESH_FEAST)
+        if (allowShieldBoundAffixDrops
+                && Config.FAMINE_CORE_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_FLESH_FEAST)
                 && fleshFeastLevel > 0
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_FLESH_FEAST, fleshFeastLevel, "drop_chance")) {
@@ -1397,7 +1412,8 @@ public class ModEvents {
                     new ItemStack(ModItems.FAMINE_CORE.get())));
         }
         int miasmaLevel = defeatedData.getInt(DYNASTY_SHIELD_MIASMA_LEVEL);
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_MIASMA)
+        if (Config.VENOM_ORB_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_MIASMA)
                 && miasmaLevel > 0
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_MIASMA, miasmaLevel, "drop_chance")) {
@@ -1409,7 +1425,8 @@ public class ModEvents {
                     new ItemStack(ModItems.VENOM_ORB.get())));
         }
         int restorationLevel = defeatedData.getInt(DYNASTY_SHIELD_RESTORATION_LEVEL);
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_RESTORATION)
+        if (Config.KA_REMNANT_BREATH_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_RESTORATION)
                 && restorationLevel > 0
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_RESTORATION, restorationLevel, "drop_chance")) {
@@ -1420,7 +1437,9 @@ public class ModEvents {
                     event.getEntity().getZ(),
                     new ItemStack(ModItems.KA_REMNANT_BREATH.get())));
         }
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_BLOOD_LIMIT)
+        if (allowShieldBoundAffixDrops
+                && Config.LIFE_BINDING_REMNANT_CRYSTAL_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_BLOOD_LIMIT)
                 && defeatedData.getBoolean(DYNASTY_SHIELD_BLOOD_LIMIT)
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_BLOOD_LIMIT, 1, "drop_chance")) {
@@ -1431,7 +1450,9 @@ public class ModEvents {
                     event.getEntity().getZ(),
                     new ItemStack(ModItems.LIFE_BINDING_REMNANT_CRYSTAL.get())));
         }
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_DEATH_AUTHORITY)
+        if (allowShieldBoundAffixDrops
+                && Config.AUTHORITY_FRAGMENT_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_DEATH_AUTHORITY)
                 && defeatedData.getBoolean(DYNASTY_SHIELD_DEATH_AUTHORITY)
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_DEATH_AUTHORITY, 1, "drop_chance")) {
@@ -1443,7 +1464,9 @@ public class ModEvents {
                     new ItemStack(ModItems.AUTHORITY_FRAGMENT.get())));
         }
         int vulnerabilityLevel = defeatedData.getInt(DYNASTY_SHIELD_VULNERABILITY_LEVEL);
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_VULNERABILITY)
+        if (allowShieldBoundAffixDrops
+                && Config.TRUTH_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_VULNERABILITY)
                 && vulnerabilityLevel > 0
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_VULNERABILITY, vulnerabilityLevel, "drop_chance")) {
@@ -1454,7 +1477,9 @@ public class ModEvents {
                     event.getEntity().getZ(),
                     new ItemStack(ModItems.TRUTH.get())));
         }
-        if (DynastyAffixData.enabled(DYNASTY_AFFIX_COUNTER)
+        if (allowShieldBoundAffixDrops
+                && Config.REVERSE_SCALE_DROP_ENABLED.get()
+                && DynastyAffixData.enabled(DYNASTY_AFFIX_COUNTER)
                 && defeatedData.getBoolean(DYNASTY_SHIELD_COUNTER)
                 && event.getEntity().getRandom().nextFloat()
                 < DynastyAffixData.number(DYNASTY_AFFIX_COUNTER, 1, "drop_chance")) {
@@ -1669,7 +1694,7 @@ public class ModEvents {
                     && !isDynastyMoltenActive(livingTarget)
                     && (!(livingTarget instanceof Player player)
                     || !AffixKnowledge.hasLearned(player, DYNASTY_AFFIX_MOLTEN))) {
-                applyDynastyMoltenBurn(livingTarget, owner instanceof LivingEntity livingOwner ? livingOwner : null);
+                applyDynastyMoltenBurn(livingTarget);
             }
         }
         fireball.discard();
@@ -1751,10 +1776,6 @@ public class ModEvents {
                     "RamessesDynastyPurgeKnowledgeBypassUntil",
                     event.getEntity().level().getGameTime() + 100L);
         }
-        if (isDynastyMoltenBurnActive(event.getEntity()) && event.getSource().is(DamageTypeTags.IS_FIRE)) {
-            event.setCanceled(true);
-            return;
-        }
         if (isDynastyMoltenActive(event.getEntity()) && event.getSource().is(DamageTypeTags.IS_FIRE)) {
             event.setCanceled(true);
             event.getEntity().clearFire();
@@ -1801,11 +1822,6 @@ public class ModEvents {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingDamage(LivingDamageEvent event) {
-        if (isDynastyMoltenBurnActive(event.getEntity()) && event.getSource().is(DamageTypeTags.IS_FIRE)) {
-            event.setCanceled(true);
-            event.setAmount(0.0F);
-            return;
-        }
         if (isDynastyMoltenActive(event.getEntity()) && event.getSource().is(DamageTypeTags.IS_FIRE)) {
             event.setCanceled(true);
             event.setAmount(0.0F);
@@ -1817,7 +1833,6 @@ public class ModEvents {
             event.setAmount(0.0F);
             return;
         }
-        applyReversedCurseSevenBowDamage(event);
         if (isCurseTwoMinionDotOrPotionDamage(event.getEntity(), event.getSource())) {
             event.setCanceled(true);
             event.setAmount(0.0F);
@@ -1839,6 +1854,9 @@ public class ModEvents {
             event.setAmount(0.0F);
             return;
         }
+
+        breakDynastyShieldWithCompoundBow(event);
+        applyReversedCurseSevenBowDamage(event);
 
         if (event.getEntity() instanceof ServerPlayer player && canUseHeartSlot(player) && isHeartEquipped(player)) {
             if (ModItems.isHeartOfDuatInvulnerable(player)) {
@@ -1920,7 +1938,8 @@ public class ModEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingDamageFinal(LivingDamageEvent event) {
         LivingEntity target = event.getEntity();
-        if (event.getSource().is(ModDamageTypes.CHANCE_DIE_TRUE_DAMAGE)) {
+        if (event.getSource().is(ModDamageTypes.CHANCE_DIE_TRUE_DAMAGE)
+                || event.getSource().is(ModDamageTypes.RUIN_BURST)) {
             return;
         }
         if (tryBlockDynastySteelBoneDamage(event)) {
@@ -2003,6 +2022,9 @@ public class ModEvents {
             tryTriggerDynastyFlightFall(struckPlayer, event.getSource());
             tryTriggerDynastyDeathAuthority(struckPlayer, event.getSource());
             tryTriggerDynastyVulnerability(struckPlayer, event.getSource());
+        }
+        if (!event.isCanceled() && event.getAmount() > 0.0F) {
+            trackRuinTalismanDamage(event.getSource(), target, event.getAmount());
         }
         applyCurseFiveFatalGuard(event);
     }
@@ -2261,6 +2283,11 @@ public class ModEvents {
             return;
         }
         if (event.getEntity() instanceof ServerPlayer player
+                && tryReviveWithRuinTalisman(player)) {
+            event.setCanceled(true);
+            return;
+        }
+        if (event.getEntity() instanceof ServerPlayer player
                 && ModItems.ChanceDieSixSided.tryRevive(player)) {
             event.setCanceled(true);
             return;
@@ -2269,6 +2296,79 @@ public class ModEvents {
                 && ModItems.EternalSilenceTotem.tryRevive(player)) {
             event.setCanceled(true);
         }
+    }
+
+    private static void trackRuinTalismanDamage(DamageSource damageSource, LivingEntity target, float damage) {
+        if (!(getSourcePlayer(damageSource) instanceof ServerPlayer player)
+                || player == target
+                || !ModItems.RuinTalisman.isEquipped(player)) {
+            return;
+        }
+
+        CompoundTag data = getCurseData(player);
+        long gameTime = player.level().getGameTime();
+        double accumulated = data.getDouble(RUIN_ACCUMULATED_DAMAGE) + damage;
+        double threshold = Math.max(1.0D, player.getMaxHealth());
+        if (accumulated >= threshold && gameTime >= data.getLong(RUIN_COUNTER_READY_AT)) {
+            data.putInt(RUIN_COUNTER, Math.max(0, data.getInt(RUIN_COUNTER)) + 1);
+            data.putLong(RUIN_COUNTER_READY_AT, gameTime + RUIN_COUNTER_COOLDOWN_TICKS);
+            accumulated = 0.0D;
+            player.displayClientMessage(Component.translatable(
+                    "message.ramesses_curse.ruin_talisman.counter", data.getInt(RUIN_COUNTER)), true);
+            syncRuinCounter(player, data.getInt(RUIN_COUNTER));
+        }
+        data.putDouble(RUIN_ACCUMULATED_DAMAGE, accumulated);
+
+        int attacks = data.getInt(RUIN_ATTACKS) + 1;
+        if (attacks >= 3) {
+            attacks = 0;
+            int counters = Math.max(0, data.getInt(RUIN_COUNTER));
+            if (counters > 0) {
+                data.putInt(RUIN_COUNTER, counters - 1);
+                syncRuinCounter(player, counters - 1);
+                float voidDamage = Math.max(0.0F, target.getMaxHealth() * 0.01F);
+                if (voidDamage > 0.0F && player.getServer() != null) {
+                    player.getServer().execute(() -> {
+                        if (target.isAlive() && target.level() == player.level()) {
+                            target.hurt(target.damageSources().fellOutOfWorld(), voidDamage);
+                        }
+                    });
+                }
+            }
+        }
+        data.putInt(RUIN_ATTACKS, attacks);
+    }
+
+    private static boolean tryReviveWithRuinTalisman(ServerPlayer player) {
+        if (!ModItems.RuinTalisman.isEquipped(player)) {
+            return false;
+        }
+        CompoundTag data = getCurseData(player);
+        int counters = Math.max(0, data.getInt(RUIN_COUNTER));
+        if (counters < RUIN_REVIVE_COST) {
+            return false;
+        }
+
+        data.putInt(RUIN_COUNTER, counters - RUIN_REVIVE_COST);
+        syncRuinCounter(player, counters - RUIN_REVIVE_COST);
+        player.setHealth(player.getMaxHealth());
+        player.deathTime = 0;
+        player.invulnerableTime = Math.max(player.invulnerableTime, 20);
+        player.level().broadcastEntityEvent(player, (byte) 35);
+        player.level().playSound(null, player.blockPosition(), SoundEvents.TOTEM_USE,
+                SoundSource.PLAYERS, 1.0F, 0.7F);
+
+        if (player.level() instanceof ServerLevel serverLevel) {
+            AABB area = player.getBoundingBox().inflate(3.5D, 3.0D, 3.5D);
+            for (LivingEntity target : serverLevel.getEntitiesOfClass(
+                    LivingEntity.class, area, target -> target != player && target.isAlive())) {
+                target.hurt(ModDamageTypes.ruinBurst(serverLevel, player), target.getMaxHealth() * 0.05F);
+            }
+            serverLevel.sendParticles(ParticleTypes.REVERSE_PORTAL,
+                    player.getX(), player.getY(0.5D), player.getZ(),
+                    80, 3.5D, 1.5D, 3.5D, 0.08D);
+        }
+        return true;
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -4426,6 +4526,29 @@ public class ModEvents {
         return getCurseData(player).getInt(EQUIP_TICKS);
     }
 
+    public static int getSealDrawSpeedPercent(@Nullable Player player) {
+        if (player == null) {
+            return 0;
+        }
+        if (player.level().isClientSide) {
+            if (!ClientOverlayEvents.isClientSealEquipped()) {
+                return 0;
+            }
+            return Mth.clamp(ClientOverlayEvents.getClientSealEquipSeconds() / 180, 0, 100);
+        }
+        if (!isSealEquipped(player)) {
+            return 0;
+        }
+        return Mth.clamp(getSealEquipTicks(player) / (3 * 60 * 20), 0, 100);
+    }
+
+    public static int getClientSealDrawSpeedPercent() {
+        if (!ClientOverlayEvents.isClientSealEquipped()) {
+            return 0;
+        }
+        return Mth.clamp(ClientOverlayEvents.getClientSealEquipSeconds() / 180, 0, 100);
+    }
+
     public static void setGuiltProgress(ServerPlayer player, int guilt) {
         CompoundTag data = getCurseData(player);
         int clamped = Mth.clamp(guilt, 0, Config.CURSE_5_MAX_GUILT.get());
@@ -6348,6 +6471,7 @@ public class ModEvents {
             tag.putInt(DYNASTY_SHIELD_LEVEL, level);
             tag.putFloat(DYNASTY_SHIELD_MAX, maxShield);
             tag.putFloat(DYNASTY_SHIELD_CURRENT, maxShield);
+            tag.remove(DYNASTY_SHIELD_BROKEN_BY_ARMOR_PIERCING);
             tag.putBoolean(DYNASTY_SHIELD_THREAT_ASSIGNED, true);
             int affixLevel = getDynastyShieldAffixLevelForShieldLevel(level);
             updateDynastyShieldDodgeTag(tag, affixLevel);
@@ -6603,6 +6727,40 @@ public class ModEvents {
         }
     }
 
+    private static void breakDynastyShieldWithCompoundBow(LivingDamageEvent event) {
+        LivingEntity target = event.getEntity();
+        if (!Config.DYNASTY_SHIELD_ENABLED.get()
+                || target.level().isClientSide
+                || !(target instanceof Enemy)
+                || event.getAmount() <= 0.0F
+                || !ModItems.EternalSilenceCompoundBow.isArmorPiercingProjectile(
+                        event.getSource().getDirectEntity())) {
+            return;
+        }
+
+        ensureDynastyShield(target, false);
+        CompoundTag tag = target.getPersistentData();
+        if (!tag.getBoolean(DYNASTY_SHIELD_ASSIGNED)
+                || tag.getFloat(DYNASTY_SHIELD_CURRENT) <= 0.0F) {
+            return;
+        }
+
+        tag.putFloat(DYNASTY_SHIELD_CURRENT, 0.0F);
+        tag.putBoolean(DYNASTY_SHIELD_BROKEN_BY_ARMOR_PIERCING, true);
+        removeDynastyShieldRageModifiers(target);
+        removeDynastyFleshFeastModifiers(target);
+        tag.remove(DYNASTY_CLAW_RAGE_ARMED);
+        syncDynastyShield(target, true);
+
+        target.level().playSound(null, target.blockPosition(), SoundEvents.SHIELD_BREAK,
+                SoundSource.HOSTILE, 1.0F, 0.8F);
+        if (target.level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.CRIT,
+                    target.getX(), target.getY(0.5D), target.getZ(),
+                    18, 0.45D, 0.6D, 0.45D, 0.12D);
+        }
+    }
+
     private static void tryTriggerDynastyShieldCounter(LivingEntity target, CompoundTag tag, @Nullable Player sourcePlayer) {
         if (!tag.getBoolean(DYNASTY_SHIELD_COUNTER)
                 || tag.getBoolean(DYNASTY_SHIELD_COUNTER_USED)
@@ -6628,6 +6786,7 @@ public class ModEvents {
         }
 
         data.putFloat(DYNASTY_SHIELD_CURRENT, restoredShield);
+        data.remove(DYNASTY_SHIELD_BROKEN_BY_ARMOR_PIERCING);
         data.remove(DYNASTY_CLAW_RAGE_ARMED);
         ensureDynastyShield(target, true);
         target.level().playSound(null, target.blockPosition(), SoundEvents.TOTEM_USE, SoundSource.HOSTILE, 0.85F, 0.8F);
@@ -6683,6 +6842,8 @@ public class ModEvents {
         }
         source.level().playSound(null, source.blockPosition(), SoundEvents.GENERIC_EXPLODE,
                 SoundSource.HOSTILE, 0.9F, 1.25F);
+        source.level().playSound(null, source.blockPosition(), SoundEvents.ITEM_BREAK,
+                SoundSource.HOSTILE, 1.0F, 0.72F);
     }
 
     private static boolean tryDodgeDynastyShieldDamage(LivingEntity target, CompoundTag tag, DamageSource source) {
@@ -7651,26 +7812,13 @@ public class ModEvents {
                 && tag.getFloat(DYNASTY_SHIELD_CURRENT) > 0.0F;
     }
 
-    private static void applyDynastyMoltenBurn(LivingEntity target, @Nullable LivingEntity source) {
+    private static void applyDynastyMoltenBurn(LivingEntity target) {
         if (target.level().isClientSide || isDynastyMoltenActive(target)) {
             return;
         }
-        int duration = Math.max(1,
-                DynastyAffixData.intNumber(DYNASTY_AFFIX_MOLTEN, 1, "burn_duration_ticks"));
-        long gameTime = target.level().getGameTime();
         CompoundTag tag = target.getPersistentData();
-        tag.putLong(DYNASTY_MOLTEN_BURN_UNTIL,
-                Math.max(tag.getLong(DYNASTY_MOLTEN_BURN_UNTIL), gameTime + duration));
-        if (!tag.contains(DYNASTY_MOLTEN_BURN_NEXT_DAMAGE_AT, Tag.TAG_LONG)
-                || tag.getLong(DYNASTY_MOLTEN_BURN_NEXT_DAMAGE_AT) < gameTime) {
-            tag.putLong(DYNASTY_MOLTEN_BURN_NEXT_DAMAGE_AT, gameTime);
-        }
-        if (source != null) {
-            tag.putUUID(DYNASTY_MOLTEN_BURN_SOURCE, source.getUUID());
-        } else {
-            tag.remove(DYNASTY_MOLTEN_BURN_SOURCE);
-        }
-        target.setSecondsOnFire(Mth.ceil(duration / 20.0F));
+        tag.putLong(DYNASTY_MOLTEN_BURN_UNTIL, Long.MAX_VALUE);
+        target.setSecondsOnFire(10);
     }
 
     private static boolean isDynastyMoltenBurnActive(LivingEntity living) {
@@ -7679,37 +7827,29 @@ public class ModEvents {
 
     private static void tickDynastyMoltenBurn(LivingEntity living) {
         CompoundTag tag = living.getPersistentData();
+        if (!tag.contains(DYNASTY_MOLTEN_BURN_UNTIL, Tag.TAG_LONG)) {
+            return;
+        }
         long gameTime = living.level().getGameTime();
         long burnUntil = tag.getLong(DYNASTY_MOLTEN_BURN_UNTIL);
         if (burnUntil <= gameTime
                 || isDynastyMoltenActive(living)
                 || (living instanceof Player player && AffixKnowledge.hasLearned(player, DYNASTY_AFFIX_MOLTEN))) {
-            tag.remove(DYNASTY_MOLTEN_BURN_UNTIL);
-            tag.remove(DYNASTY_MOLTEN_BURN_NEXT_DAMAGE_AT);
-            tag.remove(DYNASTY_MOLTEN_BURN_SOURCE);
+            clearDynastyMoltenBurn(living);
             return;
         }
-        if (gameTime < tag.getLong(DYNASTY_MOLTEN_BURN_NEXT_DAMAGE_AT)) {
+        if (living.isInWaterRainOrBubble() || living.getFeetBlockState().is(Blocks.POWDER_SNOW)) {
+            clearDynastyMoltenBurn(living);
             return;
         }
+        if (!living.isOnFire()) {
+            living.setSecondsOnFire(10);
+        }
+    }
 
-        int interval = Math.max(1,
-                DynastyAffixData.intNumber(DYNASTY_AFFIX_MOLTEN, 1, "burn_interval_ticks"));
-        float damage = Math.max(0.0F,
-                (float) DynastyAffixData.number(DYNASTY_AFFIX_MOLTEN, 1, "burn_true_damage"));
-        tag.putLong(DYNASTY_MOLTEN_BURN_NEXT_DAMAGE_AT, gameTime + interval);
-        if (damage <= 0.0F) {
-            return;
-        }
-
-        LivingEntity source = null;
-        if (tag.hasUUID(DYNASTY_MOLTEN_BURN_SOURCE) && living.level() instanceof ServerLevel serverLevel) {
-            Entity entity = serverLevel.getEntity(tag.getUUID(DYNASTY_MOLTEN_BURN_SOURCE));
-            if (entity instanceof LivingEntity livingSource) {
-                source = livingSource;
-            }
-        }
-        living.hurt(ModDamageTypes.moltenBurn(living.level(), source), damage);
+    private static void clearDynastyMoltenBurn(LivingEntity living) {
+        living.getPersistentData().remove(DYNASTY_MOLTEN_BURN_UNTIL);
+        living.clearFire();
     }
 
     private static void tickDynastyMoltenHazards(Player player) {
@@ -8808,7 +8948,11 @@ public class ModEvents {
                 continue;
             }
             float max = Math.max(0.0F, tag.getFloat(DYNASTY_SHIELD_MAX));
-            tag.putFloat(DYNASTY_SHIELD_CURRENT, Mth.clamp((float) value, 0.0F, max));
+            float current = Mth.clamp((float) value, 0.0F, max);
+            tag.putFloat(DYNASTY_SHIELD_CURRENT, current);
+            if (current > 0.0F) {
+                tag.remove(DYNASTY_SHIELD_BROKEN_BY_ARMOR_PIERCING);
+            }
             syncDynastyShield(living, true);
             changed++;
         }
@@ -8851,6 +8995,7 @@ public class ModEvents {
                 continue;
             }
             tag.putFloat(DYNASTY_SHIELD_CURRENT, Math.max(0.0F, tag.getFloat(DYNASTY_SHIELD_MAX)));
+            tag.remove(DYNASTY_SHIELD_BROKEN_BY_ARMOR_PIERCING);
             syncDynastyShield(living, true);
             changed++;
         }
@@ -8870,6 +9015,7 @@ public class ModEvents {
             tag.remove(DYNASTY_SHIELD_LEVEL);
             tag.remove(DYNASTY_SHIELD_CURRENT);
             tag.remove(DYNASTY_SHIELD_MAX);
+            tag.remove(DYNASTY_SHIELD_BROKEN_BY_ARMOR_PIERCING);
             tag.remove(DYNASTY_SHIELD_DODGE_LEVEL);
             tag.remove(DYNASTY_SHIELD_CORROSION_LEVEL);
             tag.remove(DYNASTY_SHIELD_UNYIELDING_LEVEL);
@@ -9330,6 +9476,14 @@ public class ModEvents {
         }
     }
 
+    private static void syncRuinCounter(ServerPlayer player, int counter) {
+        int safeCounter = Math.max(0, counter);
+        getCurseData(player).putInt(LAST_SYNC_RUIN_COUNTER, safeCounter);
+        ModNetwork.CHANNEL.send(
+                PacketDistributor.PLAYER.with(() -> player),
+                new RuinCounterSyncPacket(safeCounter));
+    }
+
     private static void syncClientState(Player player, boolean force) {
         CompoundTag data = getCurseData(player);
         int guilt = data.getInt(GUILT_PROGRESS);
@@ -9358,6 +9512,7 @@ public class ModEvents {
         int dynastyThreat = getDynastyPressure(player);
         int dynastySilenceMainHandTicks = getRemainingDynastySilenceTicks(player, InteractionHand.MAIN_HAND);
         int dynastySilenceOffHandTicks = getRemainingDynastySilenceTicks(player, InteractionHand.OFF_HAND);
+        int ruinCounter = Math.max(0, data.getInt(RUIN_COUNTER));
 
         if (!force
                 && data.getInt(LAST_SYNC_GUILT) == guilt
@@ -9385,7 +9540,8 @@ public class ModEvents {
                 && data.getInt(LAST_SYNC_LOCKED_SLOT_TICKS) == lockedSlotTicks
                 && data.getInt(LAST_SYNC_DYNASTY_PRESSURE) == dynastyThreat
                 && data.getInt(LAST_SYNC_DYNASTY_SILENCE_MAIN_HAND_TICKS) == dynastySilenceMainHandTicks
-                && data.getInt(LAST_SYNC_DYNASTY_SILENCE_OFF_HAND_TICKS) == dynastySilenceOffHandTicks) {
+                && data.getInt(LAST_SYNC_DYNASTY_SILENCE_OFF_HAND_TICKS) == dynastySilenceOffHandTicks
+                && data.getInt(LAST_SYNC_RUIN_COUNTER) == ruinCounter) {
             return;
         }
 
@@ -9415,7 +9571,13 @@ public class ModEvents {
         data.putInt(LAST_SYNC_DYNASTY_PRESSURE, dynastyThreat);
         data.putInt(LAST_SYNC_DYNASTY_SILENCE_MAIN_HAND_TICKS, dynastySilenceMainHandTicks);
         data.putInt(LAST_SYNC_DYNASTY_SILENCE_OFF_HAND_TICKS, dynastySilenceOffHandTicks);
+        data.putInt(LAST_SYNC_RUIN_COUNTER, ruinCounter);
         syncGuiltState(player, guilt, mercy, mercyChargeReady, sealEquipped, sealEquipSeconds, netherAwakened, endAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSixReversed, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockSeconds * 20, satietyCrystalCount, curseNineDebtTicks, lockedSlot, lockedSlotTicks, dynastyThreat, dynastySilenceMainHandTicks, dynastySilenceOffHandTicks);
+        if (player instanceof ServerPlayer serverPlayer) {
+            ModNetwork.CHANNEL.send(
+                    PacketDistributor.PLAYER.with(() -> serverPlayer),
+                    new RuinCounterSyncPacket(ruinCounter));
+        }
     }
 
     private static void applyInventoryCooldowns(ServerPlayer player, int remainingTicks) {
@@ -9653,6 +9815,10 @@ public class ModEvents {
         private static final long ETERNAL_TOTEM_TYPEWRITER_CHAR_MILLIS = 30L;
         private static final long ETERNAL_TOTEM_HOVER_RESET_MILLIS = 250L;
         private static long clientEternalTotemTooltipStartedAt;
+        private static long clientTruthTooltipStartedAt;
+        private static long clientTruthTooltipLastSeenAt;
+        private static Screen clientTruthTooltipScreen;
+        private static Slot clientTruthTooltipSlot;
         private static long clientEternalTotemTooltipLastSeenAt;
         private static Screen clientEternalTotemTooltipScreen;
         private static Slot clientEternalTotemTooltipSlot;
@@ -10083,6 +10249,7 @@ public class ModEvents {
         public static void onItemTooltip(ItemTooltipEvent event) {
             Minecraft minecraft = Minecraft.getInstance();
             applyEternalTotemTypewriter(event, minecraft);
+            applyTruthTypewriter(event, minecraft);
 
             if (!(minecraft.screen instanceof AbstractContainerScreen<?> screen)) {
                 return;
@@ -10182,6 +10349,47 @@ public class ModEvents {
                         .setStyle(original.getStyle().withColor(0x050308)));
                 tooltip.set(lineIndex, animatedLine);
             }
+        }
+
+        private static void applyTruthTypewriter(ItemTooltipEvent event, Minecraft minecraft) {
+            if (!event.getItemStack().is(ModItems.TRUTH.get())) {
+                return;
+            }
+
+            Screen currentScreen = minecraft.screen;
+            Slot currentSlot = currentScreen instanceof AbstractContainerScreen<?> containerScreen
+                    ? containerScreen.getSlotUnderMouse()
+                    : null;
+            long now = System.currentTimeMillis();
+            if (currentScreen != clientTruthTooltipScreen
+                    || currentSlot != clientTruthTooltipSlot
+                    || now - clientTruthTooltipLastSeenAt > ETERNAL_TOTEM_HOVER_RESET_MILLIS) {
+                clientTruthTooltipStartedAt = now;
+                clientTruthTooltipScreen = currentScreen;
+                clientTruthTooltipSlot = currentSlot;
+            }
+            clientTruthTooltipLastSeenAt = now;
+
+            String expectedText = Component.translatable("item.ramesses_curse.truth.signature").getString();
+            int lineIndex = findTooltipLine(event.getToolTip(), expectedText);
+            if (lineIndex < 0) {
+                return;
+            }
+
+            int lineLength = expectedText.codePointCount(0, expectedText.length());
+            int visibleCharacters = Mth.clamp((int) ((now - clientTruthTooltipStartedAt)
+                    / ETERNAL_TOTEM_TYPEWRITER_CHAR_MILLIS + 1L), 0, lineLength);
+            if (visibleCharacters >= lineLength) {
+                return;
+            }
+
+            Component original = event.getToolTip().get(lineIndex);
+            int splitIndex = expectedText.offsetByCodePoints(0, visibleCharacters);
+            MutableComponent animatedLine = Component.literal(expectedText.substring(0, splitIndex))
+                    .setStyle(original.getStyle());
+            animatedLine.append(Component.literal(expectedText.substring(splitIndex))
+                    .setStyle(original.getStyle().withColor(0x050308)));
+            event.getToolTip().set(lineIndex, animatedLine);
         }
 
         private static int findTooltipLine(List<Component> tooltip, String expectedText) {
@@ -10529,6 +10737,10 @@ public class ModEvents {
 
             while (RamessesCurseMod.ClientModEvents.COMPOUND_BOW_AMMO_KEY.consumeClick()) {
                 ModNetwork.CHANNEL.sendToServer(new OpenCompoundBowAmmoPacket());
+            }
+
+            while (RamessesCurseMod.ClientModEvents.COMPOUND_BOW_MODE_KEY.consumeClick()) {
+                ModNetwork.CHANNEL.sendToServer(new ToggleCompoundBowModePacket());
             }
         }
 
