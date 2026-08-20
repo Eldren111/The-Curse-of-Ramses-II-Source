@@ -1,0 +1,648 @@
+﻿
+D:\Ramesses' Curse NeoForge 1.21.1>if "Windows_NT" == "Windows_NT" setlocal
+
+D:\Ramesses' Curse NeoForge 1.21.1>set DIRNAME=D:\Ramesses' Curse NeoForge 1.21.1\ 
+
+D:\Ramesses' Curse NeoForge 1.21.1>if "D:\Ramesses' Curse NeoForge 1.21.1\" == "" set DIRNAME=. 
+
+D:\Ramesses' Curse NeoForge 1.21.1>set APP_BASE_NAME=gradlew 
+
+D:\Ramesses' Curse NeoForge 1.21.1>set APP_HOME=D:\Ramesses' Curse NeoForge 1.21.1\ 
+
+D:\Ramesses' Curse NeoForge 1.21.1>for %i in ("D:\Ramesses' Curse NeoForge 1.21.1\") do set APP_HOME=%~fi 
+
+D:\Ramesses' Curse NeoForge 1.21.1>set APP_HOME=D:\Ramesses' Curse NeoForge 1.21.1\ 
+
+D:\Ramesses' Curse NeoForge 1.21.1>set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m" 
+
+D:\Ramesses' Curse NeoForge 1.21.1>if defined JAVA_HOME goto findJavaFromJavaHome 
+
+D:\Ramesses' Curse NeoForge 1.21.1>set JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot\ 
+
+D:\Ramesses' Curse NeoForge 1.21.1>set JAVA_EXE=C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot\/bin/java.exe 
+
+D:\Ramesses' Curse NeoForge 1.21.1>if exist "C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot\/bin/java.exe" goto execute 
+
+D:\Ramesses' Curse NeoForge 1.21.1>set CLASSPATH= 
+
+D:\Ramesses' Curse NeoForge 1.21.1>"C:\Program Files\Eclipse Adoptium\jdk-17.0.18.8-hotspot\/bin/java.exe" "-Xmx64m" "-Xms64m"   "-Dorg.gradle.appname=gradlew" -classpath "" -jar "D:\Ramesses' Curse NeoForge 1.21.1\\gradle\wrapper\gradle-wrapper.jar" compileJava --console=plain --no-configuration-cache 
+Picked up JAVA_TOOL_OPTIONS: -Duser.language=en -Dfile.encoding=UTF-8
+> Task :createMinecraftArtifacts UP-TO-DATE
+
+> Task :compileJava FAILED
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatSpawnRules.java:8: error: cannot find symbol
+import net.minecraft.world.entity.MobType;
+                                 ^
+  symbol:   class MobType
+  location: package net.minecraft.world.entity
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatTeleporter.java:10: error: cannot find symbol
+import net.minecraft.world.level.portal.PortalInfo;
+                                       ^
+  symbol:   class PortalInfo
+  location: package net.minecraft.world.level.portal
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatTeleporter.java:12: error: cannot find symbol
+import net.neoforged.neoforge.common.util.ITeleporter;
+                                         ^
+  symbol:   class ITeleporter
+  location: package net.neoforged.neoforge.common.util
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatTeleporter.java:17: error: cannot find symbol
+final class DuatTeleporter implements ITeleporter {
+                                      ^
+  symbol: class ITeleporter
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatTeleporter.java:27: error: cannot find symbol
+                                    Function<ServerLevel, PortalInfo> defaultPortalInfo) {
+                                                          ^
+  symbol:   class PortalInfo
+  location: class DuatTeleporter
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatTeleporter.java:26: error: cannot find symbol
+    public PortalInfo getPortalInfo(Entity entity, ServerLevel destination,
+           ^
+  symbol:   class PortalInfo
+  location: class DuatTeleporter
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\integration\jei\RamessesCurseJeiPlugin.java:17: error: cannot find symbol
+import net.minecraft.world.item.alchemy.PotionUtils;
+                                       ^
+  symbol:   class PotionUtils
+  location: package net.minecraft.world.item.alchemy
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\mixin\ApothEnchantmentMenuMixin.java:4: error: package dev.shadowsoffire.apotheosis.ench.table does not exist
+import dev.shadowsoffire.apotheosis.ench.table.ApothEnchantmentMenu;
+                                              ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\NebukaGuardianEntity.java:24: error: cannot find symbol
+import net.minecraft.world.entity.MobType;
+                                 ^
+  symbol:   class MobType
+  location: package net.minecraft.world.entity
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\NebukaGuardianEntity.java:350: error: cannot find symbol
+    public MobType getMobType() {
+           ^
+  symbol:   class MobType
+  location: class NebukaGuardianEntity
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:111: error: package net.neoforged.neoforge.client.gui.overlay does not exist
+import net.neoforged.neoforge.client.gui.overlay.VanillaGuiOverlay;
+                                                ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:115: error: cannot find symbol
+import net.neoforged.neoforge.client.event.RenderGuiOverlayEvent;
+                                          ^
+  symbol:   class RenderGuiOverlayEvent
+  location: package net.neoforged.neoforge.client.event
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:124: error: cannot find symbol
+import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
+                                                 ^
+  symbol:   class LivingAttackEvent
+  location: package net.neoforged.neoforge.event.entity.living
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:125: error: cannot find symbol
+import net.neoforged.neoforge.event.entity.living.LivingHurtEvent;
+                                                 ^
+  symbol:   class LivingHurtEvent
+  location: package net.neoforged.neoforge.event.entity.living
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:129: error: cannot find symbol
+import net.neoforged.neoforge.event.entity.player.EntityItemPickupEvent;
+                                                 ^
+  symbol:   class EntityItemPickupEvent
+  location: package net.neoforged.neoforge.event.entity.player
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:160: error: cannot find symbol
+import net.neoforged.neoforge.network.NetworkDirection;
+                                     ^
+  symbol:   class NetworkDirection
+  location: package net.neoforged.neoforge.network
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:1617: error: cannot find symbol
+    public static void onMobFinalizeSpawn(MobSpawnEvent.FinalizeSpawn event) {
+                                                       ^
+  symbol:   class FinalizeSpawn
+  location: class MobSpawnEvent
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:1717: error: cannot find symbol
+    public static void onTwilightCrystalRingMeleeHit(LivingHurtEvent event) {
+                                                     ^
+  symbol:   class LivingHurtEvent
+  location: class ModEvents
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:1728: error: cannot find symbol
+    public static void onEternalSilenceTotemMeleeHit(LivingHurtEvent event) {
+                                                     ^
+  symbol:   class LivingHurtEvent
+  location: class ModEvents
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:1813: error: cannot find symbol
+    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
+                                               ^
+  symbol:   class LivingTickEvent
+  location: class LivingEvent
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:1864: error: cannot find symbol
+    public static void onLivingAttack(LivingAttackEvent event) {
+                                      ^
+  symbol:   class LivingAttackEvent
+  location: class ModEvents
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:4552: error: cannot find symbol
+    public static void onEntityItemPickup(EntityItemPickupEvent event) {
+                                          ^
+  symbol:   class EntityItemPickupEvent
+  location: class ModEvents
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:10435: error: package RenderGuiOverlayEvent does not exist
+        public static void onRenderOverlay(RenderGuiOverlayEvent.Post event) {
+                                                                ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModItems.java:46: error: cannot find symbol
+import net.minecraft.world.item.RecordItem;
+                               ^
+  symbol:   class RecordItem
+  location: package net.minecraft.world.item
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModItems.java:2332: error: cannot find symbol
+    public static class HymnOfTheTwoLands extends RecordItem {
+                                                  ^
+  symbol:   class RecordItem
+  location: class ModItems
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\RamessesCurseMod.java:20: error: cannot find symbol
+import net.minecraft.world.item.alchemy.PotionUtils;
+                                       ^
+  symbol:   class PotionUtils
+  location: package net.minecraft.world.item.alchemy
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\WardenAmuletProtection.java:12: error: cannot find symbol
+import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
+                                                 ^
+  symbol:   class LivingAttackEvent
+  location: package net.neoforged.neoforge.event.entity.living
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\WardenAmuletProtection.java:44: error: cannot find symbol
+    public static void preventWardenDamage(LivingAttackEvent event) {
+                                           ^
+  symbol:   class LivingAttackEvent
+  location: class WardenAmuletProtection
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\WardenAmuletProtection.java:57: error: cannot find symbol
+    public static void clearExistingTargets(LivingEvent.LivingTickEvent event) {
+                                                       ^
+  symbol:   class LivingTickEvent
+  location: class LivingEvent
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\mixin\ApothEnchantmentMenuMixin.java:17: error: cannot find symbol
+@Mixin(ApothEnchantmentMenu.class)
+       ^
+  symbol: class ApothEnchantmentMenu
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\AffixKnowledgeBookItem.java:68: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ChanceDieLargeScreen.java:93: error: incompatible types: int cannot be converted to Component
+                    14,
+                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\CompoundBowAmmoScreen.java:49: error: method renderBackground in class AbstractContainerScreen<T> cannot be applied to given types;
+        renderBackground(graphics);
+        ^
+  required: GuiGraphics,int,int,float
+  found:    GuiGraphics
+  reason: actual and formal argument lists differ in length
+  where T is a type-variable:
+    T extends AbstractContainerMenu declared in class AbstractContainerScreen
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\Config.java:16: warning: [removal] bus() in EventBusSubscriber has been deprecated and marked for removal
+@EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = EventBusSubscriber.Bus.MOD)
+                                                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\Config.java:16: warning: [removal] Bus in EventBusSubscriber has been deprecated and marked for removal
+@EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = EventBusSubscriber.Bus.MOD)
+                                                                            ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\Config.java:903: error: incompatible types: incompatible parameter types in method reference
+                .map(ResourceLocation::new)
+                     ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\Config.java:904: error: invalid method reference
+                .<EntityType<?>>map(BuiltInRegistries.ENTITY_TYPE::getValue)
+                                    ^
+  cannot find symbol
+    symbol:   method getValue()
+    location: interface DefaultedRegistry<EntityType<?>>
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\Config.java:912: error: incompatible types: incompatible parameter types in method reference
+                .map(ResourceLocation::new)
+                     ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\Config.java:913: error: invalid method reference
+                .<EntityType<?>>map(BuiltInRegistries.ENTITY_TYPE::getValue)
+                                    ^
+  cannot find symbol
+    symbol:   method getValue()
+    location: interface DefaultedRegistry<EntityType<?>>
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\Config.java:920: error: method fromNamespaceAndPath in class ResourceLocation cannot be applied to given types;
+        return BuiltInRegistries.MOB_EFFECT.getValue(ResourceLocation.fromNamespaceAndPath(NECKLACE_EFFECT_ID.get()));
+                                                                     ^
+  required: String,String
+  found:    String
+  reason: actual and formal argument lists differ in length
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\Config.java:929: error: incompatible types: incompatible parameter types in method reference
+                .map(ResourceLocation::new)
+                     ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\Config.java:957: error: cannot find symbol
+        return BuiltInRegistries.MOB_EFFECT.getValue(ResourceLocation.parse(effectId));
+                                           ^
+  symbol:   method getValue(ResourceLocation)
+  location: variable MOB_EFFECT of type Registry<MobEffect>
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\CurseFiveChoiceScreen.java:45: error: method renderBackground in class Screen cannot be applied to given types;
+        this.renderBackground(guiGraphics);
+            ^
+  required: GuiGraphics,int,int,float
+  found:    GuiGraphics
+  reason: actual and formal argument lists differ in length
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DatePalmSaplingBlock.java:31: error: cannot find symbol
+                BlockBehaviour.Properties.copy(Blocks.OAK_SAPLING));
+                                         ^
+  symbol:   method copy(Block)
+  location: class Properties
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DragonBreathArrowEntity.java:14: error: DragonBreathArrowEntity is not abstract and does not override abstract method getDefaultPickupItem() in AbstractArrow
+public class DragonBreathArrowEntity extends AbstractArrow {
+       ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DragonBreathArrowEntity.java:22: error: no suitable constructor found for AbstractArrow(EntityType<DragonBreathArrowEntity>,LivingEntity,Level)
+        super(ModEntities.DRAGON_BREATH_ARROW.get(), owner, level);
+        ^
+    constructor AbstractArrow.AbstractArrow(EntityType<? extends AbstractArrow>,Level) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor AbstractArrow.AbstractArrow(EntityType<? extends AbstractArrow>,double,double,double,Level,ItemStack,ItemStack) is not applicable
+      (actual and formal argument lists differ in length)
+    constructor AbstractArrow.AbstractArrow(EntityType<? extends AbstractArrow>,LivingEntity,Level,ItemStack,ItemStack) is not applicable
+      (actual and formal argument lists differ in length)
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalacePiece.java:93: error: incompatible types: ResourceLocation cannot be converted to ResourceKey<LootTable>
+            chest.setLootTable(PALACE_LOOT_TABLE, random.nextLong());
+                               ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceStructure.java:14: error: incompatible types: no instance(s) of type variable(s) S exist so that MapCodec<S> conforms to Codec<DuatPalaceStructure>
+    public static final Codec<DuatPalaceStructure> CODEC = simpleCodec(DuatPalaceStructure::new);
+                                                                      ^
+  where S is a type-variable:
+    S extends Structure declared in method <S>simpleCodec(Function<StructureSettings,S>)
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceTitleEvents.java:64: error: cannot find symbol
+        Advancement advancement = player.server.getAdvancements().getAdvancement(VISIT_PALACE_ADVANCEMENT);
+                                                                 ^
+  symbol:   method getAdvancement(ResourceLocation)
+  location: class ServerAdvancementManager
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceTitleEvents.java:70: error: incompatible types: Advancement cannot be converted to AdvancementHolder
+        AdvancementProgress progress = advancements.getOrStartProgress(advancement);
+                                                                       ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceTitleEvents.java:72: error: incompatible types: Advancement cannot be converted to AdvancementHolder
+            advancements.award(advancement, criterion);
+                               ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceWeatherRenderer.java:58: error: incompatible types: DeltaTracker cannot be converted to float
+        renderGoldenRain(minecraft, event.getCamera(), event.getPartialTick());
+                                                                           ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceWeatherRenderer.java:81: error: cannot find symbol
+        BufferBuilder buffer = tesselator.getBuilder();
+                                         ^
+  symbol:   method getBuilder()
+  location: variable tesselator of type Tesselator
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceWeatherRenderer.java:82: error: cannot find symbol
+        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+              ^
+  symbol:   method begin(Mode,VertexFormat)
+  location: variable buffer of type BufferBuilder
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceWeatherRenderer.java:120: error: cannot find symbol
+                buffer.vertex(leftX, top, leftZ)
+                      ^
+  symbol:   method vertex(double,double,double)
+  location: variable buffer of type BufferBuilder
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceWeatherRenderer.java:125: error: cannot find symbol
+                buffer.vertex(rightX, top, rightZ)
+                      ^
+  symbol:   method vertex(double,double,double)
+  location: variable buffer of type BufferBuilder
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceWeatherRenderer.java:130: error: cannot find symbol
+                buffer.vertex(rightX, bottom, rightZ)
+                      ^
+  symbol:   method vertex(double,double,double)
+  location: variable buffer of type BufferBuilder
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceWeatherRenderer.java:135: error: cannot find symbol
+                buffer.vertex(leftX, bottom, leftZ)
+                      ^
+  symbol:   method vertex(double,double,double)
+  location: variable buffer of type BufferBuilder
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPalaceWeatherRenderer.java:143: error: cannot find symbol
+        tesselator.end();
+                  ^
+  symbol:   method end()
+  location: variable tesselator of type Tesselator
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPortalBlock.java:39: error: method canChangeDimensions in class Entity cannot be applied to given types;
+        if (!entity.canChangeDimensions() || entity.isPassenger()) {
+                   ^
+  required: Level,Level
+  found:    no arguments
+  reason: actual and formal argument lists differ in length
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPortalBlock.java:43: error: cannot find symbol
+            entity.handleInsidePortal(pos);
+                  ^
+  symbol:   method handleInsidePortal(BlockPos)
+  location: variable entity of type Entity
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPortalBlock.java:70: error: cannot find symbol
+        if (portalTime < Math.max(1, entity.getPortalWaitTime())) {
+                                           ^
+  symbol:   method getPortalWaitTime()
+  location: variable entity of type Entity
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPortalBlock.java:82: error: method changeDimension in class Entity cannot be applied to given types;
+        entity.changeDimension(destination, DuatTeleporter.INSTANCE);
+              ^
+  required: DimensionTransition
+  found:    ServerLevel,DuatTeleporter
+  reason: actual and formal argument lists differ in length
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatPortalEvents.java:48: error: incompatible types: EquipmentSlot is not a functional interface
+        event.getItemStack().hurtAndBreak(1, event.getEntity(), player -> player.broadcastBreakEvent(event.getHand()));
+                            ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatSpawnRules.java:32: error: cannot find symbol
+        if (mob.getMobType() != MobType.UNDEAD && !mob.getType().is(DUAT_SPAWN_ALLOWED)) {
+               ^
+  symbol:   method getMobType()
+  location: variable mob of type Mob
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatSpawnRules.java:32: error: cannot find symbol
+        if (mob.getMobType() != MobType.UNDEAD && !mob.getType().is(DUAT_SPAWN_ALLOWED)) {
+                                ^
+  symbol:   variable MobType
+  location: class DuatSpawnRules
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatTeleporter.java:25: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatTeleporter.java:34: error: cannot find symbol
+        return new PortalInfo(position, Vec3.ZERO, entity.getYRot(), entity.getXRot());
+                   ^
+  symbol:   class PortalInfo
+  location: class DuatTeleporter
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatTeleporter.java:37: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatVolumetricFogRenderer.java:56: error: incompatible types: DeltaTracker cannot be converted to float
+            float partialTick = event.getPartialTick();
+                                                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatVolumetricFogRenderer.java:105: error: method addPass in class PostChain cannot be applied to given types;
+                fogPass = chain.addPass(
+                               ^
+  required: String,RenderTarget,RenderTarget,boolean
+  found:    String,RenderTarget,RenderTarget
+  reason: actual and formal argument lists differ in length
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatVolumetricFogRenderer.java:110: error: method addPass in class PostChain cannot be applied to given types;
+                chain.addPass("minecraft:blit", swapTarget, mainTarget);
+                     ^
+  required: String,RenderTarget,RenderTarget,boolean
+  found:    String,RenderTarget,RenderTarget
+  reason: actual and formal argument lists differ in length
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatVolumetricFogRenderer.java:163: warning: [removal] bus() in EventBusSubscriber has been deprecated and marked for removal
+            bus = EventBusSubscriber.Bus.MOD)
+            ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatVolumetricFogRenderer.java:163: warning: [removal] Bus in EventBusSubscriber has been deprecated and marked for removal
+            bus = EventBusSubscriber.Bus.MOD)
+                                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DynastyAffixMaterialDecorator.java:91: error: cannot find symbol
+        consumer.vertex(matrix, innerX + sideX * innerWidth, innerY + sideY * innerWidth, 0.0F)
+                ^
+  symbol:   method vertex(Matrix4f,float,float,float)
+  location: variable consumer of type VertexConsumer
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DynastyAffixMaterialDecorator.java:94: error: cannot find symbol
+        consumer.vertex(matrix, outerX + sideX * width, outerY + sideY * width, 0.0F)
+                ^
+  symbol:   method vertex(Matrix4f,float,float,float)
+  location: variable consumer of type VertexConsumer
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DynastyAffixMaterialDecorator.java:97: error: cannot find symbol
+        consumer.vertex(matrix, outerX - sideX * width, outerY - sideY * width, 0.0F)
+                ^
+  symbol:   method vertex(Matrix4f,float,float,float)
+  location: variable consumer of type VertexConsumer
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DynastyAffixMaterialDecorator.java:100: error: cannot find symbol
+        consumer.vertex(matrix, innerX - sideX * innerWidth, innerY - sideY * innerWidth, 0.0F)
+                ^
+  symbol:   method vertex(Matrix4f,float,float,float)
+  location: variable consumer of type VertexConsumer
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DynastyAffixMaterialWorldRenderer.java:59: error: incompatible types: DeltaTracker cannot be converted to float
+        float partialTick = event.getPartialTick();
+                                                ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DynastyAffixMaterialWorldRenderer.java:137: error: cannot find symbol
+        consumer.vertex(matrix, firstX, length, firstZ)
+                ^
+  symbol:   method vertex(Matrix4f,float,float,float)
+  location: variable consumer of type VertexConsumer
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DynastyAffixMaterialWorldRenderer.java:140: error: cannot find symbol
+        consumer.vertex(matrix, secondX, length, secondZ)
+                ^
+  symbol:   method vertex(Matrix4f,float,float,float)
+  location: variable consumer of type VertexConsumer
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DynastyAffixMaterialWorldRenderer.java:147: error: cannot find symbol
+        consumer.vertex(matrix, 0.0F, 0.0F, 0.0F)
+                ^
+  symbol:   method vertex(Matrix4f,float,float,float)
+  location: variable consumer of type VertexConsumer
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\EmberRiddleInputScreen.java:212: error: method renderBackground in class Screen cannot be applied to given types;
+        this.renderBackground(graphics);
+            ^
+  required: GuiGraphics,int,int,float
+  found:    GuiGraphics
+  reason: actual and formal argument lists differ in length
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\EmberRiddleInputScreen.java:530: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\EmberRiddleInputScreen.java:543: error: method mouseScrolled in interface ContainerEventHandler cannot be applied to given types;
+        return super.mouseScrolled(mouseX, mouseY, delta);
+                    ^
+  required: double,double,double,double
+  found:    double,double,double
+  reason: actual and formal argument lists differ in length
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:83: error: getAttributeModifiers(SlotContext,UUID,ItemStack) in InscriptionBagItem cannot implement getAttributeModifiers(SlotContext,UUID,ItemStack) in ICurioItem
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(
+                                                  ^
+  return type Multimap<Attribute,AttributeModifier> is not compatible with Multimap<Holder<Attribute>,AttributeModifier>
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:82: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:108: error: cannot find symbol
+                            AttributeModifier.Operation.MULTIPLY_TOTAL));
+                                                       ^
+  symbol:   variable MULTIPLY_TOTAL
+  location: class Operation
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:111: error: cannot find symbol
+                            AttributeModifier.Operation.MULTIPLY_TOTAL));
+                                                       ^
+  symbol:   variable MULTIPLY_TOTAL
+  location: class Operation
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:146: error: method does not override or implement a method from a supertype
+    @Override
+    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:188: error: no suitable method found for playSound(<null>,BlockPos,Holder<SoundEvent>,SoundSource,float,float)
+            player.level().playSound(null, player.blockPosition(), SoundEvents.ARMOR_EQUIP_LEATHER,
+                          ^
+    method Level.playSound(Entity,BlockPos,SoundEvent,SoundSource,float,float) is not applicable
+      (argument mismatch; Holder<SoundEvent> cannot be converted to SoundEvent)
+    method Level.playSound(Player,BlockPos,SoundEvent,SoundSource,float,float) is not applicable
+      (argument mismatch; Holder<SoundEvent> cannot be converted to SoundEvent)
+    method Level.playSound(Player,double,double,double,SoundEvent,SoundSource) is not applicable
+      (argument mismatch; BlockPos cannot be converted to double)
+    method Level.playSound(Player,Entity,SoundEvent,SoundSource,float,float) is not applicable
+      (argument mismatch; BlockPos cannot be converted to Entity)
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:361: error: cannot find symbol
+        AttributeModifier.Operation operation = AttributeModifier.Operation.ADDITION;
+                                                                           ^
+  symbol:   variable ADDITION
+  location: class Operation
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:363: error: incompatible types: Holder<Attribute> cannot be converted to Attribute
+            case 1 -> { attribute = Attributes.MAX_HEALTH; amount = 6.0D; }
+                                              ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:364: error: incompatible types: Holder<Attribute> cannot be converted to Attribute
+            case 2 -> { attribute = Attributes.ATTACK_DAMAGE; amount = 3.0D; }
+                                              ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:365: error: incompatible types: Holder<Attribute> cannot be converted to Attribute
+            case 3 -> { attribute = Attributes.ATTACK_SPEED; amount = 0.15D; operation = AttributeModifier.Operation.MULTIPLY_TOTAL; }
+                                              ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:365: error: cannot find symbol
+            case 3 -> { attribute = Attributes.ATTACK_SPEED; amount = 0.15D; operation = AttributeModifier.Operation.MULTIPLY_TOTAL; }
+                                                                                                                    ^
+  symbol:   variable MULTIPLY_TOTAL
+  location: class Operation
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:366: error: incompatible types: Holder<Attribute> cannot be converted to Attribute
+            case 4 -> { attribute = Attributes.MOVEMENT_SPEED; amount = 0.12D; operation = AttributeModifier.Operation.MULTIPLY_TOTAL; }
+                                              ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:366: error: cannot find symbol
+            case 4 -> { attribute = Attributes.MOVEMENT_SPEED; amount = 0.12D; operation = AttributeModifier.Operation.MULTIPLY_TOTAL; }
+                                                                                                                      ^
+  symbol:   variable MULTIPLY_TOTAL
+  location: class Operation
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:367: error: incompatible types: Holder<Attribute> cannot be converted to Attribute
+            case 5 -> { attribute = Attributes.ARMOR; amount = 5.0D; }
+                                              ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:368: error: incompatible types: Holder<Attribute> cannot be converted to Attribute
+            case 6 -> { attribute = Attributes.ARMOR_TOUGHNESS; amount = 3.0D; }
+                                              ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:369: error: incompatible types: Holder<Attribute> cannot be converted to Attribute
+            case 7 -> { attribute = Attributes.KNOCKBACK_RESISTANCE; amount = 0.20D; }
+                                              ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:370: error: incompatible types: Holder<Attribute> cannot be converted to Attribute
+            case 8 -> { attribute = Attributes.LUCK; amount = 3.0D; }
+                                              ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagItem.java:375: error: constructor AttributeModifier in record AttributeModifier cannot be applied to given types;
+        modifiers.put(attribute, new AttributeModifier(
+                                 ^
+  required: ResourceLocation,double,Operation
+  found:    UUID,String,double,Operation
+  reason: actual and formal argument lists differ in length
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\InscriptionBagScreen.java:98: error: method renderBackground in class AbstractContainerScreen<T> cannot be applied to given types;
+        renderBackground(graphics);
+        ^
+  required: GuiGraphics,int,int,float
+  found:    GuiGraphics
+  reason: actual and formal argument lists differ in length
+  where T is a type-variable:
+    T extends AbstractContainerMenu declared in class AbstractContainerScreen
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\integration\jei\AnvilPressingRecipeCategory.java:54: warning: [removal] getBackground() in IRecipeCategory has been deprecated and marked for removal
+    public IDrawable getBackground() {
+                     ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\integration\jei\CompoundBowAmmoRecipeCategory.java:42: warning: [removal] getBackground() in IRecipeCategory has been deprecated and marked for removal
+    public IDrawable getBackground() {
+                     ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEntityEvents.java:8: warning: [removal] bus() in EventBusSubscriber has been deprecated and marked for removal
+@EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = EventBusSubscriber.Bus.MOD)
+                                                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEntityEvents.java:8: warning: [removal] Bus in EventBusSubscriber has been deprecated and marked for removal
+@EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = EventBusSubscriber.Bus.MOD)
+                                                                            ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:187: warning: [removal] bus() in EventBusSubscriber has been deprecated and marked for removal
+@EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = EventBusSubscriber.Bus.GAME)
+                                                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:187: warning: [removal] Bus in EventBusSubscriber has been deprecated and marked for removal
+@EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = EventBusSubscriber.Bus.GAME)
+                                                                            ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:10021: warning: [removal] bus() in EventBusSubscriber has been deprecated and marked for removal
+    @EventBusSubscriber(modid = RamessesCurseMod.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
+                                                                             ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java:10021: warning: [removal] Bus in EventBusSubscriber has been deprecated and marked for removal
+    @EventBusSubscriber(modid = RamessesCurseMod.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.GAME)
+                                                                                                     ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModItems.java:1623: warning: [removal] getDropRule(SlotContext,DamageSource,int,boolean,ItemStack) in ICurioItem has been deprecated and marked for removal
+        public ICurio.DropRule getDropRule(SlotContext slotContext, DamageSource source, int lootingLevel, boolean recentlyHit, ItemStack stack) {
+                               ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModItems.java:3257: warning: [removal] getAttributesTooltip(List<Component>,ItemStack) in ICurioItem has been deprecated and marked for removal
+        public List<Component> getAttributesTooltip(List<Component> tooltips, ItemStack stack) {
+                               ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModItems.java:3316: warning: [removal] getAttributesTooltip(List<Component>,ItemStack) in ICurioItem has been deprecated and marked for removal
+        public List<Component> getAttributesTooltip(List<Component> tooltips, ItemStack stack) {
+                               ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModItems.java:3444: warning: [removal] getAttributesTooltip(List<Component>,ItemStack) in ICurioItem has been deprecated and marked for removal
+        public List<Component> getAttributesTooltip(List<Component> tooltips, ItemStack stack) {
+                               ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModMobEffects.java:116: warning: [removal] initializeClient(Consumer<IClientMobEffectExtensions>) in MobEffect has been deprecated and marked for removal
+        public void initializeClient(Consumer<IClientMobEffectExtensions> consumer) {
+                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModMobEffects.java:144: warning: [removal] initializeClient(Consumer<IClientMobEffectExtensions>) in MobEffect has been deprecated and marked for removal
+        public void initializeClient(Consumer<IClientMobEffectExtensions> consumer) {
+                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModMobEffects.java:216: warning: [removal] initializeClient(Consumer<IClientMobEffectExtensions>) in MobEffect has been deprecated and marked for removal
+        public void initializeClient(Consumer<IClientMobEffectExtensions> consumer) {
+                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModMobEffects.java:257: warning: [removal] initializeClient(Consumer<IClientMobEffectExtensions>) in MobEffect has been deprecated and marked for removal
+        public void initializeClient(Consumer<IClientMobEffectExtensions> consumer) {
+                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModMobEffects.java:304: warning: [removal] initializeClient(Consumer<IClientMobEffectExtensions>) in MobEffect has been deprecated and marked for removal
+        public void initializeClient(Consumer<IClientMobEffectExtensions> consumer) {
+                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\RamessesCurseMod.java:217: warning: [removal] SlotTypeMessage in top.theillusivec4.curios.api has been deprecated and marked for removal
+        InterModComms.sendTo("curios", SlotTypeMessage.REGISTER_TYPE, () ->
+                                       ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\RamessesCurseMod.java:218: warning: [removal] SlotTypeMessage in top.theillusivec4.curios.api has been deprecated and marked for removal
+                new SlotTypeMessage.Builder(slotId)
+                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\RamessesCurseMod.java:218: warning: [removal] Builder in SlotTypeMessage has been deprecated and marked for removal
+                new SlotTypeMessage.Builder(slotId)
+                                   ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\RamessesCurseMod.java:218: warning: [removal] Builder(String) in Builder has been deprecated and marked for removal
+                new SlotTypeMessage.Builder(slotId)
+                ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\RamessesCurseMod.java:219: warning: [removal] size(int) in Builder has been deprecated and marked for removal
+                        .size(1)
+                        ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\RamessesCurseMod.java:220: warning: [removal] icon(ResourceLocation) in Builder has been deprecated and marked for removal
+                        .icon(ResourceLocation.fromNamespaceAndPath("curios", "slot/empty_curio_slot"))
+                        ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\RamessesCurseMod.java:221: warning: [removal] build() in Builder has been deprecated and marked for removal
+                        .build());
+                        ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\RamessesCurseMod.java:229: warning: [removal] bus() in EventBusSubscriber has been deprecated and marked for removal
+    @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+                                       ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\RamessesCurseMod.java:229: warning: [removal] Bus in EventBusSubscriber has been deprecated and marked for removal
+    @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+                                                               ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\UraeusFlareRenderer.java:37: warning: [removal] applyRotations(T,PoseStack,float,float,float) in GeoEntityRenderer has been deprecated and marked for removal
+    protected void applyRotations(UraeusFlareEntity entity, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
+                   ^
+  where T is a type-variable:
+    T extends Entity,GeoAnimatable declared in class GeoEntityRenderer
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\WardenAmuletProtection.java:25: warning: [removal] bus() in EventBusSubscriber has been deprecated and marked for removal
+@EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = EventBusSubscriber.Bus.GAME)
+                                                    ^
+D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\WardenAmuletProtection.java:25: warning: [removal] Bus in EventBusSubscriber has been deprecated and marked for removal
+@EventBusSubscriber(modid = RamessesCurseMod.MODID, bus = EventBusSubscriber.Bus.GAME)
+                                                                            ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\ModEvents.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+Note: Some messages have been simplified; recompile with -Xdiags:verbose to get full output
+100 errors
+33 warnings
+System.Management.Automation.RemoteException
+FAILURE: Build failed with an exception.
+System.Management.Automation.RemoteException
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler output below.
+  D:\Ramesses' Curse NeoForge 1.21.1\src\main\java\com\eldren\wutao\ramesses_curse\DuatSpawnRules.java:8: error: cannot find symbol
+  import net.minecraft.world.entity.MobType;
+                                   ^
+    symbol:   class MobType
+    location: package net.minecraft.world.entity
+  100 errors
+  33 warnings
+System.Management.Automation.RemoteException
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to generate a Build Scan (powered by Develocity).
+
+[Incubating] Problems report is available at: file:///D:/Ramesses'%20Curse%20NeoForge%201.21.1/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.2.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+2 actionable tasks: 1 executed, 1 up-to-date
+System.Management.Automation.RemoteException
+BUILD FAILED in 2s
+
+D:\Ramesses' Curse NeoForge 1.21.1>if 1 EQU 0 goto mainEnd 
+
+D:\Ramesses' Curse NeoForge 1.21.1>rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of 
+
+D:\Ramesses' Curse NeoForge 1.21.1>rem the _cmd.exe /c_ return code! 
+
+D:\Ramesses' Curse NeoForge 1.21.1>set EXIT_CODE=1 
+
+D:\Ramesses' Curse NeoForge 1.21.1>if 1 EQU 0 set EXIT_CODE=1 
+
+D:\Ramesses' Curse NeoForge 1.21.1>if not "" == "" exit 1 
+
+D:\Ramesses' Curse NeoForge 1.21.1>exit /b 1 
