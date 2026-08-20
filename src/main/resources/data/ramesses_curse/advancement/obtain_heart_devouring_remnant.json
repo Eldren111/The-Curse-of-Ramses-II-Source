@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:heart_devouring_remnant"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_heart_devouring_remnant.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_heart_devouring_remnant.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_heart_devouring_remnant": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:heart_devouring_remnant"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

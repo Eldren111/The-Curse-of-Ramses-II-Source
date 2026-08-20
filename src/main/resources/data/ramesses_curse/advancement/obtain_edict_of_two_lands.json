@@ -1,0 +1,37 @@
+{
+  "parent": "ramesses_curse:obtain_uraeus_necklace",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:edict_of_two_lands"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_edict_of_two_lands.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_edict_of_two_lands.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "x": 6,
+    "y": -1
+  },
+  "criteria": {
+    "has_edict_of_two_lands": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:edict_of_two_lands"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 350
+  }
+}

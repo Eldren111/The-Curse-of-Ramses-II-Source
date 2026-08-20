@@ -1,0 +1,22 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "pattern":  [
+                    "GEG",
+                    "EAE",
+                    "GEG"
+                ],
+    "key":  {
+                "G":  {
+                          "item":  "minecraft:gold_ingot"
+                      },
+                "E":  {
+                          "item":  "ramesses_curse:ember_of_duat"
+                      },
+                "A":  {
+                          "item":  "minecraft:amethyst_shard"
+                      }
+            },
+    "result":  {
+                   "id":  "ramesses_curse:resonant_scarab"
+               }
+}

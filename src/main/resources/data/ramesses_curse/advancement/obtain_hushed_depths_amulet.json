@@ -1,0 +1,34 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:hushed_depths_amulet"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_hushed_depths_amulet.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_hushed_depths_amulet.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "x": -4,
+    "y": 0
+  },
+  "criteria": {
+    "has_hushed_depths_amulet": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:hushed_depths_amulet"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

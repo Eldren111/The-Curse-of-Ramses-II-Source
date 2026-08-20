@@ -1,0 +1,37 @@
+{
+  "parent": "ramesses_curse:obtain_resonant_scarab",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:hymn_of_the_two_lands"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_hymn_of_the_two_lands.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_hymn_of_the_two_lands.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "x": 4,
+    "y": 1
+  },
+  "criteria": {
+    "has_hymn_of_the_two_lands": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:hymn_of_the_two_lands"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 175
+  }
+}

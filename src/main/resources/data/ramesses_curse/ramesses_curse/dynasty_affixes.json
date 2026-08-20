@@ -1,0 +1,263 @@
+{
+  "dodge": {
+    "enabled": true,
+    "unlock_tier": 1,
+    "max_level": 5,
+    "level_step": 2,
+    "levels": {
+      "1": { "chance": 0.10 },
+      "2": { "chance": 0.20 },
+      "3": { "chance": 0.30 },
+      "4": { "chance": 0.40 },
+      "5": { "chance": 0.50 }
+    }
+  },
+  "corrosion": {
+    "enabled": true,
+    "unlock_tier": 3,
+    "max_level": 5,
+    "level_step": 2,
+    "levels": {
+      "1": { "durability_ratio": 0.001 },
+      "2": { "durability_ratio": 0.002 },
+      "3": { "durability_ratio": 0.003 },
+      "4": { "durability_ratio": 0.004 },
+      "5": { "durability_ratio": 0.005 }
+    }
+  },
+  "damage_cap": {
+    "enabled": true,
+    "unlock_tier": 5,
+    "max_level": 5,
+    "level_step": 2,
+    "levels": {
+      "1": { "max_damage": 200 },
+      "2": { "max_damage": 180 },
+      "3": { "max_damage": 160 },
+      "4": { "max_damage": 140 },
+      "5": { "max_damage": 100 }
+    }
+  },
+  "rage": {
+    "enabled": true,
+    "unlock_tier": 5,
+    "max_level": 3,
+    "level_step": 2,
+    "levels": {
+      "1": { "attack_speed_bonus": 0.40, "movement_speed_bonus": 0.10, "drop_chance": 0.002 },
+      "2": { "attack_speed_bonus": 0.60, "movement_speed_bonus": 0.15, "drop_chance": 0.002 },
+      "3": { "attack_speed_bonus": 0.80, "movement_speed_bonus": 0.20, "drop_chance": 0.002 }
+    }
+  },
+  "molten": {
+    "enabled": true,
+    "unlock_tier": 5,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {
+        "radius": 8.0,
+        "interval_ticks": 60,
+        "cobweb_duration_ticks": 60,
+        "fireball_count": 1,
+        "upward_fireball_count": 2,
+        "drop_chance": 0.002
+      }
+    }
+  },
+  "blood_forfeit": {
+    "enabled": true,
+    "unlock_tier": 9,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {
+        "max_health_loss": 2.0,
+        "minimum_max_health": 2.0,
+        "drop_chance": 0.002
+      }
+    }
+  },
+  "flight_fall": {
+    "enabled": true,
+    "unlock_tier": 7,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {
+        "grounded_duration_ticks": 100
+      }
+    }
+  },
+  "claw_rage": {
+    "enabled": true,
+    "unlock_tier": 1,
+    "max_level": 5,
+    "level_step": 2,
+    "levels": {
+      "1": { "trigger_chance": 0.10, "bonus_damage": 5.0, "drop_chance": 0.002 },
+      "2": { "trigger_chance": 0.20, "bonus_damage": 7.0, "drop_chance": 0.002 },
+      "3": { "trigger_chance": 0.30, "bonus_damage": 9.0, "drop_chance": 0.002 },
+      "4": { "trigger_chance": 0.40, "bonus_damage": 11.0, "drop_chance": 0.002 },
+      "5": { "trigger_chance": 0.50, "bonus_damage": 13.0, "drop_chance": 0.002 }
+    }
+  },
+  "unyielding": {
+    "enabled": true,
+    "unlock_tier": 5,
+    "max_level": 3,
+    "level_step": 2,
+    "levels": {
+      "1": { "revive_chance": 0.20, "health_ratio": 0.50 },
+      "2": { "revive_chance": 0.40, "health_ratio": 0.60 },
+      "3": { "revive_chance": 0.60, "health_ratio": 0.70 }
+    }
+  },
+  "silence": {
+    "enabled": true,
+    "unlock_tier": 7,
+    "max_level": 5,
+    "level_step": 2,
+    "levels": {
+      "1": { "chance": 0.01, "duration_seconds": 1 },
+      "2": { "chance": 0.015, "duration_seconds": 2 },
+      "3": { "chance": 0.02, "duration_seconds": 3 },
+      "4": { "chance": 0.025, "duration_seconds": 4 },
+      "5": { "chance": 0.03, "duration_seconds": 5 }
+    }
+  },
+  "purge": {
+    "enabled": true,
+    "unlock_tier": 9,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {}
+    }
+  },
+  "projectile_ward": {
+    "enabled": true,
+    "unlock_tier": 10,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {}
+    }
+  },
+  "steel_bone": {
+    "enabled": true,
+    "unlock_tier": 9,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {}
+    }
+  },
+  "flesh_feast": {
+    "enabled": true,
+    "unlock_tier": 5,
+    "max_level": 3,
+    "level_step": 2,
+    "levels": {
+      "1": { "radius": 5.0, "health_bonus_per_player": 0.10, "armor_bonus_per_player": 0.10, "drop_chance": 0.002 },
+      "2": { "radius": 5.0, "health_bonus_per_player": 0.30, "armor_bonus_per_player": 0.30, "drop_chance": 0.002 },
+      "3": { "radius": 5.0, "health_bonus_per_player": 0.50, "armor_bonus_per_player": 0.50, "drop_chance": 0.002 }
+    }
+  },
+  "miasma": {
+    "enabled": true,
+    "unlock_tier": 5,
+    "max_level": 3,
+    "level_step": 2,
+    "levels": {
+      "1": { "chance": 0.15, "duration_ticks": 100, "poison_level": 1, "drop_chance": 0.002 },
+      "2": { "chance": 0.15, "duration_ticks": 100, "poison_level": 2, "drop_chance": 0.002 },
+      "3": { "chance": 0.15, "duration_ticks": 100, "poison_level": 3, "drop_chance": 0.002 }
+    }
+  },
+  "restoration": {
+    "enabled": true,
+    "unlock_tier": 7,
+    "max_level": 2,
+    "level_step": 2,
+    "levels": {
+      "1": { "heal_ratio": 0.50, "drop_chance": 0.002 },
+      "2": { "heal_ratio": 1.00, "drop_chance": 0.002 }
+    }
+  },
+  "blood_limit": {
+    "enabled": true,
+    "unlock_tier": 9,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {
+        "window_ticks": 100,
+        "max_health_loss_ratio": 0.35,
+        "minimum_health": 1.0,
+        "drop_chance": 0.002
+      }
+    }
+  },
+  "shield_shatter": {
+    "enabled": true,
+    "unlock_tier": 1,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {
+        "radius": 5.0,
+        "damage": 8.0,
+        "knockback_strength": 1.5
+      }
+    }
+  },
+  "death_authority": {
+    "enabled": true,
+    "unlock_tier": 9,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {
+        "damage_ratio": 0.15,
+        "cooldown_ticks": 80,
+        "drop_chance": 0.002
+      }
+    }
+  },
+  "hit_slow": {
+    "enabled": true,
+    "unlock_tier": 5,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {
+        "attack_speed_reduction": 0.50,
+        "duration_ticks": 100
+      }
+    }
+  },
+  "vulnerability": {
+    "enabled": true,
+    "unlock_tier": 7,
+    "max_level": 2,
+    "level_step": 2,
+    "levels": {
+      "1": { "true_damage": 5.0, "drop_chance": 0.002 },
+      "2": { "true_damage": 10.0, "drop_chance": 0.002 }
+    }
+  },
+  "counter": {
+    "enabled": true,
+    "unlock_tier": 9,
+    "max_level": 1,
+    "level_step": 1,
+    "levels": {
+      "1": {
+        "revival_chance": 0.25,
+        "revival_ratio": 1.0,
+        "drop_chance": 0.002
+      }
+    }
+  }
+}

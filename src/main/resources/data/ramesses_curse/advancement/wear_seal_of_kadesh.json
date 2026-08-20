@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:seal_of_kadesh"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.wear_seal_of_kadesh.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.wear_seal_of_kadesh.description"
+    },
+    "background": "minecraft:textures/block/sandstone_top.png",
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "x": 0,
+    "y": 0
+  },
+  "criteria": {
+    "wear_seal": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "rewards": {
+    "experience": 50
+  }
+}

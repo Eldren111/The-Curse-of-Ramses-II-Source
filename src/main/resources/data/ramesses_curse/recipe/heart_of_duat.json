@@ -1,0 +1,19 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "pattern":  [
+                    " E ",
+                    "ENE",
+                    " E "
+                ],
+    "key":  {
+                "E":  {
+                          "item":  "ramesses_curse:ember_of_duat"
+                      },
+                "N":  {
+                          "item":  "minecraft:nether_star"
+                      }
+            },
+    "result":  {
+                   "id":  "ramesses_curse:heart_of_duat"
+               }
+}

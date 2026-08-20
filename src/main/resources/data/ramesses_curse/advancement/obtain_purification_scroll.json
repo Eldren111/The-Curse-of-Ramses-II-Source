@@ -1,0 +1,37 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:purification_scroll"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_purification_scroll.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_purification_scroll.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "x": -2,
+    "y": -1
+  },
+  "criteria": {
+    "has_purification_scroll": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:purification_scroll"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 75
+  }
+}

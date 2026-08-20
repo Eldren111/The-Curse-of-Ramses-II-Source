@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:truth"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_truth.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_truth.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_truth": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:truth"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

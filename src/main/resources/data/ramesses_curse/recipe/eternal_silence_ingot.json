@@ -1,0 +1,18 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "misc",
+    "pattern":  [
+                    "GGG",
+                    "GGG",
+                    "GGG"
+                ],
+    "key":  {
+                "G":  {
+                          "item":  "ramesses_curse:eternal_silence_granule"
+                      }
+            },
+    "result":  {
+                   "id":  "ramesses_curse:eternal_silence_ingot"
+               },
+    "show_notification":  true
+}

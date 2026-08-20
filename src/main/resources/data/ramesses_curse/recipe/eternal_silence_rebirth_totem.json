@@ -1,0 +1,15 @@
+{
+    "type":  "minecraft:smithing_transform",
+    "template":  {
+                     "item":  "ramesses_curse:eternal_silence_upgrade_smithing_template"
+                 },
+    "base":  {
+                 "item":  "ramesses_curse:eternal_silence_totem"
+             },
+    "addition":  {
+                     "item":  "ramesses_curse:eternal_silence_ingot"
+                 },
+    "result":  {
+                   "id":  "ramesses_curse:eternal_silence_rebirth_totem"
+               }
+}

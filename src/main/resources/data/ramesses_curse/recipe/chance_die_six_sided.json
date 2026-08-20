@@ -1,0 +1,33 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "misc",
+    "pattern":  [
+                    "MGC",
+                    "GNG",
+                    "EGX"
+                ],
+    "key":  {
+                "M":  {
+                          "tag":  "ramesses_curse:dynasty_affix_materials"
+                      },
+                "G":  {
+                          "item":  "minecraft:ghast_tear"
+                      },
+                "C":  {
+                          "item":  "minecraft:chorus_flower"
+                      },
+                "N":  {
+                          "item":  "ramesses_curse:eternal_silence_granule"
+                      },
+                "E":  {
+                          "item":  "ramesses_curse:ember_of_duat"
+                      },
+                "X":  {
+                          "item":  "minecraft:end_crystal"
+                      }
+            },
+    "result":  {
+                   "id":  "ramesses_curse:chance_die_six_sided"
+               },
+    "show_notification":  true
+}

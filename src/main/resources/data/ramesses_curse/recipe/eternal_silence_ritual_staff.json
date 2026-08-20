@@ -1,0 +1,22 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "equipment",
+    "pattern":  [
+                    " G ",
+                    "GBG",
+                    " G "
+                ],
+    "key":  {
+                "G":  {
+                          "item":  "ramesses_curse:eternal_silence_granule"
+                      },
+                "B":  {
+                          "item":  "minecraft:blaze_rod"
+                      }
+            },
+    "result":  {
+                   "id":  "ramesses_curse:eternal_silence_ritual_staff",
+                   "count":  1
+               },
+    "show_notification":  true
+}

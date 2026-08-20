@@ -1,0 +1,25 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "misc",
+    "pattern":  [
+                    "DID",
+                    "DND",
+                    "DDD"
+                ],
+    "key":  {
+                "D":  {
+                          "item":  "minecraft:diamond"
+                      },
+                "I":  {
+                          "item":  "ramesses_curse:eternal_silence_ingot"
+                      },
+                "N":  {
+                          "item":  "minecraft:netherite_upgrade_smithing_template"
+                      }
+            },
+    "result":  {
+                   "id":  "ramesses_curse:eternal_silence_upgrade_smithing_template",
+                   "count":  1
+               },
+    "show_notification":  true
+}

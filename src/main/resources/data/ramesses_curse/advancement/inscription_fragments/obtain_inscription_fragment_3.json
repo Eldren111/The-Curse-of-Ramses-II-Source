@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:inscription_fragments/root",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:inscription_fragment_3"
+    },
+    "title": {
+      "translate": "item.ramesses_curse.inscription_fragment_3"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.inscription_fragment.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "criteria": {
+    "has_inscription_fragment_3": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:inscription_fragment_3"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

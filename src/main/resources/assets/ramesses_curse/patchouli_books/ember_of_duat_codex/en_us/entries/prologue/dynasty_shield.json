@@ -1,0 +1,83 @@
+{
+  "name": "Dynasty Aegis and Affixes",
+  "category": "ramesses_curse:prologue",
+  "icon": "minecraft:iron_chestplate",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Dynasty Aegis",
+      "text": "Dynasty Aegis is an outer shield placed on hostile creatures by the old dynasty. It is not normal armor and it is not health; incoming damage is absorbed by the aegis before the creature's real health can be reached. $(br2)A shielded enemy must be broken open before it can be killed. Attacks that bypass armor or deal true damage must still pass through the aegis."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Threat and Generation",
+      "text": "The aegis appears on hostile entities. Stronger creatures usually receive higher shield tiers, while a player's Dynasty Threat determines how many affixes appear and how severe they become. $(br2)Killing a hostile creature that carried the aegis reduces Dynasty Threat. Time, dimension changes, and special items can also change it."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Affix Rules",
+      "text": "Affixes are shown in Jade's entity information panel rather than floating above the creature. Each affix has its own trigger and behavior, and some affixes gain stronger levels as threat rises. $(br2)Affix availability, tiers, and values can be adjusted by datapacks. A modpack's loaded data takes priority over these general descriptions."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Dodge and Corrosion",
+      "text": "$(l)Dodge$(): the enemy may completely evade an incoming hit. $(br2)$(l)Corrosion$(): fighting the enemy wears down the player's damageable worn and held equipment. Striking it or being struck by it can both trigger corrosion."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Unyielding and Balance",
+      "text": "$(l)Unyielding$(): when the enemy dies, the dynasty may drag it back into battle. The revival uses a totem-like effect, but a revived entity does not keep Unyielding. $(br2)$(l)Sovereign Balance$(): limits how much damage the enemy can take from one hit. It grants brief protection and Resistance when triggered."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Silence, Purge, and Ward",
+      "text": "$(l)Silence$(): may seal the player's main-hand and off-hand items. $(br2)$(l)Purity Edict$(): periodically removes harmful effects from the enemy, except the Uraeus Necklace's configured exclusive effect. $(br2)$(l)Projectile Ward$(): blocks projectile attacks and pushes the player toward melee or other non-projectile answers."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Rage, Molten, and Blood Forfeit",
+      "text": "$(l)Rage$(): increases the hostile entity's attack speed and movement speed. $(br2)$(l)Molten$(): creates webs and converging fireballs from above and below; hits ignite trueflame that bypasses fire protection and immunity, while the bearer remains unharmed by its own hazards. $(br2)$(l)Blood Forfeit$(): temporarily removes maximum health when its bearer kills a player; killing the responsible entity can restore the loss."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Struck Down and Ravenous Claw Rage",
+      "text": "$(l)Struck Down$(): attacks flying players and temporarily disables their flight. $(br2)$(l)Ravenous Claw Rage$(): taking damage may arm the entity, causing its next attack to deal bonus damage."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Steelbone and Feast of Flesh",
+      "text": "$(l)Steelbone$(): ignores damage calculated as a percentage of target health. $(br2)$(l)Feast of Flesh$(): becomes stronger in health and defense when more players are nearby. A player who has learned this affix does not count toward its nearby-player bonus."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Miasma and Restoration",
+      "text": "$(l)Miasma$(): attacks may poison the player. $(br2)$(l)Restoration$(): heals the entity after it kills a target in single combat."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Bloodbound Limit and Shield Shatter",
+      "text": "$(l)Bloodbound Limit$(): restricts how much health the entity can lose within a short window and prevents burst execution. $(br2)$(l)Shield Shatter$(): when the aegis breaks, nearby enemies are knocked back and damaged, but other shielded entities are not harmed."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Death Authority and Slowing Retaliation",
+      "text": "$(l)Death Authority$(): attacks add unmitigable percentage maximum-health damage and have a trigger interval. $(br2)$(l)Slowing Retaliation$(): attacks greatly reduce the player's attack speed for a time."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Vulnerability and Counterforce",
+      "text": "$(l)Vulnerability$(): attacks add true damage that ignores armor. $(br2)$(l)Counterforce$(): after the aegis breaks, it may revive the shield and restart its remaining affixes; each entity can trigger this once."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Knowledge Books",
+      "text": "A Dynasty Affix Knowledge Book records one affix with a shared appearance. The first right-click teaches the affix and consumes the book. $(br2)Finding the same knowledge again converts it into experience when used. Each affix can be learned once; learning it grants the player temporary immunity to that affix's effects."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Knowledge Book Source",
+      "text": "Knowledge Books can be found in Ancient City loot chests in the Overworld. Each Ancient City loot chest can randomly produce a book. $(br2)Hold Shift over a book to view its detailed affix description."
+    }
+  ]
+}

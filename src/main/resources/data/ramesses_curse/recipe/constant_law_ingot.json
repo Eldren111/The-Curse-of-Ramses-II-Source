@@ -1,0 +1,20 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "misc",
+    "pattern":  [
+                    "MPM",
+                    "MPM"
+                ],
+    "key":  {
+                "P":  {
+                          "item":  "ramesses_curse:ordered_phase_ingot"
+                      },
+                "M":  {
+                          "item":  "minecraft:diamond"
+                      }
+            },
+    "result":  {
+                   "id":  "ramesses_curse:constant_law_ingot"
+               },
+    "show_notification":  true
+}

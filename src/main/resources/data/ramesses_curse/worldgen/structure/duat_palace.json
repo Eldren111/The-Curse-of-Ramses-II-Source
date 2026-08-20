@@ -1,0 +1,7 @@
+{
+  "type": "ramesses_curse:duat_palace",
+  "biomes": "#ramesses_curse:has_structure/duat_palace",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "none"
+}

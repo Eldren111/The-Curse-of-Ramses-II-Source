@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "ramesses_curse:block/duat_portal_ns"
+    },
+    "axis=z": {
+      "model": "ramesses_curse:block/duat_portal_ew"
+    }
+  }
+}

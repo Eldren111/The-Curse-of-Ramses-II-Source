@@ -1,0 +1,8 @@
+{
+  "sound_event": "ramesses_curse:music_disc.hymn_of_the_two_lands",
+  "description": {
+    "translate": "jukebox_song.ramesses_curse.hymn_of_the_two_lands"
+  },
+  "length_in_seconds": 60.0,
+  "comparator_output": 15
+}

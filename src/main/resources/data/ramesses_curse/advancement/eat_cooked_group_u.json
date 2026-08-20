@@ -1,0 +1,30 @@
+{
+  "parent": "ramesses_curse:eat_raw_group_u",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:cooked_group_u"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.eat_cooked_group_u.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.eat_cooked_group_u.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "eat_cooked_group_u": {
+      "trigger": "minecraft:consume_item",
+      "conditions": {
+        "item": {
+          "items": [
+            "ramesses_curse:cooked_group_u"
+          ]
+        }
+      }
+    }
+  }
+}

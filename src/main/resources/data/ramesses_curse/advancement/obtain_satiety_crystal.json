@@ -1,0 +1,37 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:satiety_crystal"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_satiety_crystal.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_satiety_crystal.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "x": -2,
+    "y": 1
+  },
+  "criteria": {
+    "has_satiety_crystal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:satiety_crystal"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 100
+  }
+}

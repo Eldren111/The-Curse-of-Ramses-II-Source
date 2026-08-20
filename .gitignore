@@ -1,0 +1,14 @@
+.gradle/
+build/
+run/
+*.log
+build-*.log
+compile-*.log
+run-*.log
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+src/generated/**/.cache/
+repo/

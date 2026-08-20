@@ -1,0 +1,6 @@
+{
+  "parent": "ramesses_curse:item/eternal_silence_compound_bow",
+  "textures": {
+    "layer0": "ramesses_curse:item/armor_piercing_compound_bow_pulling_1"
+  }
+}

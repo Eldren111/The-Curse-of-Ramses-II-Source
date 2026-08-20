@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:pitchfire_crystal"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_pitchfire_crystal.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_pitchfire_crystal.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_pitchfire_crystal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:pitchfire_crystal"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:inscription_bag"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_inscription_bag.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_inscription_bag.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_inscription_bag": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:inscription_bag"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

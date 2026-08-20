@@ -1,0 +1,37 @@
+{
+  "parent": "ramesses_curse:craft_heart_of_duat",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:uraeus_necklace"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_uraeus_necklace.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_uraeus_necklace.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "x": 4,
+    "y": -1
+  },
+  "criteria": {
+    "has_uraeus_necklace": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:uraeus_necklace"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "rewards": {
+    "experience": 200
+  }
+}

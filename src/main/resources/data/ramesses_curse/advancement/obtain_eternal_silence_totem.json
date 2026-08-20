@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:wear_seal_of_kadesh",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:eternal_silence_totem"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_eternal_silence_totem.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_eternal_silence_totem.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_eternal_silence_totem": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:eternal_silence_totem"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

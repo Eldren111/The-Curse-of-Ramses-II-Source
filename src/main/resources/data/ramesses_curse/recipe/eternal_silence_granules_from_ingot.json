@@ -1,0 +1,13 @@
+{
+    "type":  "minecraft:crafting_shapeless",
+    "category":  "misc",
+    "ingredients":  [
+                        {
+                            "item":  "ramesses_curse:eternal_silence_ingot"
+                        }
+                    ],
+    "result":  {
+                   "id":  "ramesses_curse:eternal_silence_granule",
+                   "count":  9
+               }
+}

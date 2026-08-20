@@ -1,0 +1,33 @@
+{
+    "type":  "minecraft:crafting_shaped",
+    "category":  "misc",
+    "pattern":  [
+                    "HNF",
+                    "NEN",
+                    "PNB"
+                ],
+    "key":  {
+                "H":  {
+                          "item":  "minecraft:heart_of_the_sea"
+                      },
+                "N":  {
+                          "item":  "minecraft:netherite_scrap"
+                      },
+                "F":  {
+                          "item":  "minecraft:fermented_spider_eye"
+                      },
+                "E":  {
+                          "item":  "minecraft:echo_shard"
+                      },
+                "P":  {
+                          "item":  "minecraft:phantom_membrane"
+                      },
+                "B":  {
+                          "item":  "minecraft:blaze_powder"
+                      }
+            },
+    "result":  {
+                   "id":  "ramesses_curse:eternal_silence_granule"
+               },
+    "show_notification":  true
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/leaves",
+  "textures": {
+    "all": "ramesses_curse:block/date_palm_leaves"
+  }
+}

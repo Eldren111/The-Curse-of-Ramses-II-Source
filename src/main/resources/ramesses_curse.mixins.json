@@ -1,0 +1,34 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.eldren.wutao.ramesses_curse.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "ramesses_curse.refmap.json",
+  "mixins": [
+    "ApothEnchantmentMenuMixin",
+    "AnvilMenuMixin",
+    "CelestialTableMenuAccessor",
+    "CelestialTableMenuMixin",
+    "EntityMoltenWebMixin",
+    "EnchantmentMenuMixin",
+    "GoetyDarkAnvilMenuMixin",
+    "InfuserMenuMixin",
+    "ItemCombinerMenuAccessor",
+    "LivingEntityPitchfireLavaMixin",
+    "LivingEntitySealDrawSpeedMixin",
+    "MeleeAttackGoalMixin",
+    "SculkShriekerBlockEntityMixin",
+    "WardenMixin",
+    "WardenVibrationUserMixin"
+  ],
+  "client": [
+    "AnvilScreenMixin",
+    "CelestialTableScreenMixin",
+    "EnchantmentScreenMixin",
+    "GoetyDarkAnvilScreenMixin",
+    "InfuserScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
