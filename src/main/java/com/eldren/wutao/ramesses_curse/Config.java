@@ -3,7 +3,6 @@ package com.eldren.wutao.ramesses_curse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -83,28 +82,17 @@ public class Config {
         BUILDER.pop();
 
         BUILDER.push("诅咒二");
-        CURSE_2_SPAWN_INTERVAL = BUILDER
-                .comment("[诅咒二] 敌对生物召唤检测间隔，单位为 tick。12000 tick = 10 分钟。")
-                .defineInRange("curse2SpawnInterval", 12000, 20, 720000);
-
-        CURSE_2_SPAWN_CHANCE = BUILDER
-                .comment("[诅咒二] 每次达到检测间隔后，召唤敌对生物的概率。")
-                .defineInRange("curse2SpawnChance", 0.15D, 0.0D, 1.0D);
-
         CURSE_2_LUCK_PENALTY = BUILDER
                 .comment("[诅咒二] 每累计佩戴 5 分钟减少的幸运值。")
                 .defineInRange("curse2LuckPenalty", 2.0D, 0.0D, 1024.0D);
 
-        CURSE_2_SPAWN_RADIUS = BUILDER
-                .comment("[诅咒二] 召唤敌对生物时，围绕玩家的水平生成半径，单位为格。")
-                .defineInRange("curse2SpawnRadius", 8, 2, 64);
+        CURSE_2_VILLAGER_ZOMBIFICATION_ENABLED = BUILDER
+                .comment("[诅咒二] 是否让诅咒生效期间玩家遇到的村民必定转化为僵尸村民。")
+                .define("curse2VillagerZombificationEnabled", true);
 
-        CURSE_2_ENTITY_WHITELIST = BUILDER
-                .comment("[诅咒二] 可被召唤的敌对生物实体 ID 白名单，支持其他模组生物。")
-                .defineListAllowEmpty(
-                        "curse2EntityWhitelist",
-                        List.of("minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"),
-                        Config::validateEntityTypeName);
+        CURSE_2_VILLAGER_ZOMBIFICATION_RADIUS = BUILDER
+                .comment("[诅咒二] 检测并转化村民的半径，单位为格。")
+                .defineInRange("curse2VillagerZombificationRadius", 24, 1, 128);
 
         CURSE_2_REVERSED_LUCK_BONUS = BUILDER
                 .comment("[诅咒二-反转] 返还既有幸运损失后，每继续佩戴 5 分钟增加的幸运值。")
@@ -117,6 +105,10 @@ public class Config {
         CURSE_2_REVERSED_SPAWN_CHANCE = BUILDER
                 .comment("[诅咒二-反转] 每次达到检测间隔后，召唤王权奴仆的概率。")
                 .defineInRange("curse2ReversedSpawnChance", 0.15D, 0.0D, 1.0D);
+
+        CURSE_2_REVERSED_SPAWN_RADIUS = BUILDER
+                .comment("[诅咒二-反转] 王权奴仆围绕玩家生成的水平半径，单位为格。")
+                .defineInRange("curse2ReversedSpawnRadius", 8, 2, 64);
 
         CURSE_2_REVERSED_MINION_DURATION = BUILDER
                 .comment("[诅咒二-反转] 王权奴仆持续时间，单位为 tick。400 tick = 20 秒。")
@@ -200,9 +192,99 @@ public class Config {
         BUILDER.pop();
 
         BUILDER.push("诅咒七");
-        CURSE_7_LOOT_SUPPRESSION_CHANCE = BUILDER
-                .comment("[诅咒七] 踏足末地并留下印记后，玩家击杀实体时不产生任何战利品的概率。0.05 表示 5%。")
-                .defineInRange("curse7LootSuppressionChance", 0.05D, 0.0D, 1.0D);
+        CURSE_7_LOOT_TRIGGER_MAX_ATTACKS = BUILDER
+                .comment("[诅咒七] 每轮最多经过多少次有效击杀攻击，必定随机触发一次无战利品。")
+                .defineInRange("curse7LootTriggerMaxAttacks", 7, 1, 100);
+        CURSE_7_ENCHANTMENT_ERASURE_ENABLED = BUILDER
+                .comment("[诅咒七] 是否启用背包内附魔装备或武器的附魔清除判定。")
+                .define("curse7EnchantmentErasureEnabled", true);
+        CURSE_7_ENCHANTMENT_ERASURE_CHANCE = BUILDER
+                .comment("[诅咒七] 装备或武器进入玩家背包、或其附魔状态发生变化后，失去全部附魔的单次判定概率。0.35 表示 35%。")
+                .defineInRange("curse7EnchantmentErasureChance", 0.35D, 0.0D, 1.0D);
+
+        CURSE_7_REVERSED_ATTACK_DAMAGE_BONUS = BUILDER
+                .comment("[诅咒七-反转] 常驻攻击伤害加成。0.40 表示增加 40%。")
+                .defineInRange("curse7ReversedAttackDamageBonus", 0.40D, 0.0D, 10.0D);
+        CURSE_7_REVERSED_ATTACK_SPEED_BONUS = BUILDER
+                .comment("[诅咒七-反转] 常驻攻击速度加成。0.25 表示增加 25%。")
+                .defineInRange("curse7ReversedAttackSpeedBonus", 0.25D, 0.0D, 10.0D);
+        CURSE_7_REVERSED_MOVEMENT_SPEED_BONUS = BUILDER
+                .comment("[诅咒七-反转] 常驻移动速度加成。0.20 表示增加 20%。")
+                .defineInRange("curse7ReversedMovementSpeedBonus", 0.20D, 0.0D, 10.0D);
+        CURSE_7_REVERSED_MAX_HEALTH_BONUS = BUILDER
+                .comment("[诅咒七-反转] 常驻最大生命值加成，单位为生命值点数。")
+                .defineInRange("curse7ReversedMaxHealthBonus", 8.0D, 0.0D, 1024.0D);
+        CURSE_7_REVERSED_ARMOR_TOUGHNESS_BONUS = BUILDER
+                .comment("[诅咒七-反转] 常驻盔甲韧性加成。")
+                .defineInRange("curse7ReversedArmorToughnessBonus", 4.0D, 0.0D, 1024.0D);
+        CURSE_7_REVERSED_END_DAMAGE_REDUCTION = BUILDER
+                .comment("[诅咒七-反转] 在末地受到的伤害减免。0.50 表示减免 50%。")
+                .defineInRange("curse7ReversedEndDamageReduction", 0.50D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_END_XP_MULTIPLIER = BUILDER
+                .comment("[诅咒七-反转] 在末地击杀生物获得的经验倍率。2.0 表示获得双倍经验。")
+                .defineInRange("curse7ReversedEndXpMultiplier", 2.0D, 0.0D, 10.0D);
+
+        CURSE_7_REVERSED_JUDGMENT_ENABLED = BUILDER
+                .comment("[诅咒七-反转] 是否启用每轮攻击触发一次的审判机制。")
+                .define("curse7ReversedJudgmentEnabled", true);
+        CURSE_7_REVERSED_JUDGMENT_MAX_ATTACKS = BUILDER
+                .comment("[诅咒七-反转] 审判每轮最多等待的有效攻击次数，达到后必定触发。")
+                .defineInRange("curse7ReversedJudgmentMaxAttacks", 7, 1, 100);
+        CURSE_7_REVERSED_JUDGMENT_EXTRA_DAMAGE_RATIO = BUILDER
+                .comment("[诅咒七-反转] 审判追加的基础伤害比例。1.0 表示追加 100% 基础伤害。")
+                .defineInRange("curse7ReversedJudgmentExtraDamageRatio", 1.0D, 0.0D, 20.0D);
+        CURSE_7_REVERSED_JUDGMENT_MAX_HEALTH_RATIO = BUILDER
+                .comment("[诅咒七-反转] 审判追加的目标最大生命值真实伤害比例。")
+                .defineInRange("curse7ReversedJudgmentMaxHealthRatio", 0.12D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_JUDGMENT_EXECUTE_THRESHOLD = BUILDER
+                .comment("[诅咒七-反转] 普通目标低于该生命比例时可被审判处决。")
+                .defineInRange("curse7ReversedJudgmentExecuteThreshold", 0.35D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_JUDGMENT_BOSS_DAMAGE_RATIO = BUILDER
+                .comment("[诅咒七-反转] Boss 目标无法被直接处决时追加的最大生命值伤害比例。")
+                .defineInRange("curse7ReversedJudgmentBossDamageRatio", 0.10D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_JUDGMENT_CHAIN_RADIUS = BUILDER
+                .comment("[诅咒七-反转] 审判连锁搜索半径，单位为格。")
+                .defineInRange("curse7ReversedJudgmentChainRadius", 7.0D, 0.0D, 64.0D);
+        CURSE_7_REVERSED_JUDGMENT_CHAIN_COUNT = BUILDER
+                .comment("[诅咒七-反转] 每次审判最多额外影响的连锁目标数量。")
+                .defineInRange("curse7ReversedJudgmentChainCount", 7, 0, 64);
+        CURSE_7_REVERSED_JUDGMENT_CHAIN_DAMAGE_RATIO = BUILDER
+                .comment("[诅咒七-反转] 连锁审判相对于主目标审判伤害的比例。")
+                .defineInRange("curse7ReversedJudgmentChainDamageRatio", 0.35D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_JUDGMENT_MARK_DURATION = BUILDER
+                .comment("[诅咒七-反转] 审判标记持续时间，单位为 tick。")
+                .defineInRange("curse7ReversedJudgmentMarkDuration", 140, 1, 72000);
+        CURSE_7_REVERSED_MARK_VFX_ENABLED = BUILDER
+                .comment("[诅咒七-反转] 是否在被标记敌人头顶显示程序生成的红色箭头特效。")
+                .define("curse7ReversedMarkVfxEnabled", true);
+
+        CURSE_7_REVERSED_ORDER_ENABLED = BUILDER
+                .comment("[诅咒七-反转] 是否启用审判击杀累计后的随机王令。")
+                .define("curse7ReversedOrderEnabled", true);
+        CURSE_7_REVERSED_ORDER_KILL_THRESHOLD = BUILDER
+                .comment("[诅咒七-反转] 累计多少个被标记目标死亡后触发一次随机王令。")
+                .defineInRange("curse7ReversedOrderKillThreshold", 7, 1, 1000);
+        CURSE_7_REVERSED_ORDER_DURATION = BUILDER
+                .comment("[诅咒七-反转] 随机王令持续时间，单位为 tick。")
+                .defineInRange("curse7ReversedOrderDuration", 140, 1, 72000);
+        CURSE_7_REVERSED_ORDER_RANGE = BUILDER
+                .comment("[诅咒七-反转] 王令影响范围，单位为格。")
+                .defineInRange("curse7ReversedOrderRange", 7.0D, 0.0D, 64.0D);
+        CURSE_7_REVERSED_ORDER_PUNISHMENT_RATIO = BUILDER
+                .comment("[诅咒七-反转] 惩戒王令对普通目标造成的最大生命值伤害比例。")
+                .defineInRange("curse7ReversedOrderPunishmentRatio", 0.35D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_ORDER_BOSS_DAMAGE_RATIO = BUILDER
+                .comment("[诅咒七-反转] 惩戒王令对 Boss 目标造成的最大生命值伤害比例。")
+                .defineInRange("curse7ReversedOrderBossDamageRatio", 0.12D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_ORDER_LIGHTNING_COUNT = BUILDER
+                .comment("[诅咒七-反转] 雷霆王令在持续期间最多召唤的闪电次数。")
+                .defineInRange("curse7ReversedOrderLightningCount", 7, 0, 100);
+        CURSE_7_REVERSED_ORDER_BOUNTY_KILLS = BUILDER
+                .comment("[诅咒七-反转] 赏赐王令期间可获得额外战利品判定的击杀次数。")
+                .defineInRange("curse7ReversedOrderBountyKills", 7, 0, 1000);
+        CURSE_7_REVERSED_ORDER_ABSORPTION = BUILDER
+                .comment("[诅咒七-反转] 护佑王令给予的吸收生命值点数。")
+                .defineInRange("curse7ReversedOrderAbsorption", 7.0D, 0.0D, 1024.0D);
         BUILDER.pop();
 
         BUILDER.push("诅咒八");
@@ -538,6 +620,10 @@ public class Config {
                 .comment("[通用] 为 true 时启用王朝护盾；为 false 时敌对生物不会获得护盾，已有护盾也不会生效。")
                 .define("dynastyShieldEnabled", true);
 
+        DYNASTY_SHIELD_FORCE_ENABLED = BUILDER
+                .comment("[通用] 强制开启王胄。默认 false 时，仅在附近存在佩戴卡迭石咒印的玩家时启用；/ramessescurse dynasty_shield on 会将其设为 true。")
+                .define("dynastyShieldForceEnabled", false);
+
         DYNASTY_SHIELD_LEVELS = BUILDER
                 .comment("[通用] 王朝护盾可用等级列表。需要与 dynastyShieldMaxValues 一一对应。")
                 .defineList("dynastyShieldLevels", List.of(1, 3, 5, 7, 9), Config::validatePositiveInteger);
@@ -673,14 +759,13 @@ public class Config {
     public static final ModConfigSpec.IntValue CURSE_1_REVERSED_AMPLIFIER_MAX;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> CURSE_1_REVERSED_EFFECT_WHITELIST;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> CURSE_1_REVERSAL_CAULDRON_ITEMS;
-    public static final ModConfigSpec.IntValue CURSE_2_SPAWN_INTERVAL;
-    public static final ModConfigSpec.DoubleValue CURSE_2_SPAWN_CHANCE;
     public static final ModConfigSpec.DoubleValue CURSE_2_LUCK_PENALTY;
-    public static final ModConfigSpec.IntValue CURSE_2_SPAWN_RADIUS;
-    public static final ModConfigSpec.ConfigValue<List<? extends String>> CURSE_2_ENTITY_WHITELIST;
+    public static final ModConfigSpec.BooleanValue CURSE_2_VILLAGER_ZOMBIFICATION_ENABLED;
+    public static final ModConfigSpec.IntValue CURSE_2_VILLAGER_ZOMBIFICATION_RADIUS;
     public static final ModConfigSpec.DoubleValue CURSE_2_REVERSED_LUCK_BONUS;
     public static final ModConfigSpec.IntValue CURSE_2_REVERSED_SPAWN_INTERVAL;
     public static final ModConfigSpec.DoubleValue CURSE_2_REVERSED_SPAWN_CHANCE;
+    public static final ModConfigSpec.IntValue CURSE_2_REVERSED_SPAWN_RADIUS;
     public static final ModConfigSpec.IntValue CURSE_2_REVERSED_MINION_DURATION;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> CURSE_2_REVERSED_ENTITY_WHITELIST;
     public static final ModConfigSpec.DoubleValue CURSE_3_XP_MULTIPLIER;
@@ -698,7 +783,36 @@ public class Config {
     public static final ModConfigSpec.IntValue INVENTORY_LOCK_INTERVAL;
     public static final ModConfigSpec.IntValue INVENTORY_LOCK_DURATION;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> CURSE_6_VOID_OFFERINGS;
-    public static final ModConfigSpec.DoubleValue CURSE_7_LOOT_SUPPRESSION_CHANCE;
+    public static final ModConfigSpec.IntValue CURSE_7_LOOT_TRIGGER_MAX_ATTACKS;
+    public static final ModConfigSpec.BooleanValue CURSE_7_ENCHANTMENT_ERASURE_ENABLED;
+    public static final ModConfigSpec.DoubleValue CURSE_7_ENCHANTMENT_ERASURE_CHANCE;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_ATTACK_DAMAGE_BONUS;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_ATTACK_SPEED_BONUS;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_MOVEMENT_SPEED_BONUS;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_MAX_HEALTH_BONUS;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_ARMOR_TOUGHNESS_BONUS;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_END_DAMAGE_REDUCTION;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_END_XP_MULTIPLIER;
+    public static final ModConfigSpec.BooleanValue CURSE_7_REVERSED_JUDGMENT_ENABLED;
+    public static final ModConfigSpec.IntValue CURSE_7_REVERSED_JUDGMENT_MAX_ATTACKS;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_EXTRA_DAMAGE_RATIO;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_MAX_HEALTH_RATIO;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_EXECUTE_THRESHOLD;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_BOSS_DAMAGE_RATIO;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_CHAIN_RADIUS;
+    public static final ModConfigSpec.IntValue CURSE_7_REVERSED_JUDGMENT_CHAIN_COUNT;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_CHAIN_DAMAGE_RATIO;
+    public static final ModConfigSpec.IntValue CURSE_7_REVERSED_JUDGMENT_MARK_DURATION;
+    public static final ModConfigSpec.BooleanValue CURSE_7_REVERSED_MARK_VFX_ENABLED;
+    public static final ModConfigSpec.BooleanValue CURSE_7_REVERSED_ORDER_ENABLED;
+    public static final ModConfigSpec.IntValue CURSE_7_REVERSED_ORDER_KILL_THRESHOLD;
+    public static final ModConfigSpec.IntValue CURSE_7_REVERSED_ORDER_DURATION;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_ORDER_RANGE;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_ORDER_PUNISHMENT_RATIO;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_ORDER_BOSS_DAMAGE_RATIO;
+    public static final ModConfigSpec.IntValue CURSE_7_REVERSED_ORDER_LIGHTNING_COUNT;
+    public static final ModConfigSpec.IntValue CURSE_7_REVERSED_ORDER_BOUNTY_KILLS;
+    public static final ModConfigSpec.DoubleValue CURSE_7_REVERSED_ORDER_ABSORPTION;
     public static final ModConfigSpec.DoubleValue HELL_REBOUND_CHANCE;
     public static final ModConfigSpec.IntValue HELL_REBOUND_COOLDOWN;
     public static final ModConfigSpec.DoubleValue HELL_REBOUND_DAMAGE_MULTIPLIER;
@@ -733,6 +847,7 @@ public class Config {
     public static final ModConfigSpec.BooleanValue HEART_WARD_MANUAL_TRIGGER;
     public static final ModConfigSpec.DoubleValue HEART_DESERT_REACH_BONUS;
     public static final ModConfigSpec.BooleanValue DYNASTY_SHIELD_ENABLED;
+    public static final ModConfigSpec.BooleanValue DYNASTY_SHIELD_FORCE_ENABLED;
     public static final ModConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_LEVELS;
     public static final ModConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_MAX_VALUES;
     public static final ModConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_THREAT_THRESHOLDS;
@@ -896,15 +1011,6 @@ public class Config {
 
     public static MobEffect getRandomCurseOneReversedEffect(int seed) {
         return getEffectFromPool(CURSE_1_REVERSED_EFFECT_WHITELIST.get(), seed);
-    }
-
-    public static EntityType<?> getRandomCurseTwoEntityType(int seed) {
-        List<EntityType<?>> filteredPool = CURSE_2_ENTITY_WHITELIST.get().stream()
-                .map(ResourceLocation::parse)
-                .<EntityType<?>>map(BuiltInRegistries.ENTITY_TYPE::get)
-                .filter(entityType -> entityType != null && entityType.getCategory() == MobCategory.MONSTER)
-                .toList();
-        return getEntityTypeFromPool(filteredPool, seed);
     }
 
     public static EntityType<?> getRandomCurseTwoMinionEntityType(int seed) {

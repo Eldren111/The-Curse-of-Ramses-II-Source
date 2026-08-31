@@ -13,6 +13,7 @@ public final class ModEntityEvents {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntities.NEBUKA_GUARDIAN.get(), NebukaGuardianEntity.createAttributes().build());
+        event.put(ModEntities.DUAT_SUN_EATER.get(), DuatSunEaterEntity.createAttributes().build());
     }
 }
 

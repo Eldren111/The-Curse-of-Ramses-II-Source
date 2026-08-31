@@ -1,0 +1,7 @@
+{
+  "type": "ramesses_curse:ramesses_end_island",
+  "biomes": "#ramesses_curse:all_end_biomes",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "none"
+}

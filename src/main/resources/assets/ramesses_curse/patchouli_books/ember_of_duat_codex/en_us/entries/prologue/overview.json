@@ -16,6 +16,21 @@
     },
     {
       "type": "patchouli:text",
+      "title": "Curse II: Crown of Regency",
+      "text": "While the Seal of Kadesh is worn, Curse II continuously lowers Luck based on cumulative wear time. Villagers encountered within the configured radius are always converted into zombie villagers.$(br2)Villager infection can be disabled and its detection radius configured. After Curse II is reversed, infection stops, the Luck penalty becomes a bonus, and the crown may still send brief loyal retainers."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Curse VII: End Judgment",
+      "text": "Entering the End permanently awakens its judgment. By default, one effective killing attack is randomly chosen within every 1-to-7 cycle, and that kill produces no loot.$(br2)Marked enchanted weapons are also checked once for enchantment erasure when they enter the player's inventory."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Config and Enchantments",
+      "text": "Enchantment erasure is enabled by default at 35%. Experience and materials are consumed first, while the enchanting interface only registers a pending server-side check. The roll occurs once the weapon actually enters the player's inventory, without modifying the item or options inside the enchanting interface. Enchanted weapons generated in loot chests follow the same inventory-entry rule.$(br2)Curse VII's no-loot trigger limit, enchantment-erasure toggle, and erasure chance are configurable, and the seal's Ctrl tooltip shows their current values."
+    },
+    {
+      "type": "patchouli:text",
       "title": "推进顺序",
       "text": "推荐顺序：$(br)1. 佩戴卡迭石咒印$(br)2. 取得净化卷轴，理解王罪$(br)3. 在下界容器中寻得杜阿特余烬$(br)4. 解碑文，完成亡灵试炼$(br)5. 合成杜阿特之心$(br)6. 获得圣咏、圣甲虫、项链与两地敕印。"
     }

@@ -1,5 +1,6 @@
 package com.eldren.wutao.ramesses_curse;
 
+import com.eldren.wutao.ramesses_curse.dynamictext.api.DynamicTextApi;
 import net.minecraft.core.Holder;
 
 import com.google.common.collect.ImmutableMultimap;
@@ -116,6 +117,13 @@ public class ModItems {
             ITEMS.register("dynasty_pressure_potion", DynastyPressurePotion::new);
     public static final DeferredHolder<Item, Item> SATIETY_CRYSTAL =
             ITEMS.register("satiety_crystal", SatietyCrystal::new);
+    public static final DeferredHolder<Item, Item> HEKA_RADIANT_CRYSTAL =
+            ITEMS.register("heka_radiant_crystal",
+                    () -> new RamessesEndCrystalItem(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final DeferredHolder<Item, Item> SUN_EATER_BEACON =
+            ITEMS.register("sun_eater_beacon", () -> new Item(new Item.Properties().rarity(Rarity.EPIC).stacksTo(1)));
+    public static final DeferredHolder<Item, Item> DUAT_SUN_EATER_CROWN =
+            ITEMS.register("duat_sun_eater_crown", DuatSunEaterCrownItem::new);
     public static final DeferredHolder<Item, Item> EMBER_OF_DUAT =
             ITEMS.register("ember_of_duat", EmberOfDuat::new);
     public static final DeferredHolder<Item, Item> ETERNAL_SILENCE_GRANULE =
@@ -1582,9 +1590,16 @@ public class ModItems {
     public static class SealOfKadesh extends Item implements ICurioItem {
         private static final ResourceLocation CURSE_2_LUCK_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(RamessesCurseMod.MODID, "curse_2_luck_modifier_id");
         private static final ResourceLocation MAX_HEALTH_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(RamessesCurseMod.MODID, "max_health_modifier_id");
+        private static final double CURSED_MAX_HEALTH_MODIFIER = -5.0D;
+        private static final double FULLY_REVERSED_MAX_HEALTH_MODIFIER = 20.0D;
 
         public SealOfKadesh() {
             super(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+        }
+
+        @Override
+        public Component getName(ItemStack stack) {
+            return DynamicTextApi.parse(Component.literal("&u").append(super.getName(stack)));
         }
 
         @Override
@@ -1610,7 +1625,39 @@ public class ModItems {
             }
             return ImmutableMultimap.of(
                     Attributes.MAX_HEALTH,
-                    new AttributeModifier(MAX_HEALTH_MODIFIER_ID, -5.0D, AttributeModifier.Operation.ADD_VALUE));
+                    new AttributeModifier(MAX_HEALTH_MODIFIER_ID, getMaxHealthModifier(slotContext.entity()), AttributeModifier.Operation.ADD_VALUE));
+        }
+
+        @Override
+        @OnlyIn(Dist.CLIENT)
+        public List<Component> getAttributesTooltip(List<Component> tooltips, ItemStack stack) {
+            List<Component> result = new ArrayList<>(tooltips);
+            Minecraft minecraft = Minecraft.getInstance();
+            if (minecraft.player == null || !ModEvents.isCurseSevenReversed(minecraft.player)) {
+                return result;
+            }
+            result.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.curse_7_attribute.attack_damage",
+                    formatNumber(formatPercent(Config.CURSE_7_REVERSED_ATTACK_DAMAGE_BONUS.get())) + "%")
+                    .withStyle(ChatFormatting.BLUE));
+            result.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.curse_7_attribute.attack_speed",
+                    formatNumber(formatPercent(Config.CURSE_7_REVERSED_ATTACK_SPEED_BONUS.get())) + "%")
+                    .withStyle(ChatFormatting.BLUE));
+            result.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.curse_7_attribute.movement_speed",
+                    formatNumber(formatPercent(Config.CURSE_7_REVERSED_MOVEMENT_SPEED_BONUS.get())) + "%")
+                    .withStyle(ChatFormatting.BLUE));
+            result.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.curse_7_attribute.max_health",
+                    formatNumber(Config.CURSE_7_REVERSED_MAX_HEALTH_BONUS.get()))
+                    .withStyle(ChatFormatting.BLUE));
+            result.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.curse_7_attribute.armor_toughness",
+                    formatNumber(Config.CURSE_7_REVERSED_ARMOR_TOUGHNESS_BONUS.get()))
+                    .withStyle(ChatFormatting.BLUE));
+            result.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.curse_7_attribute.end_damage",
+                    formatNumber(formatPercent(Config.CURSE_7_REVERSED_END_DAMAGE_REDUCTION.get())) + "%")
+                    .withStyle(ChatFormatting.BLUE));
+            result.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.curse_7_attribute.end_xp",
+                    formatNumber(Config.CURSE_7_REVERSED_END_XP_MULTIPLIER.get()))
+                    .withStyle(ChatFormatting.BLUE));
+            return result;
         }
 
         @Override
@@ -1632,6 +1679,39 @@ public class ModItems {
 
         @Override
         public void curioTick(SlotContext slotContext, ItemStack stack) {
+            if (!RamessesCurseMod.CURSE_SLOT_ID.equals(slotContext.identifier())
+                    || !(slotContext.entity() instanceof Player player)
+                    || player.level().isClientSide) {
+                return;
+            }
+
+            AttributeInstance maxHealth = player.getAttribute(Attributes.MAX_HEALTH);
+            if (maxHealth == null) {
+                return;
+            }
+
+            double expectedAmount = getMaxHealthModifier(player);
+            AttributeModifier existing = maxHealth.getModifier(MAX_HEALTH_MODIFIER_ID);
+            if (existing != null
+                    && Double.compare(existing.amount(), expectedAmount) == 0
+                    && existing.operation() == AttributeModifier.Operation.ADD_VALUE) {
+                return;
+            }
+
+            maxHealth.removeModifier(MAX_HEALTH_MODIFIER_ID);
+            maxHealth.addTransientModifier(new AttributeModifier(
+                    MAX_HEALTH_MODIFIER_ID,
+                    expectedAmount,
+                    AttributeModifier.Operation.ADD_VALUE));
+            if (player.getHealth() > player.getMaxHealth()) {
+                player.setHealth(player.getMaxHealth());
+            }
+        }
+
+        private static double getMaxHealthModifier(LivingEntity wearer) {
+            return wearer instanceof Player player && ModEvents.areAllSealCursesTrulyReversed(player)
+                    ? FULLY_REVERSED_MAX_HEALTH_MODIFIER
+                    : CURSED_MAX_HEALTH_MODIFIER;
         }
 
         @Override
@@ -1694,7 +1774,7 @@ public class ModItems {
                     tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.nether_awakened")
                             .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
                 }
-                if (ModEvents.isEndAwakened(minecraft.player)) {
+                if (!curseSevenReversed && ModEvents.isEndAwakened(minecraft.player)) {
                     tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.end_awakened")
                             .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
                 }
@@ -1731,6 +1811,13 @@ public class ModItems {
                 tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_9_title",
                         curseNineReversed ? "item.ramesses_curse.seal_of_kadesh.curse_9_intro_reversed" : "item.ramesses_curse.seal_of_kadesh.curse_9_intro",
                         curseNineReversed));
+                if (!curseNineReversed) {
+                    tooltip.add(Component.translatable(
+                                    "item.ramesses_curse.seal_of_kadesh.curse_9_food_remaining",
+                                    Component.literal(Integer.toString(ModEvents.ClientOverlayEvents.getClientCurseNineRemainingFoodTypes()))
+                                            .withStyle(ChatFormatting.YELLOW))
+                            .withStyle(ChatFormatting.GRAY));
+                }
             }
             if (Screen.hasControlDown()) {
                 tooltip.add(Component.empty());
@@ -1759,10 +1846,10 @@ public class ModItems {
                     tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_2_title", "item.ramesses_curse.seal_of_kadesh.curse_2_detail", false,
                             tooltipArgument("luck", yellowNumber(formatNumber(Config.CURSE_2_LUCK_PENALTY.get()))),
                             tooltipArgument("luck_interval", yellowNumber(5)),
-                            tooltipArgument("spawn_interval", yellowNumber(formatTicksAsMinutes(Config.CURSE_2_SPAWN_INTERVAL.get()))),
-                            tooltipArgument("chance", yellowPercent(Config.CURSE_2_SPAWN_CHANCE.get())),
-                            tooltipArgument("count", yellowNumber(1)),
-                            tooltipArgument("radius", yellowNumber(Config.CURSE_2_SPAWN_RADIUS.get()))));
+                            tooltipArgument("villager_infection", goldKey(Config.CURSE_2_VILLAGER_ZOMBIFICATION_ENABLED.get()
+                                    ? "item.ramesses_curse.keyword.enabled"
+                                    : "item.ramesses_curse.keyword.disabled")),
+                            tooltipArgument("radius", yellowNumber(Config.CURSE_2_VILLAGER_ZOMBIFICATION_RADIUS.get()))));
                 }
                 if (!curseThreeFourLifted) {
                     tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_3_title", "item.ramesses_curse.seal_of_kadesh.curse_3_detail", false,
@@ -1816,8 +1903,12 @@ public class ModItems {
                 } else {
                     tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_7_title", "item.ramesses_curse.seal_of_kadesh.curse_7_detail", false,
                             tooltipArgument("dimension", blueKey("item.ramesses_curse.keyword.end")),
-                            tooltipArgument("chance", yellowPercent(Config.CURSE_7_LOOT_SUPPRESSION_CHANCE.get())),
-                            tooltipArgument("loot", blueKey("item.ramesses_curse.keyword.all_loot"))));
+                            tooltipArgument("attacks", goldText(Config.CURSE_7_LOOT_TRIGGER_MAX_ATTACKS.get())),
+                            tooltipArgument("enchantment_erasure", goldKey(Config.CURSE_7_ENCHANTMENT_ERASURE_ENABLED.get()
+                                    ? "item.ramesses_curse.keyword.enabled"
+                                    : "item.ramesses_curse.keyword.disabled")),
+                            tooltipArgument("chance", goldText(formatNumber(
+                                    formatPercent(Config.CURSE_7_ENCHANTMENT_ERASURE_CHANCE.get())) + "%"))));
                 }
                 if (curseEightReversed) {
                     tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_8_title", "item.ramesses_curse.seal_of_kadesh.curse_8_detail_reversed", true,
@@ -1833,12 +1924,8 @@ public class ModItems {
                     tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_9_title", "item.ramesses_curse.seal_of_kadesh.curse_9_detail", false,
                             tooltipArgument("hunger_loss", blueKey("item.ramesses_curse.keyword.two_hunger_points")),
                             tooltipArgument("crystal", blueKey("item.ramesses_curse.keyword.one_satiety_crystal")),
-                            tooltipArgument("debt", blueKey("item.ramesses_curse.keyword.hunger_debt")),
-                            tooltipArgument("debt_max", blueText(Integer.toString(Config.CURSE_9_MAX_SATIETY.get()))),
-                            tooltipArgument("drain_rate", blueKey("item.ramesses_curse.keyword.five_seconds_one_point")),
                             tooltipArgument("attributes", blueKey("item.ramesses_curse.keyword.all_attributes")),
-                            tooltipArgument("penalty", yellowPercent(0.99D)),
-                            tooltipArgument("food_types", blueText(Integer.toString(Config.CURSE_9_REVERSED_FOOD_TYPES.get())))));
+                            tooltipArgument("penalty", yellowPercent(0.99D))));
                 }
             }
             if (Screen.hasAltDown()) {
@@ -1959,27 +2046,20 @@ public class ModItems {
         }
 
         private static void applyCrownOfRegency(ServerPlayer player, int equipTicks) {
-            boolean reversed = ModEvents.isCurseTwoReversed(player);
-            int interval = reversed
-                    ? Config.CURSE_2_REVERSED_SPAWN_INTERVAL.get()
-                    : Config.CURSE_2_SPAWN_INTERVAL.get();
+            if (!ModEvents.isCurseTwoReversed(player)) {
+                return;
+            }
+
+            int interval = Config.CURSE_2_REVERSED_SPAWN_INTERVAL.get();
             if (equipTicks <= 0 || equipTicks % interval != 0) {
                 return;
             }
 
-            double chance = reversed
-                    ? Config.CURSE_2_REVERSED_SPAWN_CHANCE.get()
-                    : Config.CURSE_2_SPAWN_CHANCE.get();
-            if (player.getRandom().nextDouble() >= chance) {
+            if (player.getRandom().nextDouble() >= Config.CURSE_2_REVERSED_SPAWN_CHANCE.get()) {
                 return;
             }
 
-            if (reversed) {
-                ModEvents.spawnCurseTwoMinion(player);
-                return;
-            }
-
-            ModEvents.spawnCurseTwoMob(player);
+            ModEvents.spawnCurseTwoMinion(player);
         }
 
         private static double formatTicksAsMinutes(int ticks) {
@@ -2010,7 +2090,7 @@ public class ModItems {
         }
 
         private static MutableComponent blueKey(String key, Object... args) {
-            return Component.translatable(key, args).withStyle(ChatFormatting.AQUA);
+            return Component.translatable(key, args).withStyle(ChatFormatting.GOLD);
         }
 
         private static MutableComponent curseLine(String titleKey, String descKey, boolean reversed, Object... args) {
@@ -3566,19 +3646,17 @@ public class ModItems {
             getData(player).putLong(COOLDOWN_UNTIL_KEY, player.level().getGameTime() + appliedCooldown);
             player.getCooldowns().addCooldown(ModItems.EDICT_OF_TWO_LANDS.get(), appliedCooldown);
             ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new EdictCooldownSyncPacket(appliedCooldown));
-            ModNetwork.CHANNEL.send(
-                    PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                    new EdictWorldEffectPacket(
-                            player.getX(),
-                            player.getY() + 0.08D,
-                            player.getZ(),
-                            domain
-                                    ? Config.EDICT_OF_TWO_LANDS_DOMAIN_RANGE.get().floatValue()
-                                    : Config.EDICT_OF_TWO_LANDS_CAST_RANGE.get().floatValue(),
-                            domain
-                                    ? secondsToTicks(Config.EDICT_OF_TWO_LANDS_DOMAIN_DURATION_SECONDS.get())
-                                    : secondsToTicks(Config.EDICT_OF_TWO_LANDS_LIFT_SECONDS.get() + Config.EDICT_OF_TWO_LANDS_SEAL_SECONDS.get()),
-                            domain));
+            if (domain) {
+                ModNetwork.CHANNEL.send(
+                        PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
+                        new EdictWorldEffectPacket(
+                                player.getX(),
+                                player.getY() + 0.08D,
+                                player.getZ(),
+                                Config.EDICT_OF_TWO_LANDS_DOMAIN_RANGE.get().floatValue(),
+                                secondsToTicks(Config.EDICT_OF_TWO_LANDS_DOMAIN_DURATION_SECONDS.get()),
+                                true));
+            }
             return EdictActivationResult.SUCCESS;
         }
         private static int getCooldownTicks(Player player) {

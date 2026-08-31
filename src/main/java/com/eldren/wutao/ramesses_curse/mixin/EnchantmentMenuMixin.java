@@ -31,4 +31,5 @@ public class EnchantmentMenuMixin {
         int vanillaSpend = buttonId + 1;
         ModEvents.setPendingEnchantCost(player, ModEvents.getAdjustedEnchantSpend(player, vanillaSpend));
     }
+
 }

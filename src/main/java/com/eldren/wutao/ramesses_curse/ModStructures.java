@@ -11,6 +11,7 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacementType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -21,18 +22,31 @@ public final class ModStructures {
             DeferredRegister.create(Registries.STRUCTURE_TYPE, RamessesCurseMod.MODID);
     private static final DeferredRegister<StructurePieceType> STRUCTURE_PIECES =
             DeferredRegister.create(Registries.STRUCTURE_PIECE, RamessesCurseMod.MODID);
+    private static final DeferredRegister<StructurePlacementType<?>> STRUCTURE_PLACEMENTS =
+            DeferredRegister.create(Registries.STRUCTURE_PLACEMENT, RamessesCurseMod.MODID);
 
     public static final ResourceKey<Structure> DUAT_PALACE = ResourceKey.create(
             Registries.STRUCTURE,
             ResourceLocation.fromNamespaceAndPath(RamessesCurseMod.MODID, "duat_palace"));
+    public static final ResourceKey<Structure> RAMESSES_END_ISLAND = ResourceKey.create(
+            Registries.STRUCTURE,
+            ResourceLocation.fromNamespaceAndPath(RamessesCurseMod.MODID, "ramesses_end_island"));
 
     public static final DeferredHolder<StructureType<?>, StructureType<DuatPalaceStructure>> DUAT_PALACE_TYPE =
             STRUCTURE_TYPES.register("duat_palace", () -> () -> DuatPalaceStructure.CODEC);
+    public static final DeferredHolder<StructureType<?>, StructureType<RamessesEndIslandStructure>> RAMESSES_END_ISLAND_TYPE =
+            STRUCTURE_TYPES.register("ramesses_end_island", () -> () -> RamessesEndIslandStructure.CODEC);
+    public static final DeferredHolder<StructurePlacementType<?>, StructurePlacementType<FixedEndIslandPlacement>> FIXED_END_ISLAND_PLACEMENT =
+            STRUCTURE_PLACEMENTS.register("fixed_end_island", () -> () -> FixedEndIslandPlacement.CODEC);
 
     public static final DeferredHolder<StructurePieceType, StructurePieceType> DUAT_PALACE_PIECE =
             STRUCTURE_PIECES.register(
                     "duat_palace_piece",
                     () -> (StructurePieceType.StructureTemplateType) DuatPalacePiece::new);
+    public static final DeferredHolder<StructurePieceType, StructurePieceType> RAMESSES_END_ISLAND_PIECE =
+            STRUCTURE_PIECES.register(
+                    "ramesses_end_island_piece",
+                    () -> (StructurePieceType.ContextlessType) RamessesEndIslandPiece::new);
 
     private ModStructures() {
     }
@@ -40,6 +54,7 @@ public final class ModStructures {
     public static void register(IEventBus eventBus) {
         STRUCTURE_TYPES.register(eventBus);
         STRUCTURE_PIECES.register(eventBus);
+        STRUCTURE_PLACEMENTS.register(eventBus);
     }
 
     public static boolean isInsideDuatPalace(Level level, BlockPos pos) {

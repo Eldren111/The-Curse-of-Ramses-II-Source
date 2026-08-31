@@ -1,5 +1,6 @@
 package com.eldren.wutao.ramesses_curse;
 
+import com.eldren.wutao.ramesses_curse.dynamictext.config.DynamicTextClientConfig;
 import com.mojang.logging.LogUtils;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
@@ -10,7 +11,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -44,6 +44,7 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import org.slf4j.Logger;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -69,7 +70,7 @@ public class RamessesCurseMod {
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> RAMESSES_CURSE_TAB =
             CREATIVE_MODE_TABS.register("epic_curse_tab", () -> CreativeModeTab.builder()
-                    .title(Component.literal("Ramesses II's Curse").withStyle(ChatFormatting.DARK_PURPLE))
+                    .title(Component.literal("Ramesses II's Curse"))
                     .icon(() -> ModItems.SEAL_OF_KADESH.get().getDefaultInstance())
                     .displayItems((parameters, output) -> {
                         output.accept(ModItems.SEAL_OF_KADESH.get());
@@ -77,6 +78,9 @@ public class RamessesCurseMod {
                         output.accept(ModItems.PURIFICATION_SCROLL.get());
                         output.accept(ModItems.DYNASTY_PRESSURE_POTION.get());
                         output.accept(ModItems.SATIETY_CRYSTAL.get());
+                        output.accept(ModItems.HEKA_RADIANT_CRYSTAL.get());
+                        output.accept(ModItems.SUN_EATER_BEACON.get());
+                        output.accept(ModItems.DUAT_SUN_EATER_CROWN.get());
                         output.accept(ModItems.EMBER_OF_DUAT.get());
                         output.accept(ModItems.ETERNAL_SILENCE_GRANULE.get());
                         output.accept(ModItems.ETERNAL_SILENCE_INGOT.get());
@@ -158,6 +162,11 @@ public class RamessesCurseMod {
 
         NeoForge.EVENT_BUS.register(this);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(
+                ModConfig.Type.CLIENT,
+                DynamicTextClientConfig.SPEC,
+                "ramesses_curse-dynamic-text-client.toml"
+        );
     }
 
     private static void registerOptionalL2LibraryCompat(IEventBus modEventBus) {
@@ -279,6 +288,9 @@ public class RamessesCurseMod {
                 EntityRenderers.register(ModEntities.INSCRIPTION_FRAGMENT.get(), net.minecraft.client.renderer.entity.ItemFrameRenderer::new);
                 EntityRenderers.register(ModEntities.DRAGON_BREATH_ARROW.get(), DragonBreathArrowRenderer::new);
                 EntityRenderers.register(ModEntities.FISSION_HEART_DROP.get(), FissionHeartDropRenderer::new);
+                EntityRenderers.register(ModEntities.DUAT_SUN_EATER_CROWN.get(), net.minecraft.client.renderer.entity.ItemEntityRenderer::new);
+                EntityRenderers.register(ModEntities.RAMESSES_END_CRYSTAL.get(), RamessesEndCrystalRenderer::new);
+                EntityRenderers.register(ModEntities.DUAT_SUN_EATER.get(), DuatSunEaterRenderer::new);
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.DUAT_PORTAL.get(), RenderType.translucent());
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.SILENT_SEPULCHER_WITHERED_VINE.get(), RenderType.cutout());
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.DATE_PALM_LEAVES.get(), RenderType.cutoutMipped());
@@ -292,6 +304,11 @@ public class RamessesCurseMod {
         public static void registerMenuScreens(RegisterMenuScreensEvent event) {
             event.register(ModMenus.INSCRIPTION_BAG.get(), InscriptionBagScreen::new);
             event.register(ModMenus.COMPOUND_BOW_AMMO.get(), CompoundBowAmmoScreen::new);
+        }
+
+        @SubscribeEvent
+        public static void addEntityRenderLayers(EntityRenderersEvent.AddLayers event) {
+            GoetyMonolithAuraLayer.register(event);
         }
 
         private static void registerBowPullProperties(Item bow) {

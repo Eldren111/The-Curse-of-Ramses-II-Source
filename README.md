@@ -1,25 +1,24 @@
+# Ramesses' Curse
 
-Installation information
-=======
+NeoForge 1.21.1 edition of Ramesses' Curse, a progression, relic, curse, and
+high-difficulty combat mod for Minecraft.
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+## Requirements
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+- Minecraft `1.21.1`
+- NeoForge `21.1.248` or newer
+- Java `21`
+- Curios API `9.x`
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+Patchouli, Jade, and supported magic mods provide optional integrations.
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+## License
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+This project is All Rights Reserved. Official, unmodified releases may be
+downloaded for personal gameplay. Modpacks, public or commercial servers,
+mirrors, ports, modified distributions, and derivative works require prior
+written permission from the copyright holder.
+
+See [LICENSE](LICENSE) for code and repository terms. Textures, artwork,
+models, sounds, lore, and localization are additionally covered by
+[LICENSE_ASSETS](LICENSE_ASSETS).

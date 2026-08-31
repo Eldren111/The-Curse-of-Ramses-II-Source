@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "EDE",
+    "DCD",
+    "ESE"
+  ],
+  "key": {
+    "E": "minecraft:ender_eye",
+    "D": "minecraft:dragon_breath",
+    "C": "minecraft:end_crystal",
+    "S": "minecraft:echo_shard"
+  },
+  "result": {
+    "id": "ramesses_curse:sun_eater_beacon",
+    "count": 1
+  }
+}

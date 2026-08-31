@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "以下指令主要服务于服主、测试服与开发环境。正常生存推进并不依赖它们。$(br2)根指令统一以 $(thing)/ramessescurse$() 开头，用来处理王罪、慈悲、饱食水晶定位与部分技能冷却。"
+      "text": "以下指令主要服务于服主、测试服与开发环境。正常生存推进并不依赖它们。$(br2)根指令统一以 $(thing)/ramessescurse$() 开头，用来处理王罪、慈悲、威胁成长与部分技能冷却。"
     },
     {
       "type": "patchouli:text",
@@ -15,8 +15,8 @@
     },
     {
       "type": "patchouli:text",
-      "title": "定位与冷却",
-      "text": "$(li)/ramessescurse locate [玩家]$(li)/ramessescurse locate_tp [玩家] [编号]$(li)/ramessescurse cooling duat [玩家]$(li)/ramessescurse cooling edict [玩家]$(br2)前两条用于定位与传送到饱食水晶；后两条用于清空杜阿特之心与两地敕印的冷却，适合测试技能与 HUD。"
+      "title": "威胁成长与冷却",
+      "text": "$(li)/ramessescurse dynasty_threat growth on [玩家]$(li)/ramessescurse dynasty_threat growth off [玩家]$(li)/ramessescurse cooling duat [玩家]$(li)/ramessescurse cooling edict [玩家]$(br2)可按玩家开启或关闭王朝威胁值的自然成长。该开关只影响每日自动增长，直接增加威胁值和跨维度增加仍然有效。"
     },
     {
       "type": "patchouli:text",

@@ -82,5 +82,32 @@ public class ModEntities {
                     .clientTrackingRange(64)
                     .updateInterval(1)
                     .build("fission_heart_drop"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<DuatSunEaterCrownEntity>> DUAT_SUN_EATER_CROWN =
+            ENTITY_TYPES.register("duat_sun_eater_crown", () -> EntityType.Builder
+                    .<DuatSunEaterCrownEntity>of(DuatSunEaterCrownEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .clientTrackingRange(96)
+                    .updateInterval(1)
+                    .fireImmune()
+                    .build("duat_sun_eater_crown"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<RamessesEndCrystalEntity>> RAMESSES_END_CRYSTAL =
+            ENTITY_TYPES.register("ramesses_end_crystal", () -> EntityType.Builder
+                    .<RamessesEndCrystalEntity>of(RamessesEndCrystalEntity::new, MobCategory.MISC)
+                    .sized(2.0F, 2.0F)
+                    .clientTrackingRange(16)
+                    .updateInterval(Integer.MAX_VALUE)
+                    .fireImmune()
+                    .build("ramesses_end_crystal"));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<DuatSunEaterEntity>> DUAT_SUN_EATER =
+            ENTITY_TYPES.register("duat_sun_eater", () -> EntityType.Builder
+                    .<DuatSunEaterEntity>of(DuatSunEaterEntity::new, MobCategory.MONSTER)
+                    .sized(16.0F, 8.0F)
+                    .clientTrackingRange(10)
+                    .updateInterval(3)
+                    .fireImmune()
+                    .build("duat_sun_eater"));
 }
 

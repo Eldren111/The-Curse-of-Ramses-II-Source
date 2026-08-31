@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class UraeusStormStarEntity extends Entity {
+    private static final byte BURST_VFX_EVENT = 69;
+    private static final int BURST_VFX_DURATION = 16;
     private static final EntityDataAccessor<Float> RADIUS = SynchedEntityData.defineId(UraeusStormStarEntity.class, EntityDataSerializers.FLOAT);
     private static final String OWNER_KEY = "Owner";
     private static final String AGE_KEY = "Age";
@@ -33,6 +35,7 @@ public class UraeusStormStarEntity extends Entity {
 
     private UUID ownerUuid;
     private int burstsDone;
+    private int clientBurstStartedAt = Integer.MIN_VALUE;
 
     public UraeusStormStarEntity(EntityType<? extends UraeusStormStarEntity> type, Level level) {
         super(type, level);
@@ -77,6 +80,7 @@ public class UraeusStormStarEntity extends Entity {
 
         if (!level().isClientSide && burstsDone < BURST_COUNT && tickCount % BURST_INTERVAL == 1) {
             burstsDone++;
+            level().broadcastEntityEvent(this, BURST_VFX_EVENT);
             scatterOverTargets((ServerLevel) level());
         }
     }
@@ -113,6 +117,22 @@ public class UraeusStormStarEntity extends Entity {
 
     public float getLifeProgress(float partialTick) {
         return Math.min(1.0F, (tickCount + partialTick) / (float) MAX_AGE);
+    }
+
+    public float getBurstProgress(float partialTick) {
+        if (clientBurstStartedAt == Integer.MIN_VALUE) {
+            return 1.0F;
+        }
+        return Math.min(1.0F, (tickCount - clientBurstStartedAt + partialTick) / BURST_VFX_DURATION);
+    }
+
+    @Override
+    public void handleEntityEvent(byte eventId) {
+        if (eventId == BURST_VFX_EVENT) {
+            clientBurstStartedAt = tickCount;
+            return;
+        }
+        super.handleEntityEvent(eventId);
     }
 
     @Override

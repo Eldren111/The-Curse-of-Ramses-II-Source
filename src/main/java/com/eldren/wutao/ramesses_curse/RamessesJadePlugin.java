@@ -76,13 +76,7 @@ public class RamessesJadePlugin implements IWailaPlugin {
                 return;
             }
             ModEvents.DynastyShieldSnapshot shield = ModEvents.getDynastyShieldSnapshot(living, accessor.getPlayer());
-            if (shield == null || shield.max() <= 0.0F || (shield.current() <= 0.0F
-                    && shield.unyieldingLevel() <= 0
-                    && shield.miasmaLevel() <= 0
-                    && shield.restorationLevel() <= 0
-                    && !shield.bloodForfeit()
-                    && !shield.steelBone()
-                    && !shield.bloodLimit())) {
+            if (shield == null || shield.max() <= 0.0F) {
                 return;
             }
             data.putInt(SHIELD_LEVEL, shield.level());
@@ -140,7 +134,7 @@ public class RamessesJadePlugin implements IWailaPlugin {
             if (shield.steelBone()) {
                 data.putBoolean(SHIELD_STEEL_BONE, true);
             }
-            if (shield.bloodLimit()) {
+            if (shieldActive && shield.bloodLimit()) {
                 data.putBoolean(SHIELD_BLOOD_LIMIT, true);
             }
             if (shieldActive && shield.shieldShatter()) {
@@ -167,18 +161,12 @@ public class RamessesJadePlugin implements IWailaPlugin {
             int level = data.getInt(SHIELD_LEVEL);
             float current = data.getFloat(SHIELD_CURRENT);
             float max = data.getFloat(SHIELD_MAX);
-            if (max <= 0.0F || (current <= 0.0F
-                    && !data.contains(SHIELD_UNYIELDING_LEVEL)
-                    && !data.contains(SHIELD_MIASMA_LEVEL)
-                    && !data.contains(SHIELD_RESTORATION_LEVEL)
-                    && !data.getBoolean(SHIELD_BLOOD_FORFEIT)
-                    && !data.getBoolean(SHIELD_STEEL_BONE))) {
+            if (max <= 0.0F) {
                 return;
             }
 
             IElementHelper elements = IElementHelper.get();
-            boolean shieldActive = current > 0.0F;
-            if (shieldActive) {
+            if (current > 0.0F) {
                 int currentDisplay = Math.max(0, Mth.ceil(current));
                 int maxDisplay = Math.max(1, Mth.ceil(max));
                 Component label = Component.translatable("jade.ramesses_curse.dynasty_shield", level, currentDisplay, maxDisplay)

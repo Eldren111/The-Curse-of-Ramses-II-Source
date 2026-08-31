@@ -81,6 +81,11 @@ public final class ModNetwork {
         CHANNEL.registerMessage(packetId++, RuinCounterSyncPacket.class, RuinCounterSyncPacket::encode, RuinCounterSyncPacket::decode, RuinCounterSyncPacket::handle);
         CHANNEL.registerMessage(packetId++, OpenCompoundBowAmmoPacket.class, OpenCompoundBowAmmoPacket::encode, OpenCompoundBowAmmoPacket::decode, OpenCompoundBowAmmoPacket::handle);
         CHANNEL.registerMessage(packetId++, ToggleCompoundBowModePacket.class, ToggleCompoundBowModePacket::encode, ToggleCompoundBowModePacket::decode, ToggleCompoundBowModePacket::handle);
+        CHANNEL.registerMessage(packetId++, GoetyMonolithProtectionPacket.class, GoetyMonolithProtectionPacket::encode, GoetyMonolithProtectionPacket::decode, GoetyMonolithProtectionPacket::handle);
+        CHANNEL.registerMessage(packetId++, CurseSevenTargetMarkPacket.class, CurseSevenTargetMarkPacket::encode, CurseSevenTargetMarkPacket::decode, CurseSevenTargetMarkPacket::handle);
+        CHANNEL.registerMessage(packetId++, RamessesEndCrystalBreakVfxPacket.class, RamessesEndCrystalBreakVfxPacket::encode, RamessesEndCrystalBreakVfxPacket::decode, RamessesEndCrystalBreakVfxPacket::handle);
+        CHANNEL.registerMessage(packetId++, DuatSunEaterDeathVfxPacket.class, DuatSunEaterDeathVfxPacket::encode, DuatSunEaterDeathVfxPacket::decode, DuatSunEaterDeathVfxPacket::handle);
+        CHANNEL.registerMessage(packetId++, SunEaterStageCinematicPacket.class, SunEaterStageCinematicPacket::encode, SunEaterStageCinematicPacket::decode, SunEaterStageCinematicPacket::handle);
     }
 
     public static final class LegacyChannel {

@@ -23,7 +23,7 @@ public abstract class CelestialTableMenuMixin {
     @Inject(method = {"clickMenuButton", "m_6366_"}, at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void ramessesCurse$requireAdjustedCelestialLevel(Player player, int buttonId,
                                                              CallbackInfoReturnable<Boolean> cir) {
-        int[] costs = ((CelestialTableMenuAccessor) this).ramessesCurse$getCelestialCosts();
+        int[] costs = ramessesCurse$getCelestialCosts(this);
         if (buttonId < 0 || buttonId >= costs.length || player.getAbilities().instabuild) {
             return;
         }
@@ -53,23 +53,35 @@ public abstract class CelestialTableMenuMixin {
                                                          int buttonId, Level level, BlockPos pos, CallbackInfo ci) {
         int levelBefore = this.ramessesCurse$celestialXpBefore;
         this.ramessesCurse$celestialXpBefore = -1;
-        if (levelBefore < 0 || player.getAbilities().instabuild) {
-            return;
+        if (levelBefore >= 0 && !player.getAbilities().instabuild) {
+            int baseSpend = Math.max(0, levelBefore - player.experienceLevel);
+            int adjustedSpend = ModEvents.getAdjustedEnchantSpend(player, baseSpend);
+            int extraSpend = Math.max(0, adjustedSpend - baseSpend);
+            if (baseSpend > 0 && extraSpend > 0) {
+                player.giveExperienceLevels(-extraSpend);
+                player.displayClientMessage(
+                        Component.translatable(
+                                "message.ramesses_curse.celestial_enchant_charge",
+                                extraSpend,
+                                adjustedSpend),
+                        true);
+            }
         }
+    }
 
-        int baseSpend = Math.max(0, levelBefore - player.experienceLevel);
-        int adjustedSpend = ModEvents.getAdjustedEnchantSpend(player, baseSpend);
-        int extraSpend = Math.max(0, adjustedSpend - baseSpend);
-        if (baseSpend <= 0 || extraSpend <= 0) {
-            return;
+    @Unique
+    private static int[] ramessesCurse$getCelestialCosts(Object menu) {
+        for (Class<?> type = menu.getClass(); type != null; type = type.getSuperclass()) {
+            try {
+                java.lang.reflect.Field field = type.getDeclaredField("costs");
+                field.setAccessible(true);
+                Object value = field.get(menu);
+                if (value instanceof int[] costs) {
+                    return costs;
+                }
+            } catch (ReflectiveOperationException ignored) {
+            }
         }
-
-        player.giveExperienceLevels(-extraSpend);
-        player.displayClientMessage(
-                Component.translatable(
-                        "message.ramesses_curse.celestial_enchant_charge",
-                        extraSpend,
-                        adjustedSpend),
-                true);
+        return new int[0];
     }
 }

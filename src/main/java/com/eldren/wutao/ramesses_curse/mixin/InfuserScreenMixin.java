@@ -3,7 +3,6 @@ package com.eldren.wutao.ramesses_curse.mixin;
 import com.eldren.wutao.ramesses_curse.ModEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.network.chat.Component;
@@ -12,7 +11,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -21,20 +19,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(targets = "fuzs.enchantinginfuser.client.gui.screens.inventory.InfuserScreen")
 public abstract class InfuserScreenMixin extends AbstractContainerScreen<AbstractContainerMenu> {
 
-    @Shadow(remap = false)
-    protected abstract void renderReadableText(GuiGraphics guiGraphics, int posX, int posY, String text, int color);
-
-    @Shadow(remap = false)
-    private Button enchantButton;
-
     private InfuserScreenMixin() {
         super((AbstractContainerMenu) null, (Inventory) null, Component.empty());
     }
 
-    @Inject(method = "renderEnchantButtonCost", at = @At("TAIL"), remap = false)
+    @Inject(method = "renderEnchantButtonCost", at = @At("TAIL"), remap = false, require = 0)
     private void ramessesCurse$renderInfuserExtraCost(GuiGraphics guiGraphics, int mouseX, int mouseY, CallbackInfo ci) {
         Player player = Minecraft.getInstance().player;
-        if (player == null || this.enchantButton == null) {
+        Object button = ramessesCurse$getField(this, "enchantButton");
+        if (player == null || button == null) {
             return;
         }
 
@@ -49,13 +42,33 @@ public abstract class InfuserScreenMixin extends AbstractContainerScreen<Abstrac
             return;
         }
 
-        this.renderReadableText(guiGraphics, this.enchantButton.getX(), this.enchantButton.getY() + 9, "+" + extraCost, 0xFFFF5555);
-        if (mouseX >= this.enchantButton.getX()
-                && mouseY >= this.enchantButton.getY()
-                && mouseX < this.enchantButton.getX() + 18
-                && mouseY < this.enchantButton.getY() + 18) {
+        int buttonX = ramessesCurse$getButtonCoordinate(button, "getX");
+        int buttonY = ramessesCurse$getButtonCoordinate(button, "getY");
+        guiGraphics.drawString(this.font, "+" + extraCost, buttonX, buttonY + 9, 0xFFFF5555, false);
+        if (mouseX >= buttonX && mouseY >= buttonY
+                && mouseX < buttonX + 18 && mouseY < buttonY + 18) {
             java.util.List<FormattedCharSequence> tooltip = this.font.split(ModEvents.getCurseThreeEnchantTooltip(player, vanillaCost), 180);
             this.setTooltipForNextRenderPass(tooltip);
+        }
+    }
+
+    private static Object ramessesCurse$getField(Object target, String name) {
+        for (Class<?> type = target.getClass(); type != null; type = type.getSuperclass()) {
+            try {
+                java.lang.reflect.Field field = type.getDeclaredField(name);
+                field.setAccessible(true);
+                return field.get(target);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        }
+        return null;
+    }
+
+    private static int ramessesCurse$getButtonCoordinate(Object button, String methodName) {
+        try {
+            return ((Number) button.getClass().getMethod(methodName).invoke(button)).intValue();
+        } catch (ReflectiveOperationException | ClassCastException ignored) {
+            return 0;
         }
     }
 

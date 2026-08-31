@@ -12,7 +12,6 @@ public final class ModFeatures {
 
     public static final DeferredHolder<Feature<?>, Feature<NoneFeatureConfiguration>> DATE_PALM_TREE =
             FEATURES.register("date_palm_tree", DatePalmTreeFeature::new);
-
     private ModFeatures() {
     }
 }

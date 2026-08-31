@@ -7,13 +7,18 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @OnlyIn(Dist.CLIENT)
 public final class ClientPacketHandlers {
+    private static final Map<Integer, Long> CURSE_7_TARGET_MARKS = new HashMap<>();
     private ClientPacketHandlers() {
     }
 
@@ -70,6 +75,62 @@ public final class ClientPacketHandlers {
         if (minecraft.screen instanceof EmberRiddleInputScreen) {
             minecraft.setScreen(null);
         }
+    }
+
+    public static void triggerEndCrystalBreakVfx(double x, double y, double z) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level != null) {
+            RamessesEndCrystalBreakVfxState.trigger(
+                    new net.minecraft.world.phys.Vec3(x, y, z),
+                    minecraft.level.getGameTime());
+        }
+    }
+
+    public static void triggerDuatSunEaterDeathVfx(double x, double y, double z) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level != null) {
+            DuatSunEaterDeathVfxState.trigger(
+                    new net.minecraft.world.phys.Vec3(x, y, z),
+                    minecraft.level.getGameTime());
+            if (minecraft.player != null) {
+                minecraft.player.playSound(SoundEvents.BEACON_AMBIENT, 1.0F, 1.85F);
+                minecraft.player.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, 0.78F, 2.0F);
+            }
+        }
+    }
+
+    public static void startSunEaterStageCinematic(
+            double x, double y, double z, int durationTicks) {
+        SunEaterStageCinematicClient.start(x, y, z, durationTicks);
+    }
+
+    public static void syncGoetyMonolithProtection(int entityId, boolean active) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            return;
+        }
+        Entity entity = minecraft.level.getEntity(entityId);
+        if (entity != null) {
+            entity.getPersistentData().putBoolean(
+                    com.eldren.wutao.ramesses_curse.integration.goety.GoetyObsidianMonolithCompat.CLIENT_PROTECTION_ACTIVE,
+                    active);
+        }
+    }
+
+    public static void syncCurseSevenTargetMark(int entityId, long expiryGameTime) {
+        if (expiryGameTime <= 0L) {
+            CURSE_7_TARGET_MARKS.remove(entityId);
+        } else {
+            CURSE_7_TARGET_MARKS.put(entityId, expiryGameTime);
+        }
+    }
+
+    public static Map<Integer, Long> curseSevenTargetMarks() {
+        return CURSE_7_TARGET_MARKS;
+    }
+
+    public static void clearCurseSevenTargetMarks() {
+        CURSE_7_TARGET_MARKS.clear();
     }
 
     private static void addBurst(Player player, RandomSource random, ParticleOptions particle,

@@ -26,11 +26,11 @@ public abstract class CelestialTableScreenMixin extends AbstractContainerScreen<
     private void ramessesCurse$renderCelestialEnchantCost(GuiGraphics guiGraphics, float partialTick,
                                                           int mouseX, int mouseY, CallbackInfo ci) {
         Player player = Minecraft.getInstance().player;
-        if (player == null || !(this.menu instanceof CelestialTableMenuAccessor access)) {
+        if (player == null) {
             return;
         }
 
-        int[] costs = access.ramessesCurse$getCelestialCosts();
+        int[] costs = ramessesCurse$getCelestialCosts(this.menu);
         int hovered = ramessesCurse$getHoveredOption(mouseX, mouseY);
         int sampleCost = hovered >= 0 && hovered < costs.length
                 ? Math.max(0, costs[hovered] * (hovered + 1))
@@ -62,6 +62,21 @@ public abstract class CelestialTableScreenMixin extends AbstractContainerScreen<
                 baseSpend,
                 adjustedSpend);
         guiGraphics.drawString(this.font, details, left, top - 10, 0xFFFFD166, false);
+    }
+
+    private static int[] ramessesCurse$getCelestialCosts(Object menu) {
+        for (Class<?> type = menu.getClass(); type != null; type = type.getSuperclass()) {
+            try {
+                java.lang.reflect.Field field = type.getDeclaredField("costs");
+                field.setAccessible(true);
+                Object value = field.get(menu);
+                if (value instanceof int[] costs) {
+                    return costs;
+                }
+            } catch (ReflectiveOperationException ignored) {
+            }
+        }
+        return new int[0];
     }
 
     private int ramessesCurse$getHoveredOption(int mouseX, int mouseY) {
