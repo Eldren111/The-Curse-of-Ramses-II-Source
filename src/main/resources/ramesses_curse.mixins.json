@@ -7,8 +7,8 @@
   "mixins": [
     "ApothEnchantmentMenuMixin",
     "AnvilMenuMixin",
-    "CelestialTableMenuAccessor",
     "CelestialTableMenuMixin",
+    "ChunkGeneratorLocateMixin",
     "EntityMoltenWebMixin",
     "EnchantmentMenuMixin",
     "GoetyDarkAnvilMenuMixin",
@@ -16,17 +16,26 @@
     "ItemCombinerMenuAccessor",
     "LivingEntityPitchfireLavaMixin",
     "LivingEntitySealDrawSpeedMixin",
+    "LootTableMixin",
     "MeleeAttackGoalMixin",
     "SculkShriekerBlockEntityMixin",
     "WardenMixin",
-    "WardenVibrationUserMixin"
+    "WardenVibrationUserMixin",
+    "WitherBossMixin"
   ],
   "client": [
     "AnvilScreenMixin",
     "CelestialTableScreenMixin",
     "EnchantmentScreenMixin",
     "GoetyDarkAnvilScreenMixin",
-    "InfuserScreenMixin"
+    "InfuserScreenMixin",
+    "dynamictext.FontInvoker",
+    "dynamictext.FontMixin",
+    "dynamictext.FontStringRenderOutputMixin",
+    "dynamictext.FtbTextUtilsMixin",
+    "dynamictext.ItemStackMixin",
+    "dynamictext.ModernUiTextLayoutEngineMixin",
+    "dynamictext.MutableComponentMixin"
   ],
   "injectors": {
     "defaultRequire": 1

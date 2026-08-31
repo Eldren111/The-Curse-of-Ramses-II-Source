@@ -1,25 +1,23 @@
-Ramesses' Curse Custom License
+All Rights Reserved
 
 Copyright (c) 2026 Eldren/WuTao
-All rights reserved.
 
-Permission is granted to:
-1. Use this mod for personal gameplay.
-2. Include this mod in non-commercial modpacks.
-3. Repost and share the unmodified mod in non-commercial contexts, provided clear credit is given to the original author(s) and a link to the original project page or repository is included.
-4. Publish and share non-commercial modified versions of this mod, including compatibility fixes, localization revisions, porting branches, texture edits, and integration changes for KubeJS/KJS scripts or modpacks, provided clear credit is given to the original author(s), this license remains included, and the modified release is not sold or otherwise used commercially.
+All source code, binaries, documentation, and other content in this project
+are protected by copyright. No license is granted to copy, modify, adapt,
+translate, port, redistribute, re-upload, sublicense, sell, or incorporate
+any part of this project into another project without prior written
+permission from the copyright holder.
 
-You may not:
-1. Sell this mod, whether in its original form or as part of any paid package, launcher, bundle, service, or product.
-2. Repackage, mirror, or redistribute this mod for commercial purposes.
-3. Publish, distribute, or re-release modified versions of this mod for commercial purposes, or without clear credit to the original author(s) and inclusion of this license.
-4. Claim this mod, in whole or in part, as your own work.
-5. Utilize this mod on commercial multiplayer servers, or servers that restrict access to this mod's content, items, or progression behind paywalls, purchases, or VIP/subscription benefits.
+You may download and use an official, unmodified release of this mod for
+personal gameplay.
 
-For the avoidance of doubt:
-- "Non-commercial" means no direct or indirect monetary charge, paywall, purchase requirement, subscription benefit, or bundled commercial advantage tied to access to this mod.
-- A modpack may include this mod only if the modpack itself is distributed free of charge and proper credit is given.
-- Non-commercial compatibility fixes, localization edits, porting branches, texture edits, and integration changes made for KubeJS/KJS scripts or modpacks may be published and shared, including as modified `.jar` files, provided clear credit is given to the original author(s), this license remains included, and the modified release is not sold or otherwise used commercially.
-- Content creation, including but not limited to let's plays, reviews, tutorials, and live streaming featuring this mod, is fully permitted and welcomed. Monetization of such content through platform ad revenue, creator incentives, or viewer donations is NOT considered a violation of this license.
+Use in modpacks, public or commercial servers, mirrors, derivative works,
+ports, compatibility forks, and modified distributions requires prior
+written permission from the copyright holder.
 
-This software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or the use of this software.
+THE SOFTWARE AND CONTENT ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED. TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COPYRIGHT
+HOLDER SHALL NOT BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING
+FROM THE USE OF THIS SOFTWARE OR CONTENT.
+
+All rights not expressly granted above are reserved.

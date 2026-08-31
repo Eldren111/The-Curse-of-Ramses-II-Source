@@ -1,7 +1,6 @@
 package com.eldren.wutao.ramesses_curse.mixin;
 
 import com.eldren.wutao.ramesses_curse.ModEvents;
-import dev.shadowsoffire.apotheosis.ench.table.ApothEnchantmentMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -14,16 +13,16 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Pseudo
-@Mixin(ApothEnchantmentMenu.class)
+@Mixin(targets = "dev.shadowsoffire.apotheosis.ench.table.ApothEnchantmentMenu", remap = false)
 public class ApothEnchantmentMenuMixin {
-    @Inject(method = "clickMenuButton", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "clickMenuButton", at = @At("HEAD"), cancellable = true, require = 0)
     private void ramessesCurse$blockInsufficientApothEnchant(Player player, int buttonId, CallbackInfoReturnable<Boolean> cir) {
-        ApothEnchantmentMenu menu = (ApothEnchantmentMenu) (Object) this;
-        if (buttonId < 0 || buttonId >= menu.costs.length || player.getAbilities().instabuild) {
+        int[] costs = ramessesCurse$getCosts(this);
+        if (buttonId < 0 || buttonId >= costs.length || player.getAbilities().instabuild) {
             return;
         }
 
-        int vanillaLevelCost = menu.costs[buttonId];
+        int vanillaLevelCost = costs[buttonId];
         if (vanillaLevelCost <= 0) {
             return;
         }
@@ -40,7 +39,8 @@ public class ApothEnchantmentMenuMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Ldev/shadowsoffire/placebo/util/EnchantmentUtils;chargeExperience(Lnet/minecraft/world/entity/player/Player;I)Z"),
-            remap = false)
+            remap = false,
+            require = 0)
     private boolean ramessesCurse$chargeAdjustedApothXp(Player player, int vanillaXpCost, ItemStack stack, int slot, Player enchantingPlayer, int vanillaLevelCost, ItemStack lapisStack, int lapisCost, Level level, BlockPos pos) {
         int adjustedLevelCost = ModEvents.getAdjustedEnchantLevelCost(player, vanillaLevelCost);
         int adjustedXpCost = ModEvents.getAdjustedEnchantPointCost(player, vanillaXpCost);
@@ -57,6 +57,21 @@ public class ApothEnchantmentMenuMixin {
             player.experienceProgress = 0.0F;
         }
         return true;
+    }
+
+    private static int[] ramessesCurse$getCosts(Object menu) {
+        for (Class<?> type = menu.getClass(); type != null; type = type.getSuperclass()) {
+            try {
+                java.lang.reflect.Field field = type.getDeclaredField("costs");
+                field.setAccessible(true);
+                Object value = field.get(menu);
+                if (value instanceof int[] costs) {
+                    return costs;
+                }
+            } catch (ReflectiveOperationException ignored) {
+            }
+        }
+        return new int[0];
     }
 
     private static int ramessesCurse$getCurrentExperience(Player player) {

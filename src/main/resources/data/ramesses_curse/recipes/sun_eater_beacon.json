@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "LCL",
+    "DUD",
+    "OMO"
+  ],
+  "key": {
+    "L": { "item": "ramesses_curse:date_palm_log" },
+    "C": { "item": "minecraft:end_crystal" },
+    "D": { "item": "minecraft:dragon_breath" },
+    "U": { "item": "ramesses_curse:draconic_authority_ingot" },
+    "O": { "item": "minecraft:crying_obsidian" },
+    "M": { "item": "minecraft:lodestone" }
+  },
+  "result": {
+    "item": "ramesses_curse:sun_eater_beacon",
+    "count": 1
+  }
+}

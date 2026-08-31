@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.RedStoneOreBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.VineBlock;
@@ -65,6 +66,21 @@ public final class ModBlocks {
     public static final RegistryObject<Block> DATE_PALM_SAPLING = BLOCKS.register(
             "date_palm_sapling",
             DatePalmSaplingBlock::new);
+
+    public static final RegistryObject<Block> FRACTURED_PHASE_ORE = BLOCKS.register(
+            "fractured_phase_ore",
+            () -> new RedStoneOreBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_ORE)
+                    .requiresCorrectToolForDrops()));
+
+    public static final RegistryObject<Block> NETHER_FRACTURED_PHASE_ORE = BLOCKS.register(
+            "nether_fractured_phase_ore",
+            () -> new RedStoneOreBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_ORE)
+                    .requiresCorrectToolForDrops()));
+
+    public static final RegistryObject<Block> END_FRACTURED_PHASE_ORE = BLOCKS.register(
+            "end_fractured_phase_ore",
+            () -> new RedStoneOreBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_ORE)
+                    .requiresCorrectToolForDrops()));
 
     private ModBlocks() {
     }

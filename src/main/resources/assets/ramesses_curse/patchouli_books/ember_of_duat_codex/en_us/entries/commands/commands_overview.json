@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "These commands are mainly for server owners, test worlds, and development setups. Normal survival progression does not depend on them.$(br2)All commands begin with $(thing)/ramessescurse$()."
+      "text": "These commands are mainly for server owners, test worlds, and development setups. Normal survival progression does not depend on them.$(br2)All commands begin with $(thing)/ramessescurse$(). Threat growth and selected testing controls are per-player."
     },
     {
       "type": "patchouli:text",
@@ -15,8 +15,8 @@
     },
     {
       "type": "patchouli:text",
-      "title": "Locate & Cooldown",
-      "text": "$(li)/ramessescurse locate [player]$(li)/ramessescurse locate_tp [player] [index]$(li)/ramessescurse cooling duat [player]$(li)/ramessescurse cooling edict [player]$(br2)Useful for locating Satiety Crystals or resetting cooldowns during skill testing."
+      "title": "Threat Growth & Cooldown",
+      "text": "$(li)/ramessescurse dynasty_threat growth on [players]$(li)/ramessescurse dynasty_threat growth off [players]$(li)/ramessescurse cooling duat [player]$(li)/ramessescurse cooling edict [player]$(br2)Natural Dynasty Threat growth can be enabled or disabled per player. The growth switch only affects the daily increase; direct increases and dimension-change increases still work."
     }
   ]
 }

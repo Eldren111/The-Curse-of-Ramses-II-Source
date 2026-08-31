@@ -11,9 +11,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 
-public class FissionHeartDropRenderer extends EntityRenderer<FissionHeartDropEntity> {
+public class FissionHeartDropRenderer extends EntityRenderer<ItemEntity> {
     private final ItemRenderer itemRenderer;
 
     public FissionHeartDropRenderer(EntityRendererProvider.Context context) {
@@ -25,7 +26,7 @@ public class FissionHeartDropRenderer extends EntityRenderer<FissionHeartDropEnt
 
     @Override
     public void render(
-            FissionHeartDropEntity entity,
+            ItemEntity entity,
             float entityYaw,
             float partialTick,
             PoseStack poseStack,
@@ -51,7 +52,7 @@ public class FissionHeartDropRenderer extends EntityRenderer<FissionHeartDropEnt
     }
 
     @Override
-    public ResourceLocation getTextureLocation(FissionHeartDropEntity entity) {
+    public ResourceLocation getTextureLocation(ItemEntity entity) {
         return TextureAtlas.LOCATION_BLOCKS;
     }
 }

@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#ramesses_curse:end_outer_islands",
+  "features": "ramesses_curse:end_fractured_phase_ore",
+  "step": "underground_ores"
+}

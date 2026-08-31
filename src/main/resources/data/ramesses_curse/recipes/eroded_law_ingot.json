@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "MPM",
+    "MPM"
+  ],
+  "key": {
+    "P": { "item": "ramesses_curse:fractured_phase_ingot" },
+    "M": { "item": "minecraft:copper_ingot" }
+  },
+  "result": {
+    "item": "ramesses_curse:eroded_law_ingot"
+  },
+  "show_notification": true
+}

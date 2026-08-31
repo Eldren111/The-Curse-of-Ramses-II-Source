@@ -1,5 +1,5 @@
 {
-    "name":  "亡火碑文全录",
+    "name":  "浜＄伀纰戞枃鍏ㄥ綍",
     "category":  "ramesses_curse:embers",
     "icon":  "ramesses_curse:ember_of_duat",
     "sortnum":  1,
@@ -167,7 +167,7 @@
                   {
                       "type":  "patchouli:text",
                       "title":  "碑文三十三 身前小护",
-                      "text":  "我常被挂在胸前，小而隐秘却让人安心。$(br2)"
+                      "text":  "我常被挂在胸前，小而隐秘却让人安心。$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
@@ -177,7 +177,7 @@
                   {
                       "type":  "patchouli:text",
                       "title":  "碑文三十五 归后之书",
-                      "text":  "我的页中写满亡者才能用上的言辞。$(br2)"
+                      "text":  "我的页中写满亡者才能用上的言辞。$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
@@ -207,7 +207,7 @@
                   {
                       "type":  "patchouli:text",
                       "title":  "碑文四十一 深蓝之石",
-                      "text":  "我的颜色像王夜，越看越沉静。$(br2)"
+                      "text":  "我的颜色像王夜，越看越沉静。$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
@@ -312,7 +312,7 @@
                   {
                       "type":  "patchouli:text",
                       "title":  "碑文六十二 微光书页",
-                      "text":  "纸页合拢时无声，打开后却许诺更锋利的力量。$(br2)"
+                      "text":  "纸页合拢时无声，打开后却许诺更锋利的力量。$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
@@ -327,7 +327,7 @@
                   {
                       "type":  "patchouli:text",
                       "title":  "碑文六十五 再铸之处",
-                      "text":  "我让旧装备继续前进，又不忘原本的样子。$(br2)"
+                      "text":  "我让旧装备继续前进，又不忘原本的样子。$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
@@ -417,7 +417,7 @@
                   {
                       "type":  "patchouli:text",
                       "title":  "碑文八十三 会老去的金属",
-                      "text":  "我先是温暖的橙，后来慢慢转绿。$(br2)"
+                      "text":  "我先是温暖的橙，后来慢慢转绿。$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
@@ -427,7 +427,7 @@
                   {
                       "type":  "patchouli:text",
                       "title":  "碑文八十五 火后之食",
-                      "text":  "火把原本粗粝的东西变成了可安心吞下的晚餐。$(br2)"
+                      "text":  "火把原本粗粝的东西变成了可安心吞下的晚餐。$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
@@ -447,7 +447,7 @@
                   {
                       "type":  "patchouli:text",
                       "title":  "碑文八十九 快步",
-                      "text":  "我还没想完，脚就已经先动了。$(br2)"
+                      "text":  "我还没想完，脚就已经先动了。$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
@@ -493,6 +493,576 @@
                       "type":  "patchouli:text",
                       "title":  "碑文九十八 框中异界",
                       "text":  "只要把边框立好，另一头的世界就会回应。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文九十九 枯枝听亡",
+                      "flag":  "mod:goety",
+                      "text":  "我是一截听命于灵魂能量的黑枝，挥动时让诡术找到出口。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百 不署名者的权杖",
+                      "flag":  "mod:goety",
+                      "text":  "我的主人没有名字，我却能让更沉重的法术借身而行。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百零一 袖中百相",
+                      "flag":  "mod:goety",
+                      "text":  "不同聚焦物在我腹中彼此沉默，施术者伸手便能换出所需。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百零二 亡者的算筹",
+                      "flag":  "mod:goety",
+                      "text":  "杀戮化作我腹中的数字，诡术又把那些数字逐一花掉。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百零三 无声灯油",
+                      "flag":  "mod:goety",
+                      "text":  "我透明而封闭，空时只是一罐，满时却盛着无声燃料。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百零四 不向北的针",
+                      "flag":  "mod:goety",
+                      "text":  "我不指向北方，只执意寻找施术者安放灵魂的归处。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百零五 万物易名",
+                      "flag":  "mod:goety",
+                      "text":  "炼金者把不可能托付给我，连物质的身份也可能被改写。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百零六 不可诵之叶",
+                      "flag":  "mod:goety",
+                      "text":  "我的文字不欢迎初学者，读懂之前先要承担窥秘的代价。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百零七 不肯宽恕的页",
+                      "flag":  "mod:goety",
+                      "text":  "每一页都不肯原谅，召来的仆从也带着旧怒。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百零八 刀锋相认",
+                      "flag":  "mod:goety",
+                      "text":  "我同样号令仆从，却让彼此的刀锋记得避开主人。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百零九 远足止于此",
+                      "flag":  "mod:goety",
+                      "text":  "当召唤物躁动远行，我翻开一页便让它们重新守住脚下。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百一十 铁栏之下",
+                      "flag":  "mod:goety",
+                      "text":  "我像牢笼，却把魂力与仪式锁在比铁栏更深的地方。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百一十一 群魂泊岸",
+                      "flag":  "mod:goety",
+                      "text":  "我扎根地面储藏灵魂，许多诡术都要回到我这里取火。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百一十二 午夜锤声",
+                      "flag":  "mod:goety",
+                      "text":  "普通铁砧修补刀剑，我却让诅咒与魔力在锤声中重新排列。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百一十三 黎明缺席之塔",
+                      "flag":  "mod:goety",
+                      "text":  "我升起的不是晨光，而是一道让长夜聚拢的信标。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百一十四 腐土的春天",
+                      "flag":  "mod:goety",
+                      "text":  "我的根爱腐朽胜过沃土，花瓣从死亡留下的养分里舒展。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百一十五 不动的黑影",
+                      "flag":  "mod:goety",
+                      "text":  "我不会追逐敌人，只在主人身侧以高大黑影拒绝伤害。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百一十六 烬冠双生",
+                      "flag":  "mod:goety",
+                      "text":  "火焰与亵渎为我加冕，战场常在我的第二形态中燃烧。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百一十七 以魂付账者",
+                      "flag":  "mod:goety",
+                      "text":  "我把灵魂当作钱币，把手中诡法当作武器。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百一十八 倒念祷词者",
+                      "flag":  "mod:goety",
+                      "text":  "我从旧信条中转身，留下的祷词全变成攻击。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百一十九 锅边残月",
+                      "flag":  "mod:goety",
+                      "text":  "年岁压弯我的背，却没让药锅与恶咒冷却。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百二十 坟场点兵",
+                      "flag":  "mod:goety",
+                      "text":  "墓地在我眼中不是终点，而是一支尚未起身的军队。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百二十一 最后一收",
+                      "flag":  "mod:goety",
+                      "text":  "我从亡者边缘掠过，镰刃替灵魂划下句点。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百二十二 穿墙旧怨",
+                      "flag":  "mod:goety",
+                      "text":  "墙壁拦不住我的恨意，活物的温度会引我靠近。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百二十三 棺下湿声",
+                      "flag":  "mod:goety",
+                      "text":  "我在墓穴湿暗处蠕动，软体中混着不肯安息的腐质。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百二十四 无人披甲",
+                      "flag":  "mod:goety",
+                      "text":  "盔甲里面没有血肉，仍会举起武器替幽魂巡行。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百二十五 暗铠受命",
+                      "flag":  "mod:goety",
+                      "text":  "我披着暗色重甲，被召来后只认施术者的号令。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百二十六 机心震地",
+                      "flag":  "mod:goety",
+                      "text":  "机关、红石与巨躯合为一体，每一步都像活塞砸地。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百二十七 冬日塑像",
+                      "flag":  "mod:goety",
+                      "text":  "我由严寒塑成人形，拳头落下时连空气都会结霜。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百二十八 白骨戴冠",
+                      "flag":  "mod:goety",
+                      "text":  "普通白骨听令于我，空洞王冠下仍有统军的意志。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百二十九 王座后的假面",
+                      "flag":  "mod:goety",
+                      "text":  "我以分身与幻象守住权位，真正的身影总藏在错误答案之后。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百三十 祭坛红痕",
+                      "flag":  "mod:goety",
+                      "text":  "我从不洁仪式中流出，是许多黑暗造物渴求的材料。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百三十一 大地迟来的拥抱",
+                      "flag":  "mod:goety",
+                      "text":  "穿上我以后，坠落会被风拖慢，地面不再急着迎来。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百三十二 镰刃未至",
+                      "flag":  "mod:goety",
+                      "text":  "我不是镰刀，却能让持镰的亡仆从咒语中现身。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百三十三 墙后低语",
+                      "flag":  "mod:goety",
+                      "text":  "一点灵魂能量穿过我，便会叫来穿墙而行的幽影。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百三十四 咒语的行囊",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我的页数不只记录文字，还决定施术者能同时带走多少咒语。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百三十五 读后成灰",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "法术被墨封在我身上，展开并施放后纸页便完成使命。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百三十六 初学者的一滴",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我是最低阶的施法颜料，许多初学卷轴从我开始。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百三十七 群星的一滴",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我的色泽属于最高稀有度，强大咒语才配消耗这一滴。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百三十八 法术的余烬",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我像魔法磨损后留下的矿尘，仍向外散发可用力量。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百三十九 玻璃里的风暴",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "玻璃困住一道闪电，开瓶前仍能听见风暴躁动。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百四十 盛夏不化之骸",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "寒意钻进我的骨髓，即使离开雪地也不肯融化。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百四十一 红色的代价",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "炼金者用玻璃收下鲜红材料，血系法术随后循味而来。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百四十二 无瑕祷光",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我圆润明亮，圣术与高阶制作都在寻找我的光。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百四十三 终末遗页",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "终末巨龙留下的坚韧表皮，被制成能承受传奇法术的书。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百四十四 指尖小日",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我从指间飞出，越过距离后用一次爆燃回答目标。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百四十五 一步之外",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "空间只在我咏唱期间保持坚固，下一刻施术者已在别处。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百四十六 未完之言",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "敌人的咏唱尚未完成，我先让那段魔力失去意义。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百四十七 无弦寻敌",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我不依靠弓弦，离手后仍会寻找该命中的方向。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百四十八 夜穹落泪",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "夜空并未破裂，却有灼亮星体应召砸向战场。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百四十九 万物归暗",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我越黑越沉，附近的事物都被无形牵引拖向中心。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百五十 墓园晨号",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "尸骨听见我的命令后，把死亡暂时当成一次休息。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百五十一 以血换路",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我用鲜血支付距离，让施术者从原地骤然消失。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百五十二 一枯一荣",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我连接敌我两端，一边枯萎时另一边重新充盈。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百五十三 背生晨曦",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "光在背后展开成羽翼，地面的道路随即失去必要。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百五十四 光圈内无伤",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "同伴站进我的圆周，伤口便在持续圣光中合拢。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百五十五 白昼之矛",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我把高天亮光收束成束，让黑暗生物无处躲藏。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百五十六 寒霜记步",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "每一步都让水面与地面记住寒冷，脚后留下短暂冰路。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百五十七 冬水成刃",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "水在半空被削成尖刃，随后沿直线刺入目标。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百五十八 雷不止一人",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "第一个目标不是终点，电光会继续寻找附近的下一个身体。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百五十九 云随咒行",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "乌云听从咒语聚集，让一片战场连续承受天雷。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百六十 缓慢的腐蚀",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我缓慢飞行，破裂后留下会继续啃噬血肉的酸液。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百六十一 伤口里的青意",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "无需药水涂抹，我在箭命中时直接把毒送入伤口。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百六十二 大地攥住脚踝",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "土下植物突然认出敌人的脚踝，把逃跑变成徒劳。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百六十三 地下怒潮",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "咏唱结束后，大地自己成为武器，周围脚步全被掀乱。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百六十四 星外来客的一击",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我不是火也不是雷，陌生能量从掌前轰开道路。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百六十五 岩壁也听见",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我把无形声浪压成直线，坚硬墙面也难挡住冲击。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百六十六 意念越过指尖",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我不触碰物体，却能让远处目标被意志拖动。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百六十七 越界者燃烧",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "我不急着追击，只横在道路上让穿越者付出灼烧代价。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百六十八 旧坐标的呼唤",
+                      "flag":  "mod:irons_spellbooks",
+                      "text":  "无论旅途把人带得多远，我都记得最初标下的落脚处。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百六十九 九罪同契",
+                      "text":  "九重代价都被压进我的金石，佩戴即意味着在王名前署名。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百七十 金焰宽恕",
+                      "text":  "撕开我时金光焚去一部分王罪，而纸页也随宽恕消失。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百七十一 王朝的注视",
+                      "text":  "我入口像饮料，咽下后却让整个王朝更快注意到你。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百七十二 死亡留下的空腹",
+                      "text":  "每次死亡都可能留下我，三道碑文能让我归还欠下的饱食。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百七十三 黄沙下的搏动",
+                      "text":  "沙漠赐我幸运，群敌唤我战意，我在杜阿特仍像活物跳动。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百七十四 亡境未熄",
+                      "text":  "我极少从敌人身上留下，未解碑文时拒绝回应右手。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百七十五 沉默的尘埃",
+                      "text":  "我是玄金成锭前最细小的一份沉默。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百七十六 无声黑日",
+                      "text":  "我比下界合金更沉默，是王器与仪式偏爱的黑色金属。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百七十七 法则的裂口",
+                      "text":  "我的结构极不稳定，后续每次锻造都在逼迫法则归位。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百七十八 腐蚀后的秩序",
+                      "text":  "裂相被侵蚀后稍稍收束，却仍远称不上恒定。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百七十九 游相归笼",
+                      "text":  "无形束缚把游离相位拉回金属，使我趋向稳定。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百八十 混沌列队",
+                      "text":  "混乱在我内部排成次序，稳定终于不再只是偶然。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百八十一 不可改写之纹",
+                      "text":  "高度稳定的法则凝成我的纹理，寻常扰动难再改写。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百八十二 岁月不能移",
+                      "text":  "漫长时间也难使我偏移，但距离绝对稳定仍差一步。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百八十三 星辰校准",
+                      "text":  "星辉把金属推近完美，法则在表面如神谕般排列。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百八十四 龙言封律",
+                      "text":  "龙之权柄完成最后约束，我的稳定不再允许例外。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百八十五 三声弦鸣",
+                      "text":  "我能三连发也能持续倾泻，穿甲之箭尤其懂得击碎王胄。$(br2)\n\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百八十六 铠甲的句点",
+                      "text":  "我命中时不与护盾争论，而是直接让整层王胄解除。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百八十七 沉默的指挥",
+                      "text":  "仪式需要有人指挥沉默，我便是划定步骤与方向的长杖。$(br2)\n\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百八十八 后来者的亡卷",
+                      "text":  "我把咒印、余烬、反转与王器整理成后来者能翻阅的道路。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百八十九 上下王冠之歌",
+                      "text":  "当我的旋律完整走完一轮，沉睡的音乐饰品会记起旧王朝。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百九十 旧歌唤醒之物",
+                      "text":  "我只在旧歌完整终结时苏醒，离身后又归于沉寂。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百九十一 额前游蛇",
+                      "text":  "晴日让我放出流光，雷雨则令五芒星与碎光一同降临。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百九十二 双冠宣判",
+                      "text":  "我以蓄力掀起群敌，也能展开矩阵向范围内一切生命宣判。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百九十三 狂意止于胫",
+                      "text":  "我来自胫骨，却让王胄词条中的狂躁与失控趋于平静。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百九十四 熔流中的冷光",
+                      "text":  "火焰凝进我的晶面，持有者因此能在熔岩与热浪间前行。$(br2)\n"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百九十五 永不餍足",
+                      "text":  "空腹与掠夺在我内部压缩，像一颗永远吃不饱的心。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百九十六 绿毒窥伺",
+                      "text":  "绿色恶意在球体里回旋，等待王胄把它嵌进新的词条。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百九十七 众问之后",
+                      "text":  "我不靠谜面遮掩，名字本身就是所有追问最后留下的答案。$(br2)"
+                  },
+                  {
+                      "type":  "patchouli:text",
+                      "title":  "碑文一百九十八 触之必怒",
+                      "text":  "龙最不愿被触碰的鳞片脱落后，仍保存着反击权威的怒意。$(br2)"
                   }
               ]
 }

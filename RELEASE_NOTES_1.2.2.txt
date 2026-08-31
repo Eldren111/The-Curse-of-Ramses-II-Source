@@ -1,0 +1,126 @@
+Ramesses' Curse 1.2.2 Release Notes
+Minecraft 1.20.1 Forge
+
+============================================================
+中文版
+============================================================
+
+拉美西斯二世的诅咒 1.2.2
+
+【主要新增】
+
+1. 将杜阿特碑文由 98 条扩展至 198 条。
+2. 新增 35 条 Goety 联动碑文、35 条 Iron's Spells 'n Spellbooks 联动碑文，以及 30 条本模组主题碑文。
+3. 联动碑文只会在对应模组已安装时出现，并使用更隐晦的叙事标题。
+4. 新增 Goety 黑曜石巨柱联动。符合条件的高阶王胄敌人被玩家成功攻击后，有概率召唤巨柱获得保护。
+5. 每只生物一生只进行一次巨柱召唤判定。普通九级王胄与 Boss 使用不同概率，Boss 可召唤多根巨柱。
+6. 新增主世界、下界和末地三种裂相原矿，以及完整的八阶段稳定化锻造材料链。
+7. 新增成长型护符“万世征途”。击杀九级王胄敌人可提升淬炼层数，并获得攻击伤害、吸血和伤害反弹。
+8. 新增铁砧锻压配方及 JEI 配方展示。
+9. 内置动态字体效果系统，并支持原版字体、物品名称及部分兼容界面。
+
+【诅咒七重制】
+
+1. 诅咒期间，每轮会在配置的攻击次数以内随机出现一次不产生战利品的击杀。
+2. 玩家遇到的村民可被强制转化为僵尸村民。
+3. 新附魔或从战利品箱取得的附魔武器进入玩家背包后，会进行一次附魔清除判定。
+4. 判定触发时，只清除被识别武器上的全部附魔，不影响背包内其他装备。
+5. 附魔台、铁砧及兼容模组的附魔界面本身不再被修改。
+6. 新增村民转化开关、附魔清除开关、清除概率及无战利品最大攻击次数配置。
+7. 反转诅咒七后，无战利品、村民转化与附魔清除惩罚全部停止。
+8. 更新卡迭石咒印提示、关键词样式与帕秋莉手册说明，并同步显示实际配置值。
+
+【视觉效果升级】
+
+1. 重制乌拉埃项链的晴天流光、雨天五芒星与命中爆裂效果。
+2. 流光头部改为程序生成的水滴形核心，并增加环绕光点与平滑拖尾。
+3. 将两地敕令的法阵、光环和粒子升级为立体世界空间特效。
+4. 优化晴天粒子数量、拖尾采样和雨天特效性能。
+5. 移除乌拉埃命中时的全屏波纹后处理。
+6. 修复开启光影后命中实体可能短暂黑屏的问题。
+7. 修复特效渲染状态未正确恢复，导致天空部分变黑的问题。
+
+【机制调整】
+
+1. 黑曜石巨柱不再随生物生成，而是在玩家成功攻击目标后才进行概率判定。
+2. 永寂复合弓新增弹药装填、三连发与连射模式切换。
+3. 完善穿甲箭破除王胄护盾的能力。
+4. 调整两地敕令矩阵终幕，使其可以处决范围目标并绕过王胄保护。
+5. 更新卡迭石咒印反转提示与诅咒说明。
+6. 取消模组创造模式标签标题的炫彩字体效果。
+
+【修复】
+
+1. 修复饱食水晶饥饿债造成的属性惩罚在退出并重新进入世界后消失的问题。
+2. 修复诅咒七错误干涉附魔台选项的问题。
+3. 修复旧存档抽到当前未加载联动模组碑文后无法继续的问题，无效碑文轮次会自动刷新。
+4. 修复部分卡迭石咒印提示文本、换行和配置显示不一致的问题。
+5. 改善多个视觉特效的可见度、形状与性能表现。
+
+【模组联动】
+
+1. Goety：新增专属碑文、黑暗铁砧兼容及黑曜石巨柱机制。
+2. Iron's Spells 'n Spellbooks：新增专属联动碑文。
+3. 所有联动均为可选内容。未安装对应模组时，不会加载相关碑文或机制。
+
+============================================================
+English Version
+============================================================
+
+Ramesses' Curse 1.2.2
+
+[Major Additions]
+
+1. Expanded the Ember of Duat inscription collection from 98 to 198 entries.
+2. Added 35 Goety integration inscriptions, 35 Iron's Spells 'n Spellbooks integration inscriptions, and 30 inscriptions based on content from Ramesses' Curse.
+3. Integration inscriptions are only available when their corresponding mod is installed and now use more subtle, lore-oriented titles.
+4. Added Goety Obsidian Monolith integration. Eligible high-tier Dynasty Shield enemies may summon monoliths for protection after being successfully attacked by a player.
+5. Each creature can only perform the monolith summon roll once during its lifetime. Tier 9 enemies and bosses use different chances, and bosses may summon multiple monoliths.
+6. Added Fractured Phase Ore variants for the Overworld, Nether, and End, along with a complete eight-stage material stabilization progression.
+7. Added Eternal Conquest, a growing charm that gains tempering levels by defeating Tier 9 Dynasty Shield enemies and grants attack damage, lifesteal, and damage reflection.
+8. Added anvil pressing recipes and JEI recipe displays.
+9. Added a built-in dynamic text effect system with support for vanilla text rendering, item names, and selected compatibility interfaces.
+
+[Curse Seven Rework]
+
+1. During the curse, one kill per cycle is randomly selected to produce no loot within the configured maximum number of attacks.
+2. Villagers encountered by affected players can be forcibly converted into zombie villagers.
+3. Newly enchanted weapons and enchanted weapons taken from loot containers are checked once after entering the player's inventory.
+4. When the erasure roll succeeds, all enchantments are removed only from the identified weapon. Other equipment in the inventory is not affected.
+5. Enchanting tables, anvils, and supported mod enchanting interfaces are no longer modified directly.
+6. Added configuration options for villager conversion, enchantment erasure, erasure chance, and the maximum number of attacks before a no-loot trigger.
+7. Reversing Curse Seven disables the no-loot, villager conversion, and enchantment erasure penalties.
+8. Updated the Seal of Kadesh tooltip, keyword styling, and Patchouli documentation to display the active configuration values.
+
+[Visual Effects Upgrade]
+
+1. Reworked the Uraeus Necklace effects for clear weather, thunderstorms, and entity impacts.
+2. Replaced the trail head with a procedurally generated teardrop-shaped core, surrounded by orbiting lights and a smoother trail.
+3. Upgraded the Edict of the Two Lands formation, halo, and particles into three-dimensional world-space effects.
+4. Optimized clear-weather particle counts, trail sampling, and storm effect performance.
+5. Removed the full-screen ripple post-processing effect from Uraeus impacts.
+6. Fixed a brief black-screen issue when hitting entities while shader packs were enabled.
+7. Fixed leaked rendering state that could cause part of the sky to render black.
+
+[Gameplay Adjustments]
+
+1. Obsidian Monoliths are no longer rolled when a creature spawns. The roll now occurs only after a successful player attack.
+2. Added ammunition loading, triple-shot, and rapid-fire mode switching to the Eternal Silence Compound Bow.
+3. Improved Armor-Piercing Arrows and their ability to break Dynasty Shields.
+4. Updated the final stage of the Edict of the Two Lands domain so it can execute targets in range and bypass Dynasty protection.
+5. Updated Seal of Kadesh reversal messages and curse descriptions.
+6. Removed the animated colorful text effect from the mod creative tab title.
+
+[Fixes]
+
+1. Fixed Satiety Crystal hunger-debt attribute penalties disappearing after leaving and re-entering a world.
+2. Fixed Curse Seven incorrectly modifying enchanting-table options.
+3. Fixed old saves becoming stuck when a riddle round contained inscriptions from an integration mod that was no longer loaded. Invalid rounds are now regenerated automatically.
+4. Fixed inconsistencies in Seal of Kadesh tooltip text, line breaks, and displayed configuration values.
+5. Improved the visibility, shape, and performance of several visual effects.
+
+[Mod Integrations]
+
+1. Goety: added dedicated inscriptions, Dark Anvil compatibility, and the Obsidian Monolith mechanic.
+2. Iron's Spells 'n Spellbooks: added dedicated integration inscriptions.
+3. All integrations are optional. Their inscriptions and mechanics are not loaded when the corresponding mod is absent.

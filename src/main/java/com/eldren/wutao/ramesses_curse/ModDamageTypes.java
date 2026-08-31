@@ -32,6 +32,12 @@ public final class ModDamageTypes {
     public static final ResourceKey<DamageType> RUIN_BURST = ResourceKey.create(
             Registries.DAMAGE_TYPE,
             new ResourceLocation(RamessesCurseMod.MODID, "ruin_burst"));
+    public static final ResourceKey<DamageType> EDICT_EXECUTION = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            new ResourceLocation(RamessesCurseMod.MODID, "edict_execution"));
+    public static final ResourceKey<DamageType> ETERNAL_CONQUEST_REFLECTION = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            new ResourceLocation(RamessesCurseMod.MODID, "eternal_conquest_reflection"));
     public static final TagKey<DamageType> PERCENTAGE_DAMAGE = TagKey.create(
             Registries.DAMAGE_TYPE,
             new ResourceLocation(RamessesCurseMod.MODID, "percentage_damage"));
@@ -79,5 +85,17 @@ public final class ModDamageTypes {
         return new DamageSource(level.registryAccess()
                 .registryOrThrow(Registries.DAMAGE_TYPE)
                 .getHolderOrThrow(RUIN_BURST), player);
+    }
+
+    public static DamageSource edictExecution(Level level, Player player) {
+        return new DamageSource(level.registryAccess()
+                .registryOrThrow(Registries.DAMAGE_TYPE)
+                .getHolderOrThrow(EDICT_EXECUTION), player);
+    }
+
+    public static DamageSource eternalConquestReflection(Level level, Player player) {
+        return new DamageSource(level.registryAccess()
+                .registryOrThrow(Registries.DAMAGE_TYPE)
+                .getHolderOrThrow(ETERNAL_CONQUEST_REFLECTION), player);
     }
 }

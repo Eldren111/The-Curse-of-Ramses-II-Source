@@ -51,6 +51,17 @@ public final class L2LibraryCompat {
         DYNASTY_THREAT.network.toTracking(player);
     }
 
+    public static ThreatSnapshot getThreatSnapshot(Player player) {
+        if (!DYNASTY_THREAT.isProper(player)) {
+            return new ThreatSnapshot(0, 10, 0);
+        }
+        DynastyThreatCapability cap = DYNASTY_THREAT.get(player);
+        return new ThreatSnapshot(cap.baseThreat, cap.multiplierTenths, cap.effectiveThreat);
+    }
+
+    public record ThreatSnapshot(int base, int multiplierTenths, int effective) {
+    }
+
     @SerialClass
     public static class DynastyThreatCapability extends PlayerCapabilityTemplate<DynastyThreatCapability> {
         @SerialClass.SerialField(toClient = true, toTracking = true)

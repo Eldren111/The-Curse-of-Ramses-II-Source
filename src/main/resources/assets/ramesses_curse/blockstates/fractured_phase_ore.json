@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "ramesses_curse:block/fractured_phase_ore"
+    },
+    "lit=true": {
+      "model": "ramesses_curse:block/fractured_phase_ore"
+    }
+  }
+}

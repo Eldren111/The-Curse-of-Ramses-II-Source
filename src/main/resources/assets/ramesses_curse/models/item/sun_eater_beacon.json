@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "ramesses_curse:item/sun_eater_beacon"
+  }
+}

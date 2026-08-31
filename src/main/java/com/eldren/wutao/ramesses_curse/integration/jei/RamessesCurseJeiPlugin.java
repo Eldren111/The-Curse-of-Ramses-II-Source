@@ -33,6 +33,8 @@ public class RamessesCurseJeiPlugin implements IModPlugin {
     public void registerCategories(IRecipeCategoryRegistration registration) {
         registration.addRecipeCategories(new CompoundBowAmmoRecipeCategory(
                 registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new AnvilPressingRecipeCategory(
+                registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
@@ -43,10 +45,19 @@ public class RamessesCurseJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(
                 new ItemStack(ModItems.DRAGON_BREATH_COMPOUND_BOW.get()),
                 CompoundBowAmmoRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(new ItemStack(Items.ANVIL), AnvilPressingRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(new ItemStack(Items.CHIPPED_ANVIL), AnvilPressingRecipeCategory.TYPE);
+        registration.addRecipeCatalyst(new ItemStack(Items.DAMAGED_ANVIL), AnvilPressingRecipeCategory.TYPE);
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
+        registration.addRecipes(
+                AnvilPressingRecipeCategory.TYPE,
+                List.of(new AnvilPressingRecipe(
+                        new ItemStack(ModItems.FRACTURED_PHASE_ORE_CHUNK.get()),
+                        new ItemStack(ModItems.FRACTURED_PHASE_INGOT.get()))));
+
         registration.addRecipes(
                 CompoundBowAmmoRecipeCategory.TYPE,
                 List.of(new CompoundBowAmmoRecipe(
@@ -126,6 +137,18 @@ public class RamessesCurseJeiPlugin implements IModPlugin {
         registration.addItemStackInfo(
                 List.of(new ItemStack(ModItems.RAW_GROUP_U.get())),
                 Component.translatable("jei.ramesses_curse.raw_group_u.drop"));
+
+        registration.addItemStackInfo(
+                List.of(new ItemStack(ModItems.FRACTURED_PHASE_ORE.get())),
+                Component.translatable("jei.ramesses_curse.fractured_phase_ore.generation"));
+
+        registration.addItemStackInfo(
+                List.of(new ItemStack(ModItems.NETHER_FRACTURED_PHASE_ORE.get())),
+                Component.translatable("jei.ramesses_curse.nether_fractured_phase_ore.generation"));
+
+        registration.addItemStackInfo(
+                List.of(new ItemStack(ModItems.END_FRACTURED_PHASE_ORE.get())),
+                Component.translatable("jei.ramesses_curse.end_fractured_phase_ore.generation"));
 
         registerAffixMaterialInfo(registration, ModItems.CALMING_TIBIA.get(), "rage");
         registerAffixMaterialInfo(registration, ModItems.PITCHFIRE_CRYSTAL.get(), "molten");

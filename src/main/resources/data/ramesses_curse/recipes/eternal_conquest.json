@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "CNH",
+    "TUF",
+    "NTL"
+  ],
+  "key": {
+    "C": { "item": "ramesses_curse:calming_tibia" },
+    "N": { "item": "minecraft:nether_star" },
+    "H": { "item": "ramesses_curse:heart_devouring_remnant" },
+    "T": { "item": "minecraft:torchflower" },
+    "U": { "item": "ramesses_curse:draconic_authority_ingot" },
+    "F": { "item": "ramesses_curse:famine_core" },
+    "L": { "item": "ramesses_curse:life_binding_remnant_crystal" }
+  },
+  "result": {
+    "item": "ramesses_curse:eternal_conquest",
+    "count": 1
+  },
+  "show_notification": true
+}

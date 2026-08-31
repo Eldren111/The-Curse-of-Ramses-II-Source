@@ -17,7 +17,7 @@ public class ChanceDieLargeScreen extends Screen {
             texture(1), texture(2), texture(3), texture(4), texture(5), texture(6)
     };
     private static final int COLUMNS = 6;
-    private static final int ANIMATION_TICKS = 180;
+    private static final int DEFAULT_ANIMATION_TICKS = 180;
     private static final int CARD_SIZE = 54;
     private static final int CARD_SPACING = 62;
     private static final int FINAL_INDEX = 32;
@@ -27,13 +27,16 @@ public class ChanceDieLargeScreen extends Screen {
     private final int[] lastSoundIndex = new int[COLUMNS];
     private final boolean[] stopSoundPlayed = new boolean[COLUMNS];
     private final Checkbox[] choiceBoxes = new Checkbox[COLUMNS];
-    private int animationTicks = ANIMATION_TICKS;
+    private final int animationTotalTicks;
+    private int animationTicks;
     private boolean buttonsAdded;
     private boolean submitted;
 
-    public ChanceDieLargeScreen(int[] outcomes) {
+    public ChanceDieLargeScreen(int[] outcomes, int unlockTicks) {
         super(Component.translatable("screen.ramesses_curse.chance_die_large.title"));
         this.outcomes = outcomes.clone();
+        this.animationTotalTicks = Math.max(1, unlockTicks);
+        this.animationTicks = animationTotalTicks;
         RandomSource random = RandomSource.create();
         java.util.Arrays.fill(lastSoundIndex, -1);
         for (int column = 0; column < COLUMNS; column++) {
@@ -142,9 +145,9 @@ public class ChanceDieLargeScreen extends Screen {
             return;
         }
         boolean playedThisTick = false;
-        int elapsed = ANIMATION_TICKS - animationTicks;
+        int elapsed = animationTotalTicks - animationTicks;
         for (int column = 0; column < COLUMNS; column++) {
-            int duration = 126 + column * 9;
+            int duration = columnDuration(column);
             float progress = Mth.clamp(elapsed / (float) duration, 0.0F, 1.0F);
             float eased = 1.0F - (float) Math.pow(1.0F - progress, 3.0D);
             int soundIndex = Mth.clamp(Mth.floor(eased * FINAL_INDEX), 0, FINAL_INDEX);
@@ -193,8 +196,8 @@ public class ChanceDieLargeScreen extends Screen {
             int columnRight = columnLeft + columnWidth - 2;
             int columnCenterX = (columnLeft + columnRight) / 2;
             boolean rollingUp = column % 2 == 0;
-            int columnDuration = 126 + column * 9;
-            float progress = Mth.clamp((ANIMATION_TICKS - animationTicks) / (float) columnDuration, 0.0F, 1.0F);
+            int columnDuration = columnDuration(column);
+            float progress = Mth.clamp((animationTotalTicks - animationTicks) / (float) columnDuration, 0.0F, 1.0F);
             float eased = 1.0F - (float) Math.pow(1.0F - progress, 3.0D);
             float offset = eased * FINAL_INDEX * CARD_SPACING;
             int direction = rollingUp ? -1 : 1;
@@ -224,5 +227,10 @@ public class ChanceDieLargeScreen extends Screen {
         }
 
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    private int columnDuration(int column) {
+        return Math.max(1, Math.round((126 + column * 9)
+                * animationTotalTicks / (float) DEFAULT_ANIMATION_TICKS));
     }
 }

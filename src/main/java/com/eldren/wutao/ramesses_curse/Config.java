@@ -3,7 +3,6 @@ package com.eldren.wutao.ramesses_curse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -18,6 +17,8 @@ public class Config {
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
     static {
+        BUILDER.push("饰品配置");
+
         BUILDER.push("卡迭石咒印");
 
         BUILDER.push("诅咒一");
@@ -80,28 +81,17 @@ public class Config {
         BUILDER.pop();
 
         BUILDER.push("诅咒二");
-        CURSE_2_SPAWN_INTERVAL = BUILDER
-                .comment("[诅咒二] 敌对生物召唤检测间隔，单位为 tick。12000 tick = 10 分钟。")
-                .defineInRange("curse2SpawnInterval", 12000, 20, 720000);
-
-        CURSE_2_SPAWN_CHANCE = BUILDER
-                .comment("[诅咒二] 每次达到检测间隔后，召唤敌对生物的概率。")
-                .defineInRange("curse2SpawnChance", 0.15D, 0.0D, 1.0D);
-
         CURSE_2_LUCK_PENALTY = BUILDER
                 .comment("[诅咒二] 每累计佩戴 5 分钟减少的幸运值。")
                 .defineInRange("curse2LuckPenalty", 2.0D, 0.0D, 1024.0D);
 
-        CURSE_2_SPAWN_RADIUS = BUILDER
-                .comment("[诅咒二] 召唤敌对生物时，围绕玩家的水平生成半径，单位为格。")
-                .defineInRange("curse2SpawnRadius", 8, 2, 64);
+        CURSE_2_VILLAGER_ZOMBIFICATION_ENABLED = BUILDER
+                .comment("[诅咒二] 是否让诅咒生效期间玩家遇到的村民必定转化为僵尸村民。")
+                .define("curse2VillagerZombificationEnabled", true);
 
-        CURSE_2_ENTITY_WHITELIST = BUILDER
-                .comment("[诅咒二] 可被召唤的敌对生物实体 ID 白名单，支持其他模组生物。")
-                .defineListAllowEmpty(
-                        "curse2EntityWhitelist",
-                        List.of("minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"),
-                        Config::validateEntityTypeName);
+        CURSE_2_VILLAGER_ZOMBIFICATION_RADIUS = BUILDER
+                .comment("[诅咒二] 检测并转化村民的半径，单位为格。")
+                .defineInRange("curse2VillagerZombificationRadius", 24, 1, 128);
 
         CURSE_2_REVERSED_LUCK_BONUS = BUILDER
                 .comment("[诅咒二-反转] 返还既有幸运损失后，每继续佩戴 5 分钟增加的幸运值。")
@@ -114,6 +104,10 @@ public class Config {
         CURSE_2_REVERSED_SPAWN_CHANCE = BUILDER
                 .comment("[诅咒二-反转] 每次达到检测间隔后，召唤王权奴仆的概率。")
                 .defineInRange("curse2ReversedSpawnChance", 0.15D, 0.0D, 1.0D);
+
+        CURSE_2_REVERSED_SPAWN_RADIUS = BUILDER
+                .comment("[诅咒二-反转] 王权奴仆围绕玩家生成的水平半径，单位为格。")
+                .defineInRange("curse2ReversedSpawnRadius", 8, 2, 64);
 
         CURSE_2_REVERSED_MINION_DURATION = BUILDER
                 .comment("[诅咒二-反转] 王权奴仆持续时间，单位为 tick。400 tick = 20 秒。")
@@ -197,9 +191,99 @@ public class Config {
         BUILDER.pop();
 
         BUILDER.push("诅咒七");
-        CURSE_7_LOOT_SUPPRESSION_CHANCE = BUILDER
-                .comment("[诅咒七] 踏足末地并留下印记后，玩家击杀实体时不产生任何战利品的概率。0.05 表示 5%。")
-                .defineInRange("curse7LootSuppressionChance", 0.05D, 0.0D, 1.0D);
+        CURSE_7_LOOT_TRIGGER_MAX_ATTACKS = BUILDER
+                .comment("[诅咒七] 每轮最多经过多少次有效击杀攻击，必定随机触发一次无战利品。")
+                .defineInRange("curse7LootTriggerMaxAttacks", 7, 1, 100);
+        CURSE_7_ENCHANTMENT_ERASURE_ENABLED = BUILDER
+                .comment("[诅咒七] 是否启用背包内附魔装备或武器的附魔清除判定。")
+                .define("curse7EnchantmentErasureEnabled", true);
+        CURSE_7_ENCHANTMENT_ERASURE_CHANCE = BUILDER
+                .comment("[诅咒七] 装备或武器进入玩家背包、或其附魔状态发生变化后，失去全部附魔的单次判定概率。0.35 表示 35%。")
+                .defineInRange("curse7EnchantmentErasureChance", 0.35D, 0.0D, 1.0D);
+
+        CURSE_7_REVERSED_ATTACK_DAMAGE_BONUS = BUILDER
+                .comment("[诅咒七-反转] 常驻攻击伤害加成。0.40 表示增加 40%。")
+                .defineInRange("curse7ReversedAttackDamageBonus", 0.40D, 0.0D, 10.0D);
+        CURSE_7_REVERSED_ATTACK_SPEED_BONUS = BUILDER
+                .comment("[诅咒七-反转] 常驻攻击速度加成。0.25 表示增加 25%。")
+                .defineInRange("curse7ReversedAttackSpeedBonus", 0.25D, 0.0D, 10.0D);
+        CURSE_7_REVERSED_MOVEMENT_SPEED_BONUS = BUILDER
+                .comment("[诅咒七-反转] 常驻移动速度加成。0.20 表示增加 20%。")
+                .defineInRange("curse7ReversedMovementSpeedBonus", 0.20D, 0.0D, 10.0D);
+        CURSE_7_REVERSED_MAX_HEALTH_BONUS = BUILDER
+                .comment("[诅咒七-反转] 常驻最大生命值加成，单位为生命值点数。")
+                .defineInRange("curse7ReversedMaxHealthBonus", 8.0D, 0.0D, 1024.0D);
+        CURSE_7_REVERSED_ARMOR_TOUGHNESS_BONUS = BUILDER
+                .comment("[诅咒七-反转] 常驻盔甲韧性加成。")
+                .defineInRange("curse7ReversedArmorToughnessBonus", 4.0D, 0.0D, 1024.0D);
+        CURSE_7_REVERSED_END_DAMAGE_REDUCTION = BUILDER
+                .comment("[诅咒七-反转] 在末地受到的伤害减免。0.50 表示减免 50%。")
+                .defineInRange("curse7ReversedEndDamageReduction", 0.50D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_END_XP_MULTIPLIER = BUILDER
+                .comment("[诅咒七-反转] 在末地击杀生物获得的经验倍率。2.0 表示获得双倍经验。")
+                .defineInRange("curse7ReversedEndXpMultiplier", 2.0D, 0.0D, 10.0D);
+
+        CURSE_7_REVERSED_JUDGMENT_ENABLED = BUILDER
+                .comment("[诅咒七-反转] 是否启用每轮攻击触发一次的审判机制。")
+                .define("curse7ReversedJudgmentEnabled", true);
+        CURSE_7_REVERSED_JUDGMENT_MAX_ATTACKS = BUILDER
+                .comment("[诅咒七-反转] 审判每轮最多等待的有效攻击次数，达到后必定触发。")
+                .defineInRange("curse7ReversedJudgmentMaxAttacks", 7, 1, 100);
+        CURSE_7_REVERSED_JUDGMENT_EXTRA_DAMAGE_RATIO = BUILDER
+                .comment("[诅咒七-反转] 审判追加的基础伤害比例。1.0 表示追加 100% 基础伤害。")
+                .defineInRange("curse7ReversedJudgmentExtraDamageRatio", 1.0D, 0.0D, 20.0D);
+        CURSE_7_REVERSED_JUDGMENT_MAX_HEALTH_RATIO = BUILDER
+                .comment("[诅咒七-反转] 审判追加的目标最大生命值真实伤害比例。")
+                .defineInRange("curse7ReversedJudgmentMaxHealthRatio", 0.12D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_JUDGMENT_EXECUTE_THRESHOLD = BUILDER
+                .comment("[诅咒七-反转] 普通目标低于该生命比例时可被审判处决。")
+                .defineInRange("curse7ReversedJudgmentExecuteThreshold", 0.35D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_JUDGMENT_BOSS_DAMAGE_RATIO = BUILDER
+                .comment("[诅咒七-反转] Boss 目标无法被直接处决时追加的最大生命值伤害比例。")
+                .defineInRange("curse7ReversedJudgmentBossDamageRatio", 0.10D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_JUDGMENT_CHAIN_RADIUS = BUILDER
+                .comment("[诅咒七-反转] 审判连锁搜索半径，单位为格。")
+                .defineInRange("curse7ReversedJudgmentChainRadius", 7.0D, 0.0D, 64.0D);
+        CURSE_7_REVERSED_JUDGMENT_CHAIN_COUNT = BUILDER
+                .comment("[诅咒七-反转] 每次审判最多额外影响的连锁目标数量。")
+                .defineInRange("curse7ReversedJudgmentChainCount", 7, 0, 64);
+        CURSE_7_REVERSED_JUDGMENT_CHAIN_DAMAGE_RATIO = BUILDER
+                .comment("[诅咒七-反转] 连锁审判相对于主目标审判伤害的比例。")
+                .defineInRange("curse7ReversedJudgmentChainDamageRatio", 0.35D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_JUDGMENT_MARK_DURATION = BUILDER
+                .comment("[诅咒七-反转] 审判标记持续时间，单位为 tick。")
+                .defineInRange("curse7ReversedJudgmentMarkDuration", 140, 1, 72000);
+        CURSE_7_REVERSED_MARK_VFX_ENABLED = BUILDER
+                .comment("[诅咒七-反转] 是否在被标记敌人头顶显示程序生成的红色箭头特效。")
+                .define("curse7ReversedMarkVfxEnabled", true);
+
+        CURSE_7_REVERSED_ORDER_ENABLED = BUILDER
+                .comment("[诅咒七-反转] 是否启用审判击杀累计后的随机王令。")
+                .define("curse7ReversedOrderEnabled", true);
+        CURSE_7_REVERSED_ORDER_KILL_THRESHOLD = BUILDER
+                .comment("[诅咒七-反转] 累计多少个被标记目标死亡后触发一次随机王令。")
+                .defineInRange("curse7ReversedOrderKillThreshold", 7, 1, 1000);
+        CURSE_7_REVERSED_ORDER_DURATION = BUILDER
+                .comment("[诅咒七-反转] 随机王令持续时间，单位为 tick。")
+                .defineInRange("curse7ReversedOrderDuration", 140, 1, 72000);
+        CURSE_7_REVERSED_ORDER_RANGE = BUILDER
+                .comment("[诅咒七-反转] 王令影响范围，单位为格。")
+                .defineInRange("curse7ReversedOrderRange", 7.0D, 0.0D, 64.0D);
+        CURSE_7_REVERSED_ORDER_PUNISHMENT_RATIO = BUILDER
+                .comment("[诅咒七-反转] 惩戒王令对普通目标造成的最大生命值伤害比例。")
+                .defineInRange("curse7ReversedOrderPunishmentRatio", 0.35D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_ORDER_BOSS_DAMAGE_RATIO = BUILDER
+                .comment("[诅咒七-反转] 惩戒王令对 Boss 目标造成的最大生命值伤害比例。")
+                .defineInRange("curse7ReversedOrderBossDamageRatio", 0.12D, 0.0D, 1.0D);
+        CURSE_7_REVERSED_ORDER_LIGHTNING_COUNT = BUILDER
+                .comment("[诅咒七-反转] 雷霆王令在持续期间最多召唤的闪电次数。")
+                .defineInRange("curse7ReversedOrderLightningCount", 7, 0, 100);
+        CURSE_7_REVERSED_ORDER_BOUNTY_KILLS = BUILDER
+                .comment("[诅咒七-反转] 赏赐王令期间可获得额外战利品判定的击杀次数。")
+                .defineInRange("curse7ReversedOrderBountyKills", 7, 0, 1000);
+        CURSE_7_REVERSED_ORDER_ABSORPTION = BUILDER
+                .comment("[诅咒七-反转] 护佑王令给予的吸收生命值点数。")
+                .defineInRange("curse7ReversedOrderAbsorption", 7.0D, 0.0D, 1024.0D);
         BUILDER.pop();
 
         BUILDER.push("诅咒八");
@@ -334,10 +418,210 @@ public class Config {
                 .defineInRange("necklaceRainResistanceAmplifier", 4, 0, 255);
         BUILDER.pop();
 
+        BUILDER.push("机会骰子6面体");
+        CHANCE_DIE_ENABLED = BUILDER.comment("是否启用机会骰子6面体的使用与祝福效果。")
+                .define("enabled", true);
+        CHANCE_DIE_OUTCOME_WEIGHTS = BUILDER.comment("六个面的相对权重，必须依次提供6个非负整数。")
+                .defineList("outcomeWeights", List.of(195, 195, 117, 181, 234, 78), Config::validateNonNegativeInteger);
+        CHANCE_DIE_EFFECT_DURATION_SECONDS = BUILDER.comment("第2面追加伤害效果持续时间，单位为秒。")
+                .defineInRange("timedEffectDurationSeconds", 60, 1, 86400);
+        CHANCE_DIE_ATTACK_SPEED_BONUS = BUILDER.comment("第1面攻击速度加成。0.5 表示提高50%。")
+                .defineInRange("attackSpeedBonus", 0.5D, 0.0D, 100.0D);
+        CHANCE_DIE_HEALTH_DAMAGE_RATIO = BUILDER.comment("第2面追加玩家最大生命值伤害比例。0.35 表示35%。")
+                .defineInRange("healthDamageRatio", 0.35D, 0.0D, 100.0D);
+        CHANCE_DIE_FALL_IMMUNITY_ENABLED = BUILDER.comment("第3面是否给予永久摔落伤害免疫。")
+                .define("fallImmunityEnabled", true);
+        CHANCE_DIE_UNDYING_CHARGES_PER_ROLL = BUILDER.comment("第4面每次抽中时增加的不死图腾复活次数。")
+                .defineInRange("undyingChargesPerRoll", 1, 0, 1000000);
+        CHANCE_DIE_UNDYING_MAX_CHARGES = BUILDER.comment("第4面最多能够储存的复活次数。0 表示不限制。")
+                .defineInRange("undyingMaxCharges", 0, 0, 1000000);
+        CHANCE_DIE_UNDYING_REVIVE_HEALTH = BUILDER.comment("第4面消耗复活次数后恢复的生命值点数。")
+                .defineInRange("undyingReviveHealth", 1.0D, 0.1D, 1000000.0D);
+        CHANCE_DIE_DODGE_CHANCE = BUILDER.comment("第5面闪避概率。0.25 表示25%。")
+                .defineInRange("dodgeChance", 0.25D, 0.0D, 1.0D);
+        CHANCE_DIE_TRUE_DAMAGE_DURATION_SECONDS = BUILDER.comment("第6面真实伤害效果持续时间，单位为秒。")
+                .defineInRange("trueDamageDurationSeconds", 60, 1, 86400);
+        CHANCE_DIE_TRUE_DAMAGE_MULTIPLIER = BUILDER.comment("第6面转换后的真实伤害倍率。1.0 表示100%原伤害。")
+                .defineInRange("trueDamageMultiplier", 1.0D, 0.0D, 100.0D);
+        BUILDER.pop();
+
+        BUILDER.push("大型机会骰子");
+        LARGE_CHANCE_DIE_ENABLED = BUILDER.comment("是否允许使用大型机会骰子。")
+                .define("enabled", true);
+        LARGE_CHANCE_DIE_UNLOCK_SECONDS = BUILDER.comment("抽奖动画结束后允许选择结果的等待时间，单位为秒。")
+                .defineInRange("selectionUnlockSeconds", 8.25D, 0.0D, 60.0D);
+        BUILDER.pop();
+
+        BUILDER.push("永寂玄金图腾");
+        ETERNAL_SILENCE_TOTEM_ENABLED = BUILDER.comment("是否启用永寂玄金图腾。")
+                .define("enabled", true);
+        ETERNAL_SILENCE_TOTEM_DURABILITY_PER_USE = BUILDER.comment("耐久图腾每次复活消耗的耐久。")
+                .defineInRange("durabilityPerUse", 6, 1, 30);
+        ETERNAL_SILENCE_TOTEM_INVULNERABLE_SECONDS = BUILDER.comment("复活后的无敌时间，单位为秒。")
+                .defineInRange("invulnerableSeconds", 30, 0, 3600);
+        ETERNAL_SILENCE_TOTEM_SURGE_SECONDS = BUILDER.comment("复活后攻速与伤害增益持续时间，单位为秒。")
+                .defineInRange("surgeSeconds", 15, 0, 3600);
+        ETERNAL_SILENCE_TOTEM_MAX_HEALTH_PENALTY = BUILDER.comment("佩戴时减少的最大生命值点数。")
+                .defineInRange("maxHealthPenalty", 5.0D, 0.0D, 1000.0D);
+        ETERNAL_SILENCE_TOTEM_EQUIPPED_DAMAGE_BONUS = BUILDER.comment("佩戴时伤害加成。0.5 表示提高50%。")
+                .defineInRange("equippedDamageBonus", 0.5D, 0.0D, 100.0D);
+        ETERNAL_SILENCE_TOTEM_SURGE_ATTACK_SPEED_BONUS = BUILDER.comment("复活增益的攻击速度加成。1.0 表示提高100%。")
+                .defineInRange("surgeAttackSpeedBonus", 1.0D, 0.0D, 100.0D);
+        ETERNAL_SILENCE_TOTEM_SURGE_DAMAGE_BONUS = BUILDER.comment("复活增益的攻击伤害加成。0.5 表示提高50%。")
+                .defineInRange("surgeDamageBonus", 0.5D, 0.0D, 100.0D);
+        ETERNAL_SILENCE_TOTEM_SECOND_HIT_MULTIPLIER = BUILDER.comment("近战第二段攻击相对原伤害的倍率。1.0 表示完整复制一次伤害。")
+                .defineInRange("secondHitDamageMultiplier", 1.0D, 0.0D, 100.0D);
+        BUILDER.pop();
+
+        BUILDER.push("永寂玄金轮回图腾");
+        ETERNAL_SILENCE_REBIRTH_TOTEM_ENABLED = BUILDER.comment("是否启用永寂玄金轮回图腾。")
+                .define("enabled", true);
+        ETERNAL_SILENCE_REBIRTH_TOTEM_COOLDOWN_SECONDS = BUILDER.comment("轮回图腾触发后的冷却时间，单位为秒。")
+                .defineInRange("cooldownSeconds", 90, 0, 86400);
+        BUILDER.pop();
+
+        BUILDER.push("裂变恶灵之心");
+        FISSION_WRAITH_HEART_ENABLED = BUILDER.comment("是否启用裂变恶灵之心掉落与诅咒七反转仪式。")
+                .define("enabled", true);
+        FISSION_WRAITH_HEART_DROP_CHANCE = BUILDER.comment("监守者音爆击杀凋灵时的掉落概率。1.0 表示100%。")
+                .defineInRange("dropChance", 1.0D, 0.0D, 1.0D);
+        FISSION_WRAITH_HEART_RITUAL_SECONDS = BUILDER.comment("末地水晶汲取仪式持续时间，单位为秒。")
+                .defineInRange("ritualSeconds", 15, 1, 3600);
+        BUILDER.pop();
+
+        BUILDER.push("暮晶戒指");
+        TWILIGHT_CRYSTAL_RING_ENABLED = BUILDER.comment("是否启用暮晶戒指的宝箱掉落与佩戴效果。")
+                .define("enabled", true);
+        TWILIGHT_CRYSTAL_RING_LOOT_CHANCE = BUILDER.comment("全维度战利品宝箱出现概率。0.02 表示2%。")
+                .defineInRange("lootChance", 0.02D, 0.0D, 1.0D);
+        TWILIGHT_CRYSTAL_RING_MOVEMENT_SPEED_BONUS = BUILDER.comment("佩戴时移动速度加成。0.05 表示5%。")
+                .defineInRange("movementSpeedBonus", 0.05D, 0.0D, 100.0D);
+        TWILIGHT_CRYSTAL_RING_ATTACK_SPEED_BONUS = BUILDER.comment("佩戴时攻击速度加成。0.08 表示8%。")
+                .defineInRange("attackSpeedBonus", 0.08D, 0.0D, 100.0D);
+        TWILIGHT_CRYSTAL_RING_COMBO_HITS = BUILDER.comment("触发额外伤害所需的连续近战命中次数。")
+                .defineInRange("comboHits", 3, 1, 1000);
+        TWILIGHT_CRYSTAL_RING_COMBO_WINDOW_SECONDS = BUILDER.comment("连击保持时间，单位为秒。")
+                .defineInRange("comboWindowSeconds", 4.0D, 0.05D, 3600.0D);
+        TWILIGHT_CRYSTAL_RING_BONUS_DAMAGE = BUILDER.comment("完成连击后追加的魔法伤害。")
+                .defineInRange("bonusMagicDamage", 2.0D, 0.0D, 1000000.0D);
+        BUILDER.pop();
+
+        BUILDER.push("缄声护符");
+        HUSHED_DEPTHS_AMULET_ENABLED = BUILDER.comment("是否启用缄声护符对尖啸体和监守者的保护。")
+                .define("enabled", true);
+        BUILDER.pop();
+
+        BUILDER.push("破灭");
+        RUIN_TALISMAN_ENABLED = BUILDER.comment("是否启用破灭护符。")
+                .define("enabled", true);
+        RUIN_DAMAGE_THRESHOLD_RATIO = BUILDER.comment("获得1点计数所需的累计伤害占自身最大生命值比例。1.0 表示100%。")
+                .defineInRange("counterDamageThresholdRatio", 1.0D, 0.001D, 1000.0D);
+        RUIN_COUNTER_COOLDOWN_SECONDS = BUILDER.comment("获得计数的内置冷却，单位为秒。")
+                .defineInRange("counterCooldownSeconds", 0.5D, 0.0D, 3600.0D);
+        RUIN_ATTACKS_PER_TRIGGER = BUILDER.comment("触发追加伤害所需攻击次数。")
+                .defineInRange("attacksPerTrigger", 3, 1, 1000);
+        RUIN_ATTACK_COUNTER_COST = BUILDER.comment("每次追加伤害消耗的计数。")
+                .defineInRange("attackCounterCost", 1, 0, 1000000);
+        RUIN_ATTACK_DAMAGE_RATIO = BUILDER.comment("追加虚空伤害占目标最大生命值比例。0.01 表示1%。")
+                .defineInRange("attackDamageRatio", 0.01D, 0.0D, 100.0D);
+        RUIN_REVIVE_COUNTER_COST = BUILDER.comment("满血复活所需计数。")
+                .defineInRange("reviveCounterCost", 10, 0, 1000000);
+        RUIN_REVIVE_BURST_DAMAGE_RATIO = BUILDER.comment("复活冲击伤害占目标最大生命值比例。0.05 表示5%。")
+                .defineInRange("reviveBurstDamageRatio", 0.05D, 0.0D, 100.0D);
+        RUIN_REVIVE_BURST_RADIUS = BUILDER.comment("复活冲击的水平半径，单位为方块。")
+                .defineInRange("reviveBurstRadius", 3.5D, 0.0D, 128.0D);
+        BUILDER.pop();
+
+        BUILDER.push("永寂复合弓");
+        ETERNAL_SILENCE_COMPOUND_BOW_ENABLED = BUILDER.comment("是否启用永寂复合弓的特殊射击逻辑。")
+                .define("enabled", true);
+        ETERNAL_SILENCE_COMPOUND_BOW_RAPID_DURATION_SECONDS = BUILDER.comment("连射模式最长持续时间，单位为秒。")
+                .defineInRange("rapidFireDurationSeconds", 5.0D, 0.05D, 3600.0D);
+        ETERNAL_SILENCE_COMPOUND_BOW_RAPID_INTERVAL_TICKS = BUILDER.comment("连射发射间隔，单位为 tick。")
+                .defineInRange("rapidFireIntervalTicks", 2, 1, 1200);
+        ETERNAL_SILENCE_COMPOUND_BOW_COOLDOWN_CHANCE = BUILDER.comment("连射结束后进入冷却的概率。0.25 表示25%。")
+                .defineInRange("rapidFireCooldownChance", 0.25D, 0.0D, 1.0D);
+        ETERNAL_SILENCE_COMPOUND_BOW_COOLDOWN_SECONDS = BUILDER.comment("触发连射冷却时的持续时间，单位为秒。")
+                .defineInRange("rapidFireCooldownSeconds", 5.0D, 0.0D, 3600.0D);
+        ETERNAL_SILENCE_COMPOUND_BOW_PROJECTILES = BUILDER.comment("普通蓄力发射时生成的弹种数量。建议使用奇数。")
+                .defineInRange("projectilesPerShot", 3, 1, 101);
+        ETERNAL_SILENCE_COMPOUND_BOW_SPREAD = BUILDER.comment("多弹种发射时相邻弹道的水平偏移。")
+                .defineInRange("projectileSpread", 0.10D, 0.0D, 10.0D);
+        ETERNAL_SILENCE_COMPOUND_BOW_DRAGON_BREATH_DAMAGE = BUILDER.comment("龙息弹种的基础伤害参数。")
+                .defineInRange("dragonBreathDamage", 20.0D, 0.0D, 1000000.0D);
+        ETERNAL_SILENCE_COMPOUND_BOW_REVERSED_DAMAGE_RATIO = BUILDER.comment("诅咒七反转后追加真实伤害比例。0.5 表示原伤害的50%。")
+                .defineInRange("reversedCurseDamageRatio", 0.5D, 0.0D, 100.0D);
+        BUILDER.pop();
+
+        BUILDER.push("穿甲箭");
+        ARMOR_PIERCING_ARROW_ENABLED = BUILDER.comment("是否启用穿甲箭及其破除王胄护盾的能力。")
+                .define("enabled", true);
+        ARMOR_PIERCING_ARROW_BREAKS_DYNASTY_SHIELD = BUILDER.comment("穿甲箭命中时是否直接破除王胄护盾。")
+                .define("breaksDynastyShield", true);
+        BUILDER.pop();
+
+        BUILDER.push("两地敕印");
+        EDICT_OF_TWO_LANDS_ENABLED = BUILDER.comment("是否启用两地敕印的佩戴与技能效果。")
+                .define("enabled", true);
+        EDICT_OF_TWO_LANDS_CAST_GUILT_COST = BUILDER.comment("X 技能消耗的王罪值。")
+                .defineInRange("castGuiltCost", 20, 0, 1000000);
+        EDICT_OF_TWO_LANDS_DOMAIN_GUILT_COST = BUILDER.comment("Y 技能消耗的王罪值。")
+                .defineInRange("domainGuiltCost", 30, 0, 1000000);
+        EDICT_OF_TWO_LANDS_CAST_COOLDOWN_SECONDS = BUILDER.comment("X 技能冷却时间，单位为秒。")
+                .defineInRange("castCooldownSeconds", 90.0D, 0.0D, 86400.0D);
+        EDICT_OF_TWO_LANDS_DOMAIN_COOLDOWN_SECONDS = BUILDER.comment("Y 技能冷却时间，单位为秒。")
+                .defineInRange("domainCooldownSeconds", 360.0D, 0.0D, 86400.0D);
+        EDICT_OF_TWO_LANDS_CHARGE_SECONDS = BUILDER.comment("X、Y 技能长按凝聚时间，单位为秒。")
+                .defineInRange("chargeSeconds", 3.0D, 0.05D, 60.0D);
+        EDICT_OF_TWO_LANDS_CAST_RANGE = BUILDER.comment("X 技能搜索敌对实体的半径，单位为方块。")
+                .defineInRange("castRange", 12.0D, 1.0D, 256.0D);
+        EDICT_OF_TWO_LANDS_DOMAIN_RANGE = BUILDER.comment("Y 技能矩阵半径，单位为方块。")
+                .defineInRange("domainRange", 15.0D, 1.0D, 256.0D);
+        EDICT_OF_TWO_LANDS_LIFT_SECONDS = BUILDER.comment("X 技能将目标掀起的时间，单位为秒。")
+                .defineInRange("liftSeconds", 0.6D, 0.05D, 60.0D);
+        EDICT_OF_TWO_LANDS_SEAL_SECONDS = BUILDER.comment("X 技能将目标悬空封印的时间，单位为秒。")
+                .defineInRange("sealSeconds", 10.0D, 0.05D, 3600.0D);
+        EDICT_OF_TWO_LANDS_AIR_DAMAGE_INTERVAL_SECONDS = BUILDER.comment("X 技能悬空期间的伤害间隔，单位为秒。")
+                .defineInRange("airDamageIntervalSeconds", 2.0D, 0.05D, 3600.0D);
+        EDICT_OF_TWO_LANDS_AIR_DAMAGE = BUILDER.comment("X 技能悬空期间每次造成的魔法伤害。")
+                .defineInRange("airDamage", 20.0D, 0.0D, 1000000.0D);
+        EDICT_OF_TWO_LANDS_CHAIN_DAMAGE = BUILDER.comment("X 技能目标之间连锁时造成的魔法伤害。")
+                .defineInRange("chainDamage", 10.0D, 0.0D, 1000000.0D);
+        EDICT_OF_TWO_LANDS_CHAIN_PULL_STRENGTH = BUILDER.comment("X 技能连锁拉扯强度。")
+                .defineInRange("chainPullStrength", 0.18D, 0.0D, 10.0D);
+        EDICT_OF_TWO_LANDS_DOMAIN_DURATION_SECONDS = BUILDER.comment("Y 技能矩阵持续时间，单位为秒；结束时执行处决。")
+                .defineInRange("domainDurationSeconds", 10.0D, 0.05D, 3600.0D);
+        EDICT_OF_TWO_LANDS_DOMAIN_PULL_STRENGTH = BUILDER.comment("Y 技能矩阵向中心收束目标的强度。")
+                .defineInRange("domainPullStrength", 0.18D, 0.0D, 10.0D);
+        BUILDER.pop();
+
+        BUILDER.push("万世征途");
+        ETERNAL_CONQUEST_ENABLED = BUILDER.comment("是否启用万世征途及其成长效果。")
+                .define("enabled", true);
+        ETERNAL_CONQUEST_KILLS_PER_LEVEL = BUILDER.comment("每提升1层淬炼所需亲手击杀的9级王胄护盾实体数量。")
+                .defineInRange("killsPerLevel", 5, 1, 1000000);
+        ETERNAL_CONQUEST_ATTACK_DAMAGE_PER_LEVEL = BUILDER.comment("每层提供的攻击伤害加成。0.01表示1%。")
+                .defineInRange("attackDamagePerLevel", 0.01D, 0.0D, 100.0D);
+        ETERNAL_CONQUEST_REFLECTION_PER_LEVEL = BUILDER.comment("每层提供的伤害反弹比例。0.01表示1%。")
+                .defineInRange("reflectionPerLevel", 0.01D, 0.0D, 1.0D);
+        ETERNAL_CONQUEST_REFLECTION_MAX = BUILDER.comment("伤害反弹率上限。0.75表示75%。")
+                .defineInRange("reflectionMax", 0.75D, 0.0D, 1.0D);
+        ETERNAL_CONQUEST_LIFESTEAL_PER_LEVEL = BUILDER.comment("每层提供的吸血比例。0.01表示1%。")
+                .defineInRange("lifestealPerLevel", 0.01D, 0.0D, 1.0D);
+        ETERNAL_CONQUEST_LIFESTEAL_MAX = BUILDER.comment("吸血率上限。0.90表示90%。")
+                .defineInRange("lifestealMax", 0.90D, 0.0D, 1.0D);
+        BUILDER.pop();
+
+        BUILDER.pop();
+
         BUILDER.push("通用");
         DYNASTY_SHIELD_ENABLED = BUILDER
                 .comment("[通用] 为 true 时启用王朝护盾；为 false 时敌对生物不会获得护盾，已有护盾也不会生效。")
                 .define("dynastyShieldEnabled", true);
+
+        DYNASTY_SHIELD_FORCE_ENABLED = BUILDER
+                .comment("[通用] 强制开启王胄。默认 false 时，仅在附近存在佩戴卡迭石咒印的玩家时启用；/ramessescurse dynasty_shield on 会将其设为 true。")
+                .define("dynastyShieldForceEnabled", false);
 
         DYNASTY_SHIELD_LEVELS = BUILDER
                 .comment("[通用] 王朝护盾可用等级列表。需要与 dynastyShieldMaxValues 一一对应。")
@@ -385,6 +669,40 @@ public class Config {
         REVERSE_SCALE_DROP_ENABLED = BUILDER
                 .comment("[词条材料掉落] 是否允许反制词条掉落逆鳞片。")
                 .define("reverseScaleDropEnabled", true);
+
+        CALMING_TIBIA_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 镇定胫骨掉落概率。0.002 表示 0.2%。")
+                .defineInRange("calmingTibiaDropChance", 0.002D, 0.0D, 1.0D);
+        PITCHFIRE_CRYSTAL_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 沥火凝晶掉落概率。0.002 表示 0.2%。")
+                .defineInRange("pitchfireCrystalDropChance", 0.002D, 0.0D, 1.0D);
+        HEART_DEVOURING_REMNANT_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 噬心残印掉落概率。0.002 表示 0.2%。")
+                .defineInRange("heartDevouringRemnantDropChance", 0.002D, 0.0D, 1.0D);
+        RAVENOUS_CLAW_FRAGMENT_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 嗜爪碎片掉落概率。0.002 表示 0.2%。")
+                .defineInRange("ravenousClawFragmentDropChance", 0.002D, 0.0D, 1.0D);
+        FAMINE_CORE_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 饥荒之核掉落概率。0.002 表示 0.2%。")
+                .defineInRange("famineCoreDropChance", 0.002D, 0.0D, 1.0D);
+        VENOM_ORB_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 剧毒宝珠掉落概率。0.002 表示 0.2%。")
+                .defineInRange("venomOrbDropChance", 0.002D, 0.0D, 1.0D);
+        KA_REMNANT_BREATH_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 卡之残息掉落概率。0.002 表示 0.2%。")
+                .defineInRange("kaRemnantBreathDropChance", 0.002D, 0.0D, 1.0D);
+        LIFE_BINDING_REMNANT_CRYSTAL_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 缚命残晶掉落概率。0.002 表示 0.2%。")
+                .defineInRange("lifeBindingRemnantCrystalDropChance", 0.002D, 0.0D, 1.0D);
+        AUTHORITY_FRAGMENT_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 权柄碎片掉落概率。0.002 表示 0.2%。")
+                .defineInRange("authorityFragmentDropChance", 0.002D, 0.0D, 1.0D);
+        TRUTH_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 真理掉落概率。0.002 表示 0.2%。")
+                .defineInRange("truthDropChance", 0.002D, 0.0D, 1.0D);
+        REVERSE_SCALE_DROP_CHANCE = BUILDER
+                .comment("[词条材料掉落] 逆鳞片掉落概率。0.002 表示 0.2%。")
+                .defineInRange("reverseScaleDropChance", 0.002D, 0.0D, 1.0D);
         BUILDER.pop();
 
         START_WITH_SEAL = BUILDER
@@ -440,14 +758,13 @@ public class Config {
     public static final ForgeConfigSpec.IntValue CURSE_1_REVERSED_AMPLIFIER_MAX;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_1_REVERSED_EFFECT_WHITELIST;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_1_REVERSAL_CAULDRON_ITEMS;
-    public static final ForgeConfigSpec.IntValue CURSE_2_SPAWN_INTERVAL;
-    public static final ForgeConfigSpec.DoubleValue CURSE_2_SPAWN_CHANCE;
     public static final ForgeConfigSpec.DoubleValue CURSE_2_LUCK_PENALTY;
-    public static final ForgeConfigSpec.IntValue CURSE_2_SPAWN_RADIUS;
-    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_2_ENTITY_WHITELIST;
+    public static final ForgeConfigSpec.BooleanValue CURSE_2_VILLAGER_ZOMBIFICATION_ENABLED;
+    public static final ForgeConfigSpec.IntValue CURSE_2_VILLAGER_ZOMBIFICATION_RADIUS;
     public static final ForgeConfigSpec.DoubleValue CURSE_2_REVERSED_LUCK_BONUS;
     public static final ForgeConfigSpec.IntValue CURSE_2_REVERSED_SPAWN_INTERVAL;
     public static final ForgeConfigSpec.DoubleValue CURSE_2_REVERSED_SPAWN_CHANCE;
+    public static final ForgeConfigSpec.IntValue CURSE_2_REVERSED_SPAWN_RADIUS;
     public static final ForgeConfigSpec.IntValue CURSE_2_REVERSED_MINION_DURATION;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_2_REVERSED_ENTITY_WHITELIST;
     public static final ForgeConfigSpec.DoubleValue CURSE_3_XP_MULTIPLIER;
@@ -465,7 +782,36 @@ public class Config {
     public static final ForgeConfigSpec.IntValue INVENTORY_LOCK_INTERVAL;
     public static final ForgeConfigSpec.IntValue INVENTORY_LOCK_DURATION;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_6_VOID_OFFERINGS;
-    public static final ForgeConfigSpec.DoubleValue CURSE_7_LOOT_SUPPRESSION_CHANCE;
+    public static final ForgeConfigSpec.IntValue CURSE_7_LOOT_TRIGGER_MAX_ATTACKS;
+    public static final ForgeConfigSpec.BooleanValue CURSE_7_ENCHANTMENT_ERASURE_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_ENCHANTMENT_ERASURE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_ATTACK_DAMAGE_BONUS;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_ATTACK_SPEED_BONUS;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_MOVEMENT_SPEED_BONUS;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_MAX_HEALTH_BONUS;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_ARMOR_TOUGHNESS_BONUS;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_END_DAMAGE_REDUCTION;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_END_XP_MULTIPLIER;
+    public static final ForgeConfigSpec.BooleanValue CURSE_7_REVERSED_JUDGMENT_ENABLED;
+    public static final ForgeConfigSpec.IntValue CURSE_7_REVERSED_JUDGMENT_MAX_ATTACKS;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_EXTRA_DAMAGE_RATIO;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_MAX_HEALTH_RATIO;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_EXECUTE_THRESHOLD;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_BOSS_DAMAGE_RATIO;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_CHAIN_RADIUS;
+    public static final ForgeConfigSpec.IntValue CURSE_7_REVERSED_JUDGMENT_CHAIN_COUNT;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_JUDGMENT_CHAIN_DAMAGE_RATIO;
+    public static final ForgeConfigSpec.IntValue CURSE_7_REVERSED_JUDGMENT_MARK_DURATION;
+    public static final ForgeConfigSpec.BooleanValue CURSE_7_REVERSED_MARK_VFX_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue CURSE_7_REVERSED_ORDER_ENABLED;
+    public static final ForgeConfigSpec.IntValue CURSE_7_REVERSED_ORDER_KILL_THRESHOLD;
+    public static final ForgeConfigSpec.IntValue CURSE_7_REVERSED_ORDER_DURATION;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_ORDER_RANGE;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_ORDER_PUNISHMENT_RATIO;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_ORDER_BOSS_DAMAGE_RATIO;
+    public static final ForgeConfigSpec.IntValue CURSE_7_REVERSED_ORDER_LIGHTNING_COUNT;
+    public static final ForgeConfigSpec.IntValue CURSE_7_REVERSED_ORDER_BOUNTY_KILLS;
+    public static final ForgeConfigSpec.DoubleValue CURSE_7_REVERSED_ORDER_ABSORPTION;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_CHANCE;
     public static final ForgeConfigSpec.IntValue HELL_REBOUND_COOLDOWN;
     public static final ForgeConfigSpec.DoubleValue HELL_REBOUND_DAMAGE_MULTIPLIER;
@@ -500,6 +846,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue HEART_WARD_MANUAL_TRIGGER;
     public static final ForgeConfigSpec.DoubleValue HEART_DESERT_REACH_BONUS;
     public static final ForgeConfigSpec.BooleanValue DYNASTY_SHIELD_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue DYNASTY_SHIELD_FORCE_ENABLED;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_LEVELS;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_MAX_VALUES;
     public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> DYNASTY_SHIELD_THREAT_THRESHOLDS;
@@ -514,6 +861,96 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue AUTHORITY_FRAGMENT_DROP_ENABLED;
     public static final ForgeConfigSpec.BooleanValue TRUTH_DROP_ENABLED;
     public static final ForgeConfigSpec.BooleanValue REVERSE_SCALE_DROP_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue CALMING_TIBIA_DROP_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue PITCHFIRE_CRYSTAL_DROP_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue HEART_DEVOURING_REMNANT_DROP_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue RAVENOUS_CLAW_FRAGMENT_DROP_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue FAMINE_CORE_DROP_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue VENOM_ORB_DROP_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue KA_REMNANT_BREATH_DROP_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue LIFE_BINDING_REMNANT_CRYSTAL_DROP_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue AUTHORITY_FRAGMENT_DROP_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue TRUTH_DROP_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue REVERSE_SCALE_DROP_CHANCE;
+    public static final ForgeConfigSpec.BooleanValue CHANCE_DIE_ENABLED;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends Integer>> CHANCE_DIE_OUTCOME_WEIGHTS;
+    public static final ForgeConfigSpec.IntValue CHANCE_DIE_EFFECT_DURATION_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue CHANCE_DIE_ATTACK_SPEED_BONUS;
+    public static final ForgeConfigSpec.DoubleValue CHANCE_DIE_HEALTH_DAMAGE_RATIO;
+    public static final ForgeConfigSpec.BooleanValue CHANCE_DIE_FALL_IMMUNITY_ENABLED;
+    public static final ForgeConfigSpec.IntValue CHANCE_DIE_UNDYING_CHARGES_PER_ROLL;
+    public static final ForgeConfigSpec.IntValue CHANCE_DIE_UNDYING_MAX_CHARGES;
+    public static final ForgeConfigSpec.DoubleValue CHANCE_DIE_UNDYING_REVIVE_HEALTH;
+    public static final ForgeConfigSpec.DoubleValue CHANCE_DIE_DODGE_CHANCE;
+    public static final ForgeConfigSpec.IntValue CHANCE_DIE_TRUE_DAMAGE_DURATION_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue CHANCE_DIE_TRUE_DAMAGE_MULTIPLIER;
+    public static final ForgeConfigSpec.BooleanValue LARGE_CHANCE_DIE_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue LARGE_CHANCE_DIE_UNLOCK_SECONDS;
+    public static final ForgeConfigSpec.BooleanValue ETERNAL_SILENCE_TOTEM_ENABLED;
+    public static final ForgeConfigSpec.IntValue ETERNAL_SILENCE_TOTEM_DURABILITY_PER_USE;
+    public static final ForgeConfigSpec.IntValue ETERNAL_SILENCE_TOTEM_INVULNERABLE_SECONDS;
+    public static final ForgeConfigSpec.IntValue ETERNAL_SILENCE_TOTEM_SURGE_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_TOTEM_MAX_HEALTH_PENALTY;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_TOTEM_EQUIPPED_DAMAGE_BONUS;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_TOTEM_SURGE_ATTACK_SPEED_BONUS;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_TOTEM_SURGE_DAMAGE_BONUS;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_TOTEM_SECOND_HIT_MULTIPLIER;
+    public static final ForgeConfigSpec.BooleanValue ETERNAL_SILENCE_REBIRTH_TOTEM_ENABLED;
+    public static final ForgeConfigSpec.IntValue ETERNAL_SILENCE_REBIRTH_TOTEM_COOLDOWN_SECONDS;
+    public static final ForgeConfigSpec.BooleanValue FISSION_WRAITH_HEART_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue FISSION_WRAITH_HEART_DROP_CHANCE;
+    public static final ForgeConfigSpec.IntValue FISSION_WRAITH_HEART_RITUAL_SECONDS;
+    public static final ForgeConfigSpec.BooleanValue TWILIGHT_CRYSTAL_RING_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue TWILIGHT_CRYSTAL_RING_LOOT_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue TWILIGHT_CRYSTAL_RING_MOVEMENT_SPEED_BONUS;
+    public static final ForgeConfigSpec.DoubleValue TWILIGHT_CRYSTAL_RING_ATTACK_SPEED_BONUS;
+    public static final ForgeConfigSpec.IntValue TWILIGHT_CRYSTAL_RING_COMBO_HITS;
+    public static final ForgeConfigSpec.DoubleValue TWILIGHT_CRYSTAL_RING_COMBO_WINDOW_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue TWILIGHT_CRYSTAL_RING_BONUS_DAMAGE;
+    public static final ForgeConfigSpec.BooleanValue HUSHED_DEPTHS_AMULET_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue ETERNAL_CONQUEST_ENABLED;
+    public static final ForgeConfigSpec.IntValue ETERNAL_CONQUEST_KILLS_PER_LEVEL;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_CONQUEST_ATTACK_DAMAGE_PER_LEVEL;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_CONQUEST_REFLECTION_PER_LEVEL;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_CONQUEST_REFLECTION_MAX;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_CONQUEST_LIFESTEAL_PER_LEVEL;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_CONQUEST_LIFESTEAL_MAX;
+    public static final ForgeConfigSpec.BooleanValue RUIN_TALISMAN_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue RUIN_DAMAGE_THRESHOLD_RATIO;
+    public static final ForgeConfigSpec.DoubleValue RUIN_COUNTER_COOLDOWN_SECONDS;
+    public static final ForgeConfigSpec.IntValue RUIN_ATTACKS_PER_TRIGGER;
+    public static final ForgeConfigSpec.IntValue RUIN_ATTACK_COUNTER_COST;
+    public static final ForgeConfigSpec.DoubleValue RUIN_ATTACK_DAMAGE_RATIO;
+    public static final ForgeConfigSpec.IntValue RUIN_REVIVE_COUNTER_COST;
+    public static final ForgeConfigSpec.DoubleValue RUIN_REVIVE_BURST_DAMAGE_RATIO;
+    public static final ForgeConfigSpec.DoubleValue RUIN_REVIVE_BURST_RADIUS;
+    public static final ForgeConfigSpec.BooleanValue ETERNAL_SILENCE_COMPOUND_BOW_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_COMPOUND_BOW_RAPID_DURATION_SECONDS;
+    public static final ForgeConfigSpec.IntValue ETERNAL_SILENCE_COMPOUND_BOW_RAPID_INTERVAL_TICKS;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_COMPOUND_BOW_COOLDOWN_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_COMPOUND_BOW_COOLDOWN_SECONDS;
+    public static final ForgeConfigSpec.IntValue ETERNAL_SILENCE_COMPOUND_BOW_PROJECTILES;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_COMPOUND_BOW_SPREAD;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_COMPOUND_BOW_DRAGON_BREATH_DAMAGE;
+    public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_COMPOUND_BOW_REVERSED_DAMAGE_RATIO;
+    public static final ForgeConfigSpec.BooleanValue ARMOR_PIERCING_ARROW_ENABLED;
+    public static final ForgeConfigSpec.BooleanValue ARMOR_PIERCING_ARROW_BREAKS_DYNASTY_SHIELD;
+    public static final ForgeConfigSpec.BooleanValue EDICT_OF_TWO_LANDS_ENABLED;
+    public static final ForgeConfigSpec.IntValue EDICT_OF_TWO_LANDS_CAST_GUILT_COST;
+    public static final ForgeConfigSpec.IntValue EDICT_OF_TWO_LANDS_DOMAIN_GUILT_COST;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_CAST_COOLDOWN_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_DOMAIN_COOLDOWN_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_CHARGE_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_CAST_RANGE;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_DOMAIN_RANGE;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_LIFT_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_SEAL_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_AIR_DAMAGE_INTERVAL_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_AIR_DAMAGE;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_CHAIN_DAMAGE;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_CHAIN_PULL_STRENGTH;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_DOMAIN_DURATION_SECONDS;
+    public static final ForgeConfigSpec.DoubleValue EDICT_OF_TWO_LANDS_DOMAIN_PULL_STRENGTH;
     public static final ForgeConfigSpec.ConfigValue<String> NECKLACE_EFFECT_ID;
     public static final ForgeConfigSpec.IntValue NECKLACE_STACK_TIMEOUT;
     public static final ForgeConfigSpec.IntValue NECKLACE_MAX_STACKS;
@@ -573,15 +1010,6 @@ public class Config {
 
     public static MobEffect getRandomCurseOneReversedEffect(int seed) {
         return getEffectFromPool(CURSE_1_REVERSED_EFFECT_WHITELIST.get(), seed);
-    }
-
-    public static EntityType<?> getRandomCurseTwoEntityType(int seed) {
-        List<EntityType<?>> filteredPool = CURSE_2_ENTITY_WHITELIST.get().stream()
-                .map(ResourceLocation::new)
-                .<EntityType<?>>map(ForgeRegistries.ENTITY_TYPES::getValue)
-                .filter(entityType -> entityType != null && entityType.getCategory() == MobCategory.MONSTER)
-                .toList();
-        return getEntityTypeFromPool(filteredPool, seed);
     }
 
     public static EntityType<?> getRandomCurseTwoMinionEntityType(int seed) {

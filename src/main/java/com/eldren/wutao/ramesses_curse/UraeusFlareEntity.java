@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class UraeusFlareEntity extends Entity implements GeoEntity {
+    private static final byte BURST_VFX_EVENT = 68;
     private static final EntityDataAccessor<Integer> TARGET_ID = SynchedEntityData.defineId(UraeusFlareEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DAMAGE = SynchedEntityData.defineId(UraeusFlareEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> RAIN_EMPOWERED = SynchedEntityData.defineId(UraeusFlareEntity.class, EntityDataSerializers.BOOLEAN);
@@ -247,6 +248,9 @@ public class UraeusFlareEntity extends Entity implements GeoEntity {
         if (damage <= 0.0F) {
             return;
         }
+        if (allowBranch) {
+            serverLevel.broadcastEntityEvent(this, BURST_VFX_EVENT);
+        }
         Player owner = getOwner(serverLevel).orElse(null);
         if (owner == null) {
             target.hurt(damageSources().magic(), damage);
@@ -426,6 +430,19 @@ public class UraeusFlareEntity extends Entity implements GeoEntity {
         return this.entityData.get(RAIN_EMPOWERED);
     }
 
+    public boolean isBranchFlare() {
+        return branchDepth > 0 || (getDamage() > 0.0F && getDamage() < CHAIN_DAMAGE);
+    }
+
+    @Override
+    public void handleEntityEvent(byte eventId) {
+        if (eventId == BURST_VFX_EVENT) {
+            UraeusVfxState.trigger(position(), isRainEmpowered(), level().getGameTime());
+            return;
+        }
+        super.handleEntityEvent(eventId);
+    }
+
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
     }
@@ -452,7 +469,7 @@ public class UraeusFlareEntity extends Entity implements GeoEntity {
 
     private void recordTrailPosition() {
         trailPositions.add(0, position());
-        while (trailPositions.size() > 18) {
+        while (trailPositions.size() > 12) {
             trailPositions.remove(trailPositions.size() - 1);
         }
     }

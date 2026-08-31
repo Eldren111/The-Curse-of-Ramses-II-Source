@@ -15,8 +15,8 @@
     },
     {
       "type": "patchouli:text",
-      "title": "已显露其一",
-      "text": "摄政王冠并不总肯把敌意留在佩戴者身边。若余烬的三重军势被完整熬过，那顶迟疑已久的冠冕会暂时改口。$(br2)自那之后，失去的幸运会被补回更多；而每隔一段时候，王权也可能不再遣来索命者，而是放下一名替你出手的旧臣。"
+      "title": "The First Reversal",
+      "text": "The Crown of Regency does not always remain hostile to its wearer. Endure all three waves of the Ember's undead trial and the crown will finally yield.$(br2)Afterward, villager infection stops and lost Luck becomes a growing bonus. From time to time, the crown may also send a brief loyal retainer to fight for you."
     },
     {
       "type": "patchouli:text",
@@ -27,6 +27,11 @@
       "type": "patchouli:text",
       "title": "尚未启封",
       "text": "其余七道刻痕还没有完全翻面。它们也许需要一场维度中的停驻、一件旧器的苏醒、一次完整的承受，或一句被答中的话。$(br2)当新的归路被写进手册时，这一页会继续向后生长。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Curse VII: Judgment of the End",
+      "text": "After reversal, the active seal grants permanent combat bonuses; End damage reduction and End experience multiplier follow the configuration. Each cycle triggers judgment at a random point within at most seven effective attacks, marking selected enemies with a textureless procedural red arrow above their heads."
     }
   ]
 }

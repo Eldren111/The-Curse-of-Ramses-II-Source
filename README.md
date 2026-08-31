@@ -1,57 +1,28 @@
-# Ramesses' Curse
+# 拉美西斯二世的诅咒 | Ramesses' Curse
 
-"The Curse of Ramses II," created by Eldren & WuTao, ​​is an open-source mod for Minecraft version 1.20.1. You are welcome to playtest this mod; should you encounter any bugs, please report them via GitHub Issues, and I will address them promptly. Additionally, I would like to express my sincere gratitude to Codex for their invaluable assistance in resolving bugs and fixing errors.
+适用于 Minecraft Forge 1.20.1 的诅咒、遗物与高难度战斗模组。
 
-## Current features
+玩家将佩戴卡迭石咒印，在探索、战斗与维度推进中承受九重诅咒，并通过对应仪式逐步完成反转。
 
-- A dedicated `curse` Curios slot
-- The `Seal of Kadesh` as the core relic of the mod
-- A custom creative tab for mod items
-- A standalone advancement page with the Seal of Kadesh as the entry point
-- Curse systems tied to combat, hunger debt, guilt, trade pressure, dimension triggers, and item locking
-- Supporting items such as the `Purification Scroll` and `Satiety Crystal`
+## 核心内容
 
-## Mod summary
+- 卡迭石咒印、九重诅咒及反转流程
+- 杜阿特维度、永寂王庭、沙暴与主题资源
+- 王胄护盾和数据包驱动的敌对生物词条系统
+- 碑文、饰品、机会骰子、永寂复合弓及配套合成与成就
 
-At its center is the Seal of Kadesh, a relic that binds itself to the player and unfolds a chain of escalating punishments. The current design blends custom Curios integration, curse-driven survival pressure, configurable punishment systems, and myth-inspired flavor rooted in a darker retelling of Ramesses-era grandeur.
+## 运行需求
 
-## Roadmap
+- Minecraft `1.20.1`
+- Forge `47.x`
+- Java `17`
+- Curios API `5.9.1+`（必需）
+- Patchouli、L2Library、L2Hostility（可选联动）
 
-The project aims to build a themed curse-and-relic experience rather than a generic equipment expansion. Future development is planned around:
+发现崩溃或机制异常时，请通过 GitHub Issues 提交日志与复现步骤。
 
-- More cursed curios gated by the Seal of Kadesh
-- Better JEI support and content discoverability
-- More items, blocks, food, and rituals tied to the same mythic tone
-- Stronger data/config support for pack makers
-- More advancement chains and long-term progression hooks
-- Better repository automation for releases and testing
+## 许可
 
-## Development
+本项目采用 All Rights Reserved（保留所有权利）。允许下载官方未修改版本用于个人游玩；整合包、转载、修改、移植、镜像或再发布均需事先获得作者书面授权。
 
-### Requirements
-
-- Java 17
-- Minecraft Forge 1.20.1
-
-## Repository structure
-
-- `src/main/java` - mod source code
-- `src/main/resources` - assets, language files, metadata, advancements
-- `src/generated/resources` - generated data output
-- `.github` - issue templates and repository defaults
-- `tools` - local helper tools, ignored by Git
-
-## License
-
-Source code in this repository is distributed under a custom license:
-
-- Personal gameplay use is allowed
-- Non-commercial modpack use is allowed
-- Non-commercial reposting is allowed with clear credit
-- Non-commercial modified releases are allowed with clear credit and inclusion of this license
-- Commercial redistribution and resale are prohibited
-- Commercialized modified versions are prohibited
-
-See [LICENSE](LICENSE) for the full terms.
-
-Art assets, textures, animations, models, sounds, music, written lore, and localization content are All Rights Reserved unless explicitly stated otherwise. See [LICENSE_ASSETS](LICENSE_ASSETS).
+代码许可见 [LICENSE](LICENSE)，美术、模型、音乐、文本与本地化资源许可见 [LICENSE_ASSETS](LICENSE_ASSETS)。

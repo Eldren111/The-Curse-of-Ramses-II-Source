@@ -58,6 +58,15 @@ public class DynastyAffixData extends SimpleJsonResourceReloadListener {
         return affixesEnabled;
     }
 
+    public static List<String> availableAtTier(int threatTier) {
+        if (!affixesEnabled) {
+            return List.of();
+        }
+        return KNOWN_AFFIXES.stream()
+                .filter(id -> enabled(id) && threatTier >= unlockTier(id))
+                .toList();
+    }
+
     public static int level(String id, int threatTier) {
         AffixDefinition definition = get(id);
         if (threatTier < definition.unlockTier) {

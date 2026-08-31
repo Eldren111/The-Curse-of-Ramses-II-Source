@@ -67,6 +67,9 @@ mixin {
 }
 
 repositories {
+    flatDir {
+        dirs "run/local-libs", "libs"
+    }
     maven {
         name = "Modrinth"
         url = "https://api.modrinth.com/maven"
@@ -104,8 +107,12 @@ dependencies {
     runtimeOnly fg.deobf("maven.modrinth:oculus:${oculus_modrinth_version}")
     compileOnly fg.deobf("maven.modrinth:4Vh3BQ3F:${l2library_modrinth_version}")
     compileOnly files("libs/l2serial-1.2.2.jar")
+    compileOnly fg.deobf("local.l2tabs:l2tabs:0.3.3")
     runtimeOnly fg.deobf("maven.modrinth:4Vh3BQ3F:${l2library_modrinth_version}")
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-${minecraft_version}:${geckolib_version}")
+    if (file("run/local-libs/goety-2.5.36.1.jar").exists()) {
+        runtimeOnly fg.deobf("local.goety:goety:2.5.36.1")
+    }
     compileOnly 'org.spongepowered:mixin:0.8.5'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

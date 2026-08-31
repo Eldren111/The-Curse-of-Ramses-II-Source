@@ -1,0 +1,12 @@
+{
+  "structures": [
+    {
+      "structure": "ramesses_curse:ramesses_end_island",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "ramesses_curse:fixed_end_island",
+    "salt": 1380275284
+  }
+}
