@@ -4,6 +4,7 @@
     "item.ramesses_curse.duat_sun_eater_crown": "阿佩普之冠",
     "entity.ramesses_curse.duat_sun_eater_crown": "阿佩普之冠",
     "message.ramesses_curse.sun_eater_blast_countdown": "王冠已被夺取：主岛将在 %1$s 秒后毁灭！",
+    "message.ramesses_curse.sun_eater_crown_escape": "阿佩普之冠已被拾取：主岛上的生者被送回磁石平台。",
     "screen.ramesses_curse.dynasty_status.title": "王朝威胁",
     "screen.ramesses_curse.dynasty_status.threat": "王朝威胁值：%1$s",
     "screen.ramesses_curse.dynasty_status.shield_level": "护盾等级：%1$s",
