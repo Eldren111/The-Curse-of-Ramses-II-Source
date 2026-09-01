@@ -4,6 +4,7 @@
     "item.ramesses_curse.duat_sun_eater_crown": "阿佩普之冠",
     "entity.ramesses_curse.duat_sun_eater_crown": "阿佩普之冠",
     "message.ramesses_curse.sun_eater_blast_countdown": "王冠已被夺取：主岛将在 %1$s 秒后毁灭！",
+    "message.ramesses_curse.sun_eater_crown_escape": "阿佩普之冠已被拾取：主岛上的生者被送回磁石平台。",
     "item.ramesses_curse.duat_sun_eater_crown.effect": "攻击敌对实体时有 25% 概率追加相当于自身当前生命值 25% 的权能伤害。",
     "item.ramesses_curse.duat_sun_eater_crown.current_power": "当前权能：%1$s",
     "item.ramesses_curse.duat_sun_eater_crown.hold_shift": "按住 %1$s 查看全能",

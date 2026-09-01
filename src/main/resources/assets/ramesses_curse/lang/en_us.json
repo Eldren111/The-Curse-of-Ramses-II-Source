@@ -4,6 +4,7 @@
     "item.ramesses_curse.duat_sun_eater_crown": "Crown of Apep",
     "entity.ramesses_curse.duat_sun_eater_crown": "Crown of Apep",
     "message.ramesses_curse.sun_eater_blast_countdown": "The crown has been claimed: the island will be destroyed in %1$s seconds!",
+    "message.ramesses_curse.sun_eater_crown_escape": "The Crown of Apep was claimed: all living players on the island were returned to the lodestone platform.",
     "item.ramesses_curse.duat_sun_eater_crown.effect": "Hits against hostile entities have a 25% chance to deal power damage equal to 25% of your current health.",
     "item.ramesses_curse.duat_sun_eater_crown.current_power": "Current power: %1$s",
     "item.ramesses_curse.duat_sun_eater_crown.hold_shift": "Hold %1$s to view all powers",

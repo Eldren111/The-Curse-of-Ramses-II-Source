@@ -104,6 +104,8 @@ public final class DuatSunEaterCrownEntity extends ItemEntity {
         if (this.level() instanceof ServerLevel serverLevel
                 && player instanceof ServerPlayer serverPlayer
                 && (this.isRemoved() || this.getItem().getCount() < countBeforePickup)) {
+            EndExpeditionObeliskEvents.teleportMainIslandPlayersToLodestonePlatform(
+                    serverLevel, this.blastCenter);
             DuatSunEaterDeathBlastManager.schedule(serverLevel, this.blastCenter, serverPlayer);
         }
     }

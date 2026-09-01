@@ -38,9 +38,34 @@ public final class EndExpeditionObeliskEvents {
             RamessesEndIslandStructure.CENTER_Z);
     private static final BlockPos REMOTE_CORE = REMOTE_BASE.above(4);
     private static final int LAYER_INTERVAL_TICKS = 7;
+    private static final double MAIN_ISLAND_PLAYER_RADIUS = 112.0D;
     private static final Map<ServerLevel, List<ObeliskBuild>> ACTIVE_BUILDS = new WeakHashMap<>();
 
     private EndExpeditionObeliskEvents() {
+    }
+
+    public static void teleportMainIslandPlayersToLodestonePlatform(
+            ServerLevel level, BlockPos islandCenter) {
+        if (!Level.END.equals(level.dimension())) return;
+        ensureCentralObelisk(level);
+        level.getChunk(CENTRAL_BASE.getX() >> 4, CENTRAL_BASE.getZ() >> 4);
+        BlockPos arrival = CENTRAL_BASE.offset(2, 1, 0);
+        double radiusSquared = MAIN_ISLAND_PLAYER_RADIUS * MAIN_ISLAND_PLAYER_RADIUS;
+        for (ServerPlayer player : List.copyOf(level.players())) {
+            double dx = player.getX() - islandCenter.getX() - 0.5D;
+            double dz = player.getZ() - islandCenter.getZ() - 0.5D;
+            if (dx * dx + dz * dz > radiusSquared) continue;
+            level.sendParticles(ParticleTypes.REVERSE_PORTAL, player.getX(), player.getY(0.5D), player.getZ(),
+                    90, 0.8D, 1.2D, 0.8D, 0.12D);
+            level.playSound(null, player.blockPosition(), SoundEvents.END_PORTAL_SPAWN,
+                    SoundSource.PLAYERS, 1.0F, 0.9F);
+            player.teleportTo(level, arrival.getX() + 0.5D, arrival.getY(), arrival.getZ() + 0.5D,
+                    -90.0F, 0.0F);
+            player.setDeltaMovement(0.0D, 0.0D, 0.0D);
+            player.fallDistance = 0.0F;
+            player.displayClientMessage(Component.translatable(
+                    "message.ramesses_curse.sun_eater_crown_escape"), true);
+        }
     }
 
     @SubscribeEvent
