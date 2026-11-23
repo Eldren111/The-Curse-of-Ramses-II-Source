@@ -27,6 +27,7 @@ tools
 output
 tmp
 libs/*.jar
+backups/
 
 # Files from Forge MDK
 forge*changelog.txt
@@ -43,3 +44,5 @@ decoded*.txt
 .tmp_decomp/
 .tmp_decomp2/
 META-INF/
+!addons/crimson-requiem/src/main/resources/META-INF/
+/run-gametest/

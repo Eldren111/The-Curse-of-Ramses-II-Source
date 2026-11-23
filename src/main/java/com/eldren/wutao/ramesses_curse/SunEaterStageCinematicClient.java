@@ -25,7 +25,11 @@ public final class SunEaterStageCinematicClient {
 
     public static void start(double x, double y, double z, int durationTicks) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null || durationTicks <= 0) {
+        if (durationTicks <= 0) {
+            clear();
+            return;
+        }
+        if (minecraft.level == null) {
             return;
         }
         if (activeLevel == minecraft.level && remainingTicks > 0 && totalTicks > 0) {

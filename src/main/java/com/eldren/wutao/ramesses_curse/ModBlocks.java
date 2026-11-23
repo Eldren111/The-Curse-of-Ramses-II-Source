@@ -23,6 +23,10 @@ public final class ModBlocks {
             "duat_portal",
             () -> new DuatPortalBlock(BlockBehaviour.Properties.copy(Blocks.NETHER_PORTAL).noLootTable()));
 
+    public static final RegistryObject<Block> VOID_GATEWAY_PORTAL = BLOCKS.register(
+            "void_gateway_portal",
+            () -> new VoidGatewayPortalBlock(BlockBehaviour.Properties.copy(Blocks.NETHER_PORTAL).noLootTable()));
+
     public static final RegistryObject<Block> DUAT_DUNGEON_TILE = BLOCKS.register(
             "duat_dungeon_tile",
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.BEDROCK)));
@@ -69,17 +73,22 @@ public final class ModBlocks {
 
     public static final RegistryObject<Block> FRACTURED_PHASE_ORE = BLOCKS.register(
             "fractured_phase_ore",
-            () -> new RedStoneOreBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_ORE)
+            () -> new PurpleRedStoneOreBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_ORE)
                     .requiresCorrectToolForDrops()));
 
     public static final RegistryObject<Block> NETHER_FRACTURED_PHASE_ORE = BLOCKS.register(
             "nether_fractured_phase_ore",
-            () -> new RedStoneOreBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_ORE)
+            () -> new PurpleRedStoneOreBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_ORE)
                     .requiresCorrectToolForDrops()));
 
     public static final RegistryObject<Block> END_FRACTURED_PHASE_ORE = BLOCKS.register(
             "end_fractured_phase_ore",
-            () -> new RedStoneOreBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_ORE)
+            () -> new PurpleRedStoneOreBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_ORE)
+                    .requiresCorrectToolForDrops()));
+
+    public static final RegistryObject<Block> DUAT_FRACTURED_PHASE_ORE = BLOCKS.register(
+            "duat_fractured_phase_ore",
+            () -> new PurpleRedStoneOreBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_ORE)
                     .requiresCorrectToolForDrops()));
 
     private ModBlocks() {

@@ -1,0 +1,62 @@
+{
+  "name": "进阶饰品与命运",
+  "category": "ramesses_curse:relics",
+  "icon": "ramesses_curse:eternal_conquest",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:inscription_bag",
+      "title": "碑文收纳袋",
+      "text": "右键打开专用收纳界面，同一种碑文最多放入一枚。佩戴在碑文袋槽位后，袋中至多 16 枚碑文的属性会同时生效。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:twilight_crystal_ring",
+      "title": "暮晶戒指",
+      "text": "佩戴于戒指栏时获得 +5% 移动速度与 +8% 攻击速度。连续近战命中同一目标会积累暮痕，第三次命中追加 2 点魔法伤害；4 秒未续击或更换目标即清空。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:hushed_depths_amulet",
+      "title": "缄声护符",
+      "text": "佩戴后完全阻止幽匿尖啸体因你而触发，并使监守者无法正常感知你。它不直接消灭监守者，也不会抹去其他玩家制造的振动。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:ruin_talisman",
+      "title": "破灭",
+      "text": "累计造成等于自身最大生命的伤害获得 1 点破灭计数，间隔 0.5 秒。每攻击 3 次消耗 1 点，追加目标最大生命 1% 的虚空伤害。死亡时消耗 10 点，满血复活并对水平 7×7 范围释放 5% 最大生命的不可减免冲击。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:eternal_conquest",
+      "title": "万世征途",
+      "text": "九咒全部真正反转后，佩戴者亲手击杀 9 级王胄敌人才会淬炼。默认每层提供 +1% 攻击伤害、+1% 反伤和 +1% 吸血；反伤上限 75%，吸血上限 90%。具体数值可配置。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:chance_die_six_sided",
+      "title": "六面机会骰子",
+      "text": "一次性投掷，随机取得六种命运之一：+50% 攻速；一分钟生命之刃；永久免疫摔落；增加一层图腾复活；25% 闪避；或一分钟真实伤害并穿透王胄。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:chance_die_large",
+      "title": "大型机会骰子",
+      "text": "由六枚六面机会骰子合成。它会打开选择界面，让你对六种结果分别决定是否接受，而不是把全部命运交给一次随机。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:pitchfire_crystal",
+      "title": "沥火凝晶",
+      "text": "使用后持续 60 秒获得抗火 I、速度 II与岩浆行走。它是熔融词条敌人的稀有材料掉落，也是万世征途之外多条高阶合成路线的重要资源。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:cooked_group_u",
+      "title": "群U",
+      "text": "自然生成的猪被玩家击杀时有 5% 概率掉落生群U。生食恢复 10 点饱食度；熟群U恢复 20 点，并给予 60 秒生命恢复 V、力量 II和抗性提升 I。"
+    }
+  ]
+}

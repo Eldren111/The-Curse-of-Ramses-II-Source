@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -27,6 +28,7 @@ public final class DuatSunEaterCrownEntity extends ItemEntity {
     private double anchorZ;
     private BlockPos blastCenter = BlockPos.ZERO;
     private boolean initialized;
+    private boolean playerPickupRemoval;
 
     public DuatSunEaterCrownEntity(EntityType<? extends DuatSunEaterCrownEntity> type, Level level) {
         super(type, level);
@@ -103,11 +105,16 @@ public final class DuatSunEaterCrownEntity extends ItemEntity {
 
         this.setItem(DuatSunEaterCrownItem.ensureDragonDropStack(this.getItem()));
         int countBeforePickup = this.getItem().getCount();
-        super.playerTouch(player);
+        this.playerPickupRemoval = true;
+        try {
+            super.playerTouch(player);
+        } finally {
+            this.playerPickupRemoval = false;
+        }
         if (this.level() instanceof ServerLevel serverLevel
                 && player instanceof ServerPlayer serverPlayer
                 && (this.isRemoved() || this.getItem().getCount() < countBeforePickup)) {
-            EndExpeditionObeliskEvents.teleportMainIslandPlayersToLodestonePlatform(
+            EndExpeditionObeliskEvents.teleportIslandPlayersToNearestObelisk(
                     serverLevel, this.blastCenter);
             DuatSunEaterDeathBlastManager.schedule(serverLevel, this.blastCenter, serverPlayer);
         }
@@ -116,6 +123,21 @@ public final class DuatSunEaterCrownEntity extends ItemEntity {
     @Override
     public boolean hurt(DamageSource source, float amount) {
         return false;
+    }
+
+    @Override
+    public void kill() {
+        // Commands use Entity#kill. Only ItemEntity#playerTouch may consume this relic.
+    }
+
+    @Override
+    public void remove(Entity.RemovalReason reason) {
+        if (!this.level().isClientSide
+                && !this.playerPickupRemoval
+                && (reason == Entity.RemovalReason.KILLED || reason == Entity.RemovalReason.DISCARDED)) {
+            return;
+        }
+        super.remove(reason);
     }
 
     @Override

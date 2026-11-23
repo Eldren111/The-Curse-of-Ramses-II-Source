@@ -43,12 +43,18 @@ public final class EndExpeditionObeliskEvents {
     private EndExpeditionObeliskEvents() {
     }
 
-    public static void teleportMainIslandPlayersToLodestonePlatform(
+    public static void teleportIslandPlayersToNearestObelisk(
             ServerLevel level, BlockPos islandCenter) {
         if (!Level.END.equals(level.dimension())) return;
-        ensureCentralObelisk(level);
-        level.getChunk(CENTRAL_BASE.getX() >> 4, CENTRAL_BASE.getZ() >> 4);
-        BlockPos arrival = CENTRAL_BASE.offset(2, 1, 0);
+        BlockPos destinationBase = nearestObeliskBase(islandCenter);
+        boolean remoteDestination = destinationBase.equals(REMOTE_BASE);
+        if (remoteDestination) {
+            ensureRemoteObelisk(level);
+        } else {
+            ensureCentralObelisk(level);
+        }
+        level.getChunk(destinationBase.getX() >> 4, destinationBase.getZ() >> 4);
+        BlockPos arrival = destinationBase.offset(remoteDestination ? 5 : 2, 1, 0);
         double radiusSquared = MAIN_ISLAND_PLAYER_RADIUS * MAIN_ISLAND_PLAYER_RADIUS;
         for (ServerPlayer player : List.copyOf(level.players())) {
             double dx = player.getX() - islandCenter.getX() - 0.5D;
@@ -67,10 +73,22 @@ public final class EndExpeditionObeliskEvents {
         }
     }
 
+    private static BlockPos nearestObeliskBase(BlockPos islandCenter) {
+        return horizontalDistanceSquared(islandCenter, REMOTE_BASE)
+                <= horizontalDistanceSquared(islandCenter, CENTRAL_BASE)
+                ? REMOTE_BASE
+                : CENTRAL_BASE;
+    }
+
+    private static long horizontalDistanceSquared(BlockPos first, BlockPos second) {
+        long dx = (long) first.getX() - second.getX();
+        long dz = (long) first.getZ() - second.getZ();
+        return dx * dx + dz * dz;
+    }
+
     @SubscribeEvent
     public static void onVanillaDragonDeath(LivingDeathEvent event) {
         if (!(event.getEntity() instanceof EnderDragon dragon)
-                || dragon instanceof DuatSunEaterEntity
                 || !(dragon.level() instanceof ServerLevel level)
                 || !level.dimension().equals(Level.END)
                 || dragon.distanceToSqr(0.0D, dragon.getY(), 0.0D) > 512.0D * 512.0D) {

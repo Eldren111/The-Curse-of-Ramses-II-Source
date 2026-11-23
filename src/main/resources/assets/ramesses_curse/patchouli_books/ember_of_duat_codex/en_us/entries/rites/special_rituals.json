@@ -1,0 +1,36 @@
+{
+  "name": "Special Crafting & Rites",
+  "category": "ramesses_curse:rites",
+  "icon": "ramesses_curse:fission_wraith_heart",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:dynasty_pressure_potion",
+      "title": "Dynasty Pressure Potion",
+      "text": "Brew an Echo Shard into Awkward Potions. Drinking the result raises Dynasty Threat, causing stronger royal shields and affixes to appear sooner."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:fission_wraith_heart",
+      "title": "Fission Wraith Heart",
+      "text": "Make a Warden's sonic boom deal the killing blow to a Wither. The heart drops at 100% by default; the common config can change this.$(br2)On its first toss or pickup, the heart binds to that player and cannot be taken by anyone else."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Crystal Extraction",
+      "text": "After defeating the vanilla Ender Dragon and reaching the relevant Curse VII step, keep at least ten vanilla End Crystals alive on the central island.$(br2)Drop your bound heart there. The crystals focus for 15 seconds. Removing the heart, losing crystals, or leaving the valid area cancels the rite."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:dragon_breath_compound_bow",
+      "title": "Dragon-Breath Infusion",
+      "text": "After defeating the vanilla dragon, leave at least one vanilla End Crystal alive on the central island. Drop an Eternal Silence Compound Bow beside one Dragon's Breath.$(br2)After 30 seconds of crystal focus, the bow transforms permanently. Removing an offering or all crystals cancels the rite."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Curse Rite Index",
+      "text": "The Curse I cauldron offerings, Curse VI final exchange, and all nine reversal paths are recorded in Nine Reversal Records. Exact configurable quantities follow the common config.$(br2)Apep's revival and the Silent Court gateway are in Courts & Expeditions."
+    }
+  ]
+}

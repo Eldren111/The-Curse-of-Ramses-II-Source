@@ -3,10 +3,13 @@ package com.eldren.wutao.ramesses_curse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.network.NetworkEvent;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public class ModNetwork {
 
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "5";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(RamessesCurseMod.MODID, "main"),
             () -> PROTOCOL_VERSION,
@@ -16,11 +19,25 @@ public class ModNetwork {
     private static int packetId = 0;
     private static boolean registered = false;
 
+    private static <T> BiConsumer<T, Supplier<NetworkEvent.Context>> guardInteraction(
+            BiConsumer<T, Supplier<NetworkEvent.Context>> handler) {
+        return (packet, supplier) -> {
+            NetworkEvent.Context context = supplier.get();
+            context.setPacketHandled(true);
+            context.enqueueWork(() -> {
+                if (context.getSender() != null && !CurseNineSeal.isSealed(context.getSender())) {
+                    handler.accept(packet, supplier);
+                }
+            });
+        };
+    }
+
     public static void register() {
         if (registered) {
             return;
         }
         registered = true;
+
 
         CHANNEL.registerMessage(
                 packetId++,
@@ -33,7 +50,7 @@ public class ModNetwork {
                 HeartAwakeningPacket.class,
                 HeartAwakeningPacket::encode,
                 HeartAwakeningPacket::decode,
-                HeartAwakeningPacket::handle);
+                guardInteraction(HeartAwakeningPacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 HeartWardTriggeredPacket.class,
@@ -57,7 +74,7 @@ public class ModNetwork {
                 HeartWardActivatePacket.class,
                 HeartWardActivatePacket::encode,
                 HeartWardActivatePacket::decode,
-                HeartWardActivatePacket::handle);
+                guardInteraction(HeartWardActivatePacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 HeartStateSyncPacket.class,
@@ -75,7 +92,7 @@ public class ModNetwork {
                 EdictOfTwoLandsActivatePacket.class,
                 EdictOfTwoLandsActivatePacket::encode,
                 EdictOfTwoLandsActivatePacket::decode,
-                EdictOfTwoLandsActivatePacket::handle);
+                guardInteraction(EdictOfTwoLandsActivatePacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 EdictOfTwoLandsTriggeredPacket.class,
@@ -93,7 +110,7 @@ public class ModNetwork {
                 EdictOfTwoLandsDomainActivatePacket.class,
                 EdictOfTwoLandsDomainActivatePacket::encode,
                 EdictOfTwoLandsDomainActivatePacket::decode,
-                EdictOfTwoLandsDomainActivatePacket::handle);
+                guardInteraction(EdictOfTwoLandsDomainActivatePacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 EdictCooldownSyncPacket.class,
@@ -117,19 +134,19 @@ public class ModNetwork {
                 EmberRiddleSubmitPacket.class,
                 EmberRiddleSubmitPacket::encode,
                 EmberRiddleSubmitPacket::decode,
-                EmberRiddleSubmitPacket::handle);
+                guardInteraction(EmberRiddleSubmitPacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 EmberRiddleRefreshPacket.class,
                 EmberRiddleRefreshPacket::encode,
                 EmberRiddleRefreshPacket::decode,
-                EmberRiddleRefreshPacket::handle);
+                guardInteraction(EmberRiddleRefreshPacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 EmberRiddleSelectPacket.class,
                 EmberRiddleSelectPacket::encode,
                 EmberRiddleSelectPacket::decode,
-                EmberRiddleSelectPacket::handle);
+                guardInteraction(EmberRiddleSelectPacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 SatietyRiddleSyncPacket.class,
@@ -141,25 +158,25 @@ public class ModNetwork {
                 SatietyRiddleSubmitPacket.class,
                 SatietyRiddleSubmitPacket::encode,
                 SatietyRiddleSubmitPacket::decode,
-                SatietyRiddleSubmitPacket::handle);
+                guardInteraction(SatietyRiddleSubmitPacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 SatietyRiddleSelectPacket.class,
                 SatietyRiddleSelectPacket::encode,
                 SatietyRiddleSelectPacket::decode,
-                SatietyRiddleSelectPacket::handle);
+                guardInteraction(SatietyRiddleSelectPacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 CurseSevenRevealPacket.class,
                 CurseSevenRevealPacket::encode,
                 CurseSevenRevealPacket::decode,
-                CurseSevenRevealPacket::handle);
+                guardInteraction(CurseSevenRevealPacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 CurseSevenKeywordPacket.class,
                 CurseSevenKeywordPacket::encode,
                 CurseSevenKeywordPacket::decode,
-                CurseSevenKeywordPacket::handle);
+                guardInteraction(CurseSevenKeywordPacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 CurseSevenHintPacket.class,
@@ -177,13 +194,13 @@ public class ModNetwork {
                 CurseFiveChoiceResponsePacket.class,
                 CurseFiveChoiceResponsePacket::encode,
                 CurseFiveChoiceResponsePacket::decode,
-                CurseFiveChoiceResponsePacket::handle);
+                guardInteraction(CurseFiveChoiceResponsePacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 CurseFiveMercyRevivePacket.class,
                 CurseFiveMercyRevivePacket::encode,
                 CurseFiveMercyRevivePacket::decode,
-                CurseFiveMercyRevivePacket::handle);
+                guardInteraction(CurseFiveMercyRevivePacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 CurseFiveMercyReviveAckPacket.class,
@@ -231,7 +248,7 @@ public class ModNetwork {
                 ChanceDieLargeChoicePacket.class,
                 ChanceDieLargeChoicePacket::encode,
                 ChanceDieLargeChoicePacket::decode,
-                ChanceDieLargeChoicePacket::handle);
+                guardInteraction(ChanceDieLargeChoicePacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 ChanceDieLargeCancelPacket.class,
@@ -255,13 +272,13 @@ public class ModNetwork {
                 OpenCompoundBowAmmoPacket.class,
                 OpenCompoundBowAmmoPacket::encode,
                 OpenCompoundBowAmmoPacket::decode,
-                OpenCompoundBowAmmoPacket::handle);
+                guardInteraction(OpenCompoundBowAmmoPacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 ToggleCompoundBowModePacket.class,
                 ToggleCompoundBowModePacket::encode,
                 ToggleCompoundBowModePacket::decode,
-                ToggleCompoundBowModePacket::handle);
+                guardInteraction(ToggleCompoundBowModePacket::handle));
         CHANNEL.registerMessage(
                 packetId++,
                 GoetyMonolithProtectionPacket.class,
@@ -292,5 +309,30 @@ public class ModNetwork {
                 SunEaterStageCinematicPacket::encode,
                 SunEaterStageCinematicPacket::decode,
                 SunEaterStageCinematicPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                DuatBlackHoleVfxPacket.class,
+                DuatBlackHoleVfxPacket::encode,
+                DuatBlackHoleVfxPacket::decode,
+                DuatBlackHoleVfxPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                SunEaterStageRitualVfxPacket.class,
+                SunEaterStageRitualVfxPacket::encode,
+                SunEaterStageRitualVfxPacket::decode,
+                SunEaterStageRitualVfxPacket::handle);
+        CHANNEL.registerMessage(
+                packetId++,
+                DuatCuriosSealPacket.class,
+                DuatCuriosSealPacket::encode,
+                DuatCuriosSealPacket::decode,
+                DuatCuriosSealPacket::handle);
+        CHANNEL.registerMessage(packetId++, DynastyShieldSyncPacket.class, DynastyShieldSyncPacket::encode,
+                DynastyShieldSyncPacket::decode, DynastyShieldSyncPacket::handle);
+        CHANNEL.registerMessage(packetId++, ApepBattleMusicPacket.class, ApepBattleMusicPacket::encode,
+                ApepBattleMusicPacket::decode, ApepBattleMusicPacket::handle);
+        CHANNEL.registerMessage(packetId++, CurseNineSealPacket.class, CurseNineSealPacket::encode,
+                CurseNineSealPacket::decode, CurseNineSealPacket::handle,
+                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT));
     }
 }

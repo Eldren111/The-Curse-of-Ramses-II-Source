@@ -1,0 +1,30 @@
+{
+  "name": "Duat and the Silent Court",
+  "category": "ramesses_curse:worlds",
+  "icon": "ramesses_curse:heart_of_duat",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "The Sandstone Gate",
+      "text": "Build a complete rectangular frame from plain Sandstone. Its opening may be 2-21 blocks wide and 3-21 blocks high. Ignite it with Flint and Steel to travel between the Overworld and Duat.$(br2)Cut Sandstone, Red Sandstone, and other variants do not count."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:duat_fractured_phase_ore",
+      "title": "Duat Ore Strata",
+      "text": "Highly unstable Fractured Phase Ore forms in Duat's sandstone strata at roughly lapis-like rarity. The other three dimensions have variants matching their native stone.$(br2)Its chunks require a falling-anvil press."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "The Silent Court",
+      "text": "The court sleeps deep in Duat. Ancient wards prevent ordinary block placement and breaking within its bounds. Only a player wearing the Seal of Kadesh may cross its boundary."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "ramesses_curse:nebuka_guardian",
+      "name": "Guardian of the Court",
+      "text": "Find the Skeleton Skull designated as the ritual focus inside the court and right-click it. The summoning starts only if no nearby ritual is active and no guardian remains alive."
+    }
+  ]
+}

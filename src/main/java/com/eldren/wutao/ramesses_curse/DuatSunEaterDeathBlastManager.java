@@ -1,7 +1,9 @@
 package com.eldren.wutao.ramesses_curse;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -9,6 +11,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ChunkPos;
@@ -21,6 +25,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -33,11 +38,15 @@ public final class DuatSunEaterDeathBlastManager {
     private static final int DURATION_TICKS = 157;
     private static final int MAX_RADIUS = 108;
     private static final int DESTRUCTION_MIN_Y = 16;
-    private static final int DESTRUCTION_MAX_Y = 128;
+    private static final int DESTRUCTION_MAX_Y = RamessesEndIslandPiece.CENTER_Y + 8;
     private static final Map<ServerLevel, Countdown> PENDING_BLASTS = new WeakHashMap<>();
     private static final Map<ServerLevel, Blast> ACTIVE_BLASTS = new WeakHashMap<>();
 
     private DuatSunEaterDeathBlastManager() {
+    }
+
+    public static boolean isBusy(ServerLevel level) {
+        return PENDING_BLASTS.containsKey(level) || ACTIVE_BLASTS.containsKey(level);
     }
 
     public static void schedule(ServerLevel level, BlockPos center, ServerPlayer player) {
@@ -49,8 +58,20 @@ public final class DuatSunEaterDeathBlastManager {
     }
 
     public static void start(ServerLevel level, BlockPos center) {
+        start(level, center, true);
+    }
+
+    public static boolean startCommandBlast(ServerLevel level, BlockPos center) {
+        if (isBusy(level)) {
+            return false;
+        }
+        start(level, center, false);
+        return true;
+    }
+
+    private static void start(ServerLevel level, BlockPos center, boolean islandBlast) {
         PENDING_BLASTS.remove(level);
-        ACTIVE_BLASTS.put(level, new Blast(center.immutable()));
+        ACTIVE_BLASTS.put(level, new Blast(level, center.immutable(), islandBlast));
         level.playSound(null, center, SoundEvents.GENERIC_EXPLODE,
                 SoundSource.HOSTILE, 8.0F, 0.42F);
         level.playSound(null, center, SoundEvents.LIGHTNING_BOLT_THUNDER,
@@ -87,6 +108,10 @@ public final class DuatSunEaterDeathBlastManager {
         blast.tick(level);
         if (blast.isFinished()) {
             ACTIVE_BLASTS.remove(level);
+            if (blast.islandBlast) {
+                RamessesEndIslandPiece.clearDragonActive(level, blast.center);
+                RamessesEndIslandPiece.clearRespawnInProgress(level, blast.center);
+            }
         }
     }
 
@@ -123,12 +148,31 @@ public final class DuatSunEaterDeathBlastManager {
 
     private static final class Blast {
         private final BlockPos center;
+        private final boolean islandBlast;
+        private final int destructionMinY;
+        private final int destructionMaxY;
         private final Set<Long> loadedChunks = new HashSet<>();
+        private final List<Holder.Reference<DamageType>> vanillaDamageTypes;
         private int elapsedTicks;
         private int lastRadius = -1;
 
-        private Blast(BlockPos center) {
+        private Blast(ServerLevel level, BlockPos center, boolean islandBlast) {
             this.center = center;
+            this.islandBlast = islandBlast;
+            int minY = islandBlast
+                    ? DESTRUCTION_MIN_Y
+                    : center.getY() + DESTRUCTION_MIN_Y - RamessesEndIslandPiece.CENTER_Y;
+            int maxY = islandBlast
+                    ? DESTRUCTION_MAX_Y
+                    : center.getY() + DESTRUCTION_MAX_Y - RamessesEndIslandPiece.CENTER_Y;
+            this.destructionMinY = Mth.clamp(minY, level.getMinBuildHeight(), level.getMaxBuildHeight() - 1);
+            this.destructionMaxY = Mth.clamp(maxY, this.destructionMinY, level.getMaxBuildHeight() - 1);
+            this.vanillaDamageTypes = level.registryAccess()
+                    .registryOrThrow(Registries.DAMAGE_TYPE)
+                    .holders()
+                    .filter(holder -> "minecraft".equals(holder.key().location().getNamespace()))
+                    .sorted((left, right) -> left.key().location().compareTo(right.key().location()))
+                    .toList();
         }
 
         private void tick(ServerLevel level) {
@@ -190,12 +234,16 @@ public final class DuatSunEaterDeathBlastManager {
                     }
                     int x = this.center.getX() + dx;
                     int z = this.center.getZ() + dz;
+                    if (this.islandBlast
+                            && RamessesEndIslandPiece.isTowerProtectedColumn(level, this.center, x, z)) {
+                        continue;
+                    }
                     int chunkX = x >> 4;
                     int chunkZ = z >> 4;
                     if (this.loadedChunks.add(ChunkPos.asLong(chunkX, chunkZ))) {
                         level.getChunk(chunkX, chunkZ);
                     }
-                    for (int y = DESTRUCTION_MIN_Y; y <= DESTRUCTION_MAX_Y; y++) {
+                    for (int y = this.destructionMinY; y <= this.destructionMaxY; y++) {
                         cursor.set(x, y, z);
                         if (!level.getBlockState(cursor).isAir()) {
                             level.setBlock(cursor, Blocks.AIR.defaultBlockState(),
@@ -217,12 +265,38 @@ public final class DuatSunEaterDeathBlastManager {
                 if (dx * dx + dz * dz > radiusSquared) {
                     continue;
                 }
-                if (target instanceof LivingEntity living && living.isAlive()) {
-                    living.setHealth(0.0F);
-                    living.die(level.damageSources().fellOutOfWorld());
+                if (target instanceof LivingEntity living) {
+                    if (living.isAlive()) {
+                        this.applyContinuousTerminalDamage(living);
+                    }
                 } else if (!target.isRemoved()) {
                     target.kill();
                 }
+            }
+        }
+
+        private void applyContinuousTerminalDamage(LivingEntity target) {
+            if (this.vanillaDamageTypes.isEmpty()) {
+                target.setHealth(0.0F);
+                return;
+            }
+
+            int damageIndex = Math.floorMod(this.elapsedTicks + target.getId(), this.vanillaDamageTypes.size());
+            DamageSource source = new DamageSource(this.vanillaDamageTypes.get(damageIndex));
+            boolean wasInvulnerable = target.isInvulnerable();
+            target.setInvulnerable(false);
+            target.invulnerableTime = 0;
+            target.hurt(source, Math.max(2048.0F, target.getMaxHealth() * 4.0F));
+            target.setHealth(0.0F);
+            target.die(source);
+            // Death-cancel and revival accessories run from die(); leave no restored health behind.
+            target.setHealth(0.0F);
+            if (!target.isDeadOrDying()) {
+                target.die(source);
+                target.setHealth(0.0F);
+            }
+            if (!target.isRemoved()) {
+                target.setInvulnerable(wasInvulnerable);
             }
         }
     }

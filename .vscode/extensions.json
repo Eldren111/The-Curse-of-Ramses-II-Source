@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "openai.chatgpt",
-        "aadityanarayan.code-snap"
+        "aadityanarayan.code-snap",
+        "anthropic.claude-code"
     ]
 }

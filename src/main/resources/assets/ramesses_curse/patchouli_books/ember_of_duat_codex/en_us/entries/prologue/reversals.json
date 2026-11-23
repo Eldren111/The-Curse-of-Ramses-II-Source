@@ -1,32 +1,32 @@
 {
-  "name": "反转刻痕",
+  "name": "Reversal Marks",
   "category": "ramesses_curse:prologue",
   "icon": "ramesses_curse:seal_of_kadesh",
   "sortnum": 1,
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "九重诅咒并非全都只会向下沉。某些刻痕在被正确触碰之后，会缓慢翻面，露出与先前截然不同的纹路。$(br2)并非每一道都已经显露归路，但位置已被预留下来。"
+      "text": "The nine curses do not all lead downward forever. When certain marks are triggered correctly, punishment turns into a different order.$(br2)The result is not always gentle, but raw oppression becomes power that can be used, endured, or exchanged."
     },
     {
       "type": "patchouli:text",
-      "title": "刻痕名录",
-      "text": "$(li)诅咒一：双神翻令$(li)诅咒二：摄政王冠$(li)诅咒三：御名税印$(li)诅咒四：两地税契$(li)诅咒五：无辜者天秤$(li)诅咒六：和约枷锁$(li)诅咒七：末地审判$(li)诅咒八：地狱烙印$(li)诅咒九：饥王遗罚"
+      "title": "Known Reversals",
+      "text": "$(li)Curse I: Place every configured offering into a water-filled cauldron and await the Trial Cup of the Two Gods.$(li)Curse II: Complete all three waves of the Ember of Duat's undead trial.$(li)Curse V: First endure the maximum-Guilt punishment, then make the single choice offered during sleep.$(li)Curse VI: Complete the final exchange on the central End island.$(li)Curse VIII: Enter the Nether, then defeat a boss on the configured allowlist.$(li)Curse IX: Defeat the configured creatures and eat the configured number of distinct nourishing foods."
     },
     {
       "type": "patchouli:text",
-      "title": "The First Reversal",
-      "text": "The Crown of Regency does not always remain hostile to its wearer. Endure all three waves of the Ember's undead trial and the crown will finally yield.$(br2)Afterward, villager infection stops and lost Luck becomes a growing bonus. From time to time, the crown may also send a brief loyal retainer to fight for you."
+      "title": "Final Release",
+      "text": "Curse III, the Tax Seal of the Throne Name, and Curse IV, the Tribute Pact of Two Lands, have no independent reward reversal. Once the other true marks have been turned, both tax pacts collapse together.$(br2)Experience tax, enchanting tax, anvil tax, and trade surcharges then disappear from both mechanics and interfaces."
     },
     {
       "type": "patchouli:text",
-      "title": "已显露其二",
-      "text": "地狱烙印不会因为第一次踏足焦土就立刻松动。那片刻蚀必须先留在身上，然后再由一位足够沉重的王者之死替它断开旧誓。$(br2)自那以后，来自主手的某些伤势不再只会折回自身，而会被悄悄推向面前承受它的人。"
+      "title": "Curse V: Two Paths",
+      "text": "The Scale of the Innocent is the only mark that demands an explicit choice.$(br)$(li)Accept reversal: Guilt becomes Mercy. At 1,299 Mercy, one death reversal can be stored.$(li)Refuse reversal: the old curse remains, but grants dangerous bonuses as Guilt approaches its limit, increasing attack, health, armor, movement speed, and experience gain.$(br2)Neither choice can be undone."
     },
     {
       "type": "patchouli:text",
-      "title": "尚未启封",
-      "text": "其余七道刻痕还没有完全翻面。它们也许需要一场维度中的停驻、一件旧器的苏醒、一次完整的承受，或一句被答中的话。$(br2)当新的归路被写进手册时，这一页会继续向后生长。"
+      "title": "Rewards After Reversal",
+      "text": "$(li)Curse I: random afflictions become random beneficial effects when struck.$(li)Curse II: villager infection ends, lost Luck becomes a bonus, and loyal retainers may arrive.$(li)Curse V: gain Mercy and death reversal, or retain the old curse as a high-risk power source.$(li)Curse VI: permanent creative flight, doubled drops, and Strength II.$(li)Curse VIII: main-hand damage may be redirected into the target.$(li)Curse IX: Hunger Debt, Satiety Crystals, and hunger penalties cease; hunger never decreases."
     },
     {
       "type": "patchouli:text",

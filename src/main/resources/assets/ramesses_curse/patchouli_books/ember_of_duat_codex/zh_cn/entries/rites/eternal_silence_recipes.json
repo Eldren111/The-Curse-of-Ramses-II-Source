@@ -1,0 +1,42 @@
+{
+  "name": "永寂玄金配方",
+  "category": "ramesses_curse:rites",
+  "icon": "ramesses_curse:eternal_silence_ingot",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_silence_granule",
+      "recipe2": "ramesses_curse:eternal_silence_ingot",
+      "title": "永寂玄金粒",
+      "title2": "永寂玄金锭"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_silence_granules_from_ingot",
+      "recipe2": "ramesses_curse:eternal_silence_ritual_staff",
+      "title": "拆分玄金锭",
+      "title2": "永寂仪式杖"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_silence_totem",
+      "recipe2": "ramesses_curse:eternal_silence_compound_bow",
+      "title": "永寂玄金图腾",
+      "title2": "永寂复合弓"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_silence_upgrade_smithing_template_conversion",
+      "recipe2": "ramesses_curse:eternal_silence_upgrade_smithing_template",
+      "title": "模板转化",
+      "title2": "模板复制"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "ramesses_curse:eternal_silence_rebirth_totem",
+      "title": "轮回图腾锻造",
+      "text": "使用永寂升级模板、永寂玄金图腾和永寂玄金锭完成锻造。普通图腾共有 5 次代码计数；轮回图腾则在触发后进入 90 秒冷却。"
+    }
+  ]
+}

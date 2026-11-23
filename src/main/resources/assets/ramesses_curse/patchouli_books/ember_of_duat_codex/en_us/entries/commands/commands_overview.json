@@ -10,13 +10,18 @@
     },
     {
       "type": "patchouli:text",
-      "title": "Guilt Controls",
-      "text": "$(li)/ramessescurse guilt set <player> <value>$(li)/ramessescurse guilt add <player> <value>$(li)/ramessescurse guilt remove <player> <value>$(br2)Useful for validating the guilt bar, seal state, and purification costs."
+      "title": "Guilt & Mercy",
+      "text": "$(li)/ramessescurse guilt set <player> <value>$(li)/ramessescurse guilt add <player> <value>$(li)/ramessescurse guilt remove <player> <value>$(li)/ramessescurse mercy set <player> <value>$(li)/ramessescurse mercy add <player> <value>$(li)/ramessescurse mercy remove <player> <value>$(br2)Useful for testing Curse V's maximum-Guilt punishment, Mercy progression, and stored death reversal."
     },
     {
       "type": "patchouli:text",
       "title": "Threat Growth & Cooldown",
       "text": "$(li)/ramessescurse dynasty_threat growth on [players]$(li)/ramessescurse dynasty_threat growth off [players]$(li)/ramessescurse cooling duat [player]$(li)/ramessescurse cooling edict [player]$(br2)Natural Dynasty Threat growth can be enabled or disabled per player. The growth switch only affects the daily increase; direct increases and dimension-change increases still work."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Troubleshooting",
+      "text": "If a curse does not progress as expected, verify three things:$(br)$(li)The Seal of Kadesh is equipped.$(li)The actual prerequisite is complete, such as suffering the maximum-Guilt punishment, defeating the specified boss or creature, or making the offering on the central End island.$(li)The client HUD and typewriter notice have synchronized.$(br2)Most apparent failures belong to one of these three cases."
     }
   ]
 }

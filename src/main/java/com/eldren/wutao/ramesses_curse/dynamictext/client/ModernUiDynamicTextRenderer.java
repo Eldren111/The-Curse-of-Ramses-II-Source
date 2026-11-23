@@ -551,8 +551,8 @@ public final class ModernUiDynamicTextRenderer {
             int backgroundColor,
             int packedLight
     ) {
-        font.drawInBatch(
-                FormattedCharSequence.codepoint(codePoint, style),
+        ((FontInvoker) font).dynamicTextEffects$drawInternal(
+                FormattedCharSequence.codepoint(codePoint, EffectStyle.clean(style)),
                 x,
                 y,
                 color,

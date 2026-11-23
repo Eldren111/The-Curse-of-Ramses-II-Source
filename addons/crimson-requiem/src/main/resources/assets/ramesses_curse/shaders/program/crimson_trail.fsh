@@ -1,0 +1,113 @@
+#version 150
+uniform sampler2D DiffuseSampler;
+uniform float EffectTime;
+uniform float Aspect;
+in vec2 texCoord;
+out vec4 fragColor;
+uniform vec4 Start0;
+uniform vec2 End0;
+uniform vec4 Start1;
+uniform vec2 End1;
+uniform vec4 Start2;
+uniform vec2 End2;
+uniform vec4 Start3;
+uniform vec2 End3;
+uniform vec4 Start4;
+uniform vec2 End4;
+uniform vec4 Start5;
+uniform vec2 End5;
+uniform vec4 Start6;
+uniform vec2 End6;
+uniform vec4 Start7;
+uniform vec2 End7;
+uniform vec4 Start8;
+uniform vec2 End8;
+uniform vec4 Start9;
+uniform vec2 End9;
+uniform vec4 Start10;
+uniform vec2 End10;
+uniform vec4 Start11;
+uniform vec2 End11;
+uniform vec4 Start12;
+uniform vec2 End12;
+uniform vec4 Start13;
+uniform vec2 End13;
+uniform vec4 Start14;
+uniform vec2 End14;
+uniform vec4 Start15;
+uniform vec2 End15;
+uniform vec4 Start16;
+uniform vec2 End16;
+uniform vec4 Start17;
+uniform vec2 End17;
+uniform vec4 Start18;
+uniform vec2 End18;
+uniform vec4 Start19;
+uniform vec2 End19;
+uniform vec4 Start20;
+uniform vec2 End20;
+uniform vec4 Start21;
+uniform vec2 End21;
+uniform vec4 Start22;
+uniform vec2 End22;
+uniform vec4 Start23;
+uniform vec2 End23;
+
+void segment(vec4 a, vec2 b, inout float best, inout float radius, inout float power, inout vec2 normal, inout float along) {
+    if (a.w <= 0.0) return;
+    vec2 scale = vec2(Aspect, 1.0);
+    vec2 ab = (b - a.xy) * scale;
+    vec2 ap = (texCoord - a.xy) * scale;
+    float t = clamp(dot(ap, ab) / max(dot(ab, ab), 0.000001), 0.0, 1.0);
+    vec2 delta = ap - ab * t;
+    float d = length(delta) / max(a.z, 0.0001);
+    if (d < best) {
+        best = d; radius = a.z; power = a.w;
+        normal = delta / max(length(delta), 0.00001) / scale;
+        along = t;
+    }
+}
+void main() {
+    float best = 10000.0, radius = 0.0, power = 0.0, along = 0.0;
+    vec2 normal = vec2(0.0);
+    segment(Start0, End0, best, radius, power, normal, along);
+    segment(Start1, End1, best, radius, power, normal, along);
+    segment(Start2, End2, best, radius, power, normal, along);
+    segment(Start3, End3, best, radius, power, normal, along);
+    segment(Start4, End4, best, radius, power, normal, along);
+    segment(Start5, End5, best, radius, power, normal, along);
+    segment(Start6, End6, best, radius, power, normal, along);
+    segment(Start7, End7, best, radius, power, normal, along);
+    segment(Start8, End8, best, radius, power, normal, along);
+    segment(Start9, End9, best, radius, power, normal, along);
+    segment(Start10, End10, best, radius, power, normal, along);
+    segment(Start11, End11, best, radius, power, normal, along);
+    segment(Start12, End12, best, radius, power, normal, along);
+    segment(Start13, End13, best, radius, power, normal, along);
+    segment(Start14, End14, best, radius, power, normal, along);
+    segment(Start15, End15, best, radius, power, normal, along);
+    segment(Start16, End16, best, radius, power, normal, along);
+    segment(Start17, End17, best, radius, power, normal, along);
+    segment(Start18, End18, best, radius, power, normal, along);
+    segment(Start19, End19, best, radius, power, normal, along);
+    segment(Start20, End20, best, radius, power, normal, along);
+    segment(Start21, End21, best, radius, power, normal, along);
+    segment(Start22, End22, best, radius, power, normal, along);
+    segment(Start23, End23, best, radius, power, normal, along);
+
+    if (best >= 3.0 || power <= 0.0) { fragColor = vec4(0.0); return; }
+    float envelope = (1.0 - smoothstep(0.8, 3.0, best)) * power;
+    float wave = sin(best * 10.0 - EffectTime * 13.0 + along * 3.0);
+    vec2 bend = normal * radius * envelope * (0.09 + 0.04 * wave);
+    vec2 uv = clamp(texCoord - bend, vec2(0.001), vec2(0.999));
+    vec3 scene = texture(DiffuseSampler, uv).rgb;
+    scene.r = texture(DiffuseSampler, clamp(uv + bend * 0.18, vec2(0.001), vec2(0.999))).r;
+    scene.b = texture(DiffuseSampler, clamp(uv - bend * 0.18, vec2(0.001), vec2(0.999))).b;
+    float core = (1.0 - smoothstep(0.1, 0.65, best)) * power;
+    float edge = exp(-pow((best - 0.85) * 4.0, 2.0)) * power;
+    float glow = exp(-best * best * 0.9) * power;
+    vec3 color = mix(vec3(0.55, 0.05, 1.0), vec3(1.0, 0.04, 0.27), 0.5 + 0.5 * sin(EffectTime * 1.5 + along * 1.2));
+    scene *= 1.0 - core * 0.10;
+    scene += color * (edge * 0.38 + glow * 0.06);
+    fragColor = vec4(scene, clamp(envelope, 0.0, 0.8));
+}

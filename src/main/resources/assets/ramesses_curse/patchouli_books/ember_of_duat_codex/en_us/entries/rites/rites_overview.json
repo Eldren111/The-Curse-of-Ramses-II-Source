@@ -1,23 +1,32 @@
 {
-  "name": "配方与仪式",
+  "name": "Rites & Recipes",
   "category": "ramesses_curse:rites",
   "icon": "ramesses_curse:heart_of_duat",
   "sortnum": 0,
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "这个模组里，并非所有东西都依靠配方获得。很多器物真正的解锁条件是维度、战斗、谜题、播放完成或佩戴后的持续进程。$(br2)因此，手册会把“合成方式”和“触发方式”分开记。"
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "ramesses_curse:heart_of_duat",
-      "title": "杜阿特之心",
-      "text": "四枚杜阿特余烬围住一颗下界之星，才足够让这颗心从灰烬里完整醒来。"
+      "text": "This chapter records every crafting, cooking, and smithing recipe, plus the special rites that a recipe book cannot show.$(br2)Recipe ingredients can be inspected directly. Ritual pages state the location, offerings, duration, and failure conditions."
     },
     {
       "type": "patchouli:text",
-      "title": "非配方获得",
-      "text": "$(li)Ember of Duat: Rarely found in Nether structure containers.$(li)Satiety Crystal: Automatically delivered after Curse IX triggers on death.$(li)Other relics are obtained through loot and progression."
+      "title": "Reading Order",
+      "text": "Royal Implements covers common curios and the beacon. Phase-Law Metals shows the full ingot chain. Eternal Silence covers its totems, bow, and smithing template. Final Works contains the Chance Dice, Eternal Conquest, and Group U cooking."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Curse I: Trial Cup",
+      "text": "Fill a cauldron with water and cast in every offering and quantity listed in the common configuration.$(br2)When all offerings are present, the cauldron begins a short vigil. Once its particles and response finish, Curse I is rewritten."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Curse VI: Final Exchange",
+      "text": "Bring both a Dragon Egg and a Nether Star into the bounds of the central End island. The End must acknowledge both offerings at once for the exchange to complete.$(br2)Offering only one causes the void to return it, leaving the rite unfinished."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Beyond Crafting",
+      "text": "Embers of Duat come from structure loot and very rare hostile drops. Satiety Crystals are issued after a Curse IX death. Dynasty-affix materials drop from enemies bearing the matching affix.$(br2)The Fission Wraith Heart, Dragon-Breath Compound Bow, and Apep revival each have a dedicated ritual page."
     }
   ]
 }

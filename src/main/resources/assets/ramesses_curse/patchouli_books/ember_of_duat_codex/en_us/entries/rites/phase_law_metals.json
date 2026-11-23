@@ -1,0 +1,40 @@
+{
+  "name": "Phase-Law Metals",
+  "category": "ramesses_curse:rites",
+  "icon": "ramesses_curse:draconic_authority_ingot",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Ore and Pressing",
+      "text": "Fractured Phase Ore occurs in the Overworld, Nether, and End. A sandstone variant also forms in Duat. It drops Fractured Phase Ore Chunks.$(br2)Drop the chunks as item entities and strike them with a falling anvil. Each chunk has an independent 35% chance to be destroyed; each survivor becomes an ingot."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eroded_law_ingot",
+      "recipe2": "ramesses_curse:bound_phase_ingot",
+      "title": "Eroded Law Ingot",
+      "title2": "Bound Phase Ingot"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:ordered_phase_ingot",
+      "recipe2": "ramesses_curse:constant_law_ingot",
+      "title": "Ordered Phase Ingot",
+      "title2": "Constant Law Ingot"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_constant_ingot",
+      "recipe2": "ramesses_curse:star_law_divine_ingot",
+      "title": "Eternal Constant Ingot",
+      "title2": "Star-Law Divine Ingot"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:draconic_authority_ingot",
+      "title": "Draconic Authority Ingot",
+      "text": "The chain consumes copper, iron, gold, diamond, Netherite Scrap, a Nether Star, and a Dragon Head in that order. Each step requires the previous phase-law metal."
+    }
+  ]
+}

@@ -6,10 +6,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
 public class InscriptionBagScreen extends AbstractContainerScreen<InscriptionBagMenu> {
-    private static final int PANEL_COLOR = 0xFF241A2B;
-    private static final int INNER_COLOR = 0xFF120E18;
-    private static final int GOLD_DARK = 0xFF73511E;
-    private static final int GOLD = 0xFFC99A43;
+    private static final int PANEL_COLOR = 0xFF0B1016;
+    private static final int INNER_COLOR = 0xFF111821;
+    private static final int GOLD_DARK = 0xFF273746;
+    private static final int GOLD = 0xFF8AA0AD;
     private static final int INSCRIPTION_SLOT_BORDER = 0xFFB9C9CC;
     private static final int INSCRIPTION_SLOT_RIM = 0xFF60777C;
     private static final int INSCRIPTION_SLOT_FILL = 0xFF31464B;
@@ -28,8 +28,7 @@ public class InscriptionBagScreen extends AbstractContainerScreen<InscriptionBag
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         int left = leftPos;
         int top = topPos;
-        graphics.fill(left, top, left + imageWidth, top + imageHeight, PANEL_COLOR);
-        drawBorder(graphics, left, top, imageWidth, imageHeight, GOLD_DARK, GOLD);
+        DuatRitualGui.panel(graphics, left, top, imageWidth, imageHeight, true);
 
         graphics.fill(left + 5, top + 15, left + imageWidth - 5, top + 91, INNER_COLOR);
         drawBorder(graphics, left + 5, top + 15, imageWidth - 10, 76, GOLD_DARK, GOLD);
@@ -68,8 +67,8 @@ public class InscriptionBagScreen extends AbstractContainerScreen<InscriptionBag
     }
 
     private static void drawVanillaSlot(GuiGraphics graphics, int x, int y) {
-        graphics.fill(x, y, x + 18, y + 18, 0xFF6B596E);
-        graphics.fill(x + 1, y + 1, x + 17, y + 17, 0xFF1B151E);
+        graphics.fill(x, y, x + 18, y + 18, 0xFF587183);
+        graphics.fill(x + 1, y + 1, x + 17, y + 17, 0xFF18222B);
     }
 
     private static void drawBorder(
@@ -89,8 +88,8 @@ public class InscriptionBagScreen extends AbstractContainerScreen<InscriptionBag
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, titleLabelX, titleLabelY, 0xE6BE6A, false);
-        graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xBDAFC2, false);
+        DuatRitualGui.fittedText(graphics, title, titleLabelX, titleLabelY - 2, imageWidth - 16, 12, 0xFFE6BE6A);
+        DuatRitualGui.fittedText(graphics, playerInventoryTitle, inventoryLabelX, inventoryLabelY - 2, imageWidth - 16, 12, 0xFFBDAFC2);
     }
 
     @Override

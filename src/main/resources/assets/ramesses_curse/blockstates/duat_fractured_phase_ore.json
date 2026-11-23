@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "lit=false": { "model": "ramesses_curse:block/duat_fractured_phase_ore" },
+    "lit=true": { "model": "ramesses_curse:block/duat_fractured_phase_ore" }
+  }
+}

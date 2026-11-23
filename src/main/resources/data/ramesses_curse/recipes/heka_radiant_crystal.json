@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " E ",
+    "ECE",
+    " E "
+  ],
+  "key": {
+    "E": {
+      "item": "ramesses_curse:ember_of_duat"
+    },
+    "C": {
+      "item": "minecraft:end_crystal"
+    }
+  },
+  "result": {
+    "item": "ramesses_curse:heka_radiant_crystal",
+    "count": 1
+  }
+}

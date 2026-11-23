@@ -22,6 +22,7 @@ import snownee.jade.api.ui.IElement;
 import snownee.jade.api.ui.IElementHelper;
 
 import java.util.List;
+import java.util.ArrayList;
 
 @WailaPlugin(RamessesCurseMod.MODID)
 public class RamessesJadePlugin implements IWailaPlugin {
@@ -176,47 +177,48 @@ public class RamessesJadePlugin implements IWailaPlugin {
                         elements.smallItem(new ItemStack(Items.IRON_CHESTPLATE)),
                         elements.text(label)));
             }
+            List<IElement> affixes = new ArrayList<>();
             if (data.contains(SHIELD_DODGE_LEVEL)) {
                 int dodgeLevel = Mth.clamp(data.getInt(SHIELD_DODGE_LEVEL), 1, 5);
                 Component dodge = Component.translatable("jade.ramesses_curse.dynasty_shield.dodge", toRomanDodgeLevel(dodgeLevel))
                         .withStyle(ChatFormatting.AQUA);
-                tooltip.add(List.of(elements.text(dodge)));
+                affixes.add(elements.text(dodge));
             }
             if (data.contains(SHIELD_CORROSION_LEVEL)) {
                 int corrosionLevel = Mth.clamp(data.getInt(SHIELD_CORROSION_LEVEL), 1, 5);
                 Component corrosion = Component.translatable("jade.ramesses_curse.dynasty_shield.corrosion", toRomanDodgeLevel(corrosionLevel))
                         .withStyle(ChatFormatting.DARK_GREEN);
-                tooltip.add(List.of(elements.text(corrosion)));
+                affixes.add(elements.text(corrosion));
             }
             if (data.contains(SHIELD_UNYIELDING_LEVEL)) {
                 int unyieldingLevel = Mth.clamp(data.getInt(SHIELD_UNYIELDING_LEVEL), 1, 3);
                 Component unyielding = Component.translatable("jade.ramesses_curse.dynasty_shield.unyielding", toRomanDodgeLevel(unyieldingLevel))
                         .withStyle(ChatFormatting.DARK_RED);
-                tooltip.add(List.of(elements.text(unyielding)));
+                affixes.add(elements.text(unyielding));
             }
             if (data.contains(SHIELD_DAMAGE_CAP_LEVEL)) {
                 int damageCapLevel = Mth.clamp(data.getInt(SHIELD_DAMAGE_CAP_LEVEL), 1, 5);
                 Component damageCap = Component.translatable("jade.ramesses_curse.dynasty_shield.damage_cap", toRomanDodgeLevel(damageCapLevel))
                         .withStyle(ChatFormatting.BLUE);
-                tooltip.add(List.of(elements.text(damageCap)));
+                affixes.add(elements.text(damageCap));
             }
             if (data.contains(SHIELD_SILENCE_LEVEL)) {
                 int silenceLevel = Mth.clamp(data.getInt(SHIELD_SILENCE_LEVEL), 1, 5);
                 Component silence = Component.translatable("jade.ramesses_curse.dynasty_shield.silence", toRomanDodgeLevel(silenceLevel))
                         .withStyle(ChatFormatting.DARK_PURPLE);
-                tooltip.add(List.of(elements.text(silence)));
+                affixes.add(elements.text(silence));
             }
             if (data.contains(SHIELD_RAGE_LEVEL)) {
                 int rageLevel = Mth.clamp(data.getInt(SHIELD_RAGE_LEVEL), 1, 3);
                 Component rage = Component.translatable("jade.ramesses_curse.dynasty_shield.rage", toRomanDodgeLevel(rageLevel))
                         .withStyle(ChatFormatting.RED);
-                tooltip.add(List.of(elements.text(rage)));
+                affixes.add(elements.text(rage));
             }
             if (data.contains(SHIELD_CLAW_RAGE_LEVEL)) {
                 int clawRageLevel = Mth.clamp(data.getInt(SHIELD_CLAW_RAGE_LEVEL), 1, 5);
                 Component clawRage = Component.translatable("jade.ramesses_curse.dynasty_shield.claw_rage", toRomanDodgeLevel(clawRageLevel))
                         .withStyle(ChatFormatting.YELLOW);
-                tooltip.add(List.of(elements.text(clawRage)));
+                affixes.add(elements.text(clawRage));
             }
             if (data.contains(SHIELD_FLESH_FEAST_LEVEL)) {
                 int fleshFeastLevel = Mth.clamp(data.getInt(SHIELD_FLESH_FEAST_LEVEL), 1, 3);
@@ -224,7 +226,7 @@ public class RamessesJadePlugin implements IWailaPlugin {
                                 "jade.ramesses_curse.dynasty_shield.flesh_feast",
                                 toRomanDodgeLevel(fleshFeastLevel))
                         .withStyle(style -> style.withColor(TextColor.fromRgb(0xC85A78)));
-                tooltip.add(List.of(elements.text(fleshFeast)));
+                affixes.add(elements.text(fleshFeast));
             }
             if (data.contains(SHIELD_MIASMA_LEVEL)) {
                 int miasmaLevel = Mth.clamp(data.getInt(SHIELD_MIASMA_LEVEL), 1, 3);
@@ -232,7 +234,7 @@ public class RamessesJadePlugin implements IWailaPlugin {
                                 "jade.ramesses_curse.dynasty_shield.miasma",
                                 toRomanDodgeLevel(miasmaLevel))
                         .withStyle(style -> style.withColor(TextColor.fromRgb(0x82B440)));
-                tooltip.add(List.of(elements.text(miasma)));
+                affixes.add(elements.text(miasma));
             }
             if (data.contains(SHIELD_RESTORATION_LEVEL)) {
                 int restorationLevel = Mth.clamp(data.getInt(SHIELD_RESTORATION_LEVEL), 1, 2);
@@ -240,7 +242,7 @@ public class RamessesJadePlugin implements IWailaPlugin {
                                 "jade.ramesses_curse.dynasty_shield.restoration",
                                 toRomanDodgeLevel(restorationLevel))
                         .withStyle(style -> style.withColor(TextColor.fromRgb(0x5FD6A1)));
-                tooltip.add(List.of(elements.text(restoration)));
+                affixes.add(elements.text(restoration));
             }
             if (data.contains(SHIELD_VULNERABILITY_LEVEL)) {
                 int vulnerabilityLevel = Mth.clamp(data.getInt(SHIELD_VULNERABILITY_LEVEL), 1, 2);
@@ -248,62 +250,74 @@ public class RamessesJadePlugin implements IWailaPlugin {
                                 "jade.ramesses_curse.dynasty_shield.vulnerability",
                                 toRomanDodgeLevel(vulnerabilityLevel))
                         .withStyle(style -> style.withColor(TextColor.fromRgb(0xB75C8D)));
-                tooltip.add(List.of(elements.text(vulnerability)));
+                affixes.add(elements.text(vulnerability));
             }
             if (data.getBoolean(SHIELD_MOLTEN)) {
                 Component molten = Component.translatable("jade.ramesses_curse.dynasty_shield.molten")
                         .withStyle(ChatFormatting.GOLD);
-                tooltip.add(List.of(elements.text(molten)));
+                affixes.add(elements.text(molten));
             }
             if (data.getBoolean(SHIELD_BLOOD_FORFEIT)) {
                 Component bloodForfeit = Component.translatable("jade.ramesses_curse.dynasty_shield.blood_forfeit")
                         .withStyle(ChatFormatting.DARK_RED);
-                tooltip.add(List.of(elements.text(bloodForfeit)));
+                affixes.add(elements.text(bloodForfeit));
             }
             if (data.getBoolean(SHIELD_FLIGHT_FALL)) {
                 Component flightFall = Component.translatable("jade.ramesses_curse.dynasty_shield.flight_fall")
                         .withStyle(ChatFormatting.DARK_AQUA);
-                tooltip.add(List.of(elements.text(flightFall)));
+                affixes.add(elements.text(flightFall));
             }
             if (data.getBoolean(SHIELD_PURGE)) {
                 Component purge = Component.translatable("jade.ramesses_curse.dynasty_shield.purge")
                         .withStyle(ChatFormatting.LIGHT_PURPLE);
-                tooltip.add(List.of(elements.text(purge)));
+                affixes.add(elements.text(purge));
             }
             if (data.getBoolean(SHIELD_PROJECTILE_WARD)) {
                 Component projectileWard = Component.translatable("jade.ramesses_curse.dynasty_shield.projectile_ward")
                         .withStyle(ChatFormatting.GRAY);
-                tooltip.add(List.of(elements.text(projectileWard)));
+                affixes.add(elements.text(projectileWard));
             }
             if (data.getBoolean(SHIELD_STEEL_BONE)) {
                 Component steelBone = Component.translatable("jade.ramesses_curse.dynasty_shield.steel_bone")
                         .withStyle(ChatFormatting.WHITE);
-                tooltip.add(List.of(elements.text(steelBone)));
+                affixes.add(elements.text(steelBone));
             }
             if (data.getBoolean(SHIELD_BLOOD_LIMIT)) {
                 Component bloodLimit = Component.translatable("jade.ramesses_curse.dynasty_shield.blood_limit")
                         .withStyle(style -> style.withColor(TextColor.fromRgb(0xD94B5B)));
-                tooltip.add(List.of(elements.text(bloodLimit)));
+                affixes.add(elements.text(bloodLimit));
             }
             if (data.getBoolean(SHIELD_SHATTER)) {
                 Component shieldShatter = Component.translatable("jade.ramesses_curse.dynasty_shield.shield_shatter")
                         .withStyle(style -> style.withColor(TextColor.fromRgb(0xE09A55)));
-                tooltip.add(List.of(elements.text(shieldShatter)));
+                affixes.add(elements.text(shieldShatter));
             }
             if (data.getBoolean(SHIELD_DEATH_AUTHORITY)) {
                 Component deathAuthority = Component.translatable("jade.ramesses_curse.dynasty_shield.death_authority")
                         .withStyle(style -> style.withColor(TextColor.fromRgb(0x8E3A4A)));
-                tooltip.add(List.of(elements.text(deathAuthority)));
+                affixes.add(elements.text(deathAuthority));
             }
             if (data.getBoolean(SHIELD_HIT_SLOW)) {
                 Component hitSlow = Component.translatable("jade.ramesses_curse.dynasty_shield.hit_slow")
                         .withStyle(style -> style.withColor(TextColor.fromRgb(0x65708A)));
-                tooltip.add(List.of(elements.text(hitSlow)));
+                affixes.add(elements.text(hitSlow));
             }
             if (data.getBoolean(SHIELD_COUNTER)) {
                 Component counter = Component.translatable("jade.ramesses_curse.dynasty_shield.counter")
                         .withStyle(style -> style.withColor(TextColor.fromRgb(0xC9A13B)));
-                tooltip.add(List.of(elements.text(counter)));
+                affixes.add(elements.text(counter));
+            }
+            appendAffixGrid(tooltip, affixes);
+        }
+
+        private void appendAffixGrid(ITooltip tooltip, List<IElement> affixes) {
+            int columns = 3;
+            for (int start = 0; start < affixes.size(); start += columns) {
+                List<IElement> row = new ArrayList<>();
+                for (int column = 0; column < columns && start + column < affixes.size(); column++) {
+                    row.add(affixes.get(start + column));
+                }
+                tooltip.add(row);
             }
         }
 

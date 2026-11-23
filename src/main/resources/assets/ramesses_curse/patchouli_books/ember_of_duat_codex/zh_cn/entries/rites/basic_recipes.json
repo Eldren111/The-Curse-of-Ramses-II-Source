@@ -1,0 +1,49 @@
+{
+  "name": "基础王器配方",
+  "category": "ramesses_curse:rites",
+  "icon": "ramesses_curse:purification_scroll",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:purification_scroll",
+      "recipe2": "ramesses_curse:inscription_bag",
+      "title": "净化卷轴",
+      "title2": "碑文袋"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:heart_of_duat",
+      "recipe2": "ramesses_curse:heka_radiant_crystal",
+      "title": "杜阿特之心",
+      "title2": "赫卡神辉水晶"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:resonant_scarab",
+      "recipe2": "ramesses_curse:uraeus_necklace",
+      "title": "共鸣圣甲虫",
+      "title2": "乌拉埃乌斯项链"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:hushed_depths_amulet",
+      "recipe2": "ramesses_curse:ruin_talisman",
+      "title": "缄声护符",
+      "title2": "破灭"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:edict_of_two_lands",
+      "recipe2": "ramesses_curse:armor_piercing_arrow",
+      "title": "两地敕印",
+      "title2": "穿甲箭"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:sun_eater_beacon",
+      "title": "噬日航标",
+      "text": "航标用于激活末地中央的远征方尖碑。首次前往噬日孤岛时必须同时佩戴卡迭石咒印。"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "相律金属",
+  "category": "ramesses_curse:rites",
+  "icon": "ramesses_curse:draconic_authority_ingot",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "碎相矿与压制",
+      "text": "碎相矿可在主世界、下界与末地找到；杜阿特的砂岩层还会生成当地变种。矿物掉落碎相矿簇。$(br2)把矿簇实体丢在地面上，再让下落中的铁砧砸中它。每枚矿簇独立有 35% 概率在压制中损毁，其余转化为碎相锭。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eroded_law_ingot",
+      "recipe2": "ramesses_curse:bound_phase_ingot",
+      "title": "蚀律锭",
+      "title2": "缚相锭"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:ordered_phase_ingot",
+      "recipe2": "ramesses_curse:constant_law_ingot",
+      "title": "序相锭",
+      "title2": "恒律锭"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_constant_ingot",
+      "recipe2": "ramesses_curse:star_law_divine_ingot",
+      "title": "永恒锭",
+      "title2": "星律神锭"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:draconic_authority_ingot",
+      "title": "龙权锭",
+      "text": "升级链依次消耗铜、铁、金、钻石、下界合金碎片、下界之星和龙首。不要跳级；每一级都以前一级相律金属为核心。"
+    }
+  ]
+}

@@ -172,11 +172,21 @@ public final class DuatSunEaterCrownItem extends Item implements ICurioItem {
     }
 
     private static Optional<ItemStack> getEquippedStack(Player player) {
+        if (DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.DUAT_SUN_EATER_CROWN.get())) {
+            return Optional.empty();
+        }
         return CuriosApi.getCuriosInventory(player)
                 .resolve()
                 .flatMap(inventory -> inventory.findFirstCurio(ModItems.DUAT_SUN_EATER_CROWN.get()))
                 .map(SlotResult::stack)
                 .filter(stack -> !stack.isEmpty());
+    }
+
+    public static boolean hasEquippedEmpoweredCrown(Player player) {
+        return getEquippedStack(player)
+                .filter(DuatSunEaterCrownItem::isDragonDrop)
+                .flatMap(DuatSunEaterCrownItem::getPower)
+                .isPresent();
     }
 
     private static CrownPower getOrAssignPower(ItemStack stack, LivingEntity wearer) {

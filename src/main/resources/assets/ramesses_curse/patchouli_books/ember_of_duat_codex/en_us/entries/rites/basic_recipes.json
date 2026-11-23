@@ -1,0 +1,49 @@
+{
+  "name": "Royal Implement Recipes",
+  "category": "ramesses_curse:rites",
+  "icon": "ramesses_curse:purification_scroll",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:purification_scroll",
+      "recipe2": "ramesses_curse:inscription_bag",
+      "title": "Purification Scroll",
+      "title2": "Inscription Bag"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:heart_of_duat",
+      "recipe2": "ramesses_curse:heka_radiant_crystal",
+      "title": "Heart of Duat",
+      "title2": "Heka Radiant Crystal"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:resonant_scarab",
+      "recipe2": "ramesses_curse:uraeus_necklace",
+      "title": "Resonant Scarab",
+      "title2": "Uraeus Necklace"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:hushed_depths_amulet",
+      "recipe2": "ramesses_curse:ruin_talisman",
+      "title": "Hushed Depths Amulet",
+      "title2": "Ruin"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:edict_of_two_lands",
+      "recipe2": "ramesses_curse:armor_piercing_arrow",
+      "title": "Edict of Two Lands",
+      "title2": "Armor-Piercing Arrow"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:sun_eater_beacon",
+      "title": "Sun-Eater Beacon",
+      "text": "The beacon activates the expedition obelisk beside the central End fountain. Your first departure also requires an equipped Seal of Kadesh."
+    }
+  ]
+}

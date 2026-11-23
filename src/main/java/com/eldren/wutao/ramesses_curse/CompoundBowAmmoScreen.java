@@ -19,29 +19,28 @@ public class CompoundBowAmmoScreen extends AbstractContainerScreen<CompoundBowAm
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         int left = leftPos;
         int top = topPos;
-        graphics.fill(left, top, left + imageWidth, top + imageHeight, 0xFF17131E);
-        drawBorder(graphics, left, top, imageWidth, imageHeight, 0xFF6E4D1B, 0xFFE1B45B);
+        DuatRitualGui.panel(graphics, left, top, imageWidth, imageHeight, false);
 
-        graphics.fill(left + 5, top + 15, left + imageWidth - 5, top + 53, 0xFF0C0A10);
-        drawBorder(graphics, left + 5, top + 15, imageWidth - 10, 38, 0xFF4F391A, 0xFFB98535);
+        graphics.fill(left + 5, top + 15, left + imageWidth - 5, top + 53, 0xFF111821);
+        drawBorder(graphics, left + 5, top + 15, imageWidth - 10, 38, 0xFF273746, 0xFF8AA0AD);
         drawSlot(graphics, left + 79, top + 25, 0xFF6A4B1B, 0xFF21170D);
 
-        graphics.fill(left + 5, top + 61, left + imageWidth - 5, top + imageHeight - 5, 0xFF0C0A10);
-        drawBorder(graphics, left + 5, top + 61, imageWidth - 10, imageHeight - 66, 0xFF4F391A, 0xFFB98535);
+        graphics.fill(left + 5, top + 61, left + imageWidth - 5, top + imageHeight - 5, 0xFF111821);
+        drawBorder(graphics, left + 5, top + 61, imageWidth - 10, imageHeight - 66, 0xFF273746, 0xFF8AA0AD);
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
-                drawSlot(graphics, left + 7 + column * 18, top + 65 + row * 18, 0xFF6B596E, 0xFF1B151E);
+                drawSlot(graphics, left + 7 + column * 18, top + 65 + row * 18, 0xFF587183, 0xFF18222B);
             }
         }
         for (int column = 0; column < 9; column++) {
-            drawSlot(graphics, left + 7 + column * 18, top + 123, 0xFF6B596E, 0xFF1B151E);
+            drawSlot(graphics, left + 7 + column * 18, top + 123, 0xFF587183, 0xFF18222B);
         }
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, titleLabelX, titleLabelY, 0xFFE2B860, false);
-        graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0xFFBDAFC2, false);
+        DuatRitualGui.fittedText(graphics, title, titleLabelX, titleLabelY - 2, imageWidth - 16, 12, 0xFFE2B860);
+        DuatRitualGui.fittedText(graphics, playerInventoryTitle, inventoryLabelX, inventoryLabelY - 2, imageWidth - 16, 12, 0xFFBDAFC2);
     }
 
     @Override

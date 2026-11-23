@@ -1,0 +1,33 @@
+{
+  "name": "王胄词条材料",
+  "category": "ramesses_curse:relics",
+  "icon": "ramesses_curse:authority_fragment",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "掉落规则",
+      "text": "击杀带有对应词条的王胄实体时，有极低概率取得其材料。一次击杀即使同时命中多个材料判定，也最多保留一种词条材料。$(br2)用穿甲箭直接解除王胄时，依附护盾的词条材料不会掉落；常驻词条材料仍按各自规则判定。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "狂怒、熔融与弃血",
+      "text": "$(li)狂怒：镇定胫骨$(li)熔融：沥火凝晶$(li)弃血：噬心残印$(br2)其中沥火凝晶可以直接使用；镇定胫骨与噬心残印用于终局合成。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "嗜爪、盛宴与瘴气",
+      "text": "$(li)嗜爪之怒：嗜血利爪残片$(li)血肉盛宴：饥荒核心$(li)瘴气：剧毒宝珠$(br2)这些材料记录着被击败词条的残留权能。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "复原、血限与权柄",
+      "text": "$(li)复原：卡之残息$(li)血限桎梏：缚命残晶$(li)死亡权柄：权柄碎片$(br2)缚命残晶也是万世征途的核心材料之一。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "易伤与反制",
+      "text": "$(li)易伤：真理$(li)反制：逆鳞片$(br2)所有材料的启用状态和掉落概率都可在通用配置中独立调整。"
+    }
+  ]
+}

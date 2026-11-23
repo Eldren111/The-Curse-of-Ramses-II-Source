@@ -1,0 +1,36 @@
+{
+  "name": "特殊制作与仪式",
+  "category": "ramesses_curse:rites",
+  "icon": "ramesses_curse:fission_wraith_heart",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:dynasty_pressure_potion",
+      "title": "王朝威压药剂",
+      "text": "在酿造台中，以粗制药水为底液、回响碎片为材料酿造。饮用后会提高王朝威胁值，使更高等级的王胄与词条更快出现。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:fission_wraith_heart",
+      "title": "裂变恶灵之心",
+      "text": "让监守者的音波攻击完成对凋灵的最后一击。默认必定掉落裂变恶灵之心，概率可由通用配置调整。$(br2)首次丢出或拾取时，心脏会与对应玩家绑定，其他玩家无法夺取。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "水晶汲取",
+      "text": "击败原版末影龙并推进至诅咒七对应阶段后，保证末地主岛仍有至少 10 枚存活的原版末地水晶。$(br2)在主岛丢出与你绑定的裂变恶灵之心。水晶会聚焦 15 秒；心脏被取走、水晶不足或离开条件区域都会中止仪式。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:dragon_breath_compound_bow",
+      "title": "龙息灌注",
+      "text": "击败原版末影龙后，在末地主岛保留至少一枚存活的原版末地水晶。把永寂复合弓和 1 瓶龙息丢在一起。$(br2)水晶连续聚焦 30 秒后，弓永久转化为龙息复合弓；移除供物或水晶会取消仪式。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "诅咒仪式索引",
+      "text": "诅咒一的炼药锅供物、诅咒六的终末交换以及九道诅咒的反转进度，均记录在“九咒反转纪要”。具体数量以通用配置为准。$(br2)阿佩普复活和虚空王庭开门仪式位于“王庭与远征”章节。"
+    }
+  ]
+}

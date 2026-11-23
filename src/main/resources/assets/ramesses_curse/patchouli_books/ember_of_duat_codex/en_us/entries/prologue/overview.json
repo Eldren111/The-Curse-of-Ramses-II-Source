@@ -1,18 +1,18 @@
 {
-  "name": "咒印总览",
+  "name": "Seal Overview",
   "category": "ramesses_curse:prologue",
   "icon": "ramesses_curse:seal_of_kadesh",
   "sortnum": 0,
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "卡迭石咒印是整条故事线的起点。它会把佩戴者卷入九重诅咒，并逐步把更多饰品、被动、试炼与反转接口推到你面前。$(br2)如果你只是第一次接触这个模组，先从咒印、净化卷轴、杜阿特余烬和杜阿特之心读起。"
+      "text": "The Seal of Kadesh is the true beginning of this mod. Once equipped, its nine curses unfold in sequence: random afflictions, a Luck penalty, experience and trade taxes, Guilt, item locks, dimensional curses, Nether backlash, and Hunger Debt.$(br2)It is not merely a trinket. It is the master switch for the entire progression path."
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:seal_of_kadesh",
-      "title": "卡迭石咒印",
-      "text": "王朝故事的真正入口。佩戴后，随机负面、幸运惩罚、税契、王罪、物品封印、维度触发等机制都会陆续启动。"
+      "title": "Seal of Kadesh",
+      "text": "Hold Shift for the narrative description of every curse, Ctrl for exact values, or Alt for dynasty lore.$(br2)The seal will not tell you how to escape. It only imposes the price; the route out must be uncovered through progression."
     },
     {
       "type": "patchouli:text",
@@ -31,8 +31,13 @@
     },
     {
       "type": "patchouli:text",
-      "title": "推进顺序",
-      "text": "推荐顺序：$(br)1. 佩戴卡迭石咒印$(br)2. 取得净化卷轴，理解王罪$(br)3. 在下界容器中寻得杜阿特余烬$(br)4. 解碑文，完成亡灵试炼$(br)5. 合成杜阿特之心$(br)6. 获得圣咏、圣甲虫、项链与两地敕印。"
+      "title": "Suggested Progression",
+      "text": "$(li)Equip the Seal of Kadesh and learn the basic cost of all nine curses.$(li)Handle Guilt, Purification Scrolls, and Satiety Crystals so you can survive the journey.$(li)Search Nether structures for Embers of Duat and learn to read their inscriptions.$(li)Complete the ember trial, then craft the Heart of Duat and seek the remaining regalia.$(li)Once enough reversals are complete, Curses III and IV are finally lifted."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "How to Use This Book",
+      "text": "This guide is divided into four paths:$(br)$(li)Prologue & Overview explains the seal, the nine curses, and reversal progression.$(li)Relics & Regalia records major utility and combat items.$(li)Rites & Recipes covers crafting, dimension triggers, and special procedures.$(li)Embers & Inscriptions is dedicated to the Ember of Duat and its trial.$(br2)For a quick start, read this entry, Reversal Marks, the Ember trial, and the Relic Compendium first."
     }
   ]
 }

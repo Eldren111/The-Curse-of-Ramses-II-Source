@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="ramesses_requiem"
+version="1.0.0"
+displayName="Rameeses‘curse:Requiem"
+authors="Eldren/WuTao"
+description='''Optional Crimson Requiem weapon, enchantments and execution skills for Ramesses' Curse.'''
+
+[[dependencies.ramesses_requiem]]
+modId="ramesses_curse"
+mandatory=true
+versionRange="[1.2.6beta,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.ramesses_requiem]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.ramesses_requiem]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"

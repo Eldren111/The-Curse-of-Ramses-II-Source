@@ -1,0 +1,33 @@
+{
+  "name": "Royal-Affix Materials",
+  "category": "ramesses_curse:relics",
+  "icon": "ramesses_curse:authority_fragment",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Drop Rules",
+      "text": "Killing a royal-shield enemy with the matching affix has a very small chance to yield its material. Even if several checks succeed, one kill retains at most one affix material.$(br2)Shield-bound materials do not drop when an Armor-Piercing Arrow removes the shield. Lifelong affixes follow their own checks."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Rage, Molten, Forfeit",
+      "text": "$(li)Rage: Calming Tibia$(li)Molten: Pitchfire Crystal$(li)Blood Forfeit: Heart-Devouring Remnant$(br2)Pitchfire can be consumed directly; the other two are advanced crafting materials."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Claw, Feast, Miasma",
+      "text": "$(li)Claw Rage: Ravenous Claw Fragment$(li)Flesh Feast: Famine Core$(li)Miasma: Venom Orb$(br2)Each material preserves a remnant of its defeated affix."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Restoration, Limit, Authority",
+      "text": "$(li)Restoration: Ka Remnant Breath$(li)Blood Limit: Life-Binding Remnant Crystal$(li)Death Authority: Authority Fragment$(br2)The Life-Binding Remnant Crystal is also a core ingredient of Eternal Conquest."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Vulnerability and Counter",
+      "text": "$(li)Vulnerability: Truth$(li)Counter: Reverse Scale$(br2)Every material's enable switch and drop chance can be configured independently in the common config."
+    }
+  ]
+}

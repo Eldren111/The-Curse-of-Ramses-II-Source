@@ -10,6 +10,11 @@ public final class ModDimensions {
             Registries.DIMENSION,
             new ResourceLocation(RamessesCurseMod.MODID, "duat_desert"));
 
+    /** Empty dimension reserved for the future large cathedral structure. */
+    public static final ResourceKey<Level> RAMSES_VOID = ResourceKey.create(
+            Registries.DIMENSION,
+            new ResourceLocation(RamessesCurseMod.MODID, "ramesses_void"));
+
     private ModDimensions() {
     }
 }

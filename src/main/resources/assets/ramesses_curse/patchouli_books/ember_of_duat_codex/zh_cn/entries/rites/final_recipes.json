@@ -1,0 +1,37 @@
+{
+  "name": "终局造物配方",
+  "category": "ramesses_curse:rites",
+  "icon": "ramesses_curse:eternal_conquest",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:chance_die_six_sided",
+      "recipe2": "ramesses_curse:chance_die_large",
+      "title": "六面机会骰子",
+      "title2": "大型机会骰子"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_conquest",
+      "title": "万世征途",
+      "text": "需要龙权锭、下界之星、火把花，以及镇定胫骨、噬心残印、饥荒核心和缚命残晶。九咒全部真正反转后，亲手击杀 9 级王胄实体才会推进淬炼；默认每 5 次击杀提升 1 层。"
+    },
+    {
+      "type": "patchouli:smelting",
+      "recipe": "ramesses_curse:cooked_group_u_smelting",
+      "title": "烧炼群U"
+    },
+    {
+      "type": "patchouli:smoking",
+      "recipe": "ramesses_curse:cooked_group_u_smoking",
+      "title": "烟熏群U"
+    },
+    {
+      "type": "patchouli:campfire",
+      "recipe": "ramesses_curse:cooked_group_u_campfire_cooking",
+      "title": "篝火烹饪群U",
+      "text": "生群U可通过熔炉、烟熏炉或篝火加工为熟群U；三条加工配方均收录于此。"
+    }
+  ]
+}

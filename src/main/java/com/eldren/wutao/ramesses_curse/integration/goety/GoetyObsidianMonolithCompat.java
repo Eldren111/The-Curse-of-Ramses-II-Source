@@ -262,7 +262,20 @@ public final class GoetyObsidianMonolithCompat {
     }
 
     private static boolean matchesOwner(Entity entity, UUID ownerUuid) {
-        return entity != null && ownerUuid.equals(entity.getUUID());
+        // Bound the chain: modded projectiles may themselves be owned by other projectiles.
+        for (int depth = 0; entity != null && depth < 8; depth++) {
+            if (ownerUuid.equals(entity.getUUID())) return true;
+            if (entity instanceof Projectile projectile) {
+                entity = projectile.getOwner();
+            } else if (entity instanceof net.minecraft.world.entity.AreaEffectCloud cloud) {
+                entity = cloud.getOwner();
+            } else if (entity instanceof net.minecraft.world.entity.TamableAnimal tame) {
+                return ownerUuid.equals(tame.getOwnerUUID());
+            } else {
+                return false;
+            }
+        }
+        return false;
     }
 
     public static void tickLinkedMonoliths(LivingEntity owner) {

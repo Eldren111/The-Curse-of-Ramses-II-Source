@@ -1,4 +1,12 @@
 {
+  "boss.apep_battle": {
+    "sounds": [
+      {
+        "name": "ramesses_curse:boss/apep_battle",
+        "stream": true
+      }
+    ]
+  },
   "music_disc.hymn_of_the_two_lands": {
     "sounds": [
       {

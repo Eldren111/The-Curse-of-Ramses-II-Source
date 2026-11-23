@@ -1,0 +1,62 @@
+{
+  "name": "Advanced Relics and Fortune",
+  "category": "ramesses_curse:relics",
+  "icon": "ramesses_curse:eternal_conquest",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:inscription_bag",
+      "title": "Inscription Bag",
+      "text": "Right-click to open its storage. Only one copy of each inscription may be stored. While equipped in its dedicated slot, the attributes of up to 16 inscriptions inside remain active together."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:twilight_crystal_ring",
+      "title": "Twilight Crystal Ring",
+      "text": "In a ring slot it grants +5% movement speed and +8% attack speed. Consecutive melee hits on one target build Twilight Marks; the third adds two magic damage. Waiting over four seconds or changing targets clears the marks."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:hushed_depths_amulet",
+      "title": "Hushed Depths Amulet",
+      "text": "While equipped, you cannot trigger Sculk Shriekers and Wardens cannot normally sense you. It does not remove Wardens or erase vibrations caused by other players."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:ruin_talisman",
+      "title": "Ruin",
+      "text": "Deal damage equal to your maximum health to gain one Ruin count, limited to once per 0.5 seconds. Every third attack spends one for 1% target-max-health void damage. Death spends ten to revive at full health and deals 5% unmitigated max-health damage in a horizontal 7x7 area."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:eternal_conquest",
+      "title": "Eternal Conquest",
+      "text": "After all nine curses are truly reversed, personal kills of Tier IX royal-shield enemies temper it. Each level grants +1% attack damage, reflection, and lifesteal by default. Reflection caps at 75% and lifesteal at 90%; all values are configurable."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:chance_die_six_sided",
+      "title": "Six-Sided Chance Die",
+      "text": "Consumed on use, it grants one random fate: +50% attack speed; one minute of a max-health blade; permanent fall immunity; one stacking totem revival; 25% dodge; or one minute of true damage that pierces royal shields."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:chance_die_large",
+      "title": "Large Chance Die",
+      "text": "Crafted from six Six-Sided Chance Dice. It opens a selection screen where each of the six outcomes can be accepted or declined separately instead of leaving everything to one random roll."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:pitchfire_crystal",
+      "title": "Pitchfire Crystal",
+      "text": "Using it grants Fire Resistance I, Speed II, and lava walking for 60 seconds. It is a rare drop from Molten-affix enemies and an important advanced material."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:cooked_group_u",
+      "title": "Group U",
+      "text": "Naturally spawned pigs killed by players have a 5% chance to drop Raw Group U. Raw restores 10 hunger. Cooked restores 20 and grants Regeneration V, Strength II, and Resistance I for 60 seconds."
+    }
+  ]
+}

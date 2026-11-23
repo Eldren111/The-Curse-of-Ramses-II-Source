@@ -49,6 +49,7 @@ minecraft {
         }
 
         gameTestServer {
+            workingDirectory project.file('run-gametest')
             property 'forge.enabledGameTestNamespaces', mod_id
         }
 
@@ -67,6 +68,14 @@ mixin {
 }
 
 repositories {
+    maven {
+        name = "ApricityUI"
+        url = "https://maven.sighs.cc/repository/maven-public/"
+    }
+    maven {
+        name = "IzzelAliz ModernUI"
+        url = "https://maven.izzel.io/releases/"
+    }
     flatDir {
         dirs "run/local-libs", "libs"
     }
@@ -92,19 +101,40 @@ repositories {
     }
 }
 
+def dedicatedServerRun = gradle.startParameter.taskNames.any {
+    it.toLowerCase().contains('runserver') || it.toLowerCase().contains('gametestserver')
+}
+
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}:api")
     runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}")
     compileOnly fg.deobf("dev.shadowsoffire:Apotheosis:1.20.1-7.4.8")
-    implementation fg.deobf("top.theillusivec4.curios:curios-forge:5.9.1+1.20.1")
+    implementation fg.deobf("top.theillusivec4.curios:curios-forge:5.14.1+1.20.1")
     compileOnly fg.deobf("maven.modrinth:jade:${jade_version}")
     runtimeOnly fg.deobf("maven.modrinth:jade:${jade_version}")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
-    runtimeOnly fg.deobf("maven.modrinth:embeddium:${embeddium_modrinth_version}")
-    runtimeOnly fg.deobf("maven.modrinth:oculus:${oculus_modrinth_version}")
+    // These are client-only render mods. Do not put them on the dedicated-server
+    // development classpath, where Forge rejects client classes at load time.
+    if (!dedicatedServerRun) {
+        runtimeOnly fg.deobf("maven.modrinth:embeddium:${embeddium_modrinth_version}")
+        runtimeOnly fg.deobf("maven.modrinth:oculus:${oculus_modrinth_version}")
+    }
+    // AUI owns the HTML/CSS screen renderer used by the Duat workspace.
+    compileOnly fg.deobf("com.sighs:ApricityUI-forge-1.20.1:1.2.5")
+    runtimeOnly fg.deobf("com.sighs:ApricityUI-forge-1.20.1:1.2.5")
+    // ModernUI is optional: load the verified universal jar only in the local dev run when present.
+    def modernUiLocalJar = file("run/local-libs/ModernUI-Forge-1.20.1-3.12.0.1-universal.jar")
+    if (modernUiLocalJar.exists()) {
+        compileOnly fg.deobf("local.modernui:ModernUI-Forge:1.20.1-3.12.0.1-universal")
+        if (!dedicatedServerRun) {
+            runtimeOnly fg.deobf("local.modernui:ModernUI-Forge:1.20.1-3.12.0.1-universal")
+        }
+    } else {
+        compileOnly fg.deobf("icyllis.modernui:ModernUI-Forge:1.20.1-3.12.0.1")
+    }
     compileOnly fg.deobf("maven.modrinth:4Vh3BQ3F:${l2library_modrinth_version}")
     compileOnly files("libs/l2serial-1.2.2.jar")
     compileOnly fg.deobf("local.l2tabs:l2tabs:0.3.3")
@@ -171,3 +201,5 @@ tasks.withType(Javadoc).configureEach {
     options.encoding = 'UTF-8'
     options.charSet = 'UTF-8'
 }
+
+apply from: 'addons/crimson-requiem/build.gradle'

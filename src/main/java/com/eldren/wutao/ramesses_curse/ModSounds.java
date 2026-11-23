@@ -14,6 +14,10 @@ public class ModSounds {
             SOUND_EVENTS.register("music_disc.hymn_of_the_two_lands",
                     () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(RamessesCurseMod.MODID, "music_disc.hymn_of_the_two_lands")));
 
+    public static final RegistryObject<SoundEvent> APEP_BATTLE =
+            SOUND_EVENTS.register("boss.apep_battle",
+                    () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(RamessesCurseMod.MODID, "boss.apep_battle")));
+
     private ModSounds() {
     }
 }

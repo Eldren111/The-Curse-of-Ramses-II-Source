@@ -31,13 +31,20 @@ public final class ModStructures {
     public static final ResourceKey<Structure> RAMESSES_END_ISLAND = ResourceKey.create(
             Registries.STRUCTURE,
             new ResourceLocation(RamessesCurseMod.MODID, "ramesses_end_island"));
+    public static final ResourceKey<Structure> GRAND_CATHEDRAL = ResourceKey.create(
+            Registries.STRUCTURE,
+            new ResourceLocation(RamessesCurseMod.MODID, "grand_cathedral"));
 
     public static final RegistryObject<StructureType<DuatPalaceStructure>> DUAT_PALACE_TYPE =
             STRUCTURE_TYPES.register("duat_palace", () -> () -> DuatPalaceStructure.CODEC);
     public static final RegistryObject<StructureType<RamessesEndIslandStructure>> RAMESSES_END_ISLAND_TYPE =
             STRUCTURE_TYPES.register("ramesses_end_island", () -> () -> RamessesEndIslandStructure.CODEC);
+    public static final RegistryObject<StructureType<GrandCathedralWorldgenStructure>> GRAND_CATHEDRAL_TYPE =
+            STRUCTURE_TYPES.register("grand_cathedral", () -> () -> GrandCathedralWorldgenStructure.CODEC);
     public static final RegistryObject<StructurePlacementType<FixedEndIslandPlacement>> FIXED_END_ISLAND_PLACEMENT =
             STRUCTURE_PLACEMENTS.register("fixed_end_island", () -> () -> FixedEndIslandPlacement.CODEC);
+    public static final RegistryObject<StructurePlacementType<FixedGrandCathedralPlacement>> FIXED_GRAND_CATHEDRAL_PLACEMENT =
+            STRUCTURE_PLACEMENTS.register("fixed_grand_cathedral", () -> () -> FixedGrandCathedralPlacement.CODEC);
 
     public static final RegistryObject<StructurePieceType> DUAT_PALACE_PIECE =
             STRUCTURE_PIECES.register(
@@ -47,6 +54,10 @@ public final class ModStructures {
             STRUCTURE_PIECES.register(
                     "ramesses_end_island_piece",
                     () -> (StructurePieceType.ContextlessType) RamessesEndIslandPiece::new);
+    public static final RegistryObject<StructurePieceType> GRAND_CATHEDRAL_PIECE =
+            STRUCTURE_PIECES.register(
+                    "grand_cathedral_piece",
+                    () -> (StructurePieceType.StructureTemplateType) GrandCathedralPiece::new);
 
     private ModStructures() {
     }

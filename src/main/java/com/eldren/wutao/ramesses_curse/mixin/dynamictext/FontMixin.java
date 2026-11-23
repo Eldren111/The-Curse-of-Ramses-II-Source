@@ -45,6 +45,12 @@ public abstract class FontMixin {
             boolean bidirectional,
             CallbackInfoReturnable<Integer> callback
     ) {
+        if (dynamicTextEffects$containsCipherGlyphs(text) && !DynamicTextParser.containsCodes(text)) {
+            callback.setReturnValue(((FontInvoker) (Object) this).dynamicTextEffects$drawInternal(
+                    Component.literal(text).getVisualOrderText(), x, y, color, shadow, pose,
+                    buffers, mode, backgroundColor, packedLight));
+            return;
+        }
         if (!DynamicTextParser.containsCodes(text)) {
             return;
         }
@@ -84,6 +90,12 @@ public abstract class FontMixin {
             int packedLight,
             CallbackInfoReturnable<Integer> callback
     ) {
+        if (dynamicTextEffects$containsCipherGlyphs(text.getString()) && !EffectStyle.hasEffects(text)) {
+            callback.setReturnValue(((FontInvoker) (Object) this).dynamicTextEffects$drawInternal(
+                    text.getVisualOrderText(), x, y, color, shadow, pose,
+                    buffers, mode, backgroundColor, packedLight));
+            return;
+        }
         Component parsed = DynamicTextParser.parseIfNeeded(text);
         if (!EffectStyle.hasEffects(parsed)) {
             return;
@@ -122,6 +134,11 @@ public abstract class FontMixin {
             int packedLight,
             CallbackInfoReturnable<Integer> callback
     ) {
+        if (dynamicTextEffects$containsCipherGlyphs(text) && !EffectStyle.hasEffects(text)) {
+            callback.setReturnValue(((FontInvoker) (Object) this).dynamicTextEffects$drawInternal(
+                    text, x, y, color, shadow, pose, buffers, mode, backgroundColor, packedLight));
+            return;
+        }
         if (!EffectStyle.hasEffects(text)) {
             return;
         }
@@ -171,6 +188,34 @@ public abstract class FontMixin {
         }
         Component parsed = DynamicTextParser.parse(text);
         callback.setReturnValue(((Font) (Object) this).split(parsed, maxWidth));
+    }
+
+    private static boolean dynamicTextEffects$containsCipherGlyphs(String text) {
+        if (text == null) {
+            return false;
+        }
+        for (int index = 0; index < text.length(); index++) {
+            char value = text.charAt(index);
+            if (value >= '\uE000' && value <= '\uE01F') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean dynamicTextEffects$containsCipherGlyphs(FormattedCharSequence text) {
+        if (text == null) {
+            return false;
+        }
+        boolean[] found = {false};
+        text.accept((index, style, codePoint) -> {
+            if (codePoint >= 0xE000 && codePoint <= 0xE01F) {
+                found[0] = true;
+                return false;
+            }
+            return true;
+        });
+        return found[0];
     }
 
     @Inject(

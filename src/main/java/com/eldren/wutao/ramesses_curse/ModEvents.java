@@ -1,5 +1,6 @@
 package com.eldren.wutao.ramesses_curse;
 
+import com.eldren.wutao.ramesses_curse.api.DynastyCombatHooks;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -13,6 +14,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.critereon.LocationPredicate;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.gui.components.Button;
@@ -101,7 +103,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -205,12 +206,16 @@ public class ModEvents {
     private static final String CURSE_DATA = "RamessesCurseData";
     private static final String EQUIP_TICKS = "EquipTicks";
     private static final String MAIN_LOCK_UNTIL = "MainHandLockUntil";
+    private static final String CURSE_6_LOCK_UNTIL = "CurseSixInventoryLockUntil";
+    private static final String CURSE_6_RANDOM_LOCK_MIGRATED = "CurseSixRandomItemLockMigrated";
+    private static final String CURSE_9_DEATH_PROGRESS = "CurseNineDeathsTowardCrystal";
     private static final String DYNASTY_SILENCE_MAIN_HAND_UNTIL = "DynastySilenceMainHandUntil";
     private static final String DYNASTY_SILENCE_OFF_HAND_UNTIL = "DynastySilenceOffHandUntil";
     private static final String NEXT_RANDOM_LOCK = "NextRandomLock";
     private static final String LOCKED_SLOT = "LockedSlot";
     private static final String LOCKED_SLOT_UNTIL = "LockedSlotUntil";
     private static final String LOCKED_SLOT_STACK = "LockedSlotStack";
+    private static final String LOCKED_ITEM_SEAL = "RamessesCurseSixItemSeal";
     private static final String NETHER_AWAKENED = "NetherAwakened";
     private static final String END_AWAKENED = "EndAwakened";
     private static final String CURSE_1_REVERSED = "CurseOneReversed";
@@ -225,6 +230,7 @@ public class ModEvents {
     private static final String CURSE_2_REVERSED = "CurseTwoReversed";
     private static final String CURSE_2_REVERSED_AT_EQUIP_TICKS = "CurseTwoReversedAtEquipTicks";
     private static final String CURSE_2_RETURNED_LUCK = "CurseTwoReturnedLuck";
+    private static final String CURSE_3_4_COMMAND_OVERRIDE = "CurseThreeFourCommandOverride";
     private static final String CURSE_5_REVERSED = "CurseFiveReversed";
     private static final String CURSE_5_FATE_DECIDED = "CurseFiveFateDecided";
     private static final String CURSE_5_DECISION_PENDING = "CurseFiveDecisionPending";
@@ -263,6 +269,9 @@ public class ModEvents {
     private static final String CURSE_9_DEBT_TICKS = "CurseNineDebtTicks";
     private static final String CURSE_9_PENALTY_UNTIL = "CurseNinePenaltyUntil";
     private static final String CURSE_9_ALL_ATTRIBUTES_APPLIED = "CurseNineAllAttributesApplied";
+    private static final String CURSE_9_PENALTY_WARNING_NEXT = "CurseNinePenaltyWarningNext";
+    private static final long CURSE_9_PENALTY_WARNING_DELAY_TICKS = 20L * 15L;
+    private static final long CURSE_9_PENALTY_WARNING_INTERVAL_TICKS = 20L * 5L;
     private static final String STARTER_GRANTED = "StarterGranted";
     private static final String MANUAL_GRANTED = "ManualGranted";
     private static final String GUILT_PROGRESS = "GuiltProgress";
@@ -296,7 +305,8 @@ public class ModEvents {
     private static final String SATIETY_RIDDLE_ROUND = "SatietyRiddleRound";
     private static final String SATIETY_RIDDLE_INDEX = "SatietyRiddleIndex";
     private static final String SATIETY_RIDDLE_SOLVED = "SatietyRiddleSolved";
-    private static final int SATIETY_RIDDLE_COUNT = 3;
+    private static final String CURSE_9_FOOD_LOCK_UNTIL = "CurseNineFoodLockUntil";
+    private static final int SATIETY_RIDDLE_COUNT = 1;
     private static final String EMBER_RIDDLE_ID = "EmberRiddleId";
     private static final String EMBER_RIDDLE_UNLOCKED = "EmberRiddleUnlocked";
     private static final String EMBER_LAST_RIDDLE_ID = "EmberLastRiddleId";
@@ -322,6 +332,7 @@ public class ModEvents {
     private static final String LAST_SYNC_END_AWAKENED = "LastSyncEndAwakened";
     private static final String LAST_SYNC_CURSE_1_REVERSED = "LastSyncCurseOneReversed";
     private static final String LAST_SYNC_CURSE_2_REVERSED = "LastSyncCurseTwoReversed";
+    private static final String LAST_SYNC_CURSE_3_4_LIFTED = "LastSyncCurseThreeFourLifted";
     private static final String LAST_SYNC_CURSE_5_REVERSED = "LastSyncCurseFiveReversed";
     private static final String LAST_SYNC_CURSE_5_DECLINED = "LastSyncCurseFiveDeclined";
     private static final String LAST_SYNC_CURSE_6_KEYWORD_UNLOCKED = "LastSyncCurseSixKeywordUnlocked";
@@ -332,6 +343,7 @@ public class ModEvents {
     private static final String LAST_SYNC_CURSE_8_REVERSED = "LastSyncCurseEightReversed";
     private static final String LAST_SYNC_CURSE_9_REVERSED = "LastSyncCurseNineReversed";
     private static final String LAST_SYNC_LOCK_SECONDS = "LastSyncLockSeconds";
+    private static final String LAST_SYNC_MAIN_HAND_LOCK_SECONDS = "LastSyncMainHandLockSeconds";
     private static final String LAST_SYNC_SATIETY = "LastSyncSatiety";
     private static final String LAST_SYNC_CURSE_9_DEBT = "LastSyncCurseNineDebt";
     private static final String LAST_SYNC_CURSE_9_REQUIRED_FOODS = "LastSyncCurseNineRequiredFoods";
@@ -444,6 +456,7 @@ public class ModEvents {
     private static final int DYNASTY_PRESSURE_POTION_AMOUNT = 1000;
     private static final int DYNASTY_PRESSURE_DAILY_AMOUNT = 10;
     private static final int DYNASTY_PRESSURE_DIMENSION_CHANGE_AMOUNT = 10;
+    public static final int PURIFICATION_SCROLL_DYNASTY_PRESSURE_AMOUNT = 100;
     private static final int DYNASTY_PRESSURE_MAX = 9999;
     private static final int[] DYNASTY_AFFIX_THREAT_THRESHOLDS = {0, 500, 1000, 1750, 2500, 3500, 4500, 5750, 7000, 8500};
     private static final int DYNASTY_PRESSURE_MULTIPLIER_INITIAL_TENTHS = 10;
@@ -775,7 +788,7 @@ public class ModEvents {
 169 | 碑文一百六十九 九罪同契 | 九重代价都被压进我的金石，佩戴即意味着在王名前署名。 | seal of kadesh
 170 | 碑文一百七十 金焰宽恕 | 撕开我时金光焚去一部分王罪，而纸页也随宽恕消失。 | purification scroll
 171 | 碑文一百七十一 王朝的注视 | 我入口像饮料，咽下后却让整个王朝更快注意到你。 | dynasty pressure potion
-172 | 碑文一百七十二 死亡留下的空腹 | 每次死亡都可能留下我，三道碑文能让我归还欠下的饱食。 | satiety crystal
+172 | 碑文一百七十二 死亡留下的空腹 | 每次死亡都可能留下我，一道碑文能让我归还欠下的饱食。 | satiety crystal
 173 | 碑文一百七十三 黄沙下的搏动 | 沙漠赐我幸运，群敌唤我战意，我在杜阿特仍像活物跳动。 | heart of duat
 174 | 碑文一百七十四 亡境未熄 | 我极少从敌人身上留下，未解碑文时拒绝回应右手。 | ember of duat
 175 | 碑文一百七十五 沉默的尘埃 | 我是玄金成锭前最细小的一份沉默。 | eternal silence granule
@@ -1004,7 +1017,9 @@ public class ModEvents {
         }
 
         Player player = event.player;
-        if (player instanceof ServerPlayer serverPlayer && player.tickCount % 20 == 0) {
+        if (player instanceof ServerPlayer serverPlayer
+                && (player.tickCount % 20 == 0
+                || RamessesEndIslandPiece.isRuntimeIslandGenerationActive(serverPlayer))) {
             RamessesEndIslandPiece.initializeRuntimeEntities(serverPlayer);
         }
         tickStabilityIngotBurden(player);
@@ -1012,8 +1027,9 @@ public class ModEvents {
             ejectLockedEternalConquest(serverPlayer);
         }
         ModItems.EternalSilenceTotem.tickRevivalEffects(player);
-        ModItems.ChanceDieSixSided.tick(player);
         ModItems.TwilightCrystalRing.tickEquippedAttributes(player);
+        ModItems.tickMusicRelic(player);
+        ModItems.ChanceDieSixSided.tick(player);
         ModMobEffects.tickDrought(player);
         tickPitchfireLavaWalking(player);
         tickDynastyMoltenHazards(player);
@@ -1023,11 +1039,8 @@ public class ModEvents {
         }
         CompoundTag data = getCurseData(player);
         if (player instanceof ServerPlayer serverPlayer) {
-            if (player.tickCount % 40 == 0) {
+            if (isSealEquipped(player) && player.tickCount % 40 == 0) {
                 deliverPendingSatietyCrystals(serverPlayer);
-            }
-            if (player.tickCount % 200 == 0) {
-                reconcileSatietyCrystalItems(serverPlayer);
             }
             restorePendingCurseSixFlight(serverPlayer, data);
             tickDynastyPressureGrowth(serverPlayer, data);
@@ -1039,6 +1052,7 @@ public class ModEvents {
             tickCurseSevenEffects(serverPlayer, data, sealEquipped);
         }
         boolean curseSixReversed = data.getBoolean(CURSE_6_REVERSED);
+        migrateCurseSixLockState(player, data);
         if (curseSixReversed && player instanceof ServerPlayer serverPlayer) {
             clearCurseSixLockState(serverPlayer, data);
         }
@@ -1048,16 +1062,16 @@ public class ModEvents {
         updateHeartSlotAccess(player, sealEquipped);
         syncClientState(player, false);
 
-        if (remainingGuiltLock > 0 && player instanceof ServerPlayer serverPlayer) {
-            applyInventoryCooldowns(serverPlayer, remainingGuiltLock);
-            suppressDefenses(serverPlayer);
-        } else if (player instanceof ServerPlayer serverPlayer) {
-            clearDefenseSuppression(serverPlayer);
-        }
-
-        int remainingMainHandLock = getRemainingMainHandLockTicks(player);
-        if (remainingMainHandLock > 0 && player instanceof ServerPlayer serverPlayer) {
-            applyMainHandCooldown(serverPlayer, remainingMainHandLock);
+        if (player instanceof ServerPlayer serverPlayer) {
+            if (remainingGuiltLock > 0) {
+                applyInventoryCooldowns(serverPlayer, remainingGuiltLock);
+            }
+            // Defense suppression belongs only to the Curse V guilt sentence.
+            if (data.getLong(GUILT_LOCK_UNTIL) > player.level().getGameTime()) {
+                suppressDefenses(serverPlayer);
+            } else {
+                clearDefenseSuppression(serverPlayer);
+            }
         }
 
         int remainingMainHandSilence = getRemainingDynastySilenceTicks(player, InteractionHand.MAIN_HAND);
@@ -1066,16 +1080,12 @@ public class ModEvents {
             applyDynastySilenceCooldown(serverPlayer, remainingMainHandSilence, remainingOffHandSilence);
         }
 
-        int remainingLockedSlotTicks = getRemainingLockedSlotTicks(player);
-        if (remainingLockedSlotTicks > 0 && player instanceof ServerPlayer serverPlayer) {
-            applyLockedSlotCooldown(serverPlayer, remainingLockedSlotTicks);
-        }
-
         if (player.level() instanceof ServerLevel serverLevel) {
             updateCurseNineHunger(serverLevel, player, sealEquipped);
         }
 
         if (player instanceof ServerPlayer serverPlayer) {
+            tickCurseNinePenaltyWarning(serverPlayer);
             finalizePendingMercyReviveTeleport(serverPlayer);
             tickEdictDomain(serverPlayer);
             tickCurseTwoMinions(serverPlayer);
@@ -1097,7 +1107,6 @@ public class ModEvents {
         }
 
         cleanupTrackedMusicPlaybacks(player.level());
-        ModItems.tickMusicRelic(player);
 
         boolean suppressInversion = player.invulnerableTime > 0;
         if (isHoldingEmberOfDuat(player) && !suppressInversion) {
@@ -1136,12 +1145,19 @@ public class ModEvents {
                 data.putLong(MAIN_LOCK_UNTIL, gameTime + Config.MAIN_HAND_LOCK_DURATION.get());
                 data.putLong(NEXT_RANDOM_LOCK, gameTime + Config.INVENTORY_LOCK_INTERVAL.get());
                 if (player instanceof ServerPlayer serverPlayer) {
-                    serverPlayer.displayClientMessage(Component.translatable("message.ramesses_curse.main_hand_lock_started").withStyle(net.minecraft.ChatFormatting.GOLD), true);
+                    if (serverPlayer.isUsingItem() && serverPlayer.getUsedItemHand() == InteractionHand.MAIN_HAND) {
+                        serverPlayer.stopUsingItem();
+                    }
+                    syncClientState(serverPlayer, true);
+                    serverPlayer.displayClientMessage(Component.translatable("message.ramesses_curse.main_hand_lock_started")
+                            .withStyle(net.minecraft.ChatFormatting.GOLD), true);
                 }
             }
 
             if (data.getLong(MAIN_LOCK_UNTIL) > 0L && gameTime >= data.getLong(MAIN_LOCK_UNTIL) && data.getLong(NEXT_RANDOM_LOCK) > 0L && gameTime >= data.getLong(NEXT_RANDOM_LOCK)) {
-                lockRandomInventorySlot(player, data, gameTime);
+                if (player instanceof ServerPlayer serverPlayer) {
+                    lockRandomInventorySlot(serverPlayer, data, gameTime);
+                }
                 data.putLong(NEXT_RANDOM_LOCK, gameTime + Config.INVENTORY_LOCK_INTERVAL.get());
             }
         }
@@ -1167,6 +1183,7 @@ public class ModEvents {
             ensureStarterSeal(player);
             ensureStarterManual(player);
             ensureEmberRiddle(player);
+            restoreCurseSixTrialUnlock(player);
             syncDynastyPressureSharedData(player, getCurseData(player));
             syncClientState(player, true);
             ModItems.EternalSilenceRebirthTotem.syncCooldown(player);
@@ -1177,7 +1194,7 @@ public class ModEvents {
     @SubscribeEvent
     public static void onServerChat(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
-        String rawText = event.getRawText() == null ? "" : event.getRawText().trim().toLowerCase(Locale.ROOT);
+        String rawText = normalizeCurseSixPhrase(event.getRawText());
         if (!CURSE_7_CHAT_KEYWORD.equals(rawText)) {
             return;
         }
@@ -1199,34 +1216,38 @@ public class ModEvents {
         if (data.getBoolean(CURSE_6_KEYWORD_UNLOCKED)) {
             return;
         }
+        restoreCurseSixTrialUnlock(player);
+        // This permanent unlock belongs to the sender. A later trial attempt
+        // can reset EMBER_TRIAL_COMPLETED without revoking Curse VI progress.
         if (!data.getBoolean(CURSE_6_SENTENCE_UNLOCKED)) {
+            player.displayClientMessage(Component.translatable("message.ramesses_curse.curse6_trial_required")
+                    .withStyle(ChatFormatting.GOLD), false);
             return;
         }
 
         data.putBoolean(CURSE_6_KEYWORD_UNLOCKED, true);
-        data.putBoolean(CURSE_6_TERMINAL_SOLVED, false);
-        data.putBoolean(CURSE_7_PENDING_HINT, true);
-        data.putString(CURSE_7_HINT_TEXT, CURSE_7_UI_GUIDANCE);
-        data.putString(CURSE_7_HINT_TEXT + "Zh", CURSE_7_UI_GUIDANCE_ZH);
-        data.putString(CURSE_7_HINT_STYLE, "gray_shadow");
-        data.putLong(CURSE_7_HINT_STARTED_AT, player.level().getGameTime());
-        queueCurseSevenHint(player, CURSE_7_UI_GUIDANCE, CURSE_7_UI_GUIDANCE_ZH, "gray_shadow");
+        queueCurseSevenHint(player, data.getBoolean(CURSE_6_TERMINAL_SOLVED) ? CURSE_7_DUAT_REVEAL : CURSE_7_UI_GUIDANCE,
+                data.getBoolean(CURSE_6_TERMINAL_SOLVED) ? CURSE_7_DUAT_REVEAL_ZH : CURSE_7_UI_GUIDANCE_ZH, "gray_shadow");
         syncClientState(player, true);
+    }
+
+    private static String normalizeCurseSixPhrase(String text) {
+        return text == null ? "" : text.toLowerCase(Locale.ROOT).replaceAll("[\\s\\p{Z}]+", " ").trim();
     }
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(
                 literal("ramessescurse")
-                        .then(literal("reverse_all")
-                                .requires(source -> source.hasPermission(2))
-                                .executes(context -> reverseAllCursesForTesting(
-                                        context.getSource(),
-                                        List.of(context.getSource().getPlayerOrException())))
-                                .then(argument("targets", EntityArgument.players())
-                                        .executes(context -> reverseAllCursesForTesting(
-                                                context.getSource(),
-                                                EntityArgument.getPlayers(context, "targets")))))
+                        .then(reverseCurseCommand("reverse_curse_1", 1))
+                        .then(reverseCurseCommand("reverse_curse_2", 2))
+                        .then(reverseCurseCommand("reverse_curse_3", 3))
+                        .then(reverseCurseCommand("reverse_curse_4", 4))
+                        .then(reverseCurseCommand("reverse_curse_5", 5))
+                        .then(reverseCurseCommand("reverse_curse_6", 6))
+                        .then(reverseCurseCommand("reverse_curse_7", 7))
+                        .then(reverseCurseCommand("reverse_curse_8", 8))
+                        .then(reverseCurseCommand("reverse_curse_9", 9))
                         .then(literal("guilt")
                                 .requires(source -> source.hasPermission(2))
                                 .then(literal("set")
@@ -1321,10 +1342,25 @@ public class ModEvents {
                                         .executes(context -> DuatSandstormManager.stop(context.getSource())))
                                 .then(literal("spawn")
                                         .executes(context -> DuatSandstormManager.spawn(context.getSource()))))
+                        .then(literal("sun_eater_death_blast")
+                                .requires(source -> source.hasPermission(2))
+                                .executes(context -> triggerSunEaterDeathBlast(
+                                        context.getSource(),
+                                        BlockPos.containing(context.getSource().getPosition())))
+                                .then(argument("pos", BlockPosArgument.blockPos())
+                                        .executes(context -> triggerSunEaterDeathBlast(
+                                                context.getSource(),
+                                                BlockPosArgument.getBlockPos(context, "pos")))))
                         .then(literal("test")
                                 .requires(source -> source.hasPermission(2))
                                 .then(literal("kill_sun_eater")
                                         .executes(context -> killDuatSunEatersForTesting(context.getSource())))
+                                .then(literal("sun_eater_black_hole")
+                                        .executes(context -> triggerSunEaterBlackHoleForTesting(context.getSource())))
+                                .then(literal("sun_eater_eclipse_breath")
+                                        .executes(context -> triggerSunEaterEclipseBreathForTesting(context.getSource())))
+                                .then(literal("sun_eater_shadow")
+                                        .executes(context -> triggerSunEaterShadowForTesting(context.getSource())))
                                 .then(literal("sun_eater_stage")
                                         .then(argument("stage", IntegerArgumentType.integer(1, 3))
                                                 .executes(context -> setDuatSunEaterStageForTesting(
@@ -1373,6 +1409,19 @@ public class ModEvents {
                         );
     }
 
+    private static int triggerSunEaterDeathBlast(CommandSourceStack source, BlockPos center) {
+        ServerLevel level = source.getLevel();
+        if (!DuatSunEaterDeathBlastManager.startCommandBlast(level, center)) {
+            source.sendFailure(Component.literal("A Sun Eater terminal blast is already active in this dimension."));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal(
+                "Released the Sun Eater terminal blast at "
+                        + center.getX() + " " + center.getY() + " " + center.getZ()
+                        + " in " + level.dimension().location() + "."), true);
+        return 1;
+    }
+
     private static int killDuatSunEatersForTesting(CommandSourceStack source) {
         int triggered = 0;
         for (ServerLevel level : source.getServer().getAllLevels()) {
@@ -1410,6 +1459,69 @@ public class ModEvents {
         source.sendSuccess(() -> Component.literal(
                 "Set " + changedCount + " Duat Sun Eater(s) to combat stage " + stage + "."), true);
         return changed;
+    }
+
+    private static int triggerSunEaterBlackHoleForTesting(CommandSourceStack source) {
+        int triggered = 0;
+        for (ServerLevel level : source.getServer().getAllLevels()) {
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof DuatSunEaterEntity dragon
+                        && dragon.startBlackHoleAttackForTesting()) {
+                    triggered++;
+                }
+            }
+        }
+        if (triggered == 0) {
+            source.sendFailure(Component.literal(
+                    "No loaded Sun Eater with a valid island target was found."));
+            return 0;
+        }
+        int triggeredCount = triggered;
+        source.sendSuccess(() -> Component.literal(
+                "Triggered black hole attack for " + triggeredCount + " Sun Eater(s)."), true);
+        return triggered;
+    }
+
+    private static int triggerSunEaterEclipseBreathForTesting(CommandSourceStack source) {
+        int triggered = 0;
+        for (ServerLevel level : source.getServer().getAllLevels()) {
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof DuatSunEaterEntity dragon
+                        && dragon.startEclipseBreathForTesting()) {
+                    triggered++;
+                }
+            }
+        }
+        if (triggered == 0) {
+            source.sendFailure(Component.literal(
+                    "No loaded Sun Eater with a valid island target was found."));
+            return 0;
+        }
+        int triggeredCount = triggered;
+        source.sendSuccess(() -> Component.literal(
+                "Triggered Eclipse Breath for " + triggeredCount + " Sun Eater(s)."), true);
+        return triggered;
+    }
+
+    private static int triggerSunEaterShadowForTesting(CommandSourceStack source) {
+        int triggered = 0;
+        for (ServerLevel level : source.getServer().getAllLevels()) {
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof DuatSunEaterEntity dragon
+                        && dragon.startApepShadowForTesting()) {
+                    triggered++;
+                }
+            }
+        }
+        if (triggered == 0) {
+            source.sendFailure(Component.literal(
+                    "No loaded Sun Eater with a valid island target was found."));
+            return 0;
+        }
+        int triggeredCount = triggered;
+        source.sendSuccess(() -> Component.literal(
+                "Triggered Shadow of Apep for " + triggeredCount + " Sun Eater(s)."), true);
+        return triggered;
     }
 
     @SubscribeEvent
@@ -1510,10 +1622,6 @@ public class ModEvents {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
         }
-        if (!isCurseNineReversed(player) && getSatietyCrystalCount(player) > 0 && event.getItemStack().isEdible()) {
-            event.setCanceled(true);
-            return;
-        }
         if (isGuiltLocked(player)) {
             event.setCanceled(true);
             return;
@@ -1534,10 +1642,6 @@ public class ModEvents {
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
-            return;
-        }
-        if (!isCurseNineReversed(player) && getSatietyCrystalCount(player) > 0 && event.getItemStack().isEdible()) {
-            event.setCanceled(true);
             return;
         }
         if (isGuiltLocked(player)) {
@@ -1562,6 +1666,14 @@ public class ModEvents {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
         }
+        if (isGuiltLocked(player) || (isMainHandLocked(player) && event.getHand() == InteractionHand.MAIN_HAND)) {
+            event.setCanceled(true);
+            return;
+        }
+        if (isLockedInventoryStack(player, event.getItemStack())) {
+            event.setCanceled(true);
+            return;
+        }
         if (isDynastyHandSilenced(player, event.getHand())) {
             event.setCanceled(true);
             return;
@@ -1576,6 +1688,35 @@ public class ModEvents {
         for (MerchantOffer offer : villager.getOffers()) {
             int surcharge = Math.max(1, Mth.ceil((float) (offer.getBaseCostA().getCount() * Config.CURSE_4_TRADE_SURCHARGE.get())));
             offer.setSpecialPriceDiff(surcharge);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onSealedItemEntityInteract(PlayerInteractEvent.EntityInteractSpecific event) {
+        if (event.getEntity() instanceof ServerPlayer player
+                && (isGuiltLocked(player)
+                    || (isMainHandLocked(player) && event.getHand() == InteractionHand.MAIN_HAND)
+                    || isLockedInventoryStack(player, event.getItemStack()))) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onSealedItemUseStart(LivingEntityUseItemEvent.Start event) {
+        if (event.getEntity() instanceof ServerPlayer player
+                && ((isMainHandLocked(player) && event.getItem() == player.getMainHandItem())
+                    || isLockedInventoryStack(player, event.getItem()))) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onSealedItemUseTick(LivingEntityUseItemEvent.Tick event) {
+        if (event.getEntity() instanceof ServerPlayer player
+                && ((isMainHandLocked(player) && player.getUsedItemHand() == InteractionHand.MAIN_HAND)
+                    || isLockedInventoryStack(player, event.getItem()))) {
+            player.stopUsingItem();
+            event.setCanceled(true);
         }
     }
 
@@ -1884,6 +2025,10 @@ public class ModEvents {
         }
 
         Player player = event.getEntity();
+        if (target instanceof DuatSunEaterEntity sunEater && !sunEater.canHurtFrom(player)) {
+            event.setCanceled(true);
+            return;
+        }
 
         if (ModItems.ChanceDieSixSided.hasTrueDamage(player)
                 && target.isAlive()
@@ -2438,10 +2583,14 @@ public class ModEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onTwilightCrystalRingMeleeHit(LivingHurtEvent event) {
+        if (event.getEntity() instanceof DuatSunEaterEntity) {
+            return;
+        }
         DamageSource source = event.getSource();
         if (source.getEntity() instanceof ServerPlayer player
                 && source.getDirectEntity() == player
                 && !player.level().isClientSide
+                && !DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.TWILIGHT_CRYSTAL_RING.get())
                 && event.getAmount() > 0.0F) {
             ModItems.TwilightCrystalRing.onMeleeHit(player, event.getEntity());
         }
@@ -2449,20 +2598,29 @@ public class ModEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onDuatSunEaterCrownHit(LivingHurtEvent event) {
+        if (event.getEntity() instanceof DuatSunEaterEntity) {
+            return;
+        }
         if (!event.isCanceled()
                 && event.getAmount() > 0.0F
-                && event.getSource().getEntity() instanceof ServerPlayer player) {
+                && event.getSource().getEntity() instanceof ServerPlayer player
+                && !DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.DUAT_SUN_EATER_CROWN.get())) {
             DuatSunEaterCrownItem.tryTrigger(player, event.getEntity());
         }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onEternalSilenceTotemMeleeHit(LivingHurtEvent event) {
+        if (event.getEntity() instanceof DuatSunEaterEntity) {
+            return;
+        }
         DamageSource source = event.getSource();
         if (!(source.getEntity() instanceof ServerPlayer player)
                 || source.getDirectEntity() != player
                 || player.level().isClientSide
                 || event.getAmount() <= 0.0F
+                || DuatCuriosSealManager.suppressesEquippedItem(player,
+                ModItems.ETERNAL_SILENCE_TOTEM.get(), ModItems.ETERNAL_SILENCE_REBIRTH_TOTEM.get())
                 || !ModItems.EternalSilenceTotem.isEquipped(player)) {
             return;
         }
@@ -2597,10 +2755,19 @@ public class ModEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onMonolithTargetChange(net.minecraftforge.event.entity.living.LivingChangeTargetEvent event) {
+        LivingEntity target = event.getNewTarget();
+        if (target != null && GoetyObsidianMonolithCompat.isOwnedMonolith(target, event.getEntity())) {
+            event.setNewTarget(null);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onMobEffectApplicable(MobEffectEvent.Applicable event) {
         LivingEntity living = event.getEntity();
         MobEffectInstance effect = event.getEffectInstance();
         if (effect != null
+                && !DynastyCombatHooks.preventsPurge(effect.getEffect())
                 && isDynastyShieldPurgeActive(living)
                 && effect.getEffect().getCategory() == MobEffectCategory.HARMFUL
                 && !isUraeusNecklaceBypassEffect(living, effect.getEffect())) {
@@ -2623,6 +2790,7 @@ public class ModEvents {
             return;
         }
         if (!event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)
+                && !DynastyCombatHooks.bypassesAffixes(event.getSource())
                 && GoetyObsidianMonolithCompat.blocksDamage(event.getEntity())) {
             event.setCanceled(true);
             return;
@@ -2639,7 +2807,8 @@ public class ModEvents {
                     "RamessesDynastyPurgeKnowledgeBypassUntil",
                     event.getEntity().level().getGameTime() + 100L);
         }
-        if (isDynastyMoltenActive(event.getEntity()) && event.getSource().is(DamageTypeTags.IS_FIRE)) {
+        if (!DynastyCombatHooks.bypassesAffixes(event.getSource())
+                && isDynastyMoltenActive(event.getEntity()) && event.getSource().is(DamageTypeTags.IS_FIRE)) {
             event.setCanceled(true);
             event.getEntity().clearFire();
             return;
@@ -2685,11 +2854,15 @@ public class ModEvents {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onLivingDamage(LivingDamageEvent event) {
+        if (event.getEntity() instanceof DuatSunEaterEntity) {
+            return;
+        }
         if (event.getSource().is(ModDamageTypes.EDICT_EXECUTION)) {
             event.getEntity().invulnerableTime = 0;
             return;
         }
-        if (isDynastyMoltenActive(event.getEntity()) && event.getSource().is(DamageTypeTags.IS_FIRE)) {
+        if (!DynastyCombatHooks.bypassesAffixes(event.getSource())
+                && isDynastyMoltenActive(event.getEntity()) && event.getSource().is(DamageTypeTags.IS_FIRE)) {
             event.setCanceled(true);
             event.setAmount(0.0F);
             event.getEntity().clearFire();
@@ -2786,6 +2959,30 @@ public class ModEvents {
     }
 
     @SubscribeEvent
+    public static void onSatietyFoodUseStart(LivingEntityUseItemEvent.Start event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)
+                || !SatietyFoodRepayment.isFood(event.getItem(), player)) return;
+        if (isGuiltLocked(player)) {
+            event.setCanceled(true);
+            return;
+        }
+        // Migrate legacy assigned-food data; any three distinct foods now count.
+        if (isSealEquipped(player) && !isCurseNineReversed(player) && getSatietyCrystalCount(player) > 0) {
+            SatietyFoodRepayment.ensureRound(player, getCurseData(player));
+            SatietyFoodRepayment.mirrorToCrystals(player, getCurseData(player), true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onSatietyFoodUseTick(LivingEntityUseItemEvent.Tick event) {
+        if (event.getEntity() instanceof ServerPlayer player && isGuiltLocked(player)
+                && SatietyFoodRepayment.isFood(event.getItem(), player)) {
+            player.stopUsingItem();
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
     public static void onLivingEntityUseItemFinish(LivingEntityUseItemEvent.Finish event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
@@ -2795,6 +2992,34 @@ public class ModEvents {
         }
 
         ItemStack stack = event.getItem();
+        if (getSatietyCrystalCount(player) > 0 && SatietyFoodRepayment.isFood(stack, player)) {
+            if (!isGuiltLocked(player)) {
+                CompoundTag data = getCurseData(player);
+                if (SatietyFoodRepayment.record(data, stack)) {
+                    SatietyFoodRepayment.showRequirements(player, data);
+                }
+                if (SatietyFoodRepayment.complete(data)) {
+                    if (!consumeSatietyCrystal(player)) {
+                        player.displayClientMessage(Component.translatable("message.ramesses_curse.satiety_riddle_missing_crystal")
+                                .withStyle(ChatFormatting.RED), false);
+                        return;
+                    }
+                    restoreSatietyCrystalDebt(player);
+                    int sealSeconds = Config.CURSE_9_FOOD_SEAL_SECONDS.get();
+                    data.putLong(CURSE_9_FOOD_LOCK_UNTIL, Math.max(data.getLong(CURSE_9_FOOD_LOCK_UNTIL),
+                            player.level().getGameTime() + sealSeconds * 20L));
+                    syncClientState(player, true);
+                    if (getRemainingGuiltLockTicks(player) > 0) {
+                        applyInventoryCooldowns(player, getRemainingGuiltLockTicks(player));
+                    }
+                    player.displayClientMessage(Component.translatable("message.ramesses_curse.satiety_food_solved")
+                            .withStyle(ChatFormatting.GOLD), false);
+                }
+                SatietyFoodRepayment.mirrorToCrystals(player, data, getSatietyCrystalCount(player) > 0);
+            }
+            // Debt repayment and permanent reversal are separate progression paths.
+            return;
+        }
         if (stack.isEmpty() || !stack.isEdible()) {
             return;
         }
@@ -2817,6 +3042,9 @@ public class ModEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingDamageFinal(LivingDamageEvent event) {
         LivingEntity target = event.getEntity();
+        if (target instanceof DuatSunEaterEntity) {
+            return;
+        }
         if (event.getSource().is(ModDamageTypes.EDICT_EXECUTION)
                 || event.getSource().is(ModDamageTypes.CHANCE_DIE_TRUE_DAMAGE)
                 || event.getSource().is(ModDamageTypes.RUIN_BURST)) {
@@ -2835,7 +3063,9 @@ public class ModEvents {
                 && event.getAmount() > 0.0F
                 && getSourcePlayer(event.getSource()) instanceof ServerPlayer) {
             ensureDynastyShield(target, false);
-            GoetyObsidianMonolithCompat.trySpawnAfterPlayerAttack(target);
+            if (!DynastyCombatHooks.bypassesAffixes(event.getSource())) {
+                GoetyObsidianMonolithCompat.trySpawnAfterPlayerAttack(target);
+            }
         }
         if (tryBlockDynastySteelBoneDamage(event)) {
             return;
@@ -2849,6 +3079,7 @@ public class ModEvents {
         }
         if (event.getSource().getEntity() instanceof Player player
                 && !player.level().isClientSide
+                && !DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.RESONANT_SCARAB.get())
                 && ModItems.isMusicRelicAwakened(player)
                 && !ModItems.hasMusicAttackModifier(player)) {
             event.setAmount(event.getAmount() * ModItems.getMusicAttackMultiplier());
@@ -2856,6 +3087,7 @@ public class ModEvents {
 
         if (event.getSource().getEntity() instanceof Player player
                 && canUseHeartSlot(player)
+                && !DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.HEART_OF_DUAT.get())
                 && isHeartEquipped(player)
                 && target instanceof Enemy) {
             event.setAmount(event.getAmount() + ModItems.HeartOfDuat.getDamageBonus(player));
@@ -2863,7 +3095,9 @@ public class ModEvents {
 
         if (event.getSource().getEntity() instanceof Player player
                 && !player.level().isClientSide) {
-            event.setAmount(ModItems.onUraeusNecklaceAttack(player, target, event.getAmount()));
+            if (!DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.URAEUS_NECKLACE.get())) {
+                event.setAmount(ModItems.onUraeusNecklaceAttack(player, target, event.getAmount()));
+            }
         }
 
         Player player = getSourcePlayer(event.getSource());
@@ -2899,6 +3133,7 @@ public class ModEvents {
         }
 
         ServerPlayer inscriptionAttacker = event.getSource().getEntity() instanceof ServerPlayer serverPlayer
+                && !DuatCuriosSealManager.suppressesEquippedItem(serverPlayer, ModItems.INSCRIPTION_BAG.get())
                 ? serverPlayer
                 : null;
         if (inscriptionAttacker != null && !event.isCanceled()) {
@@ -2907,7 +3142,9 @@ public class ModEvents {
         }
 
         Player conquestAttacker = getSourcePlayer(event.getSource());
-        if (conquestAttacker != null && !event.isCanceled()) {
+        if (conquestAttacker != null
+                && !DuatCuriosSealManager.suppressesEquippedItem(conquestAttacker, ModItems.ETERNAL_CONQUEST.get())
+                && !event.isCanceled()) {
             event.setAmount(ModItems.EternalConquest.applyAttackDamageBonus(
                     conquestAttacker, event.getAmount()));
         }
@@ -2924,7 +3161,10 @@ public class ModEvents {
             tryTriggerDynastyDeathAuthority(struckPlayer, event.getSource());
             tryTriggerDynastyVulnerability(struckPlayer, event.getSource());
         }
-        if (!event.isCanceled() && event.getAmount() > 0.0F) {
+        Player ruinSource = getSourcePlayer(event.getSource());
+        if (!event.isCanceled() && event.getAmount() > 0.0F
+                && (ruinSource == null || !DuatCuriosSealManager.suppressesEquippedItem(
+                ruinSource, ModItems.RUIN_TALISMAN.get()))) {
             trackRuinTalismanDamage(event.getSource(), target, event.getAmount());
         }
         applyCurseFiveFatalGuard(event);
@@ -3099,6 +3339,7 @@ public class ModEvents {
     }
 
     private static void tryArmDynastyClawRage(LivingEntity target, DamageSource source, float incomingDamage) {
+        if (DynastyCombatHooks.bypassesAffixes(source)) return;
         if (incomingDamage <= 0.0F
                 || target.level().isClientSide
                 || !(target instanceof Enemy)
@@ -3125,6 +3366,7 @@ public class ModEvents {
     }
 
     private static float consumeDynastyClawRageBonus(LivingEntity target, DamageSource source, float damage) {
+        if (DynastyCombatHooks.bypassesAffixes(source)) return damage;
         if (damage <= 0.0F
                 || !(source.getEntity() instanceof LivingEntity attacker)
                 || attacker.level().isClientSide
@@ -3237,6 +3479,7 @@ public class ModEvents {
             return;
         }
         if (event.getEntity() instanceof ServerPlayer player
+                && !DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.RUIN_TALISMAN.get())
                 && tryReviveWithRuinTalisman(player)) {
             event.setCanceled(true);
             return;
@@ -3247,6 +3490,8 @@ public class ModEvents {
             return;
         }
         if (event.getEntity() instanceof ServerPlayer player
+                && !DuatCuriosSealManager.suppressesEquippedItem(player,
+                ModItems.ETERNAL_SILENCE_TOTEM.get(), ModItems.ETERNAL_SILENCE_REBIRTH_TOTEM.get())
                 && ModItems.EternalSilenceTotem.tryRevive(player)) {
             event.setCanceled(true);
         }
@@ -3255,6 +3500,7 @@ public class ModEvents {
     private static void trackRuinTalismanDamage(DamageSource damageSource, LivingEntity target, float damage) {
         if (!(getSourcePlayer(damageSource) instanceof ServerPlayer player)
                 || player == target
+                || DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.RUIN_TALISMAN.get())
                 || !ModItems.RuinTalisman.isEquipped(player)) {
             return;
         }
@@ -3298,7 +3544,8 @@ public class ModEvents {
     }
 
     private static boolean tryReviveWithRuinTalisman(ServerPlayer player) {
-        if (!ModItems.RuinTalisman.isEquipped(player)) {
+        if (DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.RUIN_TALISMAN.get())
+                || !ModItems.RuinTalisman.isEquipped(player)) {
             return false;
         }
         CompoundTag data = getCurseData(player);
@@ -3353,9 +3600,15 @@ public class ModEvents {
         tryTriggerDynastyRestoration(event.getEntity(), event.getSource());
 
         if (event.getEntity() instanceof ServerPlayer fallenPlayer && isSealEquipped(fallenPlayer) && !isCurseNineReversed(fallenPlayer)) {
-            addSatietyCrystalCount(fallenPlayer, 1);
             CompoundTag data = getCurseData(fallenPlayer);
-            data.putInt(SATIETY_CRYSTAL_PENDING_ITEMS, data.getInt(SATIETY_CRYSTAL_PENDING_ITEMS) + 1);
+            int deaths = Math.max(0, data.getInt(CURSE_9_DEATH_PROGRESS)) + 1;
+            if (deaths >= Config.CURSE_9_DEATHS_PER_CRYSTAL.get()) {
+                data.putInt(CURSE_9_DEATH_PROGRESS, 0);
+                addSatietyCrystalCount(fallenPlayer, 1);
+                data.putInt(SATIETY_CRYSTAL_PENDING_ITEMS, data.getInt(SATIETY_CRYSTAL_PENDING_ITEMS) + 1);
+            } else {
+                data.putInt(CURSE_9_DEATH_PROGRESS, deaths);
+            }
             syncClientState(fallenPlayer, true);
         }
 
@@ -3367,12 +3620,15 @@ public class ModEvents {
             return;
         }
 
-        InscriptionBagItem.onKill(player, event.getEntity());
+        if (!DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.INSCRIPTION_BAG.get())) {
+            InscriptionBagItem.onKill(player, event.getEntity());
+        }
         recordCurseSevenReversedKill(player, event.getEntity());
 
         CompoundTag defeatedTag = event.getEntity().getPersistentData();
         if (defeatedTag.getBoolean(DYNASTY_SHIELD_ASSIGNED)
-                && defeatedTag.getInt(DYNASTY_SHIELD_LEVEL) == 9) {
+                // Eternal Conquest accepts tier 9 and every configured tier above it.
+                && defeatedTag.getInt(DYNASTY_SHIELD_LEVEL) >= 9) {
             ModItems.EternalConquest.recordTierNineShieldKill(player);
         }
 
@@ -3380,7 +3636,9 @@ public class ModEvents {
             reduceDynastyPressure(player, 1);
         }
 
-        if (canUseHeartSlot(player) && isHeartEquipped(player) && event.getEntity() instanceof Enemy) {
+        if (canUseHeartSlot(player)
+                && !DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.HEART_OF_DUAT.get())
+                && isHeartEquipped(player) && event.getEntity() instanceof Enemy) {
             ModItems.HeartOfDuat.onKillEnemy(player, event.getEntity());
         }
 
@@ -3587,6 +3845,12 @@ public class ModEvents {
         if (player == null) {
             return false;
         }
+        if (player.level().isClientSide) {
+            return ClientOverlayEvents.isClientCurseThreeFourLifted();
+        }
+        if (!player.level().isClientSide && getCurseData(player).getBoolean(CURSE_3_4_COMMAND_OVERRIDE)) {
+            return true;
+        }
         return isCurseOneReversed(player)
                 && isCurseTwoReversed(player)
                 && isCurseFiveFateDecided(player)
@@ -3753,11 +4017,15 @@ public class ModEvents {
     }
 
     private static boolean isCurseFiveMercyInvulnerable(ServerPlayer player) {
-        return getCurseData(player).getLong(MERCY_INVULNERABLE_UNTIL) > player.level().getGameTime();
+        return isSealEquipped(player)
+                && isCurseFiveReversed(player)
+                && getCurseData(player).getLong(MERCY_INVULNERABLE_UNTIL) > player.level().getGameTime();
     }
 
     private static boolean isCurseFiveFatalGuardInvulnerable(ServerPlayer player) {
-        return getCurseData(player).getLong(CURSE_5_FATAL_GUARD_INVULNERABLE_UNTIL) > player.level().getGameTime();
+        return isSealEquipped(player)
+                && isCurseFiveReversed(player)
+                && getCurseData(player).getLong(CURSE_5_FATAL_GUARD_INVULNERABLE_UNTIL) > player.level().getGameTime();
     }
 
     private static boolean isCurseFiveMercySurgeActive(ServerPlayer player) {
@@ -3765,7 +4033,7 @@ public class ModEvents {
     }
 
     private static boolean tryTriggerCurseFiveFatalGuard(ServerPlayer player) {
-        if (!isCurseFiveReversed(player)) {
+        if (!isSealEquipped(player) || !isCurseFiveReversed(player)) {
             return false;
         }
 
@@ -3985,7 +4253,10 @@ public class ModEvents {
     }
 
     public static boolean triggerCurseFiveMercyRevive(ServerPlayer player) {
-        if (player == null || !isCurseFiveReversed(player)) {
+        if (player == null
+                || player.isAlive()
+                || !isSealEquipped(player)
+                || !isCurseFiveReversed(player)) {
             return false;
         }
 
@@ -4016,6 +4287,11 @@ public class ModEvents {
         if (!data.getBoolean(MERCY_REVIVE_PENDING)) {
             return;
         }
+        if (!isSealEquipped(player) || !isCurseFiveReversed(player)) {
+            clearCurseFiveMercyReviveState(data);
+            clearCurseFiveMercyState(player, false);
+            return;
+        }
 
         data.putBoolean(MERCY_REVIVE_PENDING, false);
         data.putBoolean(MERCY_REVIVE_TELEPORT_PENDING, true);
@@ -4032,6 +4308,11 @@ public class ModEvents {
     private static void finalizePendingMercyReviveTeleport(ServerPlayer player) {
         CompoundTag data = getCurseData(player);
         if (!data.getBoolean(MERCY_REVIVE_TELEPORT_PENDING)) {
+            return;
+        }
+        if (!isSealEquipped(player) || !isCurseFiveReversed(player)) {
+            clearCurseFiveMercyReviveState(data);
+            clearCurseFiveMercyState(player, false);
             return;
         }
 
@@ -4172,14 +4453,34 @@ public class ModEvents {
 
     private static void clearCurseFiveMercyState(ServerPlayer player, boolean resetCharge) {
         CompoundTag data = getCurseData(player);
+        long gameTime = player.level().getGameTime();
+        boolean hadCurseFiveInvulnerability = data.getLong(MERCY_INVULNERABLE_UNTIL) > gameTime
+                || data.getLong(CURSE_5_FATAL_GUARD_INVULNERABLE_UNTIL) > gameTime;
+        clearCurseFiveMercyReviveState(data);
         data.putLong(MERCY_INVULNERABLE_UNTIL, 0L);
         data.putLong(MERCY_SURGE_PENDING_AT, 0L);
         data.putLong(MERCY_SURGE_UNTIL, 0L);
+        data.putLong(CURSE_5_FATAL_GUARD_INVULNERABLE_UNTIL, 0L);
+        if (hadCurseFiveInvulnerability
+                && player.invulnerableTime > player.invulnerableDuration) {
+            player.invulnerableTime = player.invulnerableDuration;
+        }
         if (resetCharge) {
             data.putBoolean(MERCY_CHARGE_READY, false);
             data.putInt(MERCY_PROGRESS, 0);
         }
         clearCurseFiveMercySurgeModifiers(player);
+    }
+
+    private static void clearCurseFiveMercyReviveState(CompoundTag data) {
+        data.putBoolean(MERCY_REVIVE_PENDING, false);
+        data.putBoolean(MERCY_REVIVE_TELEPORT_PENDING, false);
+        data.remove(MERCY_REVIVE_DIMENSION);
+        data.remove(MERCY_REVIVE_X);
+        data.remove(MERCY_REVIVE_Y);
+        data.remove(MERCY_REVIVE_Z);
+        data.remove(MERCY_REVIVE_YAW);
+        data.remove(MERCY_REVIVE_PITCH);
     }
 
     private static void applyCurseFiveMercySurgeModifiers(ServerPlayer player) {
@@ -4903,12 +5204,16 @@ public class ModEvents {
     }
 
     public static void handleCurseSevenReveal(ServerPlayer player, String answer) {
-        if (player == null || !isSealEquipped(player) || isCurseSevenReversed(player) || !isCurseSevenKeywordUnlocked(player)) {
+        if (CURSE_7_CHAT_KEYWORD.equals(normalizeCurseSixPhrase(answer))) {
+            handleCurseSevenKeyword(player);
+            return;
+        }
+        if (player == null || !isSealEquipped(player) || isCurseSixReversed(player) || !isCurseSevenKeywordUnlocked(player)) {
             return;
         }
 
         CompoundTag data = getCurseData(player);
-        String normalized = answer == null ? "" : answer.trim().toLowerCase(Locale.ROOT);
+        String normalized = normalizeCurseSixPhrase(answer);
         if (!"end main island".equals(normalized)) {
             data.putBoolean(CURSE_6_KEYWORD_UNLOCKED, false);
             data.putBoolean(CURSE_6_TERMINAL_SOLVED, false);
@@ -4949,7 +5254,7 @@ public class ModEvents {
                 && isSealEquipped(minecraft.player)
                 && ClientOverlayEvents.isClientCurseSevenSentenceUnlocked()
                 && !ClientOverlayEvents.isClientCurseSevenKeywordUnlocked()
-                && !ClientOverlayEvents.isClientCurseSevenReversed();
+                && !ClientOverlayEvents.isClientCurseSixReversed();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -5253,6 +5558,9 @@ public class ModEvents {
     }
 
     public static boolean isMusicRelicEquipped(Player player) {
+        if (DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.RESONANT_SCARAB.get())) {
+            return false;
+        }
         return CuriosApi.getCuriosInventory(player)
                 .resolve()
                 .map(inv -> inv.getStacksHandler(RamessesCurseMod.MUSIC_SLOT_ID)
@@ -5338,6 +5646,9 @@ public class ModEvents {
     }
 
     private static boolean isHeartEquipped(Player player) {
+        if (DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.HEART_OF_DUAT.get())) {
+            return false;
+        }
         return CuriosApi.getCuriosInventory(player)
                 .resolve()
                 .flatMap(inv -> inv.findFirstCurio(ModItems.HEART_OF_DUAT.get()))
@@ -5447,23 +5758,34 @@ public class ModEvents {
     }
 
     public static boolean tryUseSatietyCrystalFromInventory(ServerPlayer player) {
-        if (player == null || isCurseNineReversed(player) || !hasRecoverableSatietyCrystalDebt(player)) {
-            if (player != null) {
-                player.displayClientMessage(Component.translatable("message.ramesses_curse.satiety_riddle_no_debt")
-                        .withStyle(net.minecraft.ChatFormatting.GRAY), true);
-            }
+        if (player == null || !isSealEquipped(player) || isGuiltLocked(player)) {
+            return false;
+        }
+        if (isCurseNineReversed(player) || !hasRecoverableSatietyCrystalDebt(player)) {
+            player.displayClientMessage(Component.translatable("message.ramesses_curse.satiety_riddle_no_debt")
+                    .withStyle(net.minecraft.ChatFormatting.GRAY), true);
             return false;
         }
         ensureSatietyRiddleRound(player);
-        syncSatietyRiddleState(player, true);
+        SatietyFoodRepayment.ensureRound(player, getCurseData(player));
+        SatietyFoodRepayment.mirrorToCrystals(player, getCurseData(player), true);
+        SatietyFoodRepayment.showRequirements(player, getCurseData(player));
+        syncSatietyRiddleState(player, !player.isShiftKeyDown());
         return true;
     }
 
     private static void deliverPendingSatietyCrystals(ServerPlayer player) {
-        if (!player.isAlive()) {
+        if (!player.isAlive() || !isSealEquipped(player)) {
             return;
         }
+        // Reconcile before delivery so cleared debt cannot leave stale rewards queued.
+        reconcileSatietyCrystalItems(player);
         CompoundTag data = getCurseData(player);
+        if (!isCurseNineReversed(player) && getSatietyCrystalCount(player) > 0) {
+            SatietyFoodRepayment.ensureRound(player, data);
+        }
+        SatietyFoodRepayment.mirrorToCrystals(player, data,
+                !isCurseNineReversed(player) && getSatietyCrystalCount(player) > 0);
         int pending = Math.max(0, data.getInt(SATIETY_CRYSTAL_PENDING_ITEMS));
         if (pending <= 0) {
             return;
@@ -5471,11 +5793,13 @@ public class ModEvents {
 
         ItemStack stack = new ItemStack(ModItems.SATIETY_CRYSTAL.get(), Math.min(pending, 64));
         stack.getOrCreateTag().putUUID(SATIETY_CRYSTAL_ITEM_OWNER, player.getUUID());
+        SatietyFoodRepayment.writeCrystalHints(stack, data);
         player.getInventory().add(stack);
 
         int delivered = Math.min(pending, 64) - stack.getCount();
         if (delivered > 0) {
             data.putInt(SATIETY_CRYSTAL_PENDING_ITEMS, pending - delivered);
+            SatietyFoodRepayment.mirrorToCrystals(player, data, true);
         }
         if (!stack.isEmpty() && player.tickCount % 200 == 0) {
             player.displayClientMessage(Component.translatable("message.ramesses_curse.satiety_crystal_pending")
@@ -5484,11 +5808,15 @@ public class ModEvents {
     }
 
     private static void reconcileSatietyCrystalItems(ServerPlayer player) {
-        int debtCount = getSatietyCrystalCount(player);
-        if (debtCount <= 0 || isCurseNineReversed(player)) {
+        if (!isSealEquipped(player)) {
             return;
         }
         CompoundTag data = getCurseData(player);
+        int debtCount = getSatietyCrystalCount(player);
+        if (debtCount <= 0 || isCurseNineReversed(player)) {
+            data.remove(SATIETY_CRYSTAL_PENDING_ITEMS);
+            return;
+        }
         int ownedInInventory = 0;
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
@@ -5504,9 +5832,9 @@ public class ModEvents {
             }
         }
         int pending = Math.max(0, data.getInt(SATIETY_CRYSTAL_PENDING_ITEMS));
-        int missing = debtCount - ownedInInventory - pending;
-        if (missing > 0) {
-            data.putInt(SATIETY_CRYSTAL_PENDING_ITEMS, pending + missing);
+        int needed = Math.max(0, debtCount - ownedInInventory);
+        data.putInt(SATIETY_CRYSTAL_PENDING_ITEMS, needed);
+        if (needed > pending) {
             player.displayClientMessage(Component.translatable("message.ramesses_curse.satiety_crystal_reissued")
                     .withStyle(net.minecraft.ChatFormatting.GOLD), false);
         }
@@ -5526,13 +5854,19 @@ public class ModEvents {
     }
 
     public static boolean tryRecoverSatietyCrystalFromEntity(ServerPlayer player) {
+        if (!isSealEquipped(player)) {
+            return false;
+        }
         if (isCurseNineReversed(player)) {
             return true;
         }
         if (!hasRecoverableSatietyCrystalDebt(player)) {
             return false;
         }
-        restoreSatietyCrystalDebt(player);
+        // Legacy world crystals now lead to the same two repayment routes.
+        // Touching one must no longer bypass either challenge.
+        deliverPendingSatietyCrystals(player);
+        tryUseSatietyCrystalFromInventory(player);
         return true;
     }
 
@@ -5545,15 +5879,21 @@ public class ModEvents {
     }
 
     private static void restoreSatietyCrystalDebt(Player player) {
-        player.getFoodData().eat(CURSE_9_HUNGER_LOSS, 0.0F);
         player.removeEffect(MobEffects.HUNGER);
         player.level().playSound(null, player.blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.8F, 1.2F);
         addSatietyCrystalCount(player, -1);
+        int foodLimit = Math.max(0, 20 - getSatietyCrystalCount(player) * CURSE_9_HUNGER_LOSS);
+        player.getFoodData().setFoodLevel(foodLimit);
+        player.getFoodData().setSaturation(foodLimit);
         if (player instanceof ServerPlayer serverPlayer) {
             CompoundTag data = getCurseData(serverPlayer);
             clearCurseNinePenalty(serverPlayer);
             data.putInt(CURSE_9_DEBT_TICKS, getCurseNineMaxSatiety());
             data.remove(CURSE_9_PENALTY_UNTIL);
+            SatietyFoodRepayment.clear(data);
+            resetSatietyRiddleRound(data);
+            syncSatietyRiddleState(serverPlayer, false);
+            SatietyFoodRepayment.mirrorToCrystals(serverPlayer, data, getSatietyCrystalCount(player) > 0);
         }
         syncCurseState(player);
     }
@@ -5571,6 +5911,7 @@ public class ModEvents {
                 data.getBoolean(END_AWAKENED),
                 data.getBoolean(CURSE_1_REVERSED),
                 data.getBoolean(CURSE_2_REVERSED),
+                areCurseThreeAndFourLifted(player),
                 data.getBoolean(CURSE_5_REVERSED),
                 data.getBoolean(CURSE_5_DECLINED),
                 data.getBoolean(CURSE_6_KEYWORD_UNLOCKED),
@@ -5805,6 +6146,13 @@ public class ModEvents {
             return;
         }
 
+        // The phrase may be entered in the same box as the inscriptions,
+        // including after this player's inscription round is already solved.
+        if (CURSE_7_CHAT_KEYWORD.equals(normalizeCurseSixPhrase(answer))) {
+            handleCurseSevenKeyword(player);
+            return;
+        }
+
         CompoundTag data = getCurseData(player);
         if (data.getBoolean(EMBER_RIDDLE_UNLOCKED)) {
             return;
@@ -5924,8 +6272,19 @@ public class ModEvents {
                 .withStyle(net.minecraft.ChatFormatting.RED), false);
     }
 
+    private static void restoreCurseSixTrialUnlock(ServerPlayer player) {
+        CompoundTag data = getCurseData(player);
+        if (data.getBoolean(EMBER_TRIAL_COMPLETED) && !data.getBoolean(CURSE_6_SENTENCE_UNLOCKED)) {
+            unlockCurseSevenSentence(player, data);
+        }
+    }
+
     private static void unlockCurseSevenSentence(ServerPlayer player, CompoundTag data) {
+        if (data.getBoolean(CURSE_6_SENTENCE_UNLOCKED)) return;
         data.putBoolean(CURSE_6_SENTENCE_UNLOCKED, true);
+        // Repair a missing prerequisite without erasing this player's later progress.
+        if (data.getBoolean(CURSE_6_KEYWORD_UNLOCKED) || data.getBoolean(CURSE_6_TERMINAL_SOLVED)
+                || data.getBoolean(CURSE_6_REVERSED)) return;
         data.putBoolean(CURSE_6_KEYWORD_UNLOCKED, false);
         data.putBoolean(CURSE_6_TERMINAL_SOLVED, false);
         data.putInt(CURSE_6_SENTENCE_REVEAL_INDEX, 0);
@@ -6336,9 +6695,7 @@ public class ModEvents {
     }
 
     public static boolean isMainHandLocked(Player player) {
-        CompoundTag data = getCurseData(player);
-        return !data.getBoolean(CURSE_6_REVERSED)
-                && data.getLong(MAIN_LOCK_UNTIL) > player.level().getGameTime();
+        return getRemainingMainHandLockTicks(player) > 0;
     }
 
     public static boolean isDynastyHandSilenced(Player player, InteractionHand hand) {
@@ -6346,6 +6703,7 @@ public class ModEvents {
     }
 
     private static int getRemainingDynastySilenceTicks(Player player, InteractionHand hand) {
+        if (DynastyCombatHooks.bypassesSilence(player.getItemInHand(hand))) return 0;
         CompoundTag data = getCurseData(player);
         String key = hand == InteractionHand.OFF_HAND ? DYNASTY_SILENCE_OFF_HAND_UNTIL : DYNASTY_SILENCE_MAIN_HAND_UNTIL;
         return (int) Math.max(0L, data.getLong(key) - player.level().getGameTime());
@@ -6370,8 +6728,7 @@ public class ModEvents {
         if (!hasActiveLockedSlot(player, data)) {
             return false;
         }
-        int slot = data.getInt(LOCKED_SLOT);
-        return ItemStack.isSameItemSameTags(player.getInventory().items.get(slot), stack);
+        return matchesLockedItem(stack, data);
     }
 
     private static boolean isSealEntity(ItemEntity itemEntity) {
@@ -6379,13 +6736,21 @@ public class ModEvents {
     }
 
     private static boolean isGuiltLocked(Player player) {
-        CompoundTag data = getCurseData(player);
-        return data.getLong(GUILT_LOCK_UNTIL) > player.level().getGameTime();
+        return getRemainingGuiltLockTicks(player) > 0;
+    }
+
+    public static int getCurseNineFoodSealTicks(Player player) {
+        if (player.level().isClientSide) {
+            return player.getPersistentData().getInt(CurseNineSeal.CLIENT_TICKS);
+        }
+        return (int) Math.max(0L, Math.min(Integer.MAX_VALUE,
+                getCurseData(player).getLong(CURSE_9_FOOD_LOCK_UNTIL) - player.level().getGameTime()));
     }
 
     private static int getRemainingGuiltLockTicks(Player player) {
         CompoundTag data = getCurseData(player);
-        return (int) Math.max(0L, data.getLong(GUILT_LOCK_UNTIL) - player.level().getGameTime());
+        long until = Math.max(data.getLong(GUILT_LOCK_UNTIL), data.getLong(CURSE_9_FOOD_LOCK_UNTIL));
+        return (int) Math.max(0L, until - player.level().getGameTime());
     }
 
     private static int getRemainingLockedSlotTicks(Player player) {
@@ -6634,6 +6999,14 @@ public class ModEvents {
 
     private static void tickEdictDomain(ServerPlayer player) {
         CompoundTag data = player.getPersistentData();
+        if (DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.EDICT_OF_TWO_LANDS.get())) {
+            clearExpiredEdictDomainTargets(player.serverLevel(), player);
+            data.remove(EDICT_DOMAIN_UNTIL);
+            data.remove(EDICT_DOMAIN_CENTER_X);
+            data.remove(EDICT_DOMAIN_CENTER_Y);
+            data.remove(EDICT_DOMAIN_CENTER_Z);
+            return;
+        }
         long domainUntil = data.getLong(EDICT_DOMAIN_UNTIL);
         long gameTime = player.level().getGameTime();
         if (domainUntil <= gameTime) {
@@ -7747,6 +8120,7 @@ public class ModEvents {
     }
 
     private static void applyDynastyBloodLimit(LivingDamageEvent event) {
+        if (DynastyCombatHooks.bypassesAffixes(event.getSource())) return;
         LivingEntity target = event.getEntity();
         Player sourcePlayer = getSourcePlayer(event.getSource());
         if (event.isCanceled()
@@ -7806,6 +8180,7 @@ public class ModEvents {
     }
 
     private static boolean tryBlockDynastySteelBoneDamage(LivingDamageEvent event) {
+        if (DynastyCombatHooks.bypassesAffixes(event.getSource())) return false;
         LivingEntity target = event.getEntity();
         Player sourcePlayer = getSourcePlayer(event.getSource());
         if (!Config.DYNASTY_SHIELD_ENABLED.get()
@@ -7833,6 +8208,7 @@ public class ModEvents {
     }
 
     private static void absorbDynastyShieldDamage(LivingDamageEvent event) {
+        if (DynastyCombatHooks.bypassesAffixes(event.getSource())) return;
         LivingEntity target = event.getEntity();
         if (!Config.DYNASTY_SHIELD_ENABLED.get() || target.level().isClientSide || !(target instanceof Enemy) || event.getAmount() <= 0.0F) {
             return;
@@ -8098,6 +8474,7 @@ public class ModEvents {
     }
 
     private static void tryCorrodeDynastyShieldEquipment(LivingDamageEvent event) {
+        if (DynastyCombatHooks.bypassesAffixes(event.getSource())) return;
         if (!Config.DYNASTY_SHIELD_ENABLED.get() || !DynastyAffixData.enabled(DYNASTY_AFFIX_CORROSION)) {
             return;
         }
@@ -8158,6 +8535,7 @@ public class ModEvents {
     }
 
     private static boolean tryReviveDynastyShieldEntity(LivingDeathEvent event) {
+        if (DynastyCombatHooks.bypassesAffixes(event.getSource())) return false;
         LivingEntity living = event.getEntity();
         if (!Config.DYNASTY_SHIELD_ENABLED.get()
                 || !DynastyAffixData.enabled(DYNASTY_AFFIX_UNYIELDING)
@@ -9211,6 +9589,7 @@ public class ModEvents {
     }
 
     private static boolean isDynastyShieldProjectileWardBlockedDamage(LivingEntity living, DamageSource source) {
+        if (DynastyCombatHooks.bypassesAffixes(source)) return false;
         if (!isDynastyShieldProjectileWardActive(living)) {
             return false;
         }
@@ -9249,6 +9628,7 @@ public class ModEvents {
         List<MobEffect> harmfulEffects = new ArrayList<>();
         for (MobEffectInstance effect : living.getActiveEffects()) {
             if (effect.getEffect().getCategory() == MobEffectCategory.HARMFUL
+                    && !DynastyCombatHooks.preventsPurge(effect.getEffect())
                     && !ModItems.isUraeusNecklaceStackEffect(living, effect.getEffect())) {
                 harmfulEffects.add(effect.getEffect());
             }
@@ -9301,6 +9681,20 @@ public class ModEvents {
     }
 
     private static void syncDynastyShieldToPlayer(LivingEntity living, @Nullable ServerPlayer player, boolean force) {
+        if (living.level().isClientSide) return;
+        CompoundTag data = living.getPersistentData();
+        float max = data.getBoolean(DYNASTY_SHIELD_ASSIGNED) ? Math.max(0, data.getFloat(DYNASTY_SHIELD_MAX)) : 0;
+        float current = Mth.clamp(data.getFloat(DYNASTY_SHIELD_CURRENT), 0, max);
+        if (player == null && !force && data.getFloat(DYNASTY_SHIELD_LAST_SYNC_CURRENT) == current
+                && data.getFloat(DYNASTY_SHIELD_LAST_SYNC_MAX) == max) return;
+        DynastyShieldSyncPacket packet = new DynastyShieldSyncPacket(living.getId(), current, max);
+        if (player != null) {
+            ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
+        } else {
+            data.putFloat(DYNASTY_SHIELD_LAST_SYNC_CURRENT, current);
+            data.putFloat(DYNASTY_SHIELD_LAST_SYNC_MAX, max);
+            ModNetwork.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> living), packet);
+        }
     }
 
     public static @Nullable DynastyShieldSnapshot getDynastyShieldSnapshot(LivingEntity living) {
@@ -9483,6 +9877,9 @@ public class ModEvents {
     }
 
     private static void tickCurseNineDebt(ServerLevel level, Player player) {
+        if (!isSealEquipped(player)) {
+            return;
+        }
         CompoundTag data = getCurseData(player);
         long gameTime = level.getGameTime();
         int crystalCount = getSatietyCrystalCount(player);
@@ -9534,10 +9931,47 @@ public class ModEvents {
                     -0.99D,
                     AttributeModifier.Operation.MULTIPLY_TOTAL);
         }
-        getCurseData(player).putBoolean(CURSE_9_ALL_ATTRIBUTES_APPLIED, true);
+        CompoundTag data = getCurseData(player);
+        boolean wasAlreadyApplied = data.getBoolean(CURSE_9_ALL_ATTRIBUTES_APPLIED);
+        data.putBoolean(CURSE_9_ALL_ATTRIBUTES_APPLIED, true);
+        if (!wasAlreadyApplied || !data.contains(CURSE_9_PENALTY_WARNING_NEXT)) {
+            data.putLong(CURSE_9_PENALTY_WARNING_NEXT,
+                    player.level().getGameTime() + CURSE_9_PENALTY_WARNING_DELAY_TICKS);
+        }
         if (player.getHealth() > player.getMaxHealth()) {
             player.setHealth(player.getMaxHealth());
         }
+    }
+
+    /**
+     * Reminds an affected player in their own chat after the 99% attribute
+     * penalty has been active for 15 seconds, then once every 5 seconds until
+     * the outstanding Satiety Crystal debt is repaid.
+     */
+    private static void tickCurseNinePenaltyWarning(ServerPlayer player) {
+        CompoundTag data = getCurseData(player);
+        if (!isSealEquipped(player)
+                || getSatietyCrystalCount(player) <= 0
+                || !isCurseNinePenaltyActive(player)) {
+            data.remove(CURSE_9_PENALTY_WARNING_NEXT);
+            return;
+        }
+
+        long now = player.level().getGameTime();
+        if (!data.contains(CURSE_9_PENALTY_WARNING_NEXT)) {
+            data.putLong(CURSE_9_PENALTY_WARNING_NEXT, now + CURSE_9_PENALTY_WARNING_DELAY_TICKS);
+            return;
+        }
+
+        long nextWarning = data.getLong(CURSE_9_PENALTY_WARNING_NEXT);
+        if (now < nextWarning) {
+            return;
+        }
+
+        player.displayClientMessage(
+                Component.translatable("message.ramesses_curse.satiety_debt_warning"),
+                false);
+        data.putLong(CURSE_9_PENALTY_WARNING_NEXT, now + CURSE_9_PENALTY_WARNING_INTERVAL_TICKS);
     }
 
     private static void removeLegacyCurseNineEffects(ServerPlayer player) {
@@ -9579,6 +10013,7 @@ public class ModEvents {
             removeModifier(player, attribute, CURSE_9_ALL_ATTRIBUTES_MODIFIER);
         }
         data.remove(CURSE_9_ALL_ATTRIBUTES_APPLIED);
+        data.remove(CURSE_9_PENALTY_WARNING_NEXT);
         if (player.getHealth() > player.getMaxHealth()) {
             player.setHealth(player.getMaxHealth());
         }
@@ -9591,6 +10026,9 @@ public class ModEvents {
     }
 
     private static void clearCurseNineDebt(ServerPlayer player) {
+        SatietyFoodRepayment.clear(getCurseData(player));
+        resetSatietyRiddleRound(getCurseData(player));
+        SatietyFoodRepayment.mirrorToCrystals(player, getCurseData(player), false);
         int crystalCount = getSatietyCrystalCount(player);
         if (crystalCount > 0) {
             addSatietyCrystalCount(player, -crystalCount);
@@ -9598,7 +10036,9 @@ public class ModEvents {
         player.removeEffect(MobEffects.HUNGER);
         clearCurseNinePenalty(player);
         CompoundTag data = getCurseData(player);
+        data.remove(SATIETY_CRYSTAL_PENDING_ITEMS);
         data.putInt(CURSE_9_DEBT_TICKS, getCurseNineMaxSatiety());
+        data.remove(CURSE_9_DEATH_PROGRESS);
         data.remove(CURSE_9_PENALTY_UNTIL);
         MinecraftServer server = player.server;
         if (server != null && crystalCount > 0) {
@@ -9663,6 +10103,8 @@ public class ModEvents {
         int maxDebt = getCurseNineMaxSatiety();
         int next = Math.max(0, data.getInt(SATIETY_CRYSTAL_COUNT) + delta);
         data.putInt(SATIETY_CRYSTAL_COUNT, next);
+        data.putInt(SATIETY_CRYSTAL_PENDING_ITEMS,
+                Math.min(next, Math.max(0, data.getInt(SATIETY_CRYSTAL_PENDING_ITEMS))));
         if (next == 0) {
             data.putInt(CURSE_9_DEBT_TICKS, maxDebt);
             clearRememberedSatietyCrystal(player);
@@ -9759,11 +10201,15 @@ public class ModEvents {
         data.put(SATIETY_CRYSTAL_RECORDS, listTag);
     }
 
-    private static void lockRandomInventorySlot(Player player, CompoundTag data, long gameTime) {
+    private static void lockRandomInventorySlot(ServerPlayer player, CompoundTag data, long gameTime) {
+        // A short configured interval must not release an item that is still sealed.
+        if (hasActiveLockedSlot(player, data)) return;
+        Inventory inventory = player.getInventory();
         List<Integer> filledSlots = new ArrayList<>();
-        for (int i = 0; i < player.getInventory().items.size(); i++) {
-            ItemStack stack = player.getInventory().items.get(i);
-            if (!stack.isEmpty()) {
+        for (int i = 0; i < inventory.items.size(); i++) {
+            ItemStack stack = inventory.items.get(i);
+            // The off-hand and armor are separate lists; exclude the selected main hand too.
+            if (i != inventory.selected && !stack.isEmpty()) {
                 filledSlots.add(i);
             }
         }
@@ -9771,9 +10217,33 @@ public class ModEvents {
             return;
         }
         int slot = filledSlots.get(player.getRandom().nextInt(filledSlots.size()));
+        ItemStack stack = inventory.items.get(slot);
         data.putInt(LOCKED_SLOT, slot);
         data.putLong(LOCKED_SLOT_UNTIL, gameTime + Config.INVENTORY_LOCK_DURATION.get());
-        data.put(LOCKED_SLOT_STACK, player.getInventory().items.get(slot).copy().save(new CompoundTag()));
+        markLockedItem(player, data, stack);
+        syncClientState(player, true);
+        player.displayClientMessage(Component.translatable("message.ramesses_curse.curse6_item_sealed",
+                stack.getHoverName(), formatConfiguredMinutes(Config.INVENTORY_LOCK_DURATION.get()))
+                .withStyle(ChatFormatting.GOLD), false);
+    }
+
+    private static void markLockedItem(Player player, CompoundTag data, ItemStack stack) {
+        CompoundTag seal = new CompoundTag();
+        seal.putUUID("Id", UUID.randomUUID());
+        seal.putUUID("Owner", player.getUUID());
+        seal.putLong("Until", data.getLong(LOCKED_SLOT_UNTIL));
+        stack.getOrCreateTag().put(LOCKED_ITEM_SEAL, seal);
+        data.put(LOCKED_SLOT_STACK, stack.copy().save(new CompoundTag()));
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+    }
+
+    private static boolean matchesLockedItem(ItemStack stack, CompoundTag data) {
+        if (stack.isEmpty() || !stack.hasTag()) return false;
+        CompoundTag seal = stack.getTag().getCompound(LOCKED_ITEM_SEAL);
+        CompoundTag expected = data.getCompound(LOCKED_SLOT_STACK).getCompound("tag").getCompound(LOCKED_ITEM_SEAL);
+        return seal.hasUUID("Id") && expected.hasUUID("Id")
+                && seal.getUUID("Id").equals(expected.getUUID("Id"));
     }
 
     private static BlockPos findSpawnPos(ServerPlayer player) {
@@ -9814,50 +10284,24 @@ public class ModEvents {
         CompoundTag data = getCurseData(player);
         data.putBoolean(GUILT_SENTENCE_PENDING, false);
         data.putInt(GUILT_PROGRESS, 0);
-        data.putLong(GUILT_LOCK_UNTIL, player.level().getGameTime() + Config.CURSE_5_LOCK_DURATION.get());
         data.putBoolean(CURSE_5_PUNISHMENT_COMPLETED, true);
         data.putBoolean(CURSE_5_DECISION_PENDING, true);
+        int duration = Config.CURSE_5_LOCK_DURATION.get();
+        data.putLong(GUILT_LOCK_UNTIL, Math.max(data.getLong(GUILT_LOCK_UNTIL), player.level().getGameTime() + duration));
+        player.stopUsingItem();
         syncClientState(player, true);
         applyInventoryCooldowns(player, getRemainingGuiltLockTicks(player));
-
-        BlockPos desertPos = findNearestDesert(player.serverLevel(), player.blockPosition(), 2048);
-        ServerLevel targetLevel = player.serverLevel();
-        BlockPos targetPos = desertPos != null ? desertPos : player.blockPosition();
-
-        if (desertPos != null) {
-            targetLevel.setWeatherParameters(0, 12000, true, true);
-        }
-
-        double x = targetPos.getX() + 0.5D;
-        double y = targetPos.getY() + 24.0D;
-        double z = targetPos.getZ() + 0.5D;
-        player.teleportTo(targetLevel, x, y, z, player.getYRot(), player.getXRot());
-
-        for (int i = 0; i < Config.CURSE_5_LIGHTNING_STRIKES.get(); i++) {
-            LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(targetLevel);
-            if (bolt != null) {
-                bolt.moveTo(player.getX(), player.getY(), player.getZ());
-                targetLevel.addFreshEntity(bolt);
-            }
-        }
-
-        player.hurt(player.damageSources().magic(), Float.MAX_VALUE);
-        player.displayClientMessage(Component.translatable("message.ramesses_curse.guilt_sentence").withStyle(net.minecraft.ChatFormatting.GOLD), false);
+        suppressDefenses(player);
+        player.displayClientMessage(Component.translatable("message.ramesses_curse.guilt_sentence",
+                formatConfiguredMinutes(duration)).withStyle(net.minecraft.ChatFormatting.GOLD), false);
     }
 
-    private static BlockPos findNearestDesert(ServerLevel level, BlockPos origin, int radius) {
-        for (int step = 64; step <= radius; step += 64) {
-            for (int dx = -step; dx <= step; dx += 32) {
-                for (int dz = -step; dz <= step; dz += 32) {
-                    BlockPos sample = origin.offset(dx, 0, dz);
-                    BlockPos top = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, sample);
-                    if (level.getBiome(top).is(Biomes.DESERT)) {
-                        return top;
-                    }
-                }
-            }
+    private static String formatConfiguredMinutes(int ticks) {
+        double minutes = Math.max(0, ticks) / 1200.0D;
+        if (minutes == Math.rint(minutes)) {
+            return Integer.toString((int) minutes);
         }
-        return null;
+        return String.format(Locale.ROOT, "%.2f", minutes).replaceAll("0+$", "").replaceAll("\\.$", "");
     }
 
     private static CompoundTag getCurseData(Player player) {
@@ -9882,6 +10326,9 @@ public class ModEvents {
         }
         if (!data.contains(CURSE_6_TERMINAL_SOLVED, Tag.TAG_BYTE) && data.contains("CurseSevenTerminalSolved", Tag.TAG_BYTE)) {
             data.putBoolean(CURSE_6_TERMINAL_SOLVED, data.getBoolean("CurseSevenTerminalSolved"));
+        }
+        if (!data.contains(CURSE_6_SENTENCE_UNLOCKED, Tag.TAG_BYTE) && data.contains("CurseSevenSentenceUnlocked", Tag.TAG_BYTE)) {
+            data.putBoolean(CURSE_6_SENTENCE_UNLOCKED, data.getBoolean("CurseSevenSentenceUnlocked"));
         }
         if (!data.getBoolean(CURSE_6_STATE_MIGRATED)) {
             if (data.contains(CURSE_7_REVERSED, Tag.TAG_BYTE)) {
@@ -9927,50 +10374,85 @@ public class ModEvents {
         return affected;
     }
 
-    private static int reverseAllCursesForTesting(CommandSourceStack source, Collection<ServerPlayer> targets) {
+    private static LiteralArgumentBuilder<CommandSourceStack> reverseCurseCommand(String name, int curseNumber) {
+        return literal(name)
+                .requires(source -> source.hasPermission(2))
+                .executes(context -> reverseCurseForTesting(
+                        context.getSource(), curseNumber,
+                        List.of(context.getSource().getPlayerOrException())))
+                .then(argument("targets", EntityArgument.players())
+                        .executes(context -> reverseCurseForTesting(
+                                context.getSource(), curseNumber,
+                                EntityArgument.getPlayers(context, "targets"))));
+    }
+
+    private static int reverseCurseForTesting(CommandSourceStack source, int curseNumber, Collection<ServerPlayer> targets) {
         int affected = 0;
         for (ServerPlayer target : targets) {
             CompoundTag data = getCurseData(target);
-            if (!data.getBoolean(CURSE_2_REVERSED)) {
-                ensureCurseTwoLuckReversalSnapshot(data, data.getInt(EQUIP_TICKS));
+
+            switch (curseNumber) {
+                case 1 -> {
+                    data.putBoolean(CURSE_1_REVERSED, true);
+                    clearCurseOneNegativeEffects(target);
+                    clearCurseOneRitualState(data);
+                }
+                case 2 -> {
+                    if (!data.getBoolean(CURSE_2_REVERSED)) {
+                        ensureCurseTwoLuckReversalSnapshot(data, data.getInt(EQUIP_TICKS));
+                    }
+                    data.putBoolean(CURSE_2_REVERSED, true);
+                    ModItems.SealOfKadesh.refreshCurseTwoLuck(target);
+                    unlockCurseSevenSentence(target, data);
+                }
+                case 3, 4 -> {
+                    // Curses III and IV share the dynasty tithe implementation, so either
+                    // dedicated command lifts that shared burden without touching other curses.
+                    data.putBoolean(CURSE_3_4_COMMAND_OVERRIDE, true);
+                    data.putBoolean(CURSE_3_4_LIFTED_HINT_SHOWN, true);
+                }
+                case 5 -> {
+                    data.putBoolean(CURSE_5_FATE_DECIDED, true);
+                    data.putBoolean(CURSE_5_DECISION_PENDING, false);
+                    data.putBoolean(CURSE_5_SLEEP_CHOICE_OPENED, false);
+                    data.putBoolean(CURSE_5_REVERSED, true);
+                    data.putBoolean(CURSE_5_DECLINED, false);
+                    data.putBoolean(GUILT_SENTENCE_PENDING, false);
+                    data.putLong(GUILT_LOCK_UNTIL, 0L);
+                    clearCurseFiveMercyState(target, true);
+                    clearCurseFiveDeclinedPower(target);
+                    clearDefenseSuppression(target);
+                }
+                case 6 -> {
+                    data.putBoolean(CURSE_6_KEYWORD_UNLOCKED, true);
+                    data.putBoolean(CURSE_6_TERMINAL_SOLVED, true);
+                    data.putBoolean(CURSE_6_SENTENCE_UNLOCKED, true);
+                    data.putBoolean(CURSE_6_REVERSED, true);
+                    clearCurseSixLockState(target, data);
+                    clearCurseSevenRitualState(data);
+                }
+                case 7 -> {
+                    data.putBoolean(CURSE_7_REVERSED, true);
+                    clearCurseSevenHeartRitualState(data);
+                }
+                case 8 -> {
+                    data.putBoolean(NETHER_AWAKENED, true);
+                    data.putBoolean(CURSE_8_REVERSED, true);
+                }
+                case 9 -> {
+                    data.putBoolean(CURSE_9_KILL_UNLOCKED, true);
+                    data.putBoolean(CURSE_9_REVERSED, true);
+                    clearCurseNineDebt(target);
+                }
+                default -> throw new IllegalArgumentException("Unsupported curse number: " + curseNumber);
             }
 
-            data.putBoolean(CURSE_1_REVERSED, true);
-            data.putBoolean(CURSE_2_REVERSED, true);
-            data.putBoolean(NETHER_AWAKENED, true);
-            data.putBoolean(END_AWAKENED, true);
-            data.putBoolean(CURSE_5_FATE_DECIDED, true);
-            data.putBoolean(CURSE_5_DECISION_PENDING, false);
-            data.putBoolean(CURSE_5_SLEEP_CHOICE_OPENED, false);
-            data.putBoolean(CURSE_5_REVERSED, true);
-            data.putBoolean(CURSE_5_DECLINED, false);
-            data.putBoolean(CURSE_6_KEYWORD_UNLOCKED, true);
-            data.putBoolean(CURSE_6_TERMINAL_SOLVED, true);
-            data.putBoolean(CURSE_6_SENTENCE_UNLOCKED, true);
-            data.putBoolean(CURSE_6_REVERSED, true);
-            data.putBoolean(CURSE_7_REVERSED, true);
-            data.putBoolean(CURSE_8_REVERSED, true);
-            data.putBoolean(CURSE_9_KILL_UNLOCKED, true);
-            data.putBoolean(CURSE_9_REVERSED, true);
-            data.putBoolean(GUILT_SENTENCE_PENDING, false);
-            data.putLong(GUILT_LOCK_UNTIL, 0L);
-
-            clearCurseOneNegativeEffects(target);
-            clearCurseOneRitualState(data);
-            clearCurseFiveMercyState(target, true);
-            clearCurseFiveDeclinedPower(target);
-            clearCurseSixLockState(target, data);
-            clearCurseSevenRitualState(data);
-            clearCurseSevenHeartRitualState(data);
-            clearCurseNineDebt(target);
-            clearDefenseSuppression(target);
-            ModItems.SealOfKadesh.refreshCurseTwoLuck(target);
             syncClientState(target, true);
             affected++;
         }
 
         int count = affected;
-        source.sendSuccess(() -> Component.translatable("command.ramesses_curse.reverse_all", count), true);
+        source.sendSuccess(() -> Component.translatable("command.ramesses_curse.reverse_curse", curseNumber, count), true);
         return affected;
     }
 
@@ -10375,7 +10857,8 @@ public class ModEvents {
     }
 
     public static void submitSatietyRiddleAnswer(ServerPlayer player, String answer) {
-        if (player == null || isCurseNineReversed(player) || !hasRecoverableSatietyCrystalDebt(player)) {
+        if (player == null || !isSealEquipped(player) || isGuiltLocked(player)
+                || isCurseNineReversed(player) || !hasRecoverableSatietyCrystalDebt(player)) {
             return;
         }
         ensureSatietyRiddleRound(player);
@@ -10414,7 +10897,7 @@ public class ModEvents {
     }
 
     public static void selectSatietyRiddle(ServerPlayer player, int index) {
-        if (player == null || !hasRecoverableSatietyCrystalDebt(player)) {
+        if (player == null || !isSealEquipped(player) || !hasRecoverableSatietyCrystalDebt(player)) {
             return;
         }
         ensureSatietyRiddleRound(player);
@@ -10516,7 +10999,7 @@ public class ModEvents {
         return minecraft.player != null
                 && isSealEquipped(minecraft.player)
                 && ClientOverlayEvents.isClientCurseSevenKeywordUnlocked()
-                && !ClientOverlayEvents.isClientCurseSevenReversed();
+                && !ClientOverlayEvents.isClientCurseSixReversed();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -10525,7 +11008,7 @@ public class ModEvents {
         return minecraft.player != null
                 && isSealEquipped(minecraft.player)
                 && ClientOverlayEvents.isClientCurseSevenKeywordUnlocked()
-                && !ClientOverlayEvents.isClientCurseSevenReversed();
+                && !ClientOverlayEvents.isClientCurseSixReversed();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -10651,11 +11134,11 @@ public class ModEvents {
         }
     }
 
-    private static void syncGuiltState(Player player, int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, int sealEquipSeconds, boolean netherAwakened, boolean endAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSixReversed, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int curseNineRequiredFoodTypes, int curseNineRemainingFoodTypes, int lockedSlot, int lockedSlotTicks, int dynastyThreat, int dynastySilenceMainHandTicks, int dynastySilenceOffHandTicks) {
+    private static void syncGuiltState(Player player, int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, int sealEquipSeconds, boolean netherAwakened, boolean endAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseThreeFourLifted, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSixReversed, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int curseNineRequiredFoodTypes, int curseNineRemainingFoodTypes, int lockedSlot, int lockedSlotTicks, int dynastyThreat, int dynastySilenceMainHandTicks, int dynastySilenceOffHandTicks) {
         if (player instanceof ServerPlayer serverPlayer) {
             ModNetwork.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> serverPlayer),
-                    new GuiltSyncPacket(guilt, mercy, mercyChargeReady, sealEquipped, sealEquipSeconds, netherAwakened, endAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSixReversed, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockTicks, satietyCrystalCount, curseNineDebtTicks, curseNineRequiredFoodTypes, curseNineRemainingFoodTypes, lockedSlot, lockedSlotTicks, dynastyThreat, dynastySilenceMainHandTicks, dynastySilenceOffHandTicks));
+                    new GuiltSyncPacket(guilt, mercy, mercyChargeReady, sealEquipped, sealEquipSeconds, netherAwakened, endAwakened, curseOneReversed, curseTwoReversed, curseThreeFourLifted, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSixReversed, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockTicks, satietyCrystalCount, curseNineDebtTicks, curseNineRequiredFoodTypes, curseNineRemainingFoodTypes, lockedSlot, lockedSlotTicks, dynastyThreat, dynastySilenceMainHandTicks, dynastySilenceOffHandTicks, getRemainingMainHandLockTicks(player)));
         }
     }
 
@@ -10678,6 +11161,7 @@ public class ModEvents {
         boolean endAwakened = data.getBoolean(END_AWAKENED);
         boolean curseOneReversed = data.getBoolean(CURSE_1_REVERSED);
         boolean curseTwoReversed = data.getBoolean(CURSE_2_REVERSED);
+        boolean curseThreeFourLifted = areCurseThreeAndFourLifted(player);
         boolean curseFiveReversed = data.getBoolean(CURSE_5_REVERSED);
         boolean curseFiveDeclined = data.getBoolean(CURSE_5_DECLINED);
         boolean curseSevenKeywordUnlocked = data.getBoolean(CURSE_6_KEYWORD_UNLOCKED);
@@ -10688,12 +11172,13 @@ public class ModEvents {
         boolean curseEightReversed = data.getBoolean(CURSE_8_REVERSED);
         boolean curseNineReversed = data.getBoolean(CURSE_9_REVERSED);
         int lockSeconds = Mth.ceil(getRemainingGuiltLockTicks(player) / 20.0F);
+        int mainHandLockSeconds = Mth.ceil(getRemainingMainHandLockTicks(player) / 20.0F);
         int satietyCrystalCount = getSatietyCrystalCount(player);
         int curseNineDebtTicks = getCurseNineDebtTicks(player);
         int curseNineRequiredFoodTypes = getCurseNineRequiredFoodTypes();
         int curseNineRemainingFoodTypes = getCurseNineRemainingFoodTypes(player);
-        int lockedSlot = data.getInt(LOCKED_SLOT);
         int lockedSlotTicks = getRemainingLockedSlotTicks(player);
+        int lockedSlot = data.getInt(LOCKED_SLOT);
         int dynastyThreat = getDynastyPressure(player);
         int dynastySilenceMainHandTicks = getRemainingDynastySilenceTicks(player, InteractionHand.MAIN_HAND);
         int dynastySilenceOffHandTicks = getRemainingDynastySilenceTicks(player, InteractionHand.OFF_HAND);
@@ -10709,6 +11194,7 @@ public class ModEvents {
                 && data.getBoolean(LAST_SYNC_END_AWAKENED) == endAwakened
                 && data.getBoolean(LAST_SYNC_CURSE_1_REVERSED) == curseOneReversed
                 && data.getBoolean(LAST_SYNC_CURSE_2_REVERSED) == curseTwoReversed
+                && data.getBoolean(LAST_SYNC_CURSE_3_4_LIFTED) == curseThreeFourLifted
                 && data.getBoolean(LAST_SYNC_CURSE_5_REVERSED) == curseFiveReversed
                 && data.getBoolean(LAST_SYNC_CURSE_5_DECLINED) == curseFiveDeclined
                 && data.getBoolean(LAST_SYNC_CURSE_6_KEYWORD_UNLOCKED) == curseSevenKeywordUnlocked
@@ -10719,6 +11205,7 @@ public class ModEvents {
                 && data.getBoolean(LAST_SYNC_CURSE_8_REVERSED) == curseEightReversed
                 && data.getBoolean(LAST_SYNC_CURSE_9_REVERSED) == curseNineReversed
                 && data.getInt(LAST_SYNC_LOCK_SECONDS) == lockSeconds
+                && data.getInt(LAST_SYNC_MAIN_HAND_LOCK_SECONDS) == mainHandLockSeconds
                 && data.getInt(LAST_SYNC_SATIETY) == satietyCrystalCount
                 && data.getInt(LAST_SYNC_CURSE_9_DEBT) == curseNineDebtTicks
                 && data.getInt(LAST_SYNC_CURSE_9_REQUIRED_FOODS) == curseNineRequiredFoodTypes
@@ -10741,6 +11228,7 @@ public class ModEvents {
         data.putBoolean(LAST_SYNC_END_AWAKENED, endAwakened);
         data.putBoolean(LAST_SYNC_CURSE_1_REVERSED, curseOneReversed);
         data.putBoolean(LAST_SYNC_CURSE_2_REVERSED, curseTwoReversed);
+        data.putBoolean(LAST_SYNC_CURSE_3_4_LIFTED, curseThreeFourLifted);
         data.putBoolean(LAST_SYNC_CURSE_5_REVERSED, curseFiveReversed);
         data.putBoolean(LAST_SYNC_CURSE_5_DECLINED, curseFiveDeclined);
         data.putBoolean(LAST_SYNC_CURSE_6_KEYWORD_UNLOCKED, curseSevenKeywordUnlocked);
@@ -10751,6 +11239,7 @@ public class ModEvents {
         data.putBoolean(LAST_SYNC_CURSE_8_REVERSED, curseEightReversed);
         data.putBoolean(LAST_SYNC_CURSE_9_REVERSED, curseNineReversed);
         data.putInt(LAST_SYNC_LOCK_SECONDS, lockSeconds);
+        data.putInt(LAST_SYNC_MAIN_HAND_LOCK_SECONDS, mainHandLockSeconds);
         data.putInt(LAST_SYNC_SATIETY, satietyCrystalCount);
         data.putInt(LAST_SYNC_CURSE_9_DEBT, curseNineDebtTicks);
         data.putInt(LAST_SYNC_CURSE_9_REQUIRED_FOODS, curseNineRequiredFoodTypes);
@@ -10761,7 +11250,7 @@ public class ModEvents {
         data.putInt(LAST_SYNC_DYNASTY_SILENCE_MAIN_HAND_TICKS, dynastySilenceMainHandTicks);
         data.putInt(LAST_SYNC_DYNASTY_SILENCE_OFF_HAND_TICKS, dynastySilenceOffHandTicks);
         data.putInt(LAST_SYNC_RUIN_COUNTER, ruinCounter);
-        syncGuiltState(player, guilt, mercy, mercyChargeReady, sealEquipped, sealEquipSeconds, netherAwakened, endAwakened, curseOneReversed, curseTwoReversed, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSixReversed, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockSeconds * 20, satietyCrystalCount, curseNineDebtTicks, curseNineRequiredFoodTypes, curseNineRemainingFoodTypes, lockedSlot, lockedSlotTicks, dynastyThreat, dynastySilenceMainHandTicks, dynastySilenceOffHandTicks);
+        syncGuiltState(player, guilt, mercy, mercyChargeReady, sealEquipped, sealEquipSeconds, netherAwakened, endAwakened, curseOneReversed, curseTwoReversed, curseThreeFourLifted, curseFiveReversed, curseFiveDeclined, curseSevenKeywordUnlocked, curseSevenTerminalSolved, curseSixReversed, curseSevenReversed, curseSevenSentenceUnlocked, curseEightReversed, curseNineReversed, lockSeconds * 20, satietyCrystalCount, curseNineDebtTicks, curseNineRequiredFoodTypes, curseNineRemainingFoodTypes, lockedSlot, lockedSlotTicks, dynastyThreat, dynastySilenceMainHandTicks, dynastySilenceOffHandTicks);
         if (player instanceof ServerPlayer serverPlayer) {
             ModNetwork.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> serverPlayer),
@@ -10787,13 +11276,6 @@ public class ModEvents {
         }
     }
 
-    private static void applyMainHandCooldown(ServerPlayer player, int remainingTicks) {
-        ItemStack mainHand = player.getMainHandItem();
-        if (!mainHand.isEmpty()) {
-            player.getCooldowns().addCooldown(mainHand.getItem(), remainingTicks);
-        }
-    }
-
     private static void applyDynastySilenceCooldown(ServerPlayer player, int mainHandTicks, int offHandTicks) {
         if (mainHandTicks > 0) {
             applyCooldown(player, player.getMainHandItem(), mainHandTicks);
@@ -10803,44 +11285,74 @@ public class ModEvents {
         }
     }
 
-    private static void applyLockedSlotCooldown(ServerPlayer player, int remainingTicks) {
-        CompoundTag data = getCurseData(player);
-        if (!hasActiveLockedSlot(player, data)) {
-            return;
-        }
-        int slot = data.getInt(LOCKED_SLOT);
-        if (slot < 0 || slot >= player.getInventory().items.size()) {
-            return;
-        }
-
-        ItemStack lockedStack = player.getInventory().items.get(slot);
-        if (!lockedStack.isEmpty()) {
-            player.getCooldowns().addCooldown(lockedStack.getItem(), remainingTicks);
-        }
-    }
-
     private static boolean hasActiveLockedSlot(Player player, CompoundTag data) {
         long until = data.getLong(LOCKED_SLOT_UNTIL);
         if (until <= player.level().getGameTime()) {
             clearLockedSlotState(data);
             return false;
         }
-        int slot = data.getInt(LOCKED_SLOT);
-        if (slot < 0 || slot >= player.getInventory().items.size() || !data.contains(LOCKED_SLOT_STACK, Tag.TAG_COMPOUND)) {
+        if (!data.contains(LOCKED_SLOT_STACK, Tag.TAG_COMPOUND)) {
             clearLockedSlotState(data);
             return false;
         }
-        ItemStack current = player.getInventory().items.get(slot);
         ItemStack lockedSnapshot = ItemStack.of(data.getCompound(LOCKED_SLOT_STACK));
-        if (current.isEmpty() || lockedSnapshot.isEmpty() || !ItemStack.isSameItemSameTags(current, lockedSnapshot)) {
+        if (lockedSnapshot.isEmpty()) {
             clearLockedSlotState(data);
             return false;
         }
+
+        int slot = data.getInt(LOCKED_SLOT);
+        if (slot >= 0 && slot < player.getInventory().getContainerSize()
+                && matchesLockedItem(player.getInventory().getItem(slot), data)) {
+            return true;
+        }
+
+        ItemStack carried = player.containerMenu == null ? ItemStack.EMPTY : player.containerMenu.getCarried();
+        if (matchesLockedItem(carried, data)) {
+            data.putInt(LOCKED_SLOT, -1);
+            return true;
+        }
+
+        for (int inventorySlot = 0; inventorySlot < player.getInventory().getContainerSize(); inventorySlot++) {
+            ItemStack candidate = player.getInventory().getItem(inventorySlot);
+            if (matchesLockedItem(candidate, data)) {
+                data.putInt(LOCKED_SLOT, inventorySlot);
+                return true;
+            }
+        }
+
+        // Container clicks can expose a server tick where the stack is in neither the old
+        // inventory slot nor the carried stack. Keep the timed lock alive so the next tick
+        // can relocate it after the destination slot has synchronized.
+        data.putInt(LOCKED_SLOT, -1);
         return true;
     }
 
     private static void normalizeLockedSlotState(Player player, CompoundTag data) {
         hasActiveLockedSlot(player, data);
+        // Remove expired markers so ordinary stacking is restored. No item-type cooldown
+        // is used: another copy of the item in either hand must remain usable.
+        boolean changed = false;
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            changed |= clearExpiredLockedItemMarker(player, data, player.getInventory().getItem(slot));
+        }
+        changed |= clearExpiredLockedItemMarker(player, data, player.containerMenu.getCarried());
+        if (changed) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+    }
+
+    private static boolean clearExpiredLockedItemMarker(Player player, CompoundTag data, ItemStack stack) {
+        if (stack.isEmpty() || !stack.hasTag() || !stack.getTag().contains(LOCKED_ITEM_SEAL)) return false;
+        CompoundTag seal = stack.getTag().getCompound(LOCKED_ITEM_SEAL);
+        boolean owned = seal.hasUUID("Owner") && player.getUUID().equals(seal.getUUID("Owner"));
+        if (seal.getLong("Until") <= player.level().getGameTime()
+                || owned && (data.getBoolean(CURSE_6_REVERSED) || !matchesLockedItem(stack, data))) {
+            stack.removeTagKey(LOCKED_ITEM_SEAL);
+            return true;
+        }
+        return false;
     }
 
     private static void clearLockedSlotState(CompoundTag data) {
@@ -10849,31 +11361,63 @@ public class ModEvents {
         data.remove(LOCKED_SLOT_STACK);
     }
 
+    private static void migrateCurseSixLockState(Player player, CompoundTag data) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            clearLegacyCurseSixInventorySeal(serverPlayer, data);
+        }
+        if (data.getBoolean(CURSE_6_RANDOM_LOCK_MIGRATED)) return;
+        data.putBoolean(CURSE_6_RANDOM_LOCK_MIGRATED, true);
+        long now = player.level().getGameTime();
+        if (data.getLong(LOCKED_SLOT_UNTIL) > now && data.contains(LOCKED_SLOT_STACK)) {
+            ItemStack snapshot = ItemStack.of(data.getCompound(LOCKED_SLOT_STACK));
+            if (matchesLockedItem(snapshot, data)) return;
+            if (!snapshot.isEmpty()) {
+                player.getCooldowns().removeCooldown(snapshot.getItem());
+                if (player instanceof ServerPlayer serverPlayer && isGuiltLocked(player)) {
+                    applyInventoryCooldowns(serverPlayer, getRemainingGuiltLockTicks(player));
+                }
+            }
+            int slot = data.getInt(LOCKED_SLOT);
+            if (slot >= 0 && slot < player.getInventory().items.size()
+                    && slot != player.getInventory().selected
+                    && ItemStack.isSameItemSameTags(player.getInventory().items.get(slot), snapshot)) {
+                markLockedItem(player, data, player.getInventory().items.get(slot));
+                return;
+            }
+        }
+        clearLockedSlotState(data);
+    }
+
+    private static void clearLegacyCurseSixInventorySeal(ServerPlayer player, CompoundTag data) {
+        if (!data.contains(CURSE_6_LOCK_UNTIL)) return;
+        boolean wasActive = data.getLong(CURSE_6_LOCK_UNTIL) > player.level().getGameTime();
+        data.remove(CURSE_6_LOCK_UNTIL);
+        // Previous builds incorrectly gave Curse VI the Curse V inventory punishment.
+        // Remove its cooldowns, then preserve any independent Curse V/IX punishment.
+        if (wasActive) {
+            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                ItemStack stack = player.getInventory().getItem(i);
+                if (!stack.isEmpty()) player.getCooldowns().removeCooldown(stack.getItem());
+            }
+            ItemStack carried = player.containerMenu.getCarried();
+            if (!carried.isEmpty()) player.getCooldowns().removeCooldown(carried.getItem());
+            int remaining = getRemainingGuiltLockTicks(player);
+            if (remaining > 0) applyInventoryCooldowns(player, remaining);
+            applyDynastySilenceCooldown(player,
+                    getRemainingDynastySilenceTicks(player, InteractionHand.MAIN_HAND),
+                    getRemainingDynastySilenceTicks(player, InteractionHand.OFF_HAND));
+        }
+        if (data.getLong(GUILT_LOCK_UNTIL) <= player.level().getGameTime()) clearDefenseSuppression(player);
+    }
+
     private static void clearCurseSixLockState(ServerPlayer player, CompoundTag data) {
+        clearLegacyCurseSixInventorySeal(player, data);
         boolean hasMainLock = data.getLong(MAIN_LOCK_UNTIL) > 0L;
         boolean hasRandomLock = data.getLong(LOCKED_SLOT_UNTIL) > 0L
                 || data.contains(LOCKED_SLOT_STACK, Tag.TAG_COMPOUND);
         boolean hasSchedule = data.getLong(NEXT_RANDOM_LOCK) > 0L;
         if (!hasMainLock && !hasRandomLock && !hasSchedule) {
             return;
-        }
-
-        if (hasMainLock && !player.getMainHandItem().isEmpty()) {
-            player.getCooldowns().removeCooldown(player.getMainHandItem().getItem());
-        }
-
-        int slot = data.getInt(LOCKED_SLOT);
-        if (slot >= 0 && slot < player.getInventory().items.size()) {
-            ItemStack current = player.getInventory().items.get(slot);
-            if (!current.isEmpty()) {
-                player.getCooldowns().removeCooldown(current.getItem());
-            }
-        }
-        if (data.contains(LOCKED_SLOT_STACK, Tag.TAG_COMPOUND)) {
-            ItemStack snapshot = ItemStack.of(data.getCompound(LOCKED_SLOT_STACK));
-            if (!snapshot.isEmpty()) {
-                player.getCooldowns().removeCooldown(snapshot.getItem());
-            }
         }
 
         data.putLong(MAIN_LOCK_UNTIL, 0L);
@@ -10932,6 +11476,7 @@ public class ModEvents {
         private static boolean clientEndAwakened;
         private static boolean clientCurseOneReversed;
         private static boolean clientCurseTwoReversed;
+        private static boolean clientCurseThreeFourLifted;
         private static boolean clientCurseFiveReversed;
         private static boolean clientCurseFiveDeclined;
         private static boolean clientCurseSevenKeywordUnlocked;
@@ -10942,6 +11487,7 @@ public class ModEvents {
         private static boolean clientCurseEightReversed;
         private static boolean clientCurseNineReversed;
         private static int clientLockTicks;
+        private static int clientMainHandLockTicks;
         private static int clientSatietyCrystalCount;
         private static int clientCurseNineDebtTicks = 40;
         private static int clientCurseNineRequiredFoodTypes = 15;
@@ -11021,7 +11567,7 @@ public class ModEvents {
         private static final List<Boolean> clientSatietyRiddleSolved = new ArrayList<>();
         private static int clientSatietyRiddleIndex;
 
-        public static void updateClientGuilt(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, int sealEquipSeconds, boolean netherAwakened, boolean endAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSixReversed, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int curseNineRequiredFoodTypes, int curseNineRemainingFoodTypes, int lockedSlot, int lockedSlotTicks, int dynastyThreat, int dynastySilenceMainHandTicks, int dynastySilenceOffHandTicks) {
+        public static void updateClientGuilt(int guilt, int mercy, boolean mercyChargeReady, boolean sealEquipped, int sealEquipSeconds, boolean netherAwakened, boolean endAwakened, boolean curseOneReversed, boolean curseTwoReversed, boolean curseThreeFourLifted, boolean curseFiveReversed, boolean curseFiveDeclined, boolean curseSevenKeywordUnlocked, boolean curseSevenTerminalSolved, boolean curseSixReversed, boolean curseSevenReversed, boolean curseSevenSentenceUnlocked, boolean curseEightReversed, boolean curseNineReversed, int lockTicks, int satietyCrystalCount, int curseNineDebtTicks, int curseNineRequiredFoodTypes, int curseNineRemainingFoodTypes, int lockedSlot, int lockedSlotTicks, int dynastyThreat, int dynastySilenceMainHandTicks, int dynastySilenceOffHandTicks, int mainHandLockTicks) {
             clientGuilt = guilt;
             clientMercy = mercy;
             clientMercyChargeReady = mercyChargeReady;
@@ -11031,6 +11577,7 @@ public class ModEvents {
             clientEndAwakened = endAwakened;
             clientCurseOneReversed = curseOneReversed;
             clientCurseTwoReversed = curseTwoReversed;
+            clientCurseThreeFourLifted = curseThreeFourLifted;
             clientCurseFiveReversed = curseFiveReversed;
             clientCurseFiveDeclined = curseFiveDeclined;
             clientCurseSevenKeywordUnlocked = curseSevenKeywordUnlocked;
@@ -11041,6 +11588,7 @@ public class ModEvents {
             clientCurseEightReversed = curseEightReversed;
             clientCurseNineReversed = curseNineReversed;
             clientLockTicks = lockTicks;
+            clientMainHandLockTicks = curseSixReversed ? 0 : Math.max(0, mainHandLockTicks);
             clientSatietyCrystalCount = satietyCrystalCount;
             clientCurseNineDebtTicks = curseNineDebtTicks;
             clientCurseNineRequiredFoodTypes = Math.max(1, curseNineRequiredFoodTypes);
@@ -11150,6 +11698,10 @@ public class ModEvents {
 
         public static boolean isClientCurseTwoReversed() {
             return clientCurseTwoReversed;
+        }
+
+        public static boolean isClientCurseThreeFourLifted() {
+            return clientCurseThreeFourLifted;
         }
 
         public static boolean isClientCurseFiveReversed() {
@@ -11439,12 +11991,12 @@ public class ModEvents {
                 return;
             }
 
-            String message = event.getMessage() == null ? "" : event.getMessage().trim().toLowerCase(Locale.ROOT);
+            String message = normalizeCurseSixPhrase(event.getMessage());
             if (!CURSE_7_CHAT_KEYWORD.equals(message)) {
                 return;
             }
 
-            if (clientCurseSevenReversed) {
+            if (clientCurseSixReversed) {
                 return;
             }
 
@@ -11476,26 +12028,27 @@ public class ModEvents {
             boolean hoveringCarriedStack = !carriedStack.isEmpty()
                     && ItemStack.isSameItemSameTags(carriedStack, event.getItemStack());
 
-            if (!hoveringInventoryStack && !hoveringCarriedStack) {
+            boolean hoveringSealedItem = isClientRandomItemSealed(event.getItemStack());
+            if (!hoveringInventoryStack && !hoveringCarriedStack && !hoveringSealedItem) {
                 return;
             }
 
-            if (clientLockTicks > 0) {
-                float seconds = clientLockTicks / 20.0F;
-                event.getToolTip().add(Component.translatable("hud.ramesses_curse.guilt_lock", String.format("%.1f", seconds))
+            Player player = minecraft.player;
+            boolean hoveringLockedMainHand = player != null && hoveringInventoryStack
+                    && hoveredSlot.container == player.getInventory()
+                    && hoveredSlot.getContainerSlot() == player.getInventory().selected;
+            int sealTicks = Math.max(clientLockTicks, Math.max(
+                    hoveringLockedMainHand ? clientMainHandLockTicks : 0,
+                    hoveringSealedItem ? clientLockedSlotTicks : 0));
+            if (sealTicks > 0) {
+                // Share only the tooltip text and style; each curse keeps its own seal scope.
+                event.getToolTip().add(Component.translatable("hud.ramesses_curse.guilt_lock",
+                                String.format("%.1f", sealTicks / 20.0F))
                         .withStyle(net.minecraft.ChatFormatting.GOLD));
                 event.getToolTip().add(Component.translatable("hud.ramesses_curse.guilt_lock_no_damage")
                         .withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
             }
 
-            boolean hoveringLockedSlot = hoveringInventoryStack && hoveredSlot.getContainerSlot() == clientLockedSlot;
-            if (clientLockedSlotTicks > 0 && (hoveringLockedSlot || hoveringCarriedStack)) {
-                float lockedSeconds = clientLockedSlotTicks / 20.0F;
-                event.getToolTip().add(Component.translatable("hud.ramesses_curse.locked_slot", String.format("%.1f", lockedSeconds))
-                        .withStyle(net.minecraft.ChatFormatting.RED));
-            }
-
-            Player player = minecraft.player;
             if (player != null) {
                 boolean hoveringMainHand = clientDynastySilenceMainHandTicks > 0
                         && ItemStack.isSameItemSameTags(player.getMainHandItem(), event.getItemStack());
@@ -11508,6 +12061,15 @@ public class ModEvents {
                             .withStyle(net.minecraft.ChatFormatting.DARK_PURPLE));
                 }
             }
+        }
+
+        private static boolean isClientRandomItemSealed(ItemStack stack) {
+            Player player = Minecraft.getInstance().player;
+            if (player == null || clientCurseSixReversed || clientLockedSlotTicks <= 0
+                    || stack.isEmpty() || !stack.hasTag()) return false;
+            CompoundTag seal = stack.getTag().getCompound(LOCKED_ITEM_SEAL);
+            return seal.hasUUID("Owner") && player.getUUID().equals(seal.getUUID("Owner"))
+                    && seal.getLong("Until") > player.level().getGameTime();
         }
 
         private static void applyEternalTotemTypewriter(ItemTooltipEvent event, Minecraft minecraft) {
@@ -11618,9 +12180,8 @@ public class ModEvents {
         public static void onScreenRender(ScreenEvent.Render.Post event) {
             if (event.getScreen() instanceof AbstractContainerScreen<?> screen && clientLockedSlotTicks > 0) {
                 screen.getMenu().slots.stream()
-                        .filter(slot -> slot.container instanceof Inventory && slot.getContainerSlot() == clientLockedSlot)
-                        .findFirst()
-                        .ifPresent(slot -> renderLockedSlot(event, screen, slot.x, slot.y));
+                        .filter(slot -> isClientRandomItemSealed(slot.getItem()))
+                        .forEach(slot -> renderLockedSlot(event, screen, slot.x, slot.y));
             }
 
             renderCurseSevenBookFallback(event);
@@ -11679,6 +12240,8 @@ public class ModEvents {
                 return;
             }
 
+            if (clientLockTicks > 0) clientLockTicks--;
+            if (clientMainHandLockTicks > 0) clientMainHandLockTicks--;
             if (clientEdictCooldownTicks > 0) {
                 clientEdictCooldownTicks--;
             }
@@ -12139,75 +12702,46 @@ public class ModEvents {
             buffer.vertex(matrix, x4, y4, z4).color(red, green, blue, alpha).endVertex();
         }
 
-        private static void renderGuiltBar(net.minecraft.client.gui.GuiGraphics guiGraphics, Minecraft minecraft, int guilt, int max) {
-            int barWidth = 96;
-            int barHeight = 8;
-            int x = minecraft.getWindow().getGuiScaledWidth() - barWidth - 16 + Config.HUD_GUILT_X_OFFSET.get();
-            int y = minecraft.getWindow().getGuiScaledHeight() - 38 + Config.HUD_GUILT_Y_OFFSET.get();
-            float ratio = max <= 0 ? 0.0F : Mth.clamp((float) guilt / (float) max, 0.0F, 1.0F);
-            int fill = Mth.floor(ratio * barWidth);
-
-            guiGraphics.fill(x - 1, y - 1, x + barWidth + 1, y + barHeight + 1, 0xCC2A110A);
-            guiGraphics.fill(x, y, x + barWidth, y + barHeight, 0xFF31150E);
-            guiGraphics.fill(x, y, x + fill, y + barHeight, 0xFFD6A63A);
-            guiGraphics.drawString(minecraft.font, Component.translatable("hud.ramesses_curse.guilt", guilt, max), x, y - 10, 0xFFD6A63A, false);
-
-            if (clientHeartBattleStacks > 0 || clientHeartWardReady || clientHeartCooldownTicks > 0) {
-                int battleColor = clientHeartWardReady ? 0xFFFFD166 : 0xFF8BE9FD;
-                int battleX = x + Config.HUD_HEART_BATTLE_X_OFFSET.get();
-                int battleY = y - 22 + Config.HUD_HEART_BATTLE_Y_OFFSET.get();
-                guiGraphics.drawString(
-                        minecraft.font,
-                        Component.translatable("message.ramesses_curse.heart_battle_stacks", clientHeartBattleStacks, Config.HEART_BATTLE_STACK_LIMIT.get()),
-                        battleX,
-                        battleY,
-                        battleColor,
-                        false);
+        private static void renderGuiltBar(net.minecraft.client.gui.GuiGraphics g, Minecraft mc, int guilt, int max) {
+            int w=116;
+            var hud=DuatRitualGui.beginHud(g);
+            int x=hud.x(hud.width()-w-12+Config.HUD_GUILT_X_OFFSET.get(),w);
+            int y=hud.y(hud.height()-100+Config.HUD_GUILT_Y_OFFSET.get());
+            DuatRitualGui.status(g,x,y,w,max<=0 ? 0 : guilt/(float)max,
+                    Component.translatable("hud.ramesses_curse.guilt",guilt,max),
+                    Component.literal(Math.round(max<=0 ? 0 : guilt*100F/max)+"%"),0xFFE5A779);
+            if (clientHeartBattleStacks>0 || clientHeartWardReady || clientHeartCooldownTicks>0) {
+                DuatRitualGui.fittedText(g,Component.translatable("message.ramesses_curse.heart_battle_stacks",
+                        clientHeartBattleStacks,Config.HEART_BATTLE_STACK_LIMIT.get()),
+                        x+Config.HUD_HEART_BATTLE_X_OFFSET.get(),Math.max(0,y-14+Config.HUD_HEART_BATTLE_Y_OFFSET.get()),
+                        w,12,clientHeartWardReady ? 0xFFFFD166 : 0xFF8BE9FD);
             }
+            DuatRitualGui.endHud(g);
         }
 
-        private static void renderMercyBar(net.minecraft.client.gui.GuiGraphics guiGraphics, Minecraft minecraft, int mercy, int max, boolean chargeReady) {
-            int barWidth = 96;
-            int barHeight = 8;
-            int x = minecraft.getWindow().getGuiScaledWidth() - barWidth - 16 + Config.HUD_MERCY_X_OFFSET.get();
-            int y = minecraft.getWindow().getGuiScaledHeight() - 18 + Config.HUD_MERCY_Y_OFFSET.get();
-            float ratio = max <= 0 ? 0.0F : Mth.clamp((float) mercy / (float) max, 0.0F, 1.0F);
-            int fill = Mth.floor(ratio * barWidth);
-
-            guiGraphics.fill(x - 1, y - 1, x + barWidth + 1, y + barHeight + 1, 0xCC0C1D24);
-            guiGraphics.fill(x, y, x + barWidth, y + barHeight, 0xFF102C35);
-            guiGraphics.fill(x, y, x + fill, y + barHeight, chargeReady ? 0xFFFFD166 : 0xFF5ED1FF);
-            guiGraphics.drawString(minecraft.font, Component.translatable("hud.ramesses_curse.mercy", mercy, max), x, y - 10, chargeReady ? 0xFFFFD166 : 0xFF7BE0FF, false);
-
-            if (chargeReady) {
-                guiGraphics.drawString(minecraft.font, Component.translatable("hud.ramesses_curse.mercy_ready"), x, y + 11, 0xFFFFE08A, false);
-            }
+        private static void renderMercyBar(net.minecraft.client.gui.GuiGraphics g, Minecraft mc, int mercy, int max, boolean ready) {
+            int w=116;
+            var hud=DuatRitualGui.beginHud(g);
+            int x=hud.x(hud.width()-w-12+Config.HUD_MERCY_X_OFFSET.get(),w);
+            int y=hud.y(hud.height()-70+Config.HUD_MERCY_Y_OFFSET.get());
+            DuatRitualGui.status(g,x,y,w,max<=0 ? 0 : mercy/(float)max,
+                    Component.translatable("hud.ramesses_curse.mercy",mercy,max),
+                    ready ? Component.translatable("hud.ramesses_curse.mercy_ready")
+                            : Component.literal(Math.round(max<=0 ? 0 : mercy*100F/max)+"%"),
+                    ready ? 0xFFFFD166 : 0xFF80D7C7);
+            DuatRitualGui.endHud(g);
         }
 
-        private static void renderCurseNineDebtBar(net.minecraft.client.gui.GuiGraphics guiGraphics, Minecraft minecraft, int debtTicks, int max) {
-            int screenWidth = minecraft.getWindow().getGuiScaledWidth();
-            int barWidth = Mth.clamp(screenWidth / 5, 132, 212);
-            int barHeight = 7;
-            int x = 16 + Config.HUD_SATIETY_DEBT_X_OFFSET.get();
-            int y = minecraft.getWindow().getGuiScaledHeight() - 24 + Config.HUD_SATIETY_DEBT_Y_OFFSET.get();
-            float ratio = max <= 0 ? 0.0F : Mth.clamp((float) debtTicks / (float) max, 0.0F, 1.0F);
-            int fill = Mth.floor(ratio * barWidth);
-            int color = ratio <= 0.25F ? 0xFFC55B5B : ratio <= 0.5F ? 0xFFD79058 : 0xFFE3B65C;
-
-            guiGraphics.fill(x - 3, y - 3, x + barWidth + 3, y + barHeight + 3, 0x88110805);
-            guiGraphics.fill(x - 2, y - 2, x + barWidth + 2, y + barHeight + 2, 0xCC2A1A0D);
-            guiGraphics.fill(x - 1, y - 1, x + barWidth + 1, y + barHeight + 1, 0xFF4B2D16);
-            guiGraphics.fill(x, y, x + barWidth, y + barHeight, 0xFF241A10);
-            guiGraphics.fill(x, y, x + fill, y + barHeight, color);
-            for (int i = 1; i < 8; i++) {
-                int markX = x + (barWidth * i / 8);
-                guiGraphics.fill(markX, y + 1, markX + 1, y + barHeight - 1, 0x553A2A1C);
-            }
-            guiGraphics.fill(x + 2, y + 1, x + Math.max(2, fill - 1), y + 2, 0x44FFF1C2);
-            guiGraphics.drawString(minecraft.font, Component.translatable("hud.ramesses_curse.curse_9_debt", debtTicks, max), x, y - 10, color, false);
-            if (clientSatietyCrystalCount > 0) {
-                guiGraphics.drawString(minecraft.font, Component.literal("Satiety crystal missing").withStyle(ChatFormatting.DARK_RED), x, y + 10, 0xFFB85A5A, false);
-            }
+        private static void renderCurseNineDebtBar(net.minecraft.client.gui.GuiGraphics g, Minecraft mc, int debt, int max) {
+            int w=126;
+            var hud=DuatRitualGui.beginHud(g);
+            int x=hud.x(12+Config.HUD_SATIETY_DEBT_X_OFFSET.get(),w);
+            int y=hud.y(hud.height()-70+Config.HUD_SATIETY_DEBT_Y_OFFSET.get());
+            float ratio=max<=0 ? 0 : Mth.clamp(debt/(float)max,0,1);
+            DuatRitualGui.status(g,x,y,w,ratio,
+                    Component.translatable("hud.ramesses_curse.curse_9_debt",debt,max),
+                    Component.literal(Math.round(ratio*100)+"%"),ratio<=.25F ? 0xFFE78191 : 0xFFC0A1EC);
+            DuatRitualGui.endHud(g);
         }
 
         private static void renderEdictChargeBar(net.minecraft.client.gui.GuiGraphics guiGraphics, Minecraft minecraft) {

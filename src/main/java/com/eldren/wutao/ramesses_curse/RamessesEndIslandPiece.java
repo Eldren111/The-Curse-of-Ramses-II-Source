@@ -7,12 +7,15 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -24,7 +27,11 @@ import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraftforge.network.PacketDistributor;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public final class RamessesEndIslandPiece extends StructurePiece {
     public static final int CENTER_Y = 68;
@@ -32,8 +39,10 @@ public final class RamessesEndIslandPiece extends StructurePiece {
     private static final int GENERATION_RADIUS = 104;
     private static final int TOWER_COUNT = 10;
     private static final int CAGE_BLOCK_COUNT = 98;
-    private static final int CAGE_BLOCKS_PER_TICK = 5;
+    private static final int CAGE_BLOCKS_PER_TICK = 8;
     private static final int TOWER_CAMERA_TURN_TICKS = 10;
+    private static final int CAGE_CLEAR_BLOCKS_PER_TICK =
+            (CAGE_BLOCK_COUNT + TOWER_CAMERA_TURN_TICKS - 1) / TOWER_CAMERA_TURN_TICKS;
     private static final int TOWER_CAGE_BUILD_TICKS =
             (CAGE_BLOCK_COUNT + CAGE_BLOCKS_PER_TICK - 1) / CAGE_BLOCKS_PER_TICK;
     private static final int TOWER_CRYSTAL_REVEAL_TICKS = 1;
@@ -41,6 +50,9 @@ public final class RamessesEndIslandPiece extends StructurePiece {
             TOWER_CAMERA_TURN_TICKS + TOWER_CAGE_BUILD_TICKS + TOWER_CRYSTAL_REVEAL_TICKS;
     public static final int CRYSTAL_CAGE_BUILD_TICKS = TOWER_COUNT * TOWER_SEQUENCE_TICKS;
     private static final int DRAGON_MARKER_Y = 18;
+    private static final int RESPAWN_MARKER_Y = 19;
+    private static final int ISLAND_GENERATED_MARKER_Y = 15;
+    private static final Map<ServerLevel, Integer> FALLBACK_GENERATION_PROGRESS = new WeakHashMap<>();
     private static final double DRAGON_SEARCH_RADIUS = 256.0D;
     private final int centerX;
     private final int centerZ;
@@ -112,11 +124,75 @@ public final class RamessesEndIslandPiece extends StructurePiece {
         if (dx * dx + dz * dz > activationRadius * activationRadius) {
             return;
         }
+        BlockPos center = new BlockPos(
+                RamessesEndIslandStructure.CENTER_X,
+                CENTER_Y,
+                RamessesEndIslandStructure.CENTER_Z);
+        if (!ensureRuntimeIslandGenerated(player, center)) {
+            return;
+        }
+        if (hasRespawnInProgress(level, center)) {
+            return;
+        }
         RamessesEndIslandPiece island = new RamessesEndIslandPiece(
                 RamessesEndIslandStructure.CENTER_X,
                 RamessesEndIslandStructure.CENTER_Z);
         island.initializeLoadedTowerEntities(level);
         island.initializeIslandDragon(level);
+    }
+
+    public static boolean isRuntimeIslandGenerationActive(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        if (!Level.END.equals(level.dimension())) {
+            return false;
+        }
+        double dx = player.getX() - RamessesEndIslandStructure.CENTER_X;
+        double dz = player.getZ() - RamessesEndIslandStructure.CENTER_Z;
+        double activationRadius = GENERATION_RADIUS + 64.0D;
+        if (dx * dx + dz * dz > activationRadius * activationRadius) {
+            return false;
+        }
+        BlockPos center = new BlockPos(
+                RamessesEndIslandStructure.CENTER_X,
+                CENTER_Y,
+                RamessesEndIslandStructure.CENTER_Z);
+        return !isIslandGenerated(level, center);
+    }
+
+    private static boolean ensureRuntimeIslandGenerated(ServerPlayer player, BlockPos center) {
+        ServerLevel level = player.serverLevel();
+        if (isIslandGenerated(level, center)) {
+            FALLBACK_GENERATION_PROGRESS.remove(level);
+            return true;
+        }
+
+        int totalChunks = runtimeRebuildChunks(center).size();
+        int nextChunk = FALLBACK_GENERATION_PROGRESS.getOrDefault(level, 0);
+        if (nextChunk < totalChunks) {
+            generateFallbackChunk(level, center, nextChunk);
+            FALLBACK_GENERATION_PROGRESS.put(level, nextChunk + 1);
+            return false;
+        }
+
+        level.setBlockAndUpdate(
+                new BlockPos(center.getX(), ISLAND_GENERATED_MARKER_Y, center.getZ()),
+                Blocks.STRUCTURE_VOID.defaultBlockState());
+        FALLBACK_GENERATION_PROGRESS.remove(level);
+        RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
+        island.initializeLoadedTowerEntities(level);
+        island.initializeIslandDragon(level);
+        return true;
+    }
+
+    private static boolean isIslandGenerated(ServerLevel level, BlockPos center) {
+        BlockPos generatedMarker = new BlockPos(center.getX(), ISLAND_GENERATED_MARKER_Y, center.getZ());
+        if (level.getBlockState(generatedMarker).is(Blocks.STRUCTURE_VOID)) {
+            return true;
+        }
+        level.getChunk(center.getX() >> 4, center.getZ() >> 4);
+        return level.structureManager()
+                .getStructureWithPieceAt(center, ModStructures.RAMESSES_END_ISLAND)
+                .isValid();
     }
 
     public static void restorePhaseCrystals(ServerLevel level, BlockPos center, int combatStage) {
@@ -127,7 +203,7 @@ public final class RamessesEndIslandPiece extends StructurePiece {
     public static void beginAnimatedPhaseCrystalRestore(ServerLevel level, BlockPos center, int combatStage) {
         RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
         island.prepareAnimatedCrystalRestore(level);
-        island.sendCrystalCinematicFocus(level, 0, CRYSTAL_CAGE_BUILD_TICKS);
+        island.stopCrystalCinematic(level);
     }
 
     public static void tickAnimatedPhaseCrystalRestore(ServerLevel level, BlockPos center, int buildTick) {
@@ -139,22 +215,198 @@ public final class RamessesEndIslandPiece extends StructurePiece {
     }
 
     public static void finishAnimatedPhaseCrystalRestore(ServerLevel level, BlockPos center, int combatStage) {
-        new RamessesEndIslandPiece(center.getX(), center.getZ())
-                .finishAnimatedCrystalRestore(level, combatStage);
+        RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
+        island.finishAnimatedCrystalRestore(level, combatStage);
+        island.stopCrystalCinematic(level);
+    }
+
+    public static int runtimeRebuildChunkCount(BlockPos center) {
+        return runtimeRebuildChunks(center).size();
+    }
+
+    public static void rebuildRuntimeChunk(ServerLevel level, BlockPos center, int rebuildIndex) {
+        List<ChunkPos> chunks = runtimeRebuildChunks(center);
+        if (rebuildIndex < 0 || rebuildIndex >= chunks.size()) {
+            return;
+        }
+        ChunkPos chunkPos = chunks.get(rebuildIndex);
+        postProcessRuntimeChunk(level, center, chunkPos);
+        markDragonActive(level, center);
+        markRespawnInProgress(level, center);
+
+        int surfaceY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                chunkPos.getMiddleBlockX(), chunkPos.getMiddleBlockZ());
+        level.sendParticles(ParticleTypes.REVERSE_PORTAL,
+                chunkPos.getMiddleBlockX() + 0.5D, surfaceY + 0.5D, chunkPos.getMiddleBlockZ() + 0.5D,
+                18, 7.0D, 2.0D, 7.0D, 0.08D);
+        if ((rebuildIndex & 7) == 0) {
+            playCinematicSound(level,
+                    new BlockPos(chunkPos.getMiddleBlockX(), surfaceY, chunkPos.getMiddleBlockZ()),
+                    net.minecraft.sounds.SoundEvents.RESPAWN_ANCHOR_CHARGE,
+                    1.5F, 0.62F + rebuildIndex * 0.002F);
+        }
+    }
+
+    private static void generateFallbackChunk(ServerLevel level, BlockPos center, int chunkIndex) {
+        List<ChunkPos> chunks = runtimeRebuildChunks(center);
+        if (chunkIndex < 0 || chunkIndex >= chunks.size()) {
+            return;
+        }
+        postProcessRuntimeChunk(level, center, chunks.get(chunkIndex));
+    }
+
+    private static void postProcessRuntimeChunk(ServerLevel level, BlockPos center, ChunkPos chunkPos) {
+        level.getChunk(chunkPos.x, chunkPos.z);
+        BoundingBox generationBox = new BoundingBox(
+                chunkPos.getMinBlockX(), 16, chunkPos.getMinBlockZ(),
+                chunkPos.getMaxBlockX(), 128, chunkPos.getMaxBlockZ());
+        RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
+        island.postProcess(level, level.structureManager(), level.getChunkSource().getGenerator(),
+                RandomSource.create(level.getSeed() ^ chunkPos.toLong()), generationBox,
+                chunkPos, BlockPos.ZERO);
+    }
+
+    static void restoreRuntimeFloorChunk(ServerLevel level, BlockPos center, ChunkPos chunkPos) {
+        level.getChunk(chunkPos.x, chunkPos.z);
+        RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        int minX = Math.max(chunkPos.getMinBlockX(), island.boundingBox.minX());
+        int maxX = Math.min(chunkPos.getMaxBlockX(), island.boundingBox.maxX());
+        int minZ = Math.max(chunkPos.getMinBlockZ(), island.boundingBox.minZ());
+        int maxZ = Math.min(chunkPos.getMaxBlockZ(), island.boundingBox.maxZ());
+        long seed = level.getSeed();
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                int surfaceY = island.islandSurfaceY(seed, x, z);
+                if (surfaceY == Integer.MIN_VALUE) {
+                    continue;
+                }
+                int bottomY = island.islandBottomY(seed, x, z, surfaceY);
+                for (int y = bottomY; y <= surfaceY; y++) {
+                    pos.set(x, y, z);
+                    if (level.getBlockState(pos).isAir()) {
+                        level.setBlock(pos, islandBlock(seed, x, y, z), 2);
+                    }
+                }
+            }
+        }
+
+        int surfaceY = level.getHeight(
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                chunkPos.getMiddleBlockX(), chunkPos.getMiddleBlockZ());
+        level.sendParticles(ParticleTypes.REVERSE_PORTAL,
+                chunkPos.getMiddleBlockX() + 0.5D, surfaceY + 0.5D,
+                chunkPos.getMiddleBlockZ() + 0.5D,
+                8, 5.0D, 1.0D, 5.0D, 0.04D);
+    }
+
+    public static void prepareRuntimeRespawn(ServerLevel level, BlockPos center) {
+        AABB bounds = new AABB(
+                center.getX() - GENERATION_RADIUS - 8, 8, center.getZ() - GENERATION_RADIUS - 8,
+                center.getX() + GENERATION_RADIUS + 8, 136, center.getZ() + GENERATION_RADIUS + 8);
+        for (RamessesEndCrystalEntity crystal : level.getEntitiesOfClass(
+                RamessesEndCrystalEntity.class, bounds, Entity::isAlive)) {
+            crystal.discard();
+        }
+        markDragonActive(level, center);
+        markRespawnInProgress(level, center);
+    }
+
+    public static boolean hasActiveDragonMarker(ServerLevel level, BlockPos center) {
+        BlockPos markerPos = new BlockPos(center.getX(), DRAGON_MARKER_Y, center.getZ());
+        level.getChunk(markerPos.getX() >> 4, markerPos.getZ() >> 4);
+        return level.getBlockState(markerPos).is(Blocks.STRUCTURE_VOID);
+    }
+
+    public static void markDragonActive(ServerLevel level, BlockPos center) {
+        BlockPos markerPos = new BlockPos(center.getX(), DRAGON_MARKER_Y, center.getZ());
+        level.setBlockAndUpdate(markerPos, Blocks.STRUCTURE_VOID.defaultBlockState());
+    }
+
+    public static void clearDragonActive(ServerLevel level, BlockPos center) {
+        BlockPos markerPos = new BlockPos(center.getX(), DRAGON_MARKER_Y, center.getZ());
+        level.setBlockAndUpdate(markerPos, Blocks.AIR.defaultBlockState());
+    }
+
+    public static List<BlockPos> ritualCrystalPositions(ServerLevel level, BlockPos center) {
+        RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
+        List<BlockPos> result = new ArrayList<>(TOWER_COUNT);
+        for (int towerIndex = 0; towerIndex < TOWER_COUNT; towerIndex++) {
+            TowerPosition tower = island.towerPosition(level.getSeed(), towerIndex);
+            result.add(new BlockPos(tower.x(), tower.topY() + 1, tower.z()));
+        }
+        return result;
+    }
+
+    public static boolean isTowerProtectedColumn(
+            ServerLevel level, BlockPos center, int x, int z) {
+        RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
+        for (int towerIndex = 0; towerIndex < TOWER_COUNT; towerIndex++) {
+            TowerPosition tower = island.towerPosition(level.getSeed(), towerIndex);
+            int columnRadius = 3 + (towerIndex % 3 == 0 ? 1 : 0);
+            int protectionRadius = columnRadius + 4;
+            int dx = x - tower.x();
+            int dz = z - tower.z();
+            if (dx * dx + dz * dz <= protectionRadius * protectionRadius) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasRespawnInProgress(ServerLevel level, BlockPos center) {
+        BlockPos markerPos = new BlockPos(center.getX(), RESPAWN_MARKER_Y, center.getZ());
+        return level.getBlockState(markerPos).is(Blocks.STRUCTURE_VOID);
+    }
+
+    public static void markRespawnInProgress(ServerLevel level, BlockPos center) {
+        BlockPos markerPos = new BlockPos(center.getX(), RESPAWN_MARKER_Y, center.getZ());
+        level.setBlockAndUpdate(markerPos, Blocks.STRUCTURE_VOID.defaultBlockState());
+    }
+
+    public static void clearRespawnInProgress(ServerLevel level, BlockPos center) {
+        BlockPos markerPos = new BlockPos(center.getX(), RESPAWN_MARKER_Y, center.getZ());
+        RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
+        int surfaceY = island.islandSurfaceY(level.getSeed(), markerPos.getX(), markerPos.getZ());
+        BlockState restored = Blocks.AIR.defaultBlockState();
+        if (surfaceY != Integer.MIN_VALUE) {
+            int bottomY = island.islandBottomY(
+                    level.getSeed(), markerPos.getX(), markerPos.getZ(), surfaceY);
+            if (markerPos.getY() >= bottomY && markerPos.getY() <= surfaceY) {
+                restored = islandBlock(level.getSeed(), markerPos.getX(), markerPos.getY(), markerPos.getZ());
+            }
+        }
+        level.setBlockAndUpdate(markerPos, restored);
+    }
+
+    static List<ChunkPos> runtimeRebuildChunks(BlockPos center) {
+        int minChunkX = Math.floorDiv(center.getX() - GENERATION_RADIUS, 16);
+        int maxChunkX = Math.floorDiv(center.getX() + GENERATION_RADIUS, 16);
+        int minChunkZ = Math.floorDiv(center.getZ() - GENERATION_RADIUS, 16);
+        int maxChunkZ = Math.floorDiv(center.getZ() + GENERATION_RADIUS, 16);
+        int centerChunkX = Math.floorDiv(center.getX(), 16);
+        int centerChunkZ = Math.floorDiv(center.getZ(), 16);
+        List<ChunkPos> chunks = new ArrayList<>();
+        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+                chunks.add(new ChunkPos(chunkX, chunkZ));
+            }
+        }
+        chunks.sort(Comparator.comparingInt(chunk ->
+                Mth.square(chunk.x - centerChunkX) + Mth.square(chunk.z - centerChunkZ)));
+        return chunks;
     }
 
     private void prepareAnimatedCrystalRestore(ServerLevel level) {
-        long seed = level.getSeed();
-        for (int towerIndex = 0; towerIndex < TOWER_COUNT; towerIndex++) {
-            TowerPosition tower = towerPosition(seed, towerIndex);
-            BlockPos crystalPos = new BlockPos(tower.x(), tower.topY() + 1, tower.z());
-            level.getChunk(crystalPos.getX() >> 4, crystalPos.getZ() >> 4);
-            clearCrystalCage(level, tower);
-            RamessesEndCrystalEntity crystal = findTowerCrystal(level, crystalPos);
-            if (crystal != null) {
-                crystal.discard();
-            }
+        AABB bounds = new AABB(
+                this.centerX - GENERATION_RADIUS, 16, this.centerZ - GENERATION_RADIUS,
+                this.centerX + GENERATION_RADIUS, 128, this.centerZ + GENERATION_RADIUS);
+        for (RamessesEndCrystalEntity crystal : level.getEntitiesOfClass(
+                RamessesEndCrystalEntity.class, bounds, Entity::isAlive)) {
+            crystal.discard();
         }
+        retainTowerChunk(level, level.getSeed(), 0);
     }
 
     private void sendCrystalCinematicFocus(
@@ -174,6 +426,17 @@ public final class RamessesEndIslandPiece extends StructurePiece {
         }
     }
 
+    private void stopCrystalCinematic(ServerLevel level) {
+        SunEaterStageCinematicPacket packet = new SunEaterStageCinematicPacket(0.0D, 0.0D, 0.0D, 0);
+        for (ServerPlayer player : level.players()) {
+            double centerDx = player.getX() - this.centerX;
+            double centerDz = player.getZ() - this.centerZ;
+            if (centerDx * centerDx + centerDz * centerDz <= 224.0D * 224.0D) {
+                ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
+            }
+        }
+    }
+
     private void placeAnimatedCageStep(ServerLevel level, int buildTick) {
         long seed = level.getSeed();
         int towerIndex = buildTick / TOWER_SEQUENCE_TICKS;
@@ -182,10 +445,21 @@ public final class RamessesEndIslandPiece extends StructurePiece {
             return;
         }
         TowerPosition tower = towerPosition(seed, towerIndex);
-        if (towerTick == 0 && towerIndex > 0) {
-            sendCrystalCinematicFocus(level, towerIndex, CRYSTAL_CAGE_BUILD_TICKS - buildTick);
+        BlockPos crystalPos = new BlockPos(tower.x(), tower.topY() + 1, tower.z());
+        ChunkPos towerChunk = new ChunkPos(crystalPos);
+        if (towerTick == 0) {
+            level.getChunkSource().addRegionTicket(TicketType.PORTAL, towerChunk, 2, crystalPos);
+            retainTowerChunk(level, seed, towerIndex + 1);
+            level.getChunk(towerChunk.x, towerChunk.z);
+            RamessesEndCrystalEntity oldCrystal = findTowerCrystal(level, crystalPos);
+            if (oldCrystal != null) {
+                oldCrystal.discard();
+            }
         }
         if (towerTick < TOWER_CAMERA_TURN_TICKS) {
+            int firstBlock = towerTick * CAGE_CLEAR_BLOCKS_PER_TICK;
+            int lastBlock = Math.min(firstBlock + CAGE_CLEAR_BLOCKS_PER_TICK, CAGE_BLOCK_COUNT);
+            clearCrystalCageRange(level, tower, firstBlock, lastBlock);
             return;
         }
         int cageTick = towerTick - TOWER_CAMERA_TURN_TICKS;
@@ -199,6 +473,7 @@ public final class RamessesEndIslandPiece extends StructurePiece {
             return;
         }
         revealTowerCrystal(level, tower);
+        level.getChunkSource().removeRegionTicket(TicketType.PORTAL, towerChunk, 2, crystalPos);
     }
 
     private static void placeAnimatedCageBlock(
@@ -206,7 +481,8 @@ public final class RamessesEndIslandPiece extends StructurePiece {
         if (cageBlock == null || level.getBlockState(cageBlock.pos()).equals(cageBlock.state())) {
             return;
         }
-        level.setBlock(cageBlock.pos(), cageBlock.state(), 3);
+        level.setBlock(cageBlock.pos(), cageBlock.state(),
+                Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
         level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, cageBlock.state()),
                 cageBlock.pos().getX() + 0.5D,
                 cageBlock.pos().getY() + 0.55D,
@@ -243,6 +519,7 @@ public final class RamessesEndIslandPiece extends StructurePiece {
         }
         if (crystal != null) {
             crystal.restoreForCombatStage();
+            crystal.setInvulnerable(true);
             crystal.markTowerGuardianInitialized();
             level.sendParticles(ParticleTypes.END_ROD,
                     crystal.getX(), crystal.getY() + 0.8D, crystal.getZ(),
@@ -261,6 +538,7 @@ public final class RamessesEndIslandPiece extends StructurePiece {
         long seed = level.getSeed();
         for (int towerIndex = 0; towerIndex < TOWER_COUNT; towerIndex++) {
             TowerPosition tower = towerPosition(seed, towerIndex);
+            releaseTowerChunk(level, seed, towerIndex);
             rebuildCrystalCage(level, tower);
             BlockPos crystalPos = new BlockPos(tower.x(), tower.topY() + 1, tower.z());
             RamessesEndCrystalEntity crystal = findTowerCrystal(level, crystalPos);
@@ -280,13 +558,77 @@ public final class RamessesEndIslandPiece extends StructurePiece {
         }
     }
 
-    private static void clearCrystalCage(ServerLevel level, TowerPosition tower) {
-        for (int step = 0; step < CAGE_BLOCK_COUNT; step++) {
-            CageBlock cageBlock = cageBlockAt(tower, step);
-            if (cageBlock != null) {
-                level.setBlock(cageBlock.pos(), Blocks.AIR.defaultBlockState(), 3);
+    public static void beginStageCrystalRitual(ServerLevel level, BlockPos center) {
+        RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
+        List<RamessesEndCrystalEntity> crystals = island.findAllTowerCrystals(level);
+        if (crystals.isEmpty()) {
+            return;
+        }
+        for (int index = 0; index < crystals.size(); index++) {
+            RamessesEndCrystalEntity crystal = crystals.get(index);
+            RamessesEndCrystalEntity next = crystals.get((index + 1) % crystals.size());
+            crystal.beginRespawnRitual(next.blockPosition());
+        }
+    }
+
+    public static void focusStageCrystalsOnCenter(ServerLevel level, BlockPos center) {
+        RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
+        BlockPos focus = stageRitualFocus(center);
+        for (RamessesEndCrystalEntity crystal : island.findAllTowerCrystals(level)) {
+            crystal.setRespawnRitualBeamTarget(focus);
+        }
+    }
+
+    public static void finishStageCrystalRitual(ServerLevel level, BlockPos center) {
+        RamessesEndIslandPiece island = new RamessesEndIslandPiece(center.getX(), center.getZ());
+        for (RamessesEndCrystalEntity crystal : island.findAllTowerCrystals(level)) {
+            crystal.finishRespawnRitualForCombat();
+        }
+    }
+
+    public static BlockPos stageRitualFocus(BlockPos center) {
+        return center.above(48);
+    }
+
+    private List<RamessesEndCrystalEntity> findAllTowerCrystals(ServerLevel level) {
+        List<RamessesEndCrystalEntity> crystals = new ArrayList<>(TOWER_COUNT);
+        long seed = level.getSeed();
+        for (int towerIndex = 0; towerIndex < TOWER_COUNT; towerIndex++) {
+            TowerPosition tower = towerPosition(seed, towerIndex);
+            BlockPos crystalPos = new BlockPos(tower.x(), tower.topY() + 1, tower.z());
+            RamessesEndCrystalEntity crystal = findTowerCrystal(level, crystalPos);
+            if (crystal != null) {
+                crystals.add(crystal);
             }
         }
+        return crystals;
+    }
+
+    private static void clearCrystalCageRange(
+            ServerLevel level, TowerPosition tower, int firstBlock, int lastBlock) {
+        for (int step = firstBlock; step < lastBlock; step++) {
+            CageBlock cageBlock = cageBlockAt(tower, step);
+            if (cageBlock != null && !level.getBlockState(cageBlock.pos()).isAir()) {
+                level.setBlock(cageBlock.pos(), Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+            }
+        }
+    }
+
+    private void retainTowerChunk(ServerLevel level, long seed, int towerIndex) {
+        if (towerIndex < 0 || towerIndex >= TOWER_COUNT) {
+            return;
+        }
+        TowerPosition tower = towerPosition(seed, towerIndex);
+        BlockPos ticketKey = new BlockPos(tower.x(), tower.topY() + 1, tower.z());
+        level.getChunkSource().addRegionTicket(
+                TicketType.PORTAL, new ChunkPos(ticketKey), 2, ticketKey);
+    }
+
+    private void releaseTowerChunk(ServerLevel level, long seed, int towerIndex) {
+        TowerPosition tower = towerPosition(seed, towerIndex);
+        BlockPos ticketKey = new BlockPos(tower.x(), tower.topY() + 1, tower.z());
+        level.getChunkSource().removeRegionTicket(
+                TicketType.PORTAL, new ChunkPos(ticketKey), 2, ticketKey);
     }
 
     private static CageBlock cageBlockAt(TowerPosition tower, int index) {
@@ -360,18 +702,24 @@ public final class RamessesEndIslandPiece extends StructurePiece {
         int roofY = tower.topY() + 4;
         for (int dx = -2; dx <= 2; dx++) {
             for (int dz = -2; dz <= 2; dz++) {
-                level.setBlock(pos.set(tower.x() + dx, floorY, tower.z() + dz),
-                        Blocks.OBSIDIAN.defaultBlockState(), 3);
-                level.setBlock(pos.set(tower.x() + dx, roofY, tower.z() + dz),
-                        Blocks.OBSIDIAN.defaultBlockState(), 3);
+                setCageBlockIfMissing(level, pos.set(tower.x() + dx, floorY, tower.z() + dz),
+                        Blocks.OBSIDIAN.defaultBlockState());
+                setCageBlockIfMissing(level, pos.set(tower.x() + dx, roofY, tower.z() + dz),
+                        Blocks.OBSIDIAN.defaultBlockState());
                 if (Math.abs(dx) != 2 && Math.abs(dz) != 2) {
                     continue;
                 }
                 BlockState bars = ironBarsForCage(dx, dz);
                 for (int y = floorY + 1; y < roofY; y++) {
-                    level.setBlock(pos.set(tower.x() + dx, y, tower.z() + dz), bars, 3);
+                    setCageBlockIfMissing(level, pos.set(tower.x() + dx, y, tower.z() + dz), bars);
                 }
             }
+        }
+    }
+
+    private static void setCageBlockIfMissing(ServerLevel level, BlockPos pos, BlockState state) {
+        if (!level.getBlockState(pos).equals(state)) {
+            level.setBlock(pos, state, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
         }
     }
 

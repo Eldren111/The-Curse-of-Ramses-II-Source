@@ -1,0 +1,91 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 5.0, "max": 8.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "minecraft:diamond", "weight": 18,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 7.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:ancient_debris", "weight": 16,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:netherite_scrap", "weight": 14,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:gold_block", "weight": 12,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:emerald_block", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:crying_obsidian", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 16.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:experience_bottle", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 8.0, "max": 24.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:end_crystal", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        }
+      ]
+    },
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 2.0, "max": 4.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "minecraft:netherite_ingot", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:diamond_block", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        { "type": "minecraft:item", "name": "minecraft:nether_star", "weight": 3 },
+        { "type": "minecraft:item", "name": "minecraft:enchanted_golden_apple", "weight": 4 },
+        { "type": "minecraft:item", "name": "minecraft:totem_of_undying", "weight": 3 },
+        { "type": "minecraft:item", "name": "minecraft:netherite_upgrade_smithing_template", "weight": 10 },
+        { "type": "minecraft:item", "name": "minecraft:snout_armor_trim_smithing_template", "weight": 8 },
+        { "type": "minecraft:item", "name": "minecraft:rib_armor_trim_smithing_template", "weight": 8 },
+        { "type": "minecraft:item", "name": "minecraft:beacon", "weight": 2 }
+      ]
+    },
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "ramesses_curse:ember_of_duat", "weight": 14,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 6.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "ramesses_curse:eternal_silence_granule", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 4.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "ramesses_curse:fractured_phase_ore_chunk", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "ramesses_curse:pitchfire_crystal", "weight": 5,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        { "type": "minecraft:item", "name": "ramesses_curse:eternal_silence_ingot", "weight": 1 }
+      ]
+    },
+    {
+      "rolls": 1.0,
+      "conditions": [{ "condition": "minecraft:random_chance", "chance": 0.4 }],
+      "entries": [
+        { "type": "minecraft:tag", "name": "ramesses_curse:grand_cathedral_nether_modded", "expand": true }
+      ]
+    }
+  ]
+}

@@ -2,5 +2,5 @@
   "name": "指令与校验",
   "description": "用于测试、排障与服主管理的条目，适合在联机或调试时翻阅。",
   "icon": "minecraft:command_block",
-  "sortnum": 4
+  "sortnum": 5
 }

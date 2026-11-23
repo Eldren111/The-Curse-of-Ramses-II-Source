@@ -1,0 +1,28 @@
+{
+  "name": "王朝大教堂",
+  "category": "ramesses_curse:worlds",
+  "icon": "minecraft:netherite_upgrade_smithing_template",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "两座孤本",
+      "text": "下界与永寂虚空各自只生成一座王朝大教堂。下界版本以 Y=126 为地基，周围天然地形不会侵入建筑；虚空版本坐落在传送平台附近。$(br2)建筑本体高大，两个维度均已扩展到足以完整容纳它的高度。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "定位与准入",
+      "text": "大教堂已注册为正式结构，可使用：$(br)$(c)/locate structure ramesses_curse:grand_cathedral$()$(br2)未佩戴卡迭石咒印的玩家会在边界看到屏障警示，并被禁制推出建筑。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "下界藏品",
+      "text": "下界教堂的箱子分为普通与宝藏档位。普通箱偏向金锭、石英、黑曜石、岩浆膏和少量钻石；宝藏箱可出现远古残骸、下界合金、下界之星、附魔金苹果、图腾、锻造模板和本模组高阶材料。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "虚空藏品与联动",
+      "text": "虚空教堂的战利品更接近终局：鞘翅、信标、寂静与尖塔纹饰、赫卡神辉水晶、星律神锭等都可能出现。$(br2)两类教堂箱也会按已安装模组追加兼容战利品，而不会要求未安装模组的物品。"
+    }
+  ]
+}

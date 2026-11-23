@@ -1,0 +1,41 @@
+plugins {
+    id 'net.minecraftforge.gradle' version '6.0.54'
+    id 'org.spongepowered.mixin' version '0.7.38'
+}
+
+group = 'com.eldren.explorerscompassdurability'
+version = '1.0.0'
+base { archivesName = 'explorers-compass-durability-1.20.1-forge' }
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods { explorerscompassdurability { source sourceSets.main } }
+        }
+        client {}
+        server { args '--nogui' }
+    }
+}
+
+repositories { mavenCentral() }
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.4.9'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+}
+mixin {
+    add sourceSets.main, 'explorerscompassdurability.refmap.json'
+    config 'explorerscompassdurability.mixins.json'
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.named('test') { useJUnitPlatform() }
+tasks.named('jar', Jar) {
+    from('LICENSE')
+    manifest.attributes('MixinConfigs': 'explorerscompassdurability.mixins.json')
+    finalizedBy 'reobfJar'
+}

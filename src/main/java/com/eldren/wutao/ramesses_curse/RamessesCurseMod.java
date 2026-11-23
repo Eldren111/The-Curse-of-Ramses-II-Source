@@ -288,6 +288,7 @@ public class RamessesCurseMod {
                 EntityRenderers.register(ModEntities.RAMESSES_END_CRYSTAL.get(), RamessesEndCrystalRenderer::new);
                 EntityRenderers.register(ModEntities.DUAT_SUN_EATER.get(), DuatSunEaterRenderer::new);
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.DUAT_PORTAL.get(), RenderType.translucent());
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.VOID_GATEWAY_PORTAL.get(), RenderType.translucent());
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.SILENT_SEPULCHER_WITHERED_VINE.get(), RenderType.cutout());
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.DATE_PALM_LEAVES.get(), RenderType.cutoutMipped());
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.DATE_PALM_SAPLING.get(), RenderType.cutout());
@@ -330,10 +331,13 @@ public class RamessesCurseMod {
         @SubscribeEvent
         public static void addEntityRenderLayers(EntityRenderersEvent.AddLayers event) {
             GoetyMonolithAuraLayer.register(event);
+            DynastyShieldLayer.register(event);
         }
 
         @SubscribeEvent
         public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
+            event.register((stack, tintIndex) -> tintIndex == 0 ? 0xFFB814 : 0xFFFFFF,
+                    ModItems.HEKA_RADIANT_CRYSTAL.get());
             event.register((stack, tintIndex) -> tintIndex == 0 ? 0x932423 : 0xFFFFFFFF,
                     ModItems.DYNASTY_PRESSURE_POTION.get());
             event.register((stack, tintIndex) -> stack.hasTag()
@@ -341,6 +345,12 @@ public class RamessesCurseMod {
                             ? 0x3A123F
                             : 0xFFFFFF,
                     ModItems.FISSION_WRAITH_HEART.get());
+        }
+
+        @SubscribeEvent
+        public static void registerBlockColors(RegisterColorHandlersEvent.Block event) {
+            event.register((state, level, pos, tintIndex) -> tintIndex == 0 ? 0xE63A68 : 0xFFFFFF,
+                    ModBlocks.VOID_GATEWAY_PORTAL.get());
         }
 
         @SubscribeEvent

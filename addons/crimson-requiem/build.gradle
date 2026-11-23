@@ -1,0 +1,42 @@
+// Separate compilation, resources, mixins and distributable. The root supplies the Forge toolchain.
+sourceSets {
+    requiem {
+        java.srcDir 'addons/crimson-requiem/src/main/java'
+        resources.srcDir 'addons/crimson-requiem/src/main/resources'
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+configurations {
+    requiemImplementation.extendsFrom implementation
+    requiemCompileOnly.extendsFrom compileOnly
+    requiemRuntimeOnly.extendsFrom runtimeOnly
+    requiemAnnotationProcessor.extendsFrom annotationProcessor
+}
+mixin {
+    add sourceSets.requiem, 'ramesses_requiem.refmap.json'
+}
+tasks.register('requiemJar', Jar) {
+    archiveBaseName = 'ramesses_requiem'
+    archiveVersion = '1.0.0'
+    destinationDirectory = layout.projectDirectory.dir('addons/crimson-requiem/build/libs')
+    from sourceSets.requiem.output
+    // MixinGradle adds every source set's refmap to every Jar task by default.
+    exclude 'ramesses_curse.refmap.json'
+    manifest.attributes('MixinConfigs': 'ramesses_requiem.mixins.json')
+    finalizedBy 'reobfRequiemJar'
+}
+tasks.named('jar', Jar) { exclude 'ramesses_requiem.refmap.json' }
+reobf { requiemJar {} }
+tasks.named('build') { dependsOn 'requiemJar' }
+
+// gradle.properties enables the addon for local development; -PwithRequiem=false selects base-only runs.
+def withRequiem = providers.gradleProperty('withRequiem').map { it.toBoolean() }.getOrElse(false)
+// Switching optional content must not rewrite the other test installation's registry snapshot.
+minecraft.runs.gameTestServer.workingDirectory project.file(withRequiem ? 'run-gametest/requiem' : 'run-gametest/base')
+if (withRequiem) {
+    minecraft.runs.configureEach {
+        mods { ramesses_requiem { source sourceSets.requiem } }
+        args '-mixin.config=ramesses_requiem.mixins.json'
+    }
+}

@@ -1,5 +1,5 @@
 {
-  "name": "王器图录",
+  "name": "Relic Compendium",
   "category": "ramesses_curse:relics",
   "icon": "ramesses_curse:heart_of_duat",
   "sortnum": 0,
@@ -7,38 +7,38 @@
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:purification_scroll",
-      "title": "净化卷轴",
-      "text": "一次性的赦免仪式。只会回应佩戴咒印之人，用来削减王罪。"
+      "title": "Purification Scroll",
+      "text": "A single-use rite of absolution that responds only to a wearer of the Seal of Kadesh. It removes part of your Guilt and is the most direct relief while progressing Curse V.$(br2)Right-clicking also reduces Dynasty Threat by 100. The scroll is consumed only when it removes Guilt or Threat."
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:satiety_crystal",
-      "title": "饱食水晶",
-      "text": "A material record of Curse IX's Hunger Debt, delivered after respawning. If the inventory is full, delivery waits until a slot opens. It is bound to the debtor, cannot be discarded, and is reissued if lost. Solving three inscriptions consumes one crystal and restores the debt and lost attributes."
+      "title": "Satiety Crystal",
+      "text": "Curse IX's bound debt token, created after the configured number of deaths, delivered after respawn and reissued if lost.$(br2)While wearing the seal, solve one inscription or eat any three different foods. Vanilla and modded foods can be mixed; each type counts once. Sneak-use or hover to view saved progress.$(br2)Either route consumes one crystal, repays one layer and restores the debt bar, hunger cap and attributes. Food repayment then seals inventory, hands, hotbar and interactions for a configurable 30 seconds. Items remain in place and unlock automatically. Remaining debt still drains, applying -99% attributes at zero."
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:ember_of_duat",
-      "title": "杜阿特余烬",
-      "text": "多见于下界遗迹的容器。未读懂碑文前不会回应右键，解谜后可开启亡灵试炼。"
+      "title": "Ember of Duat",
+      "text": "Primarily found in Nether structure containers, with an extremely small chance to drop from hostile mobs.$(br2)It carries the inscription system, unlocks the Crown of Regency's reversal, and serves as a key to the final path."
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:heart_of_duat",
-      "title": "杜阿特之心",
-      "text": "由余烬与下界之星凝成的战斗核心。敌群成阵时可主动觉醒，平时也会用战意与免伤回报持有者。"
+      "title": "Heart of Duat",
+      "text": "The central combat relic of the midgame. It can awaken actively when enemies gather; otherwise, stacks of Battle Intent, stored mitigation, and environmental passives reward its wearer.$(br2)It marks the point where a victim of the curse begins wielding part of the dynasty's power."
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:resonant_scarab",
-      "title": "共鸣圣甲虫",
-      "text": "它并不自己歌唱，只负责在旧歌结束后把那股回声留在佩戴者身上。"
+      "title": "Resonant Scarab",
+      "text": "Awakened by playing the complete Hymn of the Two Lands. While worn, it grants resistance, attack, armor, and interaction-range bonuses. Removing it disperses the resonance and returns the scarab to sleep."
     },
     {
       "type": "patchouli:spotlight",
       "item": "ramesses_curse:edict_of_two_lands",
-      "title": "两地敕印",
-      "text": "一件偏向中后期的王令之器。它需要王罪作为代价，并在两种相位之间择一而行。"
+      "title": "Edict of the Two Lands",
+      "text": "A royal implement for the middle and late game that consumes Guilt to activate. Its ordinary Edict and Half-Dome Edict phases provide tactical control, displacement, and execution."
     }
   ]
 }

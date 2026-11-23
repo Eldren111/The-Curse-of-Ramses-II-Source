@@ -1,0 +1,15 @@
+{
+  "type": "ramesses_curse:ramesses_void",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "layers": [],
+      "biome": "minecraft:the_void",
+      "lakes": false,
+      "features": false,
+      "structure_overrides": [
+        "ramesses_curse:grand_cathedral"
+      ]
+    }
+  }
+}

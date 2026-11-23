@@ -1,0 +1,22 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "srcalpha",
+    "dstrgb": "1-srcalpha"
+  },
+  "vertex": "ramesses_curse:duat_black_hole_composite",
+  "fragment": "ramesses_curse:duat_black_hole_composite",
+  "attributes": [
+    "Position"
+  ],
+  "samplers": [],
+  "uniforms": [
+    { "name": "EffectTime", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "Intensity", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "CollapseProgress", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "Engulf", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "Visible", "type": "float", "count": 1, "values": [0.0] },
+    { "name": "LensScreenCenter", "type": "float", "count": 2, "values": [0.5, 0.5] },
+    { "name": "LensScreenRadius", "type": "float", "count": 2, "values": [0.2, 0.35] }
+  ]
+}

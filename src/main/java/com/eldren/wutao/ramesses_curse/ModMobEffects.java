@@ -29,6 +29,7 @@ public class ModMobEffects {
     public static final DeferredRegister<MobEffect> MOB_EFFECTS =
             DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, RamessesCurseMod.MODID);
 
+
     public static final RegistryObject<MobEffect> INVERSION =
             MOB_EFFECTS.register("inversion", InversionMobEffect::new);
 

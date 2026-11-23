@@ -99,6 +99,25 @@ public final class ClientPacketHandlers {
         }
     }
 
+    public static void triggerDuatBlackHoleVfx(double x, double y, double z, int durationTicks) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level != null) {
+            DuatBlackHoleVfxState.trigger(
+                    new net.minecraft.world.phys.Vec3(x, y, z),
+                    minecraft.level.getGameTime(), durationTicks);
+        }
+    }
+
+    public static void syncSunEaterStageRitual(
+            double x, double y, double z, int stage, int elapsedTicks, int durationTicks) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level != null) {
+            SunEaterStageRitualVfxState.sync(
+                    new net.minecraft.world.phys.Vec3(x, y, z), stage,
+                    elapsedTicks, durationTicks, minecraft.level.getGameTime());
+        }
+    }
+
     public static void startSunEaterStageCinematic(
             double x, double y, double z, int durationTicks) {
         SunEaterStageCinematicClient.start(x, y, z, durationTicks);

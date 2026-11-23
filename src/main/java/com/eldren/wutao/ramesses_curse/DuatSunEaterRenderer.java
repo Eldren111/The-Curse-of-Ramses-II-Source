@@ -15,6 +15,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraftforge.fml.ModList;
 import org.joml.Matrix4f;
 
 public final class DuatSunEaterRenderer extends EntityRenderer<DuatSunEaterEntity> {
@@ -35,6 +37,7 @@ public final class DuatSunEaterRenderer extends EntityRenderer<DuatSunEaterEntit
     private static final float HALF_SQRT_THREE = (float) (Math.sqrt(3.0D) / 2.0D);
     private final EnderDragonRenderer.DragonModel model;
     private final DuatSunEaterCrownModel crownModel;
+    private EnderDragon modelDriver;
 
     public DuatSunEaterRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -58,9 +61,19 @@ public final class DuatSunEaterRenderer extends EntityRenderer<DuatSunEaterEntit
         poseStack.translate(0.0F, 0.0F, 1.0F);
         poseStack.scale(-1.0F, -1.0F, 1.0F);
         poseStack.translate(0.0F, -1.501F, 0.0F);
+        // The vanilla mesh is reused only as geometry. Feed it a client-side driver
+        // so its animation code has the vanilla state object it expects; the
+        // rendered entity itself remains DuatSunEaterEntity.
+        if (this.modelDriver == null || this.modelDriver.level() != entity.level()) {
+            this.modelDriver = new EnderDragon(net.minecraft.world.entity.EntityType.ENDER_DRAGON, entity.level());
+        }
+        entity.copyLatencyHistory(this.modelDriver.positions);
+        this.modelDriver.posPointer = entity.getLatencyPointer();
+        this.modelDriver.setYRot(entity.getYRot());
+        this.modelDriver.oFlapTime = entity.oFlapTime;
+        this.modelDriver.flapTime = entity.flapTime;
+        this.model.prepareMobModel(this.modelDriver, 0.0F, 0.0F, partialTick);
         boolean hurt = entity.hurtTime > 0;
-        this.model.prepareMobModel(entity, 0.0F, 0.0F, partialTick);
-
         VertexConsumer base = buffers.getBuffer(BASE);
         int combatStage = entity.getCombatStage();
         float greenTint = combatStage == 1 ? 0.88F : combatStage == 2 ? 0.62F : 0.38F;
@@ -81,7 +94,7 @@ public final class DuatSunEaterRenderer extends EntityRenderer<DuatSunEaterEntit
             renderRedDeathRays(entity, partialTick, poseStack, buffers.getBuffer(RenderType.lightning()));
         }
 
-        if (entity.isObsidianShieldActive()) {
+        if (entity.isObsidianShieldActive() && ModList.get().isLoaded("goety")) {
             float shieldTime = entity.tickCount + partialTick;
             float shieldX = Mth.cos(shieldTime * 0.02F) * 3.0F % 1.0F;
             float shieldY = shieldTime * 0.01F % 1.0F;

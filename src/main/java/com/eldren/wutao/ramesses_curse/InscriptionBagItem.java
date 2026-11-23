@@ -71,6 +71,9 @@ public class InscriptionBagItem extends Item implements ICurioItem {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        if (KadeshCurioAccess.isLocked(player, stack)) {
+            return InteractionResultHolder.fail(stack);
+        }
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             NetworkHooks.openScreen(
                     serverPlayer,
@@ -289,7 +292,8 @@ public class InscriptionBagItem extends Item implements ICurioItem {
                 && player.getServer() != null) {
             float echoDamage = damage * 0.75F;
             player.getServer().execute(() -> {
-                if (!player.isAlive() || !target.isAlive() || player.level() != target.level()
+                if (!player.isAlive() || !target.isAlive() || !hasActiveFragment(player, 25)
+                        || player.level() != target.level()
                         || !ECHO_DAMAGE_GUARD.add(player.getUUID())) {
                     return;
                 }
@@ -323,7 +327,9 @@ public class InscriptionBagItem extends Item implements ICurioItem {
     }
 
     private static boolean hasActiveFragment(Player player, int fragment) {
-        return (player.getPersistentData().getInt(ACTIVE_MASK_KEY) & (1 << (fragment - 1))) != 0;
+        return KadeshCurioAccess.isWearingSeal(player)
+                && !DuatCuriosSealManager.suppressesEquippedItem(player, ModItems.INSCRIPTION_BAG.get())
+                && (player.getPersistentData().getInt(ACTIVE_MASK_KEY) & (1 << (fragment - 1))) != 0;
     }
 
     private static void updateActiveMask(Player player, ItemStack stack) {

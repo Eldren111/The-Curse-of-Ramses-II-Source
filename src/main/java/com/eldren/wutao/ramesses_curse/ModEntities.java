@@ -105,8 +105,8 @@ public class ModEntities {
             ENTITY_TYPES.register("duat_sun_eater", () -> EntityType.Builder
                     .<DuatSunEaterEntity>of(DuatSunEaterEntity::new, MobCategory.MONSTER)
                     .sized(16.0F, 8.0F)
-                    .clientTrackingRange(10)
-                    .updateInterval(3)
+                    .clientTrackingRange(16)
+                    .updateInterval(1)
                     .fireImmune()
                     .build("duat_sun_eater"));
 }

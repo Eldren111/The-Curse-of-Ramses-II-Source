@@ -29,6 +29,15 @@ public final class ModDamageTypes {
     public static final ResourceKey<DamageType> CHANCE_DIE_TRUE_DAMAGE = ResourceKey.create(
             Registries.DAMAGE_TYPE,
             new ResourceLocation(RamessesCurseMod.MODID, "chance_die_true_damage"));
+    public static final ResourceKey<DamageType> APEP_DIVE = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            new ResourceLocation(RamessesCurseMod.MODID, "apep_dive"));
+    public static final ResourceKey<DamageType> APEP_ECLIPSE_BREATH = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            new ResourceLocation(RamessesCurseMod.MODID, "apep_eclipse_breath"));
+    public static final ResourceKey<DamageType> APEP_SHADOW = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            new ResourceLocation(RamessesCurseMod.MODID, "apep_shadow"));
     public static final ResourceKey<DamageType> RUIN_BURST = ResourceKey.create(
             Registries.DAMAGE_TYPE,
             new ResourceLocation(RamessesCurseMod.MODID, "ruin_burst"));
@@ -79,6 +88,24 @@ public final class ModDamageTypes {
         return new DamageSource(level.registryAccess()
                 .registryOrThrow(Registries.DAMAGE_TYPE)
                 .getHolderOrThrow(CHANCE_DIE_TRUE_DAMAGE), player);
+    }
+
+    public static DamageSource apepDive(Level level, LivingEntity attacker) {
+        return new DamageSource(level.registryAccess()
+                .registryOrThrow(Registries.DAMAGE_TYPE)
+                .getHolderOrThrow(APEP_DIVE), attacker);
+    }
+
+    public static DamageSource apepEclipseBreath(Level level, LivingEntity attacker) {
+        return new DamageSource(level.registryAccess()
+                .registryOrThrow(Registries.DAMAGE_TYPE)
+                .getHolderOrThrow(APEP_ECLIPSE_BREATH), attacker);
+    }
+
+    public static DamageSource apepShadow(Level level, LivingEntity attacker) {
+        return new DamageSource(level.registryAccess()
+                .registryOrThrow(Registries.DAMAGE_TYPE)
+                .getHolderOrThrow(APEP_SHADOW), attacker);
     }
 
     public static DamageSource ruinBurst(Level level, Player player) {

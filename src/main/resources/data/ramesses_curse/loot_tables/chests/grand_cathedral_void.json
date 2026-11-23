@@ -1,0 +1,94 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 6.0, "max": 9.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "minecraft:diamond", "weight": 18,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 3.0, "max": 9.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:netherite_scrap", "weight": 14,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 6.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:netherite_ingot", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:diamond_block", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:echo_shard", "weight": 12,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 12.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:end_crystal", "weight": 12,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 6.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:dragon_breath", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 4.0, "max": 12.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:experience_bottle", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 12.0, "max": 32.0 } }]
+        }
+      ]
+    },
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 2.0, "max": 4.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "minecraft:nether_star", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:enchanted_golden_apple", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        { "type": "minecraft:item", "name": "minecraft:elytra", "weight": 3 },
+        {
+          "type": "minecraft:item", "name": "minecraft:totem_of_undying", "weight": 7,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "minecraft:beacon", "weight": 5,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        { "type": "minecraft:item", "name": "minecraft:netherite_upgrade_smithing_template", "weight": 8 },
+        { "type": "minecraft:item", "name": "minecraft:silence_armor_trim_smithing_template", "weight": 5 },
+        { "type": "minecraft:item", "name": "minecraft:ward_armor_trim_smithing_template", "weight": 6 },
+        { "type": "minecraft:item", "name": "minecraft:spire_armor_trim_smithing_template", "weight": 7 }
+      ]
+    },
+    {
+      "rolls": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 },
+      "entries": [
+        {
+          "type": "minecraft:item", "name": "ramesses_curse:eternal_silence_granule", "weight": 14,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 6.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "ramesses_curse:ember_of_duat", "weight": 12,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "ramesses_curse:heka_radiant_crystal", "weight": 9,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 3.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "ramesses_curse:fractured_phase_ore_chunk", "weight": 10,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 2.0, "max": 5.0 } }]
+        },
+        {
+          "type": "minecraft:item", "name": "ramesses_curse:eternal_silence_ingot", "weight": 4,
+          "functions": [{ "function": "minecraft:set_count", "count": { "type": "minecraft:uniform", "min": 1.0, "max": 2.0 } }]
+        },
+        { "type": "minecraft:item", "name": "ramesses_curse:star_law_divine_ingot", "weight": 1 }
+      ]
+    }
+  ]
+}

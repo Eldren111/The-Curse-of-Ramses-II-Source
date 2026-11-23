@@ -1,0 +1,7 @@
+{
+  "entity.ramesses_requiem.wushe": "葬神剑主 · 无赦",
+  "entity.ramesses_requiem.wushe_wave": "无赦之刃",
+  "item.ramesses_requiem.wushe_spawn_egg": "葬神剑主 · 无赦 刷怪蛋",
+  "death.attack.wushe_backstab": "%1$s 未能逃过 %2$s 的背刺",
+  "death.attack.wushe_backstab.player": "%1$s 未能逃过 %2$s 的背刺"
+}

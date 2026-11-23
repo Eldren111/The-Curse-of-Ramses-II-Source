@@ -1,0 +1,7 @@
+{
+  "entity.ramesses_requiem.wushe": "Godslayer Swordlord · Wushe",
+  "entity.ramesses_requiem.wushe_wave": "Wushe's Blade",
+  "item.ramesses_requiem.wushe_spawn_egg": "Wushe Spawn Egg",
+  "death.attack.wushe_backstab": "%1$s was executed from behind by %2$s",
+  "death.attack.wushe_backstab.player": "%1$s was executed from behind by %2$s"
+}

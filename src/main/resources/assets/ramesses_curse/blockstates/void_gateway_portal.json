@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "ramesses_curse:block/void_gateway_portal"
+    },
+    "axis=z": {
+      "model": "ramesses_curse:block/void_gateway_portal"
+    }
+  }
+}

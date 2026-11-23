@@ -1,0 +1,28 @@
+{
+  "name": "Dynasty Grand Cathedral",
+  "category": "ramesses_curse:worlds",
+  "icon": "minecraft:netherite_upgrade_smithing_template",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Two Singular Structures",
+      "text": "Exactly one Dynasty Grand Cathedral generates in the Nether and one in the Silent Void. The Nether cathedral has its foundation at Y=126 and excludes invading terrain. The Void cathedral stands near its arrival platform.$(br2)Both dimensions have enough vertical space for the complete building."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Locate and Enter",
+      "text": "The cathedral is a registered structure:$(br)$(c)/locate structure ramesses_curse:grand_cathedral$()$(br2)Players without an equipped Seal of Kadesh see a barrier warning at its boundary and are pushed back out."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Nether Stores",
+      "text": "Nether chests range from common to treasure. Common stores favor gold, quartz, obsidian, Magma Cream, and occasional diamonds. Treasure may hold Ancient Debris, Netherite, Nether Stars, Enchanted Golden Apples, Totems, templates, and advanced mod materials."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Void Stores and Compatibility",
+      "text": "Void loot is closer to endgame: Elytra, Beacons, Silence and Spire trims, Heka Radiant Crystals, and Star-Law Divine Ingots may appear.$(br2)Both cathedral sets can add compatible loot from installed mods without requiring absent mods."
+    }
+  ]
+}

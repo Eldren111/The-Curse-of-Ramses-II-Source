@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "goety:cursed_metal_ingot", "required": false },
+    { "id": "goety:dark_metal_ingot", "required": false },
+    { "id": "goety:soul_ruby", "required": false },
+    { "id": "goety:blazing_horn", "required": false },
+    { "id": "goety:infernal_tome", "required": false },
+    { "id": "irons_spellbooks:arcane_essence", "required": false },
+    { "id": "irons_spellbooks:cinder_essence", "required": false },
+    { "id": "irons_spellbooks:fire_rune", "required": false },
+    { "id": "irons_spellbooks:arcane_ingot", "required": false }
+  ]
+}

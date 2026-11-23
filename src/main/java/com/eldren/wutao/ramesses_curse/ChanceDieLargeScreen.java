@@ -56,15 +56,9 @@ public class ChanceDieLargeScreen extends Screen {
     protected void init() {
         super.init();
         buttonsAdded = false;
-        int panelWidth = Math.max(1, width - 12);
-        int panelLeft = (width - panelWidth) / 2;
-        int top = 4;
-        int columnWidth = (panelWidth - 12) / COLUMNS;
-        int checkboxY = height - 43;
-        addRenderableWidget(Button.builder(
+        addRenderableWidget(DuatRitualGui.button(
                         Component.translatable("screen.ramesses_curse.chance_die_large.exit"),
-                        button -> onClose())
-                .bounds(width / 2 + 4, height - 24, 70, 16).build());
+                        button -> onClose(), width / 2 + 4, height - 28, 76, 20));
     }
 
     @Override
@@ -81,10 +75,10 @@ public class ChanceDieLargeScreen extends Screen {
 
     private void addChoiceButtons() {
         buttonsAdded = true;
-        int panelWidth = Math.max(1, width - 12);
-        int panelLeft = (width - panelWidth) / 2;
+        int panelWidth = panelWidth();
+        int panelLeft = panelLeft();
         int columnWidth = (panelWidth - 12) / COLUMNS;
-        int checkboxY = height - 43;
+        int checkboxY = height - 48;
         for (int column = 0; column < COLUMNS; column++) {
             int x = panelLeft + 6 + column * columnWidth;
             choiceBoxes[column] = addRenderableWidget(new Checkbox(
@@ -96,10 +90,9 @@ public class ChanceDieLargeScreen extends Screen {
                     false,
                     false));
         }
-        addRenderableWidget(Button.builder(
+        addRenderableWidget(DuatRitualGui.button(
                         Component.translatable("screen.ramesses_curse.chance_die_large.complete"),
-                        button -> submitChoices())
-                .bounds(width / 2 - 74, height - 24, 70, 16).build());
+                        button -> submitChoices(), width / 2 - 80, height - 28, 76, 20));
     }
 
     private void submitChoices() {
@@ -168,17 +161,16 @@ public class ChanceDieLargeScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int centerX = width / 2;
-        int panelWidth = Math.max(1, width - 12);
-        int panelLeft = centerX - panelWidth / 2;
+        int panelWidth = panelWidth();
+        int panelLeft = panelLeft();
         int panelRight = panelLeft + panelWidth;
         int top = 4;
         int bottom = height - 4;
         int reelTop = top + 32;
-        int reelBottom = height - 58;
+        int reelBottom = height - 62;
         int reelCenterY = (reelTop + reelBottom) / 2;
         int columnWidth = (panelWidth - 12) / COLUMNS;
-        // Keep the world visible behind the roll; these are only subtle glass-like guides.
-        guiGraphics.fill(panelLeft, top, panelRight, bottom, 0x1206090B);
+        DuatRitualGui.panel(guiGraphics, panelLeft, top, panelWidth, bottom - top, false);
         guiGraphics.fill(panelLeft, reelTop - 4, panelRight, reelBottom + 4, 0x080F1518);
         guiGraphics.drawCenteredString(font,
                 Component.translatable("screen.ramesses_curse.chance_die_large.title")
@@ -201,7 +193,7 @@ public class ChanceDieLargeScreen extends Screen {
             float eased = 1.0F - (float) Math.pow(1.0F - progress, 3.0D);
             float offset = eased * FINAL_INDEX * CARD_SPACING;
             int direction = rollingUp ? -1 : 1;
-            guiGraphics.fill(columnLeft, reelTop, columnRight, reelBottom,
+                    guiGraphics.fill(columnLeft, reelTop, columnRight, reelBottom,
                     isSelected(column) ? 0x141A2024 : 0x201A2024);
             guiGraphics.enableScissor(columnLeft, reelTop, columnRight, reelBottom);
             for (int index = 0; index < sequences[column].length; index++) {
@@ -232,5 +224,13 @@ public class ChanceDieLargeScreen extends Screen {
     private int columnDuration(int column) {
         return Math.max(1, Math.round((126 + column * 9)
                 * animationTotalTicks / (float) DEFAULT_ANIMATION_TICKS));
+    }
+
+    private int panelWidth() {
+        return Math.max(1, Math.min(720, width - 12));
+    }
+
+    private int panelLeft() {
+        return (width - panelWidth()) / 2;
     }
 }

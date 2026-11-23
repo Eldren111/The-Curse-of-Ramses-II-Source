@@ -57,6 +57,7 @@ public final class RamessesEndCrystalItem extends EndCrystalItem {
             serverLevel.gameEvent(player, GameEvent.ENTITY_PLACE, crystal.position());
             if (player instanceof ServerPlayer serverPlayer) {
                 CriteriaTriggers.SUMMONED_ENTITY.trigger(serverPlayer, crystal);
+                DuatSunEaterRespawnRitual.tryStartAfterPlacement(serverLevel, serverPlayer, basePos);
             }
         }
 

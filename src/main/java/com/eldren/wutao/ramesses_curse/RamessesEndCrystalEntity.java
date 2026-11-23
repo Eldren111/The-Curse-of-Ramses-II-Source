@@ -1,6 +1,7 @@
 package com.eldren.wutao.ramesses_curse;
 
 import com.eldren.wutao.ramesses_curse.integration.goety.GoetyObsidianMonolithCompat;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -18,6 +19,7 @@ import net.minecraftforge.network.PacketDistributor;
 
 public final class RamessesEndCrystalEntity extends EndCrystal {
     private static final String TOWER_GUARDIAN_INITIALIZED = "RamessesTowerGuardianInitialized";
+    private static final String RESPAWN_RITUAL_CRYSTAL = "RamessesRespawnRitualCrystal";
     private static final EntityDataAccessor<Boolean> CRACKED =
             SynchedEntityData.defineId(RamessesEndCrystalEntity.class, EntityDataSerializers.BOOLEAN);
 
@@ -47,9 +49,36 @@ public final class RamessesEndCrystalEntity extends EndCrystal {
         this.entityData.set(CRACKED, false);
     }
 
+    public void beginRespawnRitual(BlockPos beamTarget) {
+        this.getPersistentData().putBoolean(RESPAWN_RITUAL_CRYSTAL, true);
+        this.entityData.set(CRACKED, false);
+        this.setInvulnerable(true);
+        this.setBeamTarget(beamTarget);
+    }
+
+    public void setRespawnRitualBeamTarget(BlockPos beamTarget) {
+        if (this.isRespawnRitualCrystal()) {
+            this.setBeamTarget(beamTarget);
+        }
+    }
+
+    public void finishRespawnRitualForCombat() {
+        this.getPersistentData().remove(RESPAWN_RITUAL_CRYSTAL);
+        this.setBeamTarget(null);
+        this.setInvulnerable(false);
+        this.entityData.set(CRACKED, false);
+        this.markTowerGuardianInitialized();
+    }
+
+    public boolean isRespawnRitualCrystal() {
+        return this.getPersistentData().getBoolean(RESPAWN_RITUAL_CRYSTAL);
+    }
+
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        if (this.isInvulnerableTo(source) || source.getEntity() instanceof EnderDragon) {
+        if (this.isRespawnRitualCrystal()
+                || this.isInvulnerableTo(source)
+                || source.getEntity() instanceof EnderDragon) {
             return false;
         }
         if (!this.level().isClientSide
@@ -77,18 +106,9 @@ public final class RamessesEndCrystalEntity extends EndCrystal {
         }
         boolean destroyed = super.hurt(source, amount);
         if (destroyed && this.level() instanceof ServerLevel serverLevel) {
-            EndCrystalFirestormManager.trigger(serverLevel, source.getEntity());
-            notifyIslandDragon(serverLevel, source);
             sendBreakVfx(serverLevel);
         }
         return destroyed;
-    }
-
-    private void notifyIslandDragon(ServerLevel level, DamageSource source) {
-        for (DuatSunEaterEntity dragon : level.getEntitiesOfClass(
-                DuatSunEaterEntity.class, this.getBoundingBox().inflate(256.0D), DuatSunEaterEntity::isAlive)) {
-            dragon.onCrystalDestroyed(this, this.blockPosition(), source);
-        }
     }
 
     private void sendBreakVfx(ServerLevel level) {

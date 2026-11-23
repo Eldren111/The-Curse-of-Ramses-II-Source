@@ -1,0 +1,7 @@
+{
+  "type": "ramesses_curse:grand_cathedral",
+  "biomes": "#ramesses_curse:has_structure/grand_cathedral",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "none"
+}

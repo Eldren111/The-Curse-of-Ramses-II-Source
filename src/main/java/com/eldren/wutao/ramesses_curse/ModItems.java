@@ -59,6 +59,7 @@ import net.minecraft.world.level.block.JukeboxBlock;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.api.distmarker.Dist;
@@ -102,6 +103,7 @@ public class ModItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, RamessesCurseMod.MODID);
 
+
     public static final RegistryObject<Item> SEAL_OF_KADESH =
             ITEMS.register("seal_of_kadesh", SealOfKadesh::new);
     public static final RegistryObject<Item> PURIFICATION_SCROLL =
@@ -129,6 +131,8 @@ public class ModItems {
             ITEMS.register("nether_fractured_phase_ore", () -> new BlockItem(ModBlocks.NETHER_FRACTURED_PHASE_ORE.get(), new Item.Properties()));
     public static final RegistryObject<Item> END_FRACTURED_PHASE_ORE =
             ITEMS.register("end_fractured_phase_ore", () -> new BlockItem(ModBlocks.END_FRACTURED_PHASE_ORE.get(), new Item.Properties()));
+    public static final RegistryObject<Item> DUAT_FRACTURED_PHASE_ORE =
+            ITEMS.register("duat_fractured_phase_ore", () -> new BlockItem(ModBlocks.DUAT_FRACTURED_PHASE_ORE.get(), new Item.Properties()));
     public static final RegistryObject<Item> FRACTURED_PHASE_ORE_CHUNK =
             ITEMS.register("fractured_phase_ore_chunk", FracturedPhaseOreChunk::new);
     public static final RegistryObject<Item> FRACTURED_PHASE_INGOT =
@@ -390,25 +394,15 @@ public class ModItems {
             if (Screen.hasShiftDown()) {
                 tooltip.add(Component.empty());
                 tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.desc").withStyle(ChatFormatting.GRAY));
-                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_1").withStyle(ChatFormatting.YELLOW));
-                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_2").withStyle(ChatFormatting.YELLOW));
-                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_3").withStyle(ChatFormatting.YELLOW));
-                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_4").withStyle(ChatFormatting.YELLOW));
-                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_5").withStyle(ChatFormatting.YELLOW));
-                tooltip.add(Component.translatable("item.ramesses_curse.chance_die_six_sided.outcome_6").withStyle(ChatFormatting.YELLOW));
+                for (int outcome = 1; outcome <= 6; outcome++) {
+                    tooltip.add(chanceDieOutcomeTooltip(outcome).withStyle(ChatFormatting.YELLOW));
+                }
             }
         }
 
         static int rollOutcome(Player player) {
-            List<? extends Integer> configured = Config.CHANCE_DIE_OUTCOME_WEIGHTS.get();
-            int[] weights = configured.size() == DEFAULT_OUTCOME_WEIGHTS.length
-                    ? configured.stream().mapToInt(value -> Math.max(0, value)).toArray()
-                    : DEFAULT_OUTCOME_WEIGHTS;
+            int[] weights = getOutcomeWeights();
             int totalWeight = java.util.Arrays.stream(weights).sum();
-            if (totalWeight <= 0) {
-                weights = DEFAULT_OUTCOME_WEIGHTS;
-                totalWeight = java.util.Arrays.stream(weights).sum();
-            }
             int roll = player.getRandom().nextInt(totalWeight);
             int cumulative = 0;
             for (int index = 0; index < weights.length; index++) {
@@ -418,6 +412,14 @@ public class ModItems {
                 }
             }
             return weights.length;
+        }
+
+        private static int[] getOutcomeWeights() {
+            List<? extends Integer> configured = Config.CHANCE_DIE_OUTCOME_WEIGHTS.get();
+            int[] weights = configured.size() == DEFAULT_OUTCOME_WEIGHTS.length
+                    ? configured.stream().mapToInt(value -> Math.max(0, value)).toArray()
+                    : DEFAULT_OUTCOME_WEIGHTS;
+            return java.util.Arrays.stream(weights).sum() > 0 ? weights : DEFAULT_OUTCOME_WEIGHTS;
         }
 
         private static void applyOutcome(Player player, int outcome) {
@@ -635,9 +637,7 @@ public class ModItems {
                     .withStyle(ChatFormatting.GRAY));
             if (Screen.hasShiftDown()) {
                 for (int index = 1; index <= 6; index++) {
-                    tooltip.add(Component.translatable(
-                            "item.ramesses_curse.chance_die_six_sided.outcome_" + index)
-                            .withStyle(ChatFormatting.YELLOW));
+                    tooltip.add(chanceDieOutcomeTooltip(index).withStyle(ChatFormatting.YELLOW));
                 }
             }
         }
@@ -1036,7 +1036,10 @@ public class ModItems {
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
             tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.desc")
                     .withStyle(ChatFormatting.DARK_PURPLE));
-            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.ammo_selector")
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.ammo_selector",
+                            goldText(Config.ETERNAL_SILENCE_COMPOUND_BOW_RAPID_DURATION_SECONDS.get()),
+                            goldText(Config.ETERNAL_SILENCE_COMPOUND_BOW_COOLDOWN_CHANCE.get() * 100.0D),
+                            goldText(Config.ETERNAL_SILENCE_COMPOUND_BOW_COOLDOWN_SECONDS.get()))
                     .withStyle(ChatFormatting.GOLD));
             tooltip.add(Component.translatable(
                             isRapidFireMode(stack)
@@ -1107,7 +1110,10 @@ public class ModItems {
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
             tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.desc")
                     .withStyle(ChatFormatting.DARK_PURPLE));
-            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.ammo_selector")
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_compound_bow.ammo_selector",
+                            goldText(Config.ETERNAL_SILENCE_COMPOUND_BOW_RAPID_DURATION_SECONDS.get()),
+                            goldText(Config.ETERNAL_SILENCE_COMPOUND_BOW_COOLDOWN_CHANCE.get() * 100.0D),
+                            goldText(Config.ETERNAL_SILENCE_COMPOUND_BOW_COOLDOWN_SECONDS.get()))
                     .withStyle(ChatFormatting.GOLD));
             tooltip.add(Component.translatable(
                             isRapidFireMode(stack)
@@ -1178,9 +1184,12 @@ public class ModItems {
                 @Nullable Level level,
                 List<Component> tooltip,
                 TooltipFlag flag) {
-            tooltip.add(Component.translatable("item.ramesses_curse.twilight_crystal_ring.combo")
+            tooltip.add(Component.translatable("item.ramesses_curse.twilight_crystal_ring.combo",
+                            goldText(Config.TWILIGHT_CRYSTAL_RING_COMBO_HITS.get()),
+                            goldText(Config.TWILIGHT_CRYSTAL_RING_BONUS_DAMAGE.get()))
                     .withStyle(ChatFormatting.DARK_PURPLE));
-            tooltip.add(Component.translatable("item.ramesses_curse.twilight_crystal_ring.reset")
+            tooltip.add(Component.translatable("item.ramesses_curse.twilight_crystal_ring.reset",
+                            goldText(Config.TWILIGHT_CRYSTAL_RING_COMBO_WINDOW_SECONDS.get()))
                     .withStyle(ChatFormatting.GRAY));
         }
 
@@ -1228,7 +1237,7 @@ public class ModItems {
             clearCombo(player);
             if (player.getServer() != null) {
                 player.getServer().execute(() -> {
-                    if (target.isAlive() && player.level() == target.level()) {
+                    if (target.isAlive() && player.level() == target.level() && isEquipped(player)) {
                         target.invulnerableTime = 0;
                         target.hurt(target.damageSources().magic(),
                                 Config.TWILIGHT_CRYSTAL_RING_BONUS_DAMAGE.get().floatValue());
@@ -1238,7 +1247,8 @@ public class ModItems {
         }
 
         private static boolean isEquipped(Player player) {
-            if (!Config.TWILIGHT_CRYSTAL_RING_ENABLED.get()) {
+            if (!Config.TWILIGHT_CRYSTAL_RING_ENABLED.get()
+                    || DuatCuriosSealManager.suppressesEquippedItem(player, TWILIGHT_CRYSTAL_RING.get())) {
                 return false;
             }
             return CuriosApi.getCuriosInventory(player)
@@ -1467,6 +1477,24 @@ public class ModItems {
         ResonantScarab.tickRelic(player);
     }
 
+    public static void suppressSealedCurioEffects(Player player) {
+        if (DuatCuriosSealManager.suppressesEquippedItem(player,
+                ETERNAL_SILENCE_TOTEM.get(), ETERNAL_SILENCE_REBIRTH_TOTEM.get())) {
+            EternalSilenceTotem.suppressSealedEffects(player);
+        }
+        if (DuatCuriosSealManager.suppressesEquippedItem(player, HEART_OF_DUAT.get())) {
+            HeartOfDuat.suppressSealedEffects(player);
+        }
+        if (DuatCuriosSealManager.suppressesEquippedItem(player, URAEUS_NECKLACE.get())) {
+            MobEffect configuredEffect = Config.getNecklaceEffect();
+            if (configuredEffect != null) {
+                player.removeEffect(configuredEffect);
+            }
+            player.removeEffect(MobEffects.ABSORPTION);
+            player.removeEffect(MobEffects.DAMAGE_RESISTANCE);
+        }
+    }
+
     public static boolean isMusicRelicAwakened(Player player) {
         return ResonantScarab.isAwakened(player);
     }
@@ -1552,6 +1580,28 @@ public class ModItems {
         return Component.translatable(key).withStyle(ChatFormatting.GOLD);
     }
 
+    private static MutableComponent chanceDieOutcomeTooltip(int outcome) {
+        String key = "item.ramesses_curse.chance_die_six_sided.outcome_" + outcome;
+        int[] weights = ChanceDieSixSided.getOutcomeWeights();
+        double chance = weights[outcome - 1] * 100.0D / java.util.Arrays.stream(weights).sum();
+        Component probability = goldText(chance);
+        return switch (outcome) {
+            case 1 -> Component.translatable(key, probability,
+                    goldText(Config.CHANCE_DIE_ATTACK_SPEED_BONUS.get() * 100.0D));
+            case 2 -> Component.translatable(key,
+                    probability,
+                    goldText(Config.CHANCE_DIE_EFFECT_DURATION_SECONDS.get()),
+                    goldText(Config.CHANCE_DIE_HEALTH_DAMAGE_RATIO.get() * 100.0D));
+            case 4 -> Component.translatable(key, probability,
+                    goldText(Config.CHANCE_DIE_UNDYING_CHARGES_PER_ROLL.get()));
+            case 5 -> Component.translatable(key, probability,
+                    goldText(Config.CHANCE_DIE_DODGE_CHANCE.get() * 100.0D));
+            case 6 -> Component.translatable(key, probability,
+                    goldText(Config.CHANCE_DIE_TRUE_DAMAGE_DURATION_SECONDS.get()));
+            default -> Component.translatable(key, probability);
+        };
+    }
+
     private static MutableComponent aquaText(int value) {
         return Component.literal(Integer.toString(value)).withStyle(ChatFormatting.AQUA);
     }
@@ -1604,14 +1654,14 @@ public class ModItems {
             LivingEntity wearer = slotContext.entity();
             return RamessesCurseMod.CURSE_SLOT_ID.equals(slotContext.identifier())
                     && wearer instanceof Player player
-                    && !ModEvents.hasSealAnywhere(player);
+                    && (CurioRestoreContext.isRestoring(player) || !ModEvents.hasSealAnywhere(player));
         }
 
         @Override
         public boolean canUnequip(SlotContext slotContext, ItemStack stack) {
             LivingEntity wearer = slotContext.entity();
-            return wearer instanceof Player player
-                    && (player.getAbilities().instabuild || ModEvents.areAllSealCursesReversed(player));
+            // Reversing curses changes their effects, not the seal's binding.
+            return wearer instanceof Player player && player.isCreative();
         }
 
         @Override
@@ -1719,6 +1769,7 @@ public class ModItems {
         @Override
         @OnlyIn(Dist.CLIENT)
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+            int firstSealTooltipLine = tooltip.size();
             tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.desc"));
             tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_shift"));
             tooltip.add(purpleKey("item.ramesses_curse.seal_of_kadesh.hint_ctrl"));
@@ -1885,8 +1936,7 @@ public class ModItems {
                             tooltipArgument("kills", yellowNumber(1)),
                             tooltipArgument("guilt_gain", yellowNumber(1)),
                             tooltipArgument("guilt_max", yellowNumber(Config.CURSE_5_MAX_GUILT.get())),
-                            tooltipArgument("lock_minutes", yellowNumber(formatTicksAsMinutes(Config.CURSE_5_LOCK_DURATION.get()))),
-                            tooltipArgument("lightning", yellowNumber(Config.CURSE_5_LIGHTNING_STRIKES.get()))));
+                            tooltipArgument("lock_minutes", yellowNumber(formatTicksAsMinutes(Config.CURSE_5_LOCK_DURATION.get())))));
                 }
                 if (curseSixReversed) {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_6_title", "item.ramesses_curse.seal_of_kadesh.curse_6_detail_reversed", true));
@@ -1895,7 +1945,6 @@ public class ModItems {
                             tooltipArgument("wear_delay", yellowNumber(formatTicksAsMinutes(Config.MAIN_HAND_LOCK_DELAY.get()))),
                             tooltipArgument("main_lock", yellowNumber(formatTicksAsMinutes(Config.MAIN_HAND_LOCK_DURATION.get()))),
                             tooltipArgument("interval", yellowNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_INTERVAL.get()))),
-                            tooltipArgument("count", yellowNumber(1)),
                             tooltipArgument("duration", yellowNumber(formatTicksAsMinutes(Config.INVENTORY_LOCK_DURATION.get())))));
                 }
                 if (curseSevenReversed) {
@@ -1923,6 +1972,7 @@ public class ModItems {
                     tooltip.add(curseLine("item.ramesses_curse.seal_of_kadesh.curse_9_title", "item.ramesses_curse.seal_of_kadesh.curse_9_detail_reversed", true));
                 } else {
                     tooltip.add(curseTemplateLine("item.ramesses_curse.seal_of_kadesh.curse_9_title", "item.ramesses_curse.seal_of_kadesh.curse_9_detail", false,
+                            tooltipArgument("deaths", yellowNumber(Config.CURSE_9_DEATHS_PER_CRYSTAL.get())),
                             tooltipArgument("hunger_loss", blueKey("item.ramesses_curse.keyword.two_hunger_points")),
                             tooltipArgument("crystal", blueKey("item.ramesses_curse.keyword.one_satiety_crystal")),
                             tooltipArgument("attributes", blueKey("item.ramesses_curse.keyword.all_attributes")),
@@ -1942,7 +1992,8 @@ public class ModItems {
                         .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
                 boolean hasChanceDieEffect = false;
                 if (ModEvents.ClientOverlayEvents.hasClientChanceDieAttackSpeed()) {
-                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.attack_speed")
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.attack_speed",
+                                    goldText(Config.CHANCE_DIE_ATTACK_SPEED_BONUS.get() * 100.0D))
                             .withStyle(ChatFormatting.GOLD));
                     hasChanceDieEffect = true;
                 }
@@ -1964,7 +2015,8 @@ public class ModItems {
                     hasChanceDieEffect = true;
                 }
                 if (ModEvents.ClientOverlayEvents.hasClientChanceDieDodge()) {
-                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.dodge")
+                    tooltip.add(Component.translatable("item.ramesses_curse.seal_of_kadesh.chance_die.dodge",
+                                    goldText(Config.CHANCE_DIE_DODGE_CHANCE.get() * 100.0D))
                             .withStyle(ChatFormatting.AQUA));
                     hasChanceDieEffect = true;
                 }
@@ -1979,6 +2031,31 @@ public class ModItems {
                             .withStyle(ChatFormatting.GRAY));
                 }
             }
+            wrapSealTooltip(tooltip, firstSealTooltipLine, minecraft);
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        private static void wrapSealTooltip(List<Component> tooltip, int firstLine, Minecraft minecraft) {
+            int availableWidth = minecraft.getWindow().getGuiScaledWidth() - 32;
+            int maxWidth = Math.max(120, Math.min(260, availableWidth));
+            List<Component> wrapped = new ArrayList<>();
+            for (int i = firstLine; i < tooltip.size(); i++) {
+                Component line = tooltip.get(i);
+                if (line.getString().isEmpty() || minecraft.font.width(line) <= maxWidth) {
+                    wrapped.add(line);
+                    continue;
+                }
+                for (FormattedCharSequence sequence : minecraft.font.split(line, maxWidth)) {
+                    MutableComponent part = Component.empty();
+                    sequence.accept((position, style, codePoint) -> {
+                        part.append(Component.literal(new String(Character.toChars(codePoint))).setStyle(style));
+                        return true;
+                    });
+                    wrapped.add(part);
+                }
+            }
+            tooltip.subList(firstLine, tooltip.size()).clear();
+            tooltip.addAll(wrapped);
         }
 
         private static boolean isTabDown() {
@@ -2208,8 +2285,12 @@ public class ModItems {
                 return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
             }
 
-            int removed = ModEvents.consumePurificationScroll(serverPlayer);
-            if (removed <= 0) {
+            int guiltRemoved = ModEvents.consumePurificationScroll(serverPlayer);
+            int threatBefore = ModEvents.getDynastyPressure(serverPlayer);
+            int threatAfter = ModEvents.reduceDynastyPressure(
+                    serverPlayer, ModEvents.PURIFICATION_SCROLL_DYNASTY_PRESSURE_AMOUNT);
+            int threatRemoved = Math.max(0, threatBefore - threatAfter);
+            if (guiltRemoved <= 0 && threatRemoved <= 0) {
                 return InteractionResultHolder.fail(stack);
             }
 
@@ -2217,9 +2298,19 @@ public class ModItems {
                 stack.shrink(1);
             }
 
-            player.displayClientMessage(
-                    Component.translatable("message.ramesses_curse.purification_used", removed).withStyle(ChatFormatting.GOLD),
-                    true);
+            if (guiltRemoved > 0 && threatRemoved > 0) {
+                player.displayClientMessage(Component.translatable(
+                        "message.ramesses_curse.purification_used_both", guiltRemoved, threatRemoved)
+                        .withStyle(ChatFormatting.GOLD), true);
+            } else if (guiltRemoved > 0) {
+                player.displayClientMessage(Component.translatable(
+                        "message.ramesses_curse.purification_used", guiltRemoved)
+                        .withStyle(ChatFormatting.GOLD), true);
+            } else {
+                player.displayClientMessage(Component.translatable(
+                        "message.ramesses_curse.purification_threat_used", threatRemoved)
+                        .withStyle(ChatFormatting.GOLD), true);
+            }
             return InteractionResultHolder.success(stack);
         }
 
@@ -2227,6 +2318,9 @@ public class ModItems {
         public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
             tooltip.add(Component.translatable("item.ramesses_curse.purification_scroll.desc").withStyle(ChatFormatting.GOLD));
             tooltip.add(Component.translatable("item.ramesses_curse.purification_scroll.effect", Component.literal(Integer.toString(Config.CURSE_5_PURIFICATION_AMOUNT.get())).withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable("item.ramesses_curse.purification_scroll.effect_threat",
+                    Component.literal(Integer.toString(ModEvents.PURIFICATION_SCROLL_DYNASTY_PRESSURE_AMOUNT))
+                            .withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.GOLD));
             tooltip.add(Component.translatable("item.ramesses_curse.requires_seal").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
         }
     }
@@ -2365,6 +2459,7 @@ public class ModItems {
                     .withStyle(ChatFormatting.GRAY));
             tooltip.add(Component.translatable("item.ramesses_curse.satiety_crystal.tooltip_2")
                     .withStyle(ChatFormatting.GOLD));
+            SatietyFoodRepayment.appendTooltip(stack, tooltip);
         }
     }
 
@@ -2599,7 +2694,8 @@ public class ModItems {
         }
 
         public static boolean isAwakened(Player player) {
-            return getMusicData(player).getBoolean(ACTIVATED_KEY);
+            return KadeshCurioAccess.isWearingSeal(player)
+                    && getMusicData(player).getBoolean(ACTIVATED_KEY);
         }
 
         private static void resetActivation(Player player) {
@@ -2703,7 +2799,9 @@ public class ModItems {
         private static final String DATA_KEY = "RamessesEternalSilenceTotem";
         private static final String INVULNERABLE_UNTIL_KEY = "InvulnerableUntil";
         private static final String SURGE_UNTIL_KEY = "SurgeUntil";
-        private static final int MAX_DURABILITY = 30;
+        private static final String REMAINING_REVIVES_KEY = "RemainingRevives";
+        private static final int MAX_REVIVAL_USES = 5;
+        private static final int LEGACY_DURABILITY_PER_USE = 6;
         private static final UUID MAX_HEALTH_MODIFIER_ID = UUID.fromString("5676b94b-02fc-480a-8d39-840df3dd299f");
         private static final UUID EQUIPPED_DAMAGE_MODIFIER_ID = UUID.fromString("3bd798e5-70a5-4daa-8b31-9b69a44bb957");
         private static final UUID SURGE_DAMAGE_MODIFIER_ID = UUID.fromString("5205285f-ac80-44d6-9287-7b7bda7da39f");
@@ -2711,7 +2809,7 @@ public class ModItems {
 
         public EternalSilenceTotem() {
             this(new Item.Properties()
-                    .durability(MAX_DURABILITY)
+                    .stacksTo(1)
                     .rarity(Rarity.EPIC));
         }
 
@@ -2746,7 +2844,9 @@ public class ModItems {
                 SlotContext slotContext,
                 UUID uuid,
                 ItemStack stack) {
-            if (!isEnabled(stack) || !BODY_SLOT_ID.equals(slotContext.identifier())) {
+            if (!isEnabled(stack)
+                    || !BODY_SLOT_ID.equals(slotContext.identifier())
+                    || DuatCuriosSealManager.suppressesMechanics(slotContext.entity(), stack)) {
                 return ImmutableMultimap.of();
             }
             ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
@@ -2769,30 +2869,55 @@ public class ModItems {
                 @Nullable Level level,
                 List<Component> tooltip,
                 TooltipFlag flag) {
-            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_totem.double_strike")
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_totem.double_strike",
+                            goldText(Config.ETERNAL_SILENCE_TOTEM_SECOND_HIT_MULTIPLIER.get() * 100.0D))
                     .withStyle(ChatFormatting.GOLD));
-            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_totem.revive")
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_totem.revive",
+                            goldText(Config.ETERNAL_SILENCE_TOTEM_INVULNERABLE_SECONDS.get()))
                     .withStyle(ChatFormatting.YELLOW));
-            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_totem.surge")
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_totem.surge",
+                            goldText(Config.ETERNAL_SILENCE_TOTEM_SURGE_SECONDS.get()),
+                            goldText(Config.ETERNAL_SILENCE_TOTEM_SURGE_ATTACK_SPEED_BONUS.get() * 100.0D),
+                            goldText(Config.ETERNAL_SILENCE_TOTEM_SURGE_DAMAGE_BONUS.get() * 100.0D))
                     .withStyle(ChatFormatting.AQUA));
+            tooltip.add(Component.empty());
+            tooltip.add(Component.translatable(
+                            "item.ramesses_curse.eternal_silence_totem.remaining_uses",
+                            getRemainingUses(stack),
+                            MAX_REVIVAL_USES)
+                    .withStyle(ChatFormatting.RED));
         }
 
         public static boolean isEquipped(Player player) {
-            return !findEquippedStack(player).isEmpty();
+            return !DuatCuriosSealManager.suppressesEquippedItem(player,
+                    ETERNAL_SILENCE_TOTEM.get(), ETERNAL_SILENCE_REBIRTH_TOTEM.get())
+                    && !findEquippedStack(player).isEmpty();
         }
 
         public static boolean canRevive(Player player) {
+            if (DuatCuriosSealManager.suppressesEquippedItem(player,
+                    ETERNAL_SILENCE_TOTEM.get(), ETERNAL_SILENCE_REBIRTH_TOTEM.get())) {
+                return false;
+            }
             ItemStack stack = findEquippedStack(player);
-            return !stack.isEmpty()
-                    && (!stack.is(ETERNAL_SILENCE_REBIRTH_TOTEM.get())
-                    || !EternalSilenceRebirthTotem.isCoolingDown(player));
+            if (stack.isEmpty()) {
+                return false;
+            }
+            return stack.is(ETERNAL_SILENCE_REBIRTH_TOTEM.get())
+                    ? !EternalSilenceRebirthTotem.isCoolingDown(player)
+                    : getRemainingUses(stack) > 0;
         }
 
         public static boolean tryRevive(ServerPlayer player) {
+            if (DuatCuriosSealManager.suppressesEquippedItem(player,
+                    ETERNAL_SILENCE_TOTEM.get(), ETERNAL_SILENCE_REBIRTH_TOTEM.get())) {
+                return false;
+            }
             ItemStack stack = findEquippedStack(player);
+            boolean rebirthTotem = stack.is(ETERNAL_SILENCE_REBIRTH_TOTEM.get());
             if (stack.isEmpty()
-                    || (stack.is(ETERNAL_SILENCE_REBIRTH_TOTEM.get())
-                    && EternalSilenceRebirthTotem.isCoolingDown(player))) {
+                    || (rebirthTotem && EternalSilenceRebirthTotem.isCoolingDown(player))
+                    || (!rebirthTotem && getRemainingUses(stack) <= 0)) {
                 return false;
             }
 
@@ -2817,7 +2942,7 @@ public class ModItems {
             ModNetwork.CHANNEL.send(
                     PacketDistributor.PLAYER.with(() -> player),
                     new EternalSilenceTotemTriggeredPacket(stack.is(ETERNAL_SILENCE_REBIRTH_TOTEM.get())));
-            if (stack.is(ETERNAL_SILENCE_REBIRTH_TOTEM.get())) {
+            if (rebirthTotem) {
                 EternalSilenceRebirthTotem.startCooldown(player);
             } else {
                 consumeUse(player, stack);
@@ -2826,12 +2951,21 @@ public class ModItems {
         }
 
         public static boolean isRevivalInvulnerable(Player player) {
-            return (Config.ETERNAL_SILENCE_TOTEM_ENABLED.get()
+            return KadeshCurioAccess.isWearingSeal(player)
+                    && (Config.ETERNAL_SILENCE_TOTEM_ENABLED.get()
                     || Config.ETERNAL_SILENCE_REBIRTH_TOTEM_ENABLED.get())
+                    && !DuatCuriosSealManager.suppressesEquippedItem(player,
+                    ETERNAL_SILENCE_TOTEM.get(), ETERNAL_SILENCE_REBIRTH_TOTEM.get())
                     && getData(player).getLong(INVULNERABLE_UNTIL_KEY) > player.level().getGameTime();
         }
 
         public static void tickRevivalEffects(Player player) {
+            if (!KadeshCurioAccess.isWearingSeal(player)
+                    || DuatCuriosSealManager.suppressesEquippedItem(player,
+                    ETERNAL_SILENCE_TOTEM.get(), ETERNAL_SILENCE_REBIRTH_TOTEM.get())) {
+                suppressSealedEffects(player);
+                return;
+            }
             maintainEquippedModifiers(player);
             CompoundTag data = getData(player);
             if (!Config.ETERNAL_SILENCE_TOTEM_ENABLED.get()
@@ -2865,6 +2999,23 @@ public class ModItems {
             }
         }
 
+        private static void suppressSealedEffects(Player player) {
+            CompoundTag data = getData(player);
+            long gameTime = player.level().getGameTime();
+            boolean hadActiveRevival = data.getLong(INVULNERABLE_UNTIL_KEY) > gameTime
+                    || data.getLong(SURGE_UNTIL_KEY) > gameTime;
+            data.remove(INVULNERABLE_UNTIL_KEY);
+            data.remove(SURGE_UNTIL_KEY);
+            if (hadActiveRevival) {
+                player.invulnerableTime = 0;
+                player.removeEffect(MobEffects.REGENERATION);
+                player.removeEffect(MobEffects.ABSORPTION);
+                player.removeEffect(MobEffects.FIRE_RESISTANCE);
+            }
+            maintainEquippedModifiers(player);
+            removeSurgeModifiers(player);
+        }
+
         private static ItemStack findEquippedStack(Player player) {
             return CuriosApi.getCuriosInventory(player)
                     .resolve()
@@ -2894,8 +3045,8 @@ public class ModItems {
         }
 
         private static void consumeUse(ServerPlayer player, ItemStack stack) {
-            int nextDamage = stack.getDamageValue() + Config.ETERNAL_SILENCE_TOTEM_DURABILITY_PER_USE.get();
-            if (nextDamage >= stack.getMaxDamage()) {
+            int remainingUses = getRemainingUses(stack);
+            if (remainingUses <= 1) {
                 stack.shrink(1);
                 player.level().playSound(
                         null,
@@ -2905,9 +3056,20 @@ public class ModItems {
                         0.8F,
                         0.85F);
             } else {
-                stack.setDamageValue(nextDamage);
+                stack.getOrCreateTag().putInt(REMAINING_REVIVES_KEY, remainingUses - 1);
             }
             refreshBodySlot(player);
+        }
+
+        private static int getRemainingUses(ItemStack stack) {
+            CompoundTag tag = stack.getTag();
+            if (tag != null && tag.contains(REMAINING_REVIVES_KEY)) {
+                return Mth.clamp(tag.getInt(REMAINING_REVIVES_KEY), 0, MAX_REVIVAL_USES);
+            }
+
+            // Preserve the number of uses already spent by pre-update durability-based totems.
+            int legacyUses = Mth.ceil(Math.max(0, stack.getDamageValue()) / (float) LEGACY_DURABILITY_PER_USE);
+            return MAX_REVIVAL_USES - Mth.clamp(legacyUses, 0, MAX_REVIVAL_USES);
         }
 
         private static void applySurgeModifiers(Player player) {
@@ -3023,11 +3185,16 @@ public class ModItems {
                 @Nullable Level level,
                 List<Component> tooltip,
                 TooltipFlag flag) {
-            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_rebirth_totem.double_strike")
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_rebirth_totem.double_strike",
+                            goldText(Config.ETERNAL_SILENCE_TOTEM_SECOND_HIT_MULTIPLIER.get() * 100.0D))
                     .withStyle(ChatFormatting.GOLD));
-            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_rebirth_totem.revive")
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_rebirth_totem.revive",
+                            goldText(Config.ETERNAL_SILENCE_TOTEM_INVULNERABLE_SECONDS.get()))
                     .withStyle(ChatFormatting.YELLOW));
-            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_rebirth_totem.surge")
+            tooltip.add(Component.translatable("item.ramesses_curse.eternal_silence_rebirth_totem.surge",
+                            goldText(Config.ETERNAL_SILENCE_TOTEM_SURGE_SECONDS.get()),
+                            goldText(Config.ETERNAL_SILENCE_TOTEM_SURGE_ATTACK_SPEED_BONUS.get() * 100.0D),
+                            goldText(Config.ETERNAL_SILENCE_TOTEM_SURGE_DAMAGE_BONUS.get() * 100.0D))
                     .withStyle(ChatFormatting.AQUA));
 
             int remainingTicks = getClientCooldownTicks();
@@ -3233,6 +3400,9 @@ public class ModItems {
         }
 
         private static boolean hasNecklaceEquipped(Player player) {
+            if (DuatCuriosSealManager.suppressesEquippedItem(player, URAEUS_NECKLACE.get())) {
+                return false;
+            }
             return CuriosApi.getCuriosInventory(player)
                     .resolve()
                     .flatMap(inv -> inv.findFirstCurio(URAEUS_NECKLACE.get()))
@@ -3355,7 +3525,8 @@ public class ModItems {
         }
 
         public static boolean isEquipped(Player player) {
-            if (!Config.HUSHED_DEPTHS_AMULET_ENABLED.get()) {
+            if (!Config.HUSHED_DEPTHS_AMULET_ENABLED.get()
+                    || DuatCuriosSealManager.suppressesEquippedItem(player, HUSHED_DEPTHS_AMULET.get())) {
                 return false;
             }
             return CuriosApi.getCuriosInventory(player)
@@ -3381,7 +3552,7 @@ public class ModItems {
             return Config.ETERNAL_CONQUEST_ENABLED.get()
                     && CHARM_SLOT_ID.equals(slotContext.identifier())
                     && slotContext.entity() instanceof Player player
-                    && ModEvents.areAllSealCursesTrulyReversed(player);
+                    && (CurioRestoreContext.isRestoring(player) || ModEvents.areAllSealCursesTrulyReversed(player));
         }
 
         @Override
@@ -3435,7 +3606,9 @@ public class ModItems {
         }
 
         public static void recordTierNineShieldKill(ServerPlayer player) {
-            if (!Config.ETERNAL_CONQUEST_ENABLED.get() || !ModEvents.areAllSealCursesTrulyReversed(player)) {
+            if (!Config.ETERNAL_CONQUEST_ENABLED.get()
+                    || DuatCuriosSealManager.suppressesEquippedItem(player, ETERNAL_CONQUEST.get())
+                    || !ModEvents.areAllSealCursesTrulyReversed(player)) {
                 return;
             }
             CuriosApi.getCuriosInventory(player).ifPresent(inventory ->
@@ -3488,7 +3661,8 @@ public class ModItems {
         }
 
         private static ItemStack getEquippedStack(Player player) {
-            if (!Config.ETERNAL_CONQUEST_ENABLED.get()) {
+            if (!Config.ETERNAL_CONQUEST_ENABLED.get()
+                    || DuatCuriosSealManager.suppressesEquippedItem(player, ETERNAL_CONQUEST.get())) {
                 return ItemStack.EMPTY;
             }
             return CuriosApi.getCuriosInventory(player)
@@ -3537,11 +3711,19 @@ public class ModItems {
             result.add(Component.translatable(
                             "message.ramesses_curse.ruin_talisman.counter", clientCounter)
                     .withStyle(ChatFormatting.YELLOW));
-            result.add(Component.translatable("item.ramesses_curse.ruin_talisman.effect.count")
+            result.add(Component.translatable("item.ramesses_curse.ruin_talisman.effect.count",
+                            goldText(Config.RUIN_DAMAGE_THRESHOLD_RATIO.get() * 100.0D),
+                            goldText(Config.RUIN_COUNTER_COOLDOWN_SECONDS.get()))
                     .withStyle(ChatFormatting.DARK_PURPLE));
-            result.add(Component.translatable("item.ramesses_curse.ruin_talisman.effect.attack")
+            result.add(Component.translatable("item.ramesses_curse.ruin_talisman.effect.attack",
+                            goldText(Config.RUIN_ATTACKS_PER_TRIGGER.get()),
+                            goldText(Config.RUIN_ATTACK_COUNTER_COST.get()),
+                            goldText(Config.RUIN_ATTACK_DAMAGE_RATIO.get() * 100.0D))
                     .withStyle(ChatFormatting.RED));
-            result.add(Component.translatable("item.ramesses_curse.ruin_talisman.effect.revive")
+            result.add(Component.translatable("item.ramesses_curse.ruin_talisman.effect.revive",
+                            goldText(Config.RUIN_REVIVE_COUNTER_COST.get()),
+                            goldText(Config.RUIN_REVIVE_BURST_DAMAGE_RATIO.get() * 100.0D),
+                            goldText(Config.RUIN_REVIVE_BURST_RADIUS.get()))
                     .withStyle(ChatFormatting.LIGHT_PURPLE));
             return result;
         }
@@ -3552,7 +3734,8 @@ public class ModItems {
         }
 
         public static boolean isEquipped(Player player) {
-            if (!Config.RUIN_TALISMAN_ENABLED.get()) {
+            if (!Config.RUIN_TALISMAN_ENABLED.get()
+                    || DuatCuriosSealManager.suppressesEquippedItem(player, RUIN_TALISMAN.get())) {
                 return false;
             }
             return CuriosApi.getCuriosInventory(player)
@@ -3697,6 +3880,7 @@ public class ModItems {
         }
         private static boolean isEquipped(Player player) {
             return Config.EDICT_OF_TWO_LANDS_ENABLED.get()
+                    && !DuatCuriosSealManager.suppressesEquippedItem(player, EDICT_OF_TWO_LANDS.get())
                     && CuriosApi.getCuriosInventory(player)
                     .resolve()
                     .flatMap(inv -> inv.findFirstCurio(EDICT_OF_TWO_LANDS.get()))
@@ -3756,7 +3940,7 @@ public class ModItems {
             LivingEntity wearer = slotContext.entity();
             return RamessesCurseMod.HEART_SLOT_ID.equals(slotContext.identifier())
                     && wearer instanceof Player player
-                    && ModEvents.canUseHeartSlot(player);
+                    && (CurioRestoreContext.isRestoring(player) || ModEvents.canUseHeartSlot(player));
         }
 
         @Override
@@ -3860,6 +4044,9 @@ public class ModItems {
         }
 
         private static boolean canActivate(Player player) {
+            if (!KadeshCurioAccess.isWearingSeal(player)) {
+                return false;
+            }
             CompoundTag data = getHeartDataStatic(player);
             long gameTime = player.level().getGameTime();
             if (data.getLong(CROWD_ACTIVE_UNTIL_KEY) > gameTime) {
@@ -3966,6 +4153,26 @@ public class ModItems {
             return persisted.getCompound(HEART_DATA_KEY);
         }
 
+        private static void suppressSealedEffects(Player player) {
+            CompoundTag data = getHeartDataStatic(player);
+            if (data.getLong(CROWD_ACTIVE_UNTIL_KEY) > player.level().getGameTime()) {
+                player.removeEffect(MobEffects.DAMAGE_BOOST);
+            }
+            data.remove(CROWD_ACTIVE_UNTIL_KEY);
+            data.remove(WARD_INVULNERABLE_UNTIL_KEY);
+            data.remove(WARD_READY_KEY);
+            data.remove(BATTLE_STACKS_KEY);
+            AttributeInstance blockReach = player.getAttribute(ForgeMod.BLOCK_REACH.get());
+            AttributeInstance entityReach = player.getAttribute(ForgeMod.ENTITY_REACH.get());
+            if (blockReach != null) {
+                blockReach.removeModifier(HEART_BLOCK_REACH_MODIFIER_ID);
+            }
+            if (entityReach != null) {
+                entityReach.removeModifier(HEART_ENTITY_REACH_MODIFIER_ID);
+            }
+            player.removeEffect(MobEffects.LUCK);
+        }
+
         private static int getCooldownTicks(Player player) {
             if (player.level().isClientSide) {
                 return ModEvents.ClientOverlayEvents.getClientHeartCooldownTicks();
@@ -3982,11 +4189,15 @@ public class ModItems {
         }
 
         private static int getBattleStacks(Player player) {
+            if (!KadeshCurioAccess.isWearingSeal(player)) {
+                return 0;
+            }
             return Mth.clamp(getHeartDataStatic(player).getInt(BATTLE_STACKS_KEY), 0, getBattleStackLimit());
         }
 
         private static boolean isWardInvulnerable(Player player) {
-            return getHeartDataStatic(player).getLong(WARD_INVULNERABLE_UNTIL_KEY) > player.level().getGameTime();
+            return KadeshCurioAccess.isWearingSeal(player)
+                    && getHeartDataStatic(player).getLong(WARD_INVULNERABLE_UNTIL_KEY) > player.level().getGameTime();
         }
 
         private static void onAttackEnemy(Player player, LivingEntity target, float baseDamage) {
@@ -3996,6 +4207,9 @@ public class ModItems {
         }
 
         private static boolean tryTriggerWard(ServerPlayer player) {
+            if (!KadeshCurioAccess.isWearingSeal(player)) {
+                return false;
+            }
             CompoundTag heartData = getHeartDataStatic(player);
             long gameTime = player.level().getGameTime();
             if (!heartData.getBoolean(WARD_READY_KEY) || heartData.getLong(WARD_COOLDOWN_KEY) > gameTime) {
@@ -4095,7 +4309,8 @@ public class ModItems {
         }
 
         private static boolean isWardReady(Player player) {
-            return getHeartDataStatic(player).getBoolean(WARD_READY_KEY);
+            return KadeshCurioAccess.isWearingSeal(player)
+                    && getHeartDataStatic(player).getBoolean(WARD_READY_KEY);
         }
 
         private static void clearWardCooldown(ServerPlayer player) {

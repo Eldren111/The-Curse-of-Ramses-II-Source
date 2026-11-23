@@ -1,0 +1,40 @@
+{
+  "name": "阿佩普之冠与复苏",
+  "category": "ramesses_curse:worlds",
+  "icon": "ramesses_curse:duat_sun_eater_crown",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:duat_sun_eater_crown",
+      "title": "真正的王冠",
+      "text": "只有阿佩普本体掉落的王冠带有权能标签。创造栏、/give 或其他来源取得的王冠可以佩戴，但不会显示权能说明，也不会产生效果，更不能启动相关仪式。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "随机权能",
+      "text": "真正的王冠掉落时，会从物理、投射物、爆炸、火焰、熔岩、雷击、魔法、凋零、龙息、音波、冰冻、溺水、窒息、挤压、坠落、虚空、世界边界、荆棘和真实伤害中抽取一种。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "护符效果",
+      "text": "佩戴于护符栏后，攻击敌对实体有 25% 概率追加权能伤害，数值等于触发瞬间自身当前生命值的 25%。$(br2)按住 Shift 查看该伤害类型的具体结算规则。"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:heka_radiant_crystal",
+      "title": "复苏所需水晶",
+      "text": "岛屿毁灭后，十座水晶柱仍会保留。在每座塔的水晶基座上各放置 1 枚赫卡神辉水晶，总计 10 枚。启动者必须佩戴拥有权能标签的真正王冠。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "十柱复苏",
+      "text": "十枚水晶齐备后，它们先用光束首尾相连 3 秒，再同时指向岛屿中心上空。随后 10 秒充能会重建被毁的岛面。$(br2)终幕爆发后，第一阶段阿佩普从空中出现，并立即沿用初次生成时的战斗逻辑。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "中断条件",
+      "text": "阿佩普仍存活、终末爆炸尚未结束、王冠无权能、王冠未佩戴，或十座塔中任一水晶缺失，仪式都不会开始。$(br2)仪式进行时若水晶失效，复苏也会中止。"
+    }
+  ]
+}

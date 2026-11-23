@@ -1,0 +1,42 @@
+{
+  "name": "Eternal Silence Recipes",
+  "category": "ramesses_curse:rites",
+  "icon": "ramesses_curse:eternal_silence_ingot",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_silence_granule",
+      "recipe2": "ramesses_curse:eternal_silence_ingot",
+      "title": "Eternal Silence Granule",
+      "title2": "Eternal Silence Ingot"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_silence_granules_from_ingot",
+      "recipe2": "ramesses_curse:eternal_silence_ritual_staff",
+      "title": "Break Down Ingot",
+      "title2": "Eternal Silence Staff"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_silence_totem",
+      "recipe2": "ramesses_curse:eternal_silence_compound_bow",
+      "title": "Eternal Silence Totem",
+      "title2": "Eternal Silence Bow"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_silence_upgrade_smithing_template_conversion",
+      "recipe2": "ramesses_curse:eternal_silence_upgrade_smithing_template",
+      "title": "Template Conversion",
+      "title2": "Template Duplication"
+    },
+    {
+      "type": "patchouli:smithing",
+      "recipe": "ramesses_curse:eternal_silence_rebirth_totem",
+      "title": "Rebirth Totem Smithing",
+      "text": "Smith an Eternal Silence Totem with its upgrade template and an Eternal Silence Ingot. The normal totem has five code-tracked revivals. The Rebirth Totem instead enters a 90-second cooldown after triggering."
+    }
+  ]
+}

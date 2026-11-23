@@ -143,7 +143,7 @@ public class Config {
 
         BUILDER.push("诅咒五");
         CURSE_5_MAX_GUILT = BUILDER
-                .comment("[诅咒五] 王罪最大值。达到后会触发处决、雷暴、雷击与背包封印。")
+                .comment("[诅咒五] 王罪最大值。达到后只会触发背包封印。")
                 .defineInRange("curse5MaxGuilt", 399, 1, 100000);
         CURSE_5_MERCY_MAX = BUILDER
                 .comment("[诅咒五-反转] 接受反转后，慈悲值达到该数值即可储存一次逆转死亡。范围：299-99999。")
@@ -152,13 +152,9 @@ public class Config {
                 .comment("[诅咒五] 每张净化卷轴可消除的王罪值。")
                 .defineInRange("curse5PurificationAmount", 50, 1, 100000);
 
-        CURSE_5_LIGHTNING_STRIKES = BUILDER
-                .comment("[诅咒五] 王罪满值时降下的闪电次数。")
-                .defineInRange("curse5LightningStrikes", 10, 1, 200);
-
         CURSE_5_LOCK_DURATION = BUILDER
-                .comment("[诅咒五] 王罪满值后背包被封印的持续时间，单位为 tick。1200 tick = 1 分钟。")
-                .defineInRange("curse5LockDuration", 1200, 20, 72000);
+                .comment("[诅咒五] 王罪满值后背包被封印的持续时间，单位为 tick。6000 tick = 5 分钟。")
+                .defineInRange("curse5LockDuration", 6000, 20, 72000);
 
         CURSE_5_INNOCENT_ENTITY_WHITELIST = BUILDER
                 .comment("[诅咒五] 杀死后会增加王罪值的额外实体 ID 白名单，支持其他模组生物。白名单优先于原版中立生物分类判定。")
@@ -170,7 +166,7 @@ public class Config {
 
         BUILDER.push("诅咒六");
         MAIN_HAND_LOCK_DELAY = BUILDER
-                .comment("[诅咒六] 首次主手封印触发前的延迟时间，单位为 tick。36000 tick = 30 分钟。")
+                .comment("[诅咒六] 首次主手封印触发前的佩戴时间，单位为 tick。36000 tick = 30 分钟。仅复用王罪封印的 Tooltip 文本和倒计时，不附带王罪防御惩罚。")
                 .defineInRange("mainHandLockDelay", 36000, 20, 720000);
 
         MAIN_HAND_LOCK_DURATION = BUILDER
@@ -178,11 +174,11 @@ public class Config {
                 .defineInRange("mainHandLockDuration", 1200, 20, 72000);
 
         INVENTORY_LOCK_INTERVAL = BUILDER
-                .comment("[诅咒六] 首次主手封印后，随机封印背包物品的触发间隔，单位为 tick。6000 tick = 5 分钟。")
+                .comment("[诅咒六] 首次封印触发后，随机封印一件背包物品的触发间隔，单位为 tick。6000 tick = 5 分钟。抽取排除当前主手、副手与护甲；没有候选物品则跳过本次，已有随机封印尚未结束时不重抽。")
                 .defineInRange("inventoryLockInterval", 6000, 20, 720000);
 
         INVENTORY_LOCK_DURATION = BUILDER
-                .comment("[诅咒六] 随机封印背包物品的持续时间，单位为 tick。")
+                .comment("[诅咒六] 随机抽中的背包物品封印持续时间，单位为 tick。1200 tick = 1 分钟。只限制该物品，不封印其他物品或双手栏位；移动抽中的物品不会解除封印。")
                 .defineInRange("inventoryLockDuration", 1200, 20, 72000);
 
         CURSE_6_VOID_OFFERINGS = BUILDER
@@ -323,6 +319,12 @@ public class Config {
         CURSE_9_MAX_SATIETY = BUILDER
                 .comment("[诅咒九] 饥饿债与内部最大饱食值。反转前未取回饱食水晶时会从这里开始递减。")
                 .defineInRange("curse9MaxSatiety", 40, 1, 200);
+        CURSE_9_FOOD_SEAL_SECONDS = BUILDER
+                .comment("[诅咒九] 吃任意三种不同食物（含模组食物）偿债后的封印秒数：背包、快捷栏、主副手和交互。已佩戴饰品效果保留。0 为不封印；不影响解密路线。")
+                .defineInRange("curse9FoodSealSeconds", 30, 0, 3600);
+        CURSE_9_DEATHS_PER_CRYSTAL = BUILDER
+                .comment("[诅咒九] 佩戴咒印累计死亡几次增加一层饥饿债并发放一枚饱食水晶。按玩家独立累计，重登保留；范围 1～10。")
+                .defineInRange("curse9DeathsPerCrystal", 1, 1, 10);
         CURSE_9_REVERSED_KILL_TARGET = BUILDER
                 .comment("[诅咒九-反转] 击杀这里配置的生物后，才会开始累计不同食物种类。支持其他模组实体 ID。")
                 .define("curse9ReversedKillTarget", "minecraft:husk", Config::validateEntityTypeName);
@@ -455,8 +457,6 @@ public class Config {
         BUILDER.push("永寂玄金图腾");
         ETERNAL_SILENCE_TOTEM_ENABLED = BUILDER.comment("是否启用永寂玄金图腾。")
                 .define("enabled", true);
-        ETERNAL_SILENCE_TOTEM_DURABILITY_PER_USE = BUILDER.comment("耐久图腾每次复活消耗的耐久。")
-                .defineInRange("durabilityPerUse", 6, 1, 30);
         ETERNAL_SILENCE_TOTEM_INVULNERABLE_SECONDS = BUILDER.comment("复活后的无敌时间，单位为秒。")
                 .defineInRange("invulnerableSeconds", 30, 0, 3600);
         ETERNAL_SILENCE_TOTEM_SURGE_SECONDS = BUILDER.comment("复活后攻速与伤害增益持续时间，单位为秒。")
@@ -705,6 +705,95 @@ public class Config {
                 .defineInRange("reverseScaleDropChance", 0.002D, 0.0D, 1.0D);
         BUILDER.pop();
 
+        BUILDER.push("ApepBoss");
+        APEP_STAGE_ONE_HEALTH = BUILDER.comment("阿佩普第一阶段的最大生命值。")
+                .defineInRange("stageOneHealth", 330.0D, 1.0D, 1024.0D);
+        APEP_STAGE_TWO_HEALTH = BUILDER.comment("阿佩普第二阶段的最大生命值。")
+                .defineInRange("stageTwoHealth", 550.0D, 1.0D, 1024.0D);
+        APEP_STAGE_THREE_HEALTH = BUILDER.comment("阿佩普第三阶段的最大生命值。")
+                .defineInRange("stageThreeHealth", 1024.0D, 1.0D, 1024.0D);
+        APEP_ARMOR = BUILDER.comment("阿佩普的护甲值。")
+                .defineInRange("armor", 20.0D, 0.0D, 30.0D);
+        APEP_STAGE_ONE_DAMAGE_REDUCTION = BUILDER.comment("第一阶段的伤害减免比例。0.15 表示减免 15%。")
+                .defineInRange("stageOneDamageReduction", 0.15D, 0.0D, 0.99D);
+        APEP_STAGE_TWO_DAMAGE_REDUCTION = BUILDER.comment("第二阶段的伤害减免比例。0.25 表示减免 25%。")
+                .defineInRange("stageTwoDamageReduction", 0.25D, 0.0D, 0.99D);
+        APEP_STAGE_THREE_DAMAGE_REDUCTION = BUILDER.comment("第三阶段的伤害减免比例。0.35 表示减免 35%。")
+                .defineInRange("stageThreeDamageReduction", 0.35D, 0.0D, 0.99D);
+        APEP_STAGE_ONE_DAMAGE_CAP = BUILDER.comment("阿佩普第一阶段单次伤害上限，在阶段减伤后封顶；不会拒绝高面板武器。")
+                .defineInRange("stageOneDamageCap", 50.0D, 0.1D, 1000000.0D);
+        APEP_STAGE_TWO_DAMAGE_CAP = BUILDER.comment("阿佩普第二阶段单次伤害上限，在阶段减伤后封顶。")
+                .defineInRange("stageTwoDamageCap", 40.0D, 0.1D, 1000000.0D);
+        APEP_STAGE_THREE_DAMAGE_CAP = BUILDER.comment("阿佩普第三阶段单次伤害上限，在阶段减伤后封顶。")
+                .defineInRange("stageThreeDamageCap", 30.0D, 0.1D, 1000000.0D);
+        APEP_DAMAGE_IMMUNITY_TICKS = BUILDER.comment("成功承受一次伤害后的无敌时间。20 tick = 1 秒。")
+                .defineInRange("damageImmunityTicks", 40, 0, 1200);
+        APEP_HIT_INVISIBILITY_CHANCE = BUILDER.comment("成功承受一次伤害后进入隐身的概率。")
+                .defineInRange("hitInvisibilityChance", 0.25D, 0.0D, 1.0D);
+        APEP_HIT_INVISIBILITY_TICKS = BUILDER.comment("触发隐身后的持续时间，单位为 tick。")
+                .defineInRange("hitInvisibilityTicks", 60, 0, 12000);
+        APEP_BLACK_HOLE_STAGE_ONE_CHANCE = BUILDER.comment("第一阶段选择黑洞攻击的概率。")
+                .defineInRange("blackHoleStageOneChance", 0.24D, 0.0D, 1.0D);
+        APEP_BLACK_HOLE_STAGE_TWO_CHANCE = BUILDER.comment("第二阶段选择黑洞攻击的概率。")
+                .defineInRange("blackHoleStageTwoChance", 0.32D, 0.0D, 1.0D);
+        APEP_BLACK_HOLE_STAGE_THREE_CHANCE = BUILDER.comment("第三阶段选择黑洞攻击的概率。")
+                .defineInRange("blackHoleStageThreeChance", 0.40D, 0.0D, 1.0D);
+        APEP_BLACK_HOLE_DURATION_TICKS = BUILDER.comment("黑洞从生成到结束的总持续时间，单位为 tick。")
+                .defineInRange("blackHoleDurationTicks", 220, 40, 12000);
+        APEP_BLACK_HOLE_WARNING_TICKS = BUILDER.comment("黑洞生成后开始吸引目标前的预警时间，单位为 tick。")
+                .defineInRange("blackHoleWarningTicks", 40, 0, 12000);
+        APEP_BLACK_HOLE_RADIUS = BUILDER.comment("黑洞吸引与坍缩攻击的半径，单位为格。")
+                .defineInRange("blackHoleRadius", 30.0D, 1.0D, 256.0D);
+        APEP_BLACK_HOLE_BASE_PULL = BUILDER.comment("黑洞外缘对目标施加的基础吸引力。")
+                .defineInRange("blackHoleBasePull", 0.10D, 0.0D, 10.0D);
+        APEP_BLACK_HOLE_PROXIMITY_PULL = BUILDER.comment("目标接近事件视界时额外增加的吸引力。")
+                .defineInRange("blackHoleProximityPull", 0.34D, 0.0D, 10.0D);
+        APEP_BLACK_HOLE_VELOCITY_RETENTION = BUILDER.comment("黑洞每次吸引时保留的目标原有速度比例。")
+                .defineInRange("blackHoleVelocityRetention", 0.90D, 0.0D, 1.0D);
+        APEP_ECLIPSE_BREATH_STAGE_ONE_CHANCE = BUILDER.comment("第一阶段选择蚀日吐息的概率。")
+                .defineInRange("eclipseBreathStageOneChance", 0.22D, 0.0D, 1.0D);
+        APEP_ECLIPSE_BREATH_STAGE_TWO_CHANCE = BUILDER.comment("第二阶段选择蚀日吐息的概率。")
+                .defineInRange("eclipseBreathStageTwoChance", 0.26D, 0.0D, 1.0D);
+        APEP_ECLIPSE_BREATH_STAGE_THREE_CHANCE = BUILDER.comment("第三阶段选择蚀日吐息的概率。")
+                .defineInRange("eclipseBreathStageThreeChance", 0.30D, 0.0D, 1.0D);
+        APEP_ECLIPSE_BREATH_WARNING_TICKS = BUILDER.comment("蚀日吐息锁定落点后的预警时间，单位为 tick。")
+                .defineInRange("eclipseBreathWarningTicks", 36, 10, 200);
+        APEP_ECLIPSE_BREATH_DURATION_TICKS = BUILDER.comment("蚀日吐息从预警到结束的总时间，单位为 tick。")
+                .defineInRange("eclipseBreathDurationTicks", 96, 30, 400);
+        APEP_ECLIPSE_BREATH_DAMAGE = BUILDER.comment("蚀日吐息每次伤害脉冲的基础伤害。")
+                .defineInRange("eclipseBreathDamage", 14.0D, 0.0D, 1000.0D);
+        APEP_ECLIPSE_BREATH_HIT_RADIUS = BUILDER.comment("蚀日吐息光束的判定半径，单位为格。")
+                .defineInRange("eclipseBreathHitRadius", 3.0D, 0.5D, 16.0D);
+        APEP_SHADOW_STAGE_ONE_CHANCE = BUILDER.comment("第一阶段选择阿佩普之影的概率。")
+                .defineInRange("shadowStageOneChance", 0.12D, 0.0D, 1.0D);
+        APEP_SHADOW_STAGE_TWO_CHANCE = BUILDER.comment("第二阶段选择阿佩普之影的概率。")
+                .defineInRange("shadowStageTwoChance", 0.18D, 0.0D, 1.0D);
+        APEP_SHADOW_STAGE_THREE_CHANCE = BUILDER.comment("第三阶段选择阿佩普之影的概率。")
+                .defineInRange("shadowStageThreeChance", 0.24D, 0.0D, 1.0D);
+        APEP_SHADOW_STRIKE_COUNT = BUILDER.comment("一次阿佩普之影释放的影袭次数；阶段提升还会额外增加次数。")
+                .defineInRange("shadowStrikeCount", 3, 1, 12);
+        APEP_SHADOW_DAMAGE = BUILDER.comment("阿佩普之影每次命中的基础伤害。")
+                .defineInRange("shadowDamage", 24.0D, 0.0D, 1000.0D);
+        APEP_SHADOW_HIT_RADIUS = BUILDER.comment("阿佩普之影掠过路径的判定半径，单位为格。")
+                .defineInRange("shadowHitRadius", 3.0D, 0.5D, 16.0D);
+        APEP_DIVE_TRUE_DAMAGE = BUILDER.comment("一次锁定俯冲造成的真实伤害总量。")
+                .defineInRange("diveTrueDamage", 100.0D, 0.0D, 1000000.0D);
+        APEP_DIVE_DAMAGE_PULSES = BUILDER.comment("旧版俯冲连续伤害配置，仅为兼容已有配置文件保留；新版俯冲只在固定落点命中时结算一次。")
+                .defineInRange("diveDamagePulses", 5, 1, 20);
+        APEP_DIVE_LAUNCH_VELOCITY = BUILDER.comment("俯冲命中后施加的向上速度；1.8 可将玩家击飞超过 10 格。")
+                .defineInRange("diveLaunchVelocity", 1.8D, 0.0D, 10.0D);
+        APEP_CURIOS_SEAL_ENABLED = BUILDER.comment("是否封印进入阿佩普战斗区域玩家所佩戴的 Curios 饰品。")
+                .define("curiosSealEnabled", true);
+        APEP_CURIOS_SEAL_RADIUS = BUILDER.comment("从岛屿中心计算的 Curios 封印最大触发半径，单位为格；实际范围不会超过主岛外缘，离岛后解除。")
+                .defineInRange("curiosSealRadius", 112.0D, 1.0D, 1024.0D);
+        APEP_CURIOS_SEAL_ATTRIBUTE_MODIFIERS = BUILDER.comment("是否禁用被封印 Curios 饰品提供的属性修饰。")
+                .define("curiosSealAttributeModifiers", true);
+        APEP_CURIOS_SEAL_TICK_EFFECTS = BUILDER.comment("是否禁用被封印 Curios 饰品的标准 curioTick 持续效果。")
+                .define("curiosSealTickEffects", true);
+        APEP_CURIOS_SEAL_WHITELIST = BUILDER.comment("封印期间仍然生效的饰品 ID 。")
+                .defineListAllowEmpty("curiosSealWhitelist", List.<String>of(), Config::validateItemName);
+        BUILDER.pop();
+
         START_WITH_SEAL = BUILDER
                 .comment("[通用] 为 true 时，新玩家开局获得卡迭石咒印。")
                 .define("startWithSeal", true);
@@ -774,7 +863,6 @@ public class Config {
     public static final ForgeConfigSpec.IntValue CURSE_5_MAX_GUILT;
     public static final ForgeConfigSpec.IntValue CURSE_5_MERCY_MAX;
     public static final ForgeConfigSpec.IntValue CURSE_5_PURIFICATION_AMOUNT;
-    public static final ForgeConfigSpec.IntValue CURSE_5_LIGHTNING_STRIKES;
     public static final ForgeConfigSpec.IntValue CURSE_5_LOCK_DURATION;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_5_INNOCENT_ENTITY_WHITELIST;
     public static final ForgeConfigSpec.IntValue MAIN_HAND_LOCK_DELAY;
@@ -820,8 +908,53 @@ public class Config {
     public static final ForgeConfigSpec.DoubleValue HELL_REVERSED_ASSIST_DAMAGE_CAP;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CURSE_8_BOSS_WHITELIST;
     public static final ForgeConfigSpec.IntValue CURSE_9_MAX_SATIETY;
+    public static final ForgeConfigSpec.IntValue CURSE_9_FOOD_SEAL_SECONDS;
+    public static final ForgeConfigSpec.IntValue CURSE_9_DEATHS_PER_CRYSTAL;
     public static final ForgeConfigSpec.ConfigValue<String> CURSE_9_REVERSED_KILL_TARGET;
     public static final ForgeConfigSpec.IntValue CURSE_9_REVERSED_FOOD_TYPES;
+    public static final ForgeConfigSpec.DoubleValue APEP_STAGE_ONE_HEALTH;
+    public static final ForgeConfigSpec.DoubleValue APEP_STAGE_TWO_HEALTH;
+    public static final ForgeConfigSpec.DoubleValue APEP_STAGE_THREE_HEALTH;
+    public static final ForgeConfigSpec.DoubleValue APEP_ARMOR;
+    public static final ForgeConfigSpec.DoubleValue APEP_STAGE_ONE_DAMAGE_REDUCTION;
+    public static final ForgeConfigSpec.DoubleValue APEP_STAGE_TWO_DAMAGE_REDUCTION;
+    public static final ForgeConfigSpec.DoubleValue APEP_STAGE_THREE_DAMAGE_REDUCTION;
+    public static final ForgeConfigSpec.DoubleValue APEP_STAGE_ONE_DAMAGE_CAP;
+    public static final ForgeConfigSpec.DoubleValue APEP_STAGE_TWO_DAMAGE_CAP;
+    public static final ForgeConfigSpec.DoubleValue APEP_STAGE_THREE_DAMAGE_CAP;
+    public static final ForgeConfigSpec.IntValue APEP_DAMAGE_IMMUNITY_TICKS;
+    public static final ForgeConfigSpec.DoubleValue APEP_HIT_INVISIBILITY_CHANCE;
+    public static final ForgeConfigSpec.IntValue APEP_HIT_INVISIBILITY_TICKS;
+    public static final ForgeConfigSpec.DoubleValue APEP_BLACK_HOLE_STAGE_ONE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue APEP_BLACK_HOLE_STAGE_TWO_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue APEP_BLACK_HOLE_STAGE_THREE_CHANCE;
+    public static final ForgeConfigSpec.IntValue APEP_BLACK_HOLE_DURATION_TICKS;
+    public static final ForgeConfigSpec.IntValue APEP_BLACK_HOLE_WARNING_TICKS;
+    public static final ForgeConfigSpec.DoubleValue APEP_BLACK_HOLE_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue APEP_BLACK_HOLE_BASE_PULL;
+    public static final ForgeConfigSpec.DoubleValue APEP_BLACK_HOLE_PROXIMITY_PULL;
+    public static final ForgeConfigSpec.DoubleValue APEP_BLACK_HOLE_VELOCITY_RETENTION;
+    public static final ForgeConfigSpec.DoubleValue APEP_ECLIPSE_BREATH_STAGE_ONE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue APEP_ECLIPSE_BREATH_STAGE_TWO_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue APEP_ECLIPSE_BREATH_STAGE_THREE_CHANCE;
+    public static final ForgeConfigSpec.IntValue APEP_ECLIPSE_BREATH_WARNING_TICKS;
+    public static final ForgeConfigSpec.IntValue APEP_ECLIPSE_BREATH_DURATION_TICKS;
+    public static final ForgeConfigSpec.DoubleValue APEP_ECLIPSE_BREATH_DAMAGE;
+    public static final ForgeConfigSpec.DoubleValue APEP_ECLIPSE_BREATH_HIT_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue APEP_SHADOW_STAGE_ONE_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue APEP_SHADOW_STAGE_TWO_CHANCE;
+    public static final ForgeConfigSpec.DoubleValue APEP_SHADOW_STAGE_THREE_CHANCE;
+    public static final ForgeConfigSpec.IntValue APEP_SHADOW_STRIKE_COUNT;
+    public static final ForgeConfigSpec.DoubleValue APEP_SHADOW_DAMAGE;
+    public static final ForgeConfigSpec.DoubleValue APEP_SHADOW_HIT_RADIUS;
+    public static final ForgeConfigSpec.DoubleValue APEP_DIVE_TRUE_DAMAGE;
+    public static final ForgeConfigSpec.IntValue APEP_DIVE_DAMAGE_PULSES;
+    public static final ForgeConfigSpec.DoubleValue APEP_DIVE_LAUNCH_VELOCITY;
+    public static final ForgeConfigSpec.BooleanValue APEP_CURIOS_SEAL_ENABLED;
+    public static final ForgeConfigSpec.DoubleValue APEP_CURIOS_SEAL_RADIUS;
+    public static final ForgeConfigSpec.BooleanValue APEP_CURIOS_SEAL_ATTRIBUTE_MODIFIERS;
+    public static final ForgeConfigSpec.BooleanValue APEP_CURIOS_SEAL_TICK_EFFECTS;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> APEP_CURIOS_SEAL_WHITELIST;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL;
     public static final ForgeConfigSpec.BooleanValue START_WITH_SEAL_EQUIPPED;
     public static final ForgeConfigSpec.BooleanValue START_WITH_RAMASSES_MANUAL;
@@ -887,7 +1020,6 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue LARGE_CHANCE_DIE_ENABLED;
     public static final ForgeConfigSpec.DoubleValue LARGE_CHANCE_DIE_UNLOCK_SECONDS;
     public static final ForgeConfigSpec.BooleanValue ETERNAL_SILENCE_TOTEM_ENABLED;
-    public static final ForgeConfigSpec.IntValue ETERNAL_SILENCE_TOTEM_DURABILITY_PER_USE;
     public static final ForgeConfigSpec.IntValue ETERNAL_SILENCE_TOTEM_INVULNERABLE_SECONDS;
     public static final ForgeConfigSpec.IntValue ETERNAL_SILENCE_TOTEM_SURGE_SECONDS;
     public static final ForgeConfigSpec.DoubleValue ETERNAL_SILENCE_TOTEM_MAX_HEALTH_PENALTY;

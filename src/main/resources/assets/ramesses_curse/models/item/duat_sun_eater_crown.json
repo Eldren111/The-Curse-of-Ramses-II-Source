@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:block/crying_obsidian"
+    "layer0": "ramesses_curse:item/duat_sun_eater_crown"
   }
 }

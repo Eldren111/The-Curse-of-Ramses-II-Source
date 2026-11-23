@@ -1,0 +1,6 @@
+.gradle/
+build/
+run/
+.idea/
+!src/main/resources/META-INF/
+!src/main/resources/META-INF/mods.toml

@@ -1,0 +1,6 @@
+{
+  "type": "forge:add_features",
+  "biomes": "ramesses_curse:duat_desert",
+  "features": "ramesses_curse:duat_fractured_phase_ore",
+  "step": "underground_ores"
+}

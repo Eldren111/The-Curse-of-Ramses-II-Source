@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="aui-viewport" content="mode=browser,zoom=1,min-zoom=0.75,max-zoom=1.5,user-scalable=true">
+    <meta name="aui-mouse-events" content="intercept">
+    <link rel="stylesheet" href="ember_riddle.css">
+</head>
+<body>
+<div id="app" class="app-shell">
+    <div class="window-shadow"></div>
+    <header class="titlebar">
+        <i class="brand-mark"><i></i></i>
+        <span class="window-title">杜阿特余烬</span>
+        <i class="titlebar-rule"></i>
+        <div class="window-controls">
+            <button id="window-minimize" class="window-control control-min" type="button" aria-label="Minimize"><i></i></button>
+            <button id="window-maximize" class="window-control control-max" type="button" aria-label="Maximize"><i></i></button>
+            <button id="window-close" class="window-control control-close" type="button" aria-label="Close"><i></i></button>
+        </div>
+    </header>
+    <div class="app-body">
+        <nav class="rail">
+            <button id="nav-compare" class="rail-button" type="button"><i class="rail-icon icon-compare"></i><span class="rail-label">比对</span></button>
+            <button id="nav-alphabet" class="rail-button" type="button"><i class="rail-icon icon-alphabet"></i><span class="rail-label">抄写表</span></button>
+            <button id="nav-generate" class="rail-button" type="button"><i class="rail-icon icon-generate"></i><span class="rail-label">生成</span></button>
+            <button id="nav-terminal" class="rail-button rail-terminal" type="button"><i class="rail-icon icon-terminal"></i><span class="rail-label">终末</span></button>
+            <span class="rail-spacer"></span>
+            <button id="nav-cancel" class="rail-button" type="button"><i class="rail-icon icon-cancel"></i><span class="rail-label">取消</span></button>
+        </nav>
+        <main class="workspace">
+            <div class="workspace-head">
+                <div id="title-art" class="title-art">碑文</div>
+                <div id="progress-art" class="progress-art">1 / 1</div>
+            </div>
+            <div id="prompt-art" class="prompt-art">等待碑文显现</div>
+            <section class="inscription-stage">
+                <div id="alphabet-panel" class="alphabet-panel">
+                    <div class="alphabet-panel-head">
+                        <span class="alphabet-panel-title">碑文字母对照表</span>
+                        <span class="alphabet-panel-code">A - Z</span>
+                    </div>
+                    <div id="alphabet-art" class="alphabet-art"></div>
+                </div>
+                <div id="compare-panel" class="compare-panel">
+                    <div id="compare-art" class="compare-art"></div>
+                </div>
+                <div class="inscription-card">
+                    <div class="card-edge"></div>
+                    <div id="glyph-art" class="glyph-art">暂无碑文</div>
+                </div>
+            </section>
+            <form id="answer-form" class="answer-shell">
+                <input id="answer" class="answer-input" type="text" autocomplete="off" spellcheck="false" placeholder="输入谜底">
+                <button id="answer-submit" class="answer-submit" type="submit">提交</button>
+            </form>
+        </main>
+    </div>
+</div>
+<script src="ember_riddle.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "杜阿特与永寂王庭",
+  "category": "ramesses_curse:worlds",
+  "icon": "ramesses_curse:heart_of_duat",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "砂岩之门",
+      "text": "用普通砂岩搭出完整矩形门框，内部宽 2至21 格、高 3至21 格，然后以打火石点燃。门会在主世界与杜阿特沙漠之间往返。$(br2)切制砂岩、红砂岩等变种不能代替普通砂岩。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:duat_fractured_phase_ore",
+      "title": "杜阿特矿层",
+      "text": "极不稳定的碎相矿会嵌入杜阿特的砂岩层，稀有度接近青金石矿。其他三个维度也各有对应基岩材质的碎相矿。$(br2)矿簇需由下落铁砧压成碎相锭。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "永寂王庭",
+      "text": "王庭沉在杜阿特深处。建筑区域受古老禁制保护，不能随意放置或破坏方块。只有佩戴卡迭石咒印，才能穿过它的边界。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "ramesses_curse:nebuka_guardian",
+      "name": "王庭守卫",
+      "text": "找到王庭内被指定为祭仪核心的骷髅头并右键。若附近没有仍在进行的召唤，也没有存活的守卫，召唤仪式便会开始。"
+    }
+  ]
+}

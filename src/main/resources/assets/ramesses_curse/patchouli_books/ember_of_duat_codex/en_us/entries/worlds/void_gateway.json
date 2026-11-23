@@ -1,0 +1,33 @@
+{
+  "name": "Gateway to the Silent Void",
+  "category": "ramesses_curse:worlds",
+  "icon": "ramesses_curse:heka_radiant_crystal",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Requirements",
+      "text": "First defeat the vanilla Ender Dragon so its central return portal exists. The ritual leader must stand nearby while wearing an authentic Apep's Crown with an authority tag.$(br2)A Creative or command-issued crown is not accepted."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Fountain Offerings",
+      "text": "Throw into the central return portal:$(br)$(li)15 Embers of Duat$(li)5 Dragon's Breath$(li)3 Heka Radiant Crystals$(br2)These three ritual items are kept from travelling through the vanilla portal. After they settle briefly, the rite detects and consumes the full cost."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Overwriting the Return",
+      "text": "The rite lasts four seconds, accompanied by thunder, shockwaves, and a dynastic portal frame. On completion, the vanilla return portal is replaced by a horizontal Gateway to the Silent Court."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Three Entries",
+      "text": "Each trip from the End into the gateway consumes one of three world-wide entry charges. Returning from the Silent Void does not consume another charge.$(br2)At zero, the gateway vanishes and the vanilla return portal is restored."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "The Silent Void",
+      "text": "The Silent Void has no natural terrain. Its build height runs from -64 to 320, and mod-rendered fog blankets the dimension. Arrival uses a protected platform, with the Dynasty Grand Cathedral nearby."
+    }
+  ]
+}

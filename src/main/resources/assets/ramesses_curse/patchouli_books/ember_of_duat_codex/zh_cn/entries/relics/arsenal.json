@@ -1,0 +1,38 @@
+{
+  "name": "永寂武库",
+  "category": "ramesses_curse:relics",
+  "icon": "ramesses_curse:eternal_silence_compound_bow",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:eternal_silence_compound_bow",
+      "title": "永寂复合弓",
+      "text": "自带无限与力量 III。使用穿甲箭命中时可直接解除王胄护盾。按 R 装填弹药，按 K 在三连发与连射间切换；连射持续 5 秒，结束后有 25% 概率冷却 5 秒。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:armor_piercing_arrow",
+      "title": "穿甲箭",
+      "text": "命中带有王胄的目标时直接解除护盾，并无视拒矢词条。若以穿甲箭破盾，依附于护盾的部分词条及对应材料掉落会一并失效；伴随实体一生的词条不受影响。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:dragon_breath_compound_bow",
+      "title": "龙息复合弓",
+      "text": "由永寂复合弓完成末地水晶灌注后永久转化。龙息弹种沿箭矢弹道飞行，命中造成 20 点基础伤害。灌注方式见“特殊制作与仪式”。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:eternal_silence_totem",
+      "title": "永寂玄金图腾",
+      "text": "直接近战攻击视作两次攻击。致命伤害会消耗 1 次复活次数，给予 30 秒无敌；随后 15 秒内攻击速度 +100%、攻击伤害 +50%。$(br2)次数由代码独立记录，固定最多 5 次，修复耐久不会恢复次数。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:eternal_silence_rebirth_totem",
+      "title": "永寂玄金轮回图腾",
+      "text": "佩戴时攻击伤害 +50%，直接近战攻击视作两次。致命伤害触发同样的 30 秒无敌与 15 秒爆发增益，但之后进入 90 秒轮回冷却，而不是消耗五次计数。"
+    }
+  ]
+}

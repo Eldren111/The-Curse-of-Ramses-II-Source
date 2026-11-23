@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "ramesses_curse:item/crimson_requiem"
+  }
+}

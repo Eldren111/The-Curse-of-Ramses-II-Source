@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** 兜底处理所有 Component 绘制入口，包括 FTB Library 的 TextField。 */
+/** 兜底处理动态文本入口；原有私用区碑文字形必须保持原字体，不做字符转码。 */
 @Mixin(MutableComponent.class)
 public abstract class MutableComponentMixin {
     @Inject(method = "getVisualOrderText", at = @At("HEAD"), cancellable = true)
@@ -17,7 +17,8 @@ public abstract class MutableComponentMixin {
             CallbackInfoReturnable<FormattedCharSequence> callback
     ) {
         Component self = (Component) (Object) this;
-        if (DynamicTextParser.needsParsing(self)) {
+        boolean dynamic = DynamicTextParser.needsParsing(self);
+        if (dynamic) {
             callback.setReturnValue(DynamicTextParser.parse(self).getVisualOrderText());
         }
     }

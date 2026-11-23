@@ -1,0 +1,38 @@
+{
+  "name": "Arsenal of Eternal Silence",
+  "category": "ramesses_curse:relics",
+  "icon": "ramesses_curse:eternal_silence_compound_bow",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:eternal_silence_compound_bow",
+      "title": "Eternal Silence Bow",
+      "text": "Carries Infinity and Power III. Armor-Piercing Arrows directly remove royal shields. Press R to load ammunition and K to switch between triple-shot and rapid-fire. Rapid fire lasts five seconds and has a 25% chance to incur a five-second cooldown."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:armor_piercing_arrow",
+      "title": "Armor-Piercing Arrow",
+      "text": "A hit directly removes a royal shield and ignores Projectile Ward. Breaking a shield this way also ends shield-bound affixes and their material drops. Affixes intended to last for the entity's whole life remain active."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:dragon_breath_compound_bow",
+      "title": "Dragon-Breath Bow",
+      "text": "An Eternal Silence Compound Bow transforms permanently after the End Crystal infusion. Dragon-breath ammunition follows an arrow trajectory and deals 20 base damage on impact. See Special Crafting & Rites for the infusion."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:eternal_silence_totem",
+      "title": "Eternal Silence Totem",
+      "text": "Direct melee hits count twice. Fatal damage consumes one revival, grants 30 seconds of invulnerability, then gives +100% attack speed and +50% attack damage for 15 seconds.$(br2)Five uses are tracked in code. Repairing durability cannot restore them."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:eternal_silence_rebirth_totem",
+      "title": "Rebirth Totem",
+      "text": "While equipped, it grants +50% attack damage and makes direct melee hits count twice. Fatal damage gives the same 30-second invulnerability and 15-second surge, then begins a 90-second revival cooldown instead of consuming five-use charges."
+    }
+  ]
+}

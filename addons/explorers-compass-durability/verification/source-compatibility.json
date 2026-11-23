@@ -1,0 +1,58 @@
+[
+  {
+    "version": "1.4.0",
+    "commit": "44fd0a25f88db16494d53cda68dd807c78226ef2",
+    "result": "SOURCE_SIGNATURE_PASS",
+    "verifiedSignatures": 5,
+    "source": "https://raw.githubusercontent.com/dreamforSh/ExplorersCompass/44fd0a25f88db16494d53cda68dd807c78226ef2/src/main/java/com/chaosthedude/explorerscompass/items/ExplorersCompassItem.java",
+    "gameRuntimeTested": false
+  },
+  {
+    "version": "1.4.0",
+    "commit": "2cee2bd4b05bbbf331c8e79a1883913443e0f2f8",
+    "result": "SOURCE_SIGNATURE_PASS",
+    "verifiedSignatures": 5,
+    "source": "https://raw.githubusercontent.com/dreamforSh/ExplorersCompass/2cee2bd4b05bbbf331c8e79a1883913443e0f2f8/src/main/java/com/chaosthedude/explorerscompass/items/ExplorersCompassItem.java",
+    "gameRuntimeTested": false
+  },
+  {
+    "version": "1.5.0",
+    "commit": "43c5c7383106528c69d2bdf70a565b5aa2e00042",
+    "result": "SOURCE_SIGNATURE_PASS",
+    "verifiedSignatures": 5,
+    "source": "https://raw.githubusercontent.com/dreamforSh/ExplorersCompass/43c5c7383106528c69d2bdf70a565b5aa2e00042/src/main/java/com/chaosthedude/explorerscompass/items/ExplorersCompassItem.java",
+    "gameRuntimeTested": false
+  },
+  {
+    "version": "1.5.1",
+    "commit": "06c0872f6a908bceda77103e9e09ec1d602145df",
+    "result": "SOURCE_SIGNATURE_PASS",
+    "verifiedSignatures": 5,
+    "source": "https://raw.githubusercontent.com/dreamforSh/ExplorersCompass/06c0872f6a908bceda77103e9e09ec1d602145df/src/main/java/com/chaosthedude/explorerscompass/items/ExplorersCompassItem.java",
+    "gameRuntimeTested": false
+  },
+  {
+    "version": "1.5.3",
+    "commit": "e29fb88b215cc942a41be2dc30b72c4db9666f63",
+    "result": "SOURCE_SIGNATURE_PASS",
+    "verifiedSignatures": 5,
+    "source": "https://raw.githubusercontent.com/dreamforSh/ExplorersCompass/e29fb88b215cc942a41be2dc30b72c4db9666f63/src/main/java/com/chaosthedude/explorerscompass/items/ExplorersCompassItem.java",
+    "gameRuntimeTested": false
+  },
+  {
+    "version": "1.5.9",
+    "commit": "a7dda4708f901d02c3b2ac5a9b9126f36f631c02",
+    "result": "SOURCE_SIGNATURE_PASS",
+    "verifiedSignatures": 5,
+    "source": "https://raw.githubusercontent.com/dreamforSh/ExplorersCompass/a7dda4708f901d02c3b2ac5a9b9126f36f631c02/src/main/java/com/chaosthedude/explorerscompass/items/ExplorersCompassItem.java",
+    "gameRuntimeTested": false
+  },
+  {
+    "version": "1.6.0",
+    "commit": "5f589746d944f16a656b29fcd9a6a5e8c96c06f6",
+    "result": "SOURCE_SIGNATURE_PASS",
+    "verifiedSignatures": 5,
+    "source": "https://raw.githubusercontent.com/dreamforSh/ExplorersCompass/5f589746d944f16a656b29fcd9a6a5e8c96c06f6/src/main/java/com/chaosthedude/explorerscompass/items/ExplorersCompassItem.java",
+    "gameRuntimeTested": false
+  }
+]

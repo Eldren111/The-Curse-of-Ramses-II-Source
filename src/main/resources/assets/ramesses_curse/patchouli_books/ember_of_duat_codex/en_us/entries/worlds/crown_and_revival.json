@@ -1,0 +1,40 @@
+{
+  "name": "Apep's Crown and Revival",
+  "category": "ramesses_curse:worlds",
+  "icon": "ramesses_curse:duat_sun_eater_crown",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:duat_sun_eater_crown",
+      "title": "An Authentic Crown",
+      "text": "Only the crown dropped by Apep carries an authority tag. Copies from Creative, /give, or any other source can be equipped, but show no authority details, grant no power, and cannot start crown-bound rites."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Random Authority",
+      "text": "An authentic crown selects one authority when dropped: physical, projectile, explosion, fire, lava, lightning, magic, wither, dragon breath, sonic, freeze, drowning, suffocation, cramming, falling, void, world border, thorns, or true damage."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Charm Effect",
+      "text": "When equipped in a charm slot, attacks against hostile entities have a 25% chance to deal extra authority damage equal to 25% of your current health at that moment.$(br2)Hold Shift on the crown to read the selected damage type's exact rules."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:heka_radiant_crystal",
+      "title": "Crystals for Revival",
+      "text": "After the island is destroyed, its ten crystal towers remain. Place one Heka Radiant Crystal on every tower base, ten in total. The initiator must wear an authentic, empowered crown."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Rite of Ten Towers",
+      "text": "Once all ten crystals are present, their beams form a ring for three seconds, then aim above the island center. A ten-second charge rebuilds the destroyed floor.$(br2)The final burst summons Stage I Apep, immediately using the same combat logic as the original spawn."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Interruption Conditions",
+      "text": "The rite cannot begin while Apep lives or the death blast is active, with an unpowered or unequipped crown, or while any tower lacks a crystal.$(br2)If a required crystal becomes invalid during the rite, the revival is cancelled."
+    }
+  ]
+}

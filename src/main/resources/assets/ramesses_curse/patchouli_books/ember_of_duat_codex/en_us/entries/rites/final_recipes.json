@@ -1,0 +1,37 @@
+{
+  "name": "Final Works",
+  "category": "ramesses_curse:rites",
+  "icon": "ramesses_curse:eternal_conquest",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:chance_die_six_sided",
+      "recipe2": "ramesses_curse:chance_die_large",
+      "title": "Six-Sided Chance Die",
+      "title2": "Large Chance Die"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "ramesses_curse:eternal_conquest",
+      "title": "Eternal Conquest",
+      "text": "Requires a Draconic Authority Ingot, Nether Star, Torchflower, Calming Tibia, Heart-Devouring Remnant, Famine Core, and Life-Binding Remnant Crystal. After all nine curses are truly reversed, five personal kills of Tier IX royal-shield enemies grant one tempering level by default."
+    },
+    {
+      "type": "patchouli:smelting",
+      "recipe": "ramesses_curse:cooked_group_u_smelting",
+      "title": "Smelted Group U"
+    },
+    {
+      "type": "patchouli:smoking",
+      "recipe": "ramesses_curse:cooked_group_u_smoking",
+      "title": "Smoked Group U"
+    },
+    {
+      "type": "patchouli:campfire",
+      "recipe": "ramesses_curse:cooked_group_u_campfire_cooking",
+      "title": "Campfire Group U",
+      "text": "Raw Group U can be cooked in a furnace, smoker, or campfire. All three processing recipes are recorded here."
+    }
+  ]
+}

@@ -1,1068 +1,998 @@
 {
-    "name":  "浜＄伀纰戞枃鍏ㄥ綍",
+    "name":  "Complete Inscription Archive",
     "category":  "ramesses_curse:embers",
     "icon":  "ramesses_curse:ember_of_duat",
-    "sortnum":  1,
+    "sortnum":  3,
     "pages":  [
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一 日轮",
-                      "text":  "我总在黎明前照亮沙海，人人借我计算白昼。$(br2)"
+                      "title":  "Inscription 1: sun wheel",
+                      "text":  "I always illuminate the sea of sand before dawn, and everyone uses me to count the days.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二 月华",
-                      "text":  "我悬于夜幕高处，不发热也能照路。$(br2)"
+                      "title":  "Inscription 2: Yuehua",
+                      "text":  "I hang high in the night, and I can light the way without getting hot.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三 双冠",
-                      "text":  "我束起两地权柄，常立于王者额前。$(br2)"
+                      "title":  "Inscription 3: double crown",
+                      "text":  "I have bound up the authority of the two lands and will always stand before the king\u0027s forehead.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四 生符",
-                      "text":  "我像钥匙却不开门，我指向延续与呼吸。$(br2)"
+                      "title":  "Inscription 4: Health Talisman",
+                      "text":  "I am like a key that does not open the door. I point to continuity and breathing.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五 推日之甲",
-                      "text":  "我滚动光球前行，在墓与饰物间常被看见。$(br2)"
+                      "title":  "Inscription 5: Armor of Pushing the Sun",
+                      "text":  "I roll the ball of light forward and am often seen among the tombs and decorations.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六 长河",
-                      "text":  "我自南向北而流，泥土与王朝都因我存活。$(br2)"
+                      "title":  "Inscription 6: long river",
+                      "text":  "I flow from south to north, and the earth and the dynasty survive because of me.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七 立王之人",
-                      "text":  "我不耕田，却让名字先刻在石头上。$(br2)"
+                      "title":  "Inscription 7: The one who established the king",
+                      "text":  "I don\u0027t plow the fields, but I let my name be engraved on the stone first.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八 守墓之神",
-                      "text":  "我以犬首引路，在静默中衡量归途。$(br2)"
+                      "title":  "Inscription 8: God of tombs",
+                      "text":  "I lead the way with my dog\u0027s head, and measure my return in silence.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九 伏石之问",
-                      "text":  "我半人半兽，最擅长不张口的提问。$(br2)"
+                      "title":  "Inscription 9: Questions about hiding stones",
+                      "text":  "I am half human and half animal, and I am best at asking questions without opening my mouth.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文十 向天之陵",
-                      "text":  "我以四面收束大地，像坟墓也像长矛。$(br2)"
+                      "title":  "Inscription 10: Tomb of Xiangtian",
+                      "text":  "I bound the earth on all sides, like a tomb and like a spear.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文十一 夜后之路",
-                      "text":  "我不是夜色本身，却收容亡者归行。$(br2)"
+                      "title":  "Inscription 11: Road to the Queen of Night",
+                      "text":  "I am not the night itself, but I take the dead back home.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文十二 白羽长喙",
-                      "text":  "我立在浅水之间，抄写与月意常借我之形。$(br2)"
+                      "title":  "Inscription 12: white feather long beak",
+                      "text":  "I stand in the shallow water, copying and the moon often borrow my form.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文十三 归来之王",
-                      "text":  "我曾被分开，后来又在绿意中归来。$(br2)"
+                      "title":  "Inscription 13: The returning king",
+                      "text":  "I was separated and then returned in the green.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文十四 羽衡",
-                      "text":  "我轻若一片羽，却能压住整座王朝。$(br2)"
+                      "title":  "Inscription 14: Yu Heng",
+                      "text":  "I am as light as a feather, but I can suppress an entire dynasty.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文十五 鹰眼",
-                      "text":  "我凝望王权，常在冠前而不在座上。$(br2)"
+                      "title":  "Inscription 15: eagle eye",
+                      "text":  "I gaze at the royal power, always in front of the crown but not in the seat.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文十六 家门之守",
-                      "text":  "我以猫形护火，白日温顺夜里警醒。$(br2)"
+                      "title":  "Inscription 16: Guard of the house",
+                      "text":  "I protect the fire in the form of a cat, meek by day and alert by night.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文十七 隐名者",
-                      "text":  "许多人敬我时，只说我难以被看见。$(br2)"
+                      "title":  "Inscription 17: Anonymous",
+                      "text":  "When many people respect me, they just say that I am difficult to see.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文十八 天轮之主",
-                      "text":  "每一个黎明来临时，总有人先想起我。$(br2)"
+                      "title":  "Inscription 18: Lord of the Heavenly Wheel",
+                      "text":  "Every morning, someone always thinks of me first.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文十九 旧纸之草",
-                      "text":  "我被卷成书页，承载墨与旧时代。$(br2)"
+                      "title":  "Inscription 19: old paper grass",
+                      "text":  "I was rolled into pages, carrying ink and old times.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二十 直立之石",
-                      "text":  "我笔直向上，把影子切成两半。$(br2)"
+                      "title":  "Inscription 20: upright stone",
+                      "text":  "I went straight up and cut the shadow in half.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二十一 缠布沉眠",
-                      "text":  "我被布条紧紧包裹，却不是礼物。$(br2)"
+                      "title":  "Inscription 21: Sleeping in cloth",
+                      "text":  "I was wrapped tightly in cloth, but it was not a gift.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二十二 石中之眠",
-                      "text":  "石壳包住我的安静，里面护着一具遗身。$(br2)"
+                      "title":  "Inscription 22: sleep in stone",
+                      "text":  "The stone shell envelops my tranquility, protecting a body inside.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二十三 冠前之蛇",
-                      "text":  "我盘在王额之前，既是威吓也是庇护。$(br2)"
+                      "title":  "Inscription 23: The snake before the crown",
+                      "text":  "I am placed in front of the king\u0027s forehead, both as a threat and as a shield.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二十四 晨光之甲",
-                      "text":  "我在最早的光里推着新一天出现。$(br2)"
+                      "title":  "Inscription 24: Armor of Morning Light",
+                      "text":  "I push for the emergence of a new day in the earliest light.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二十五 王座之母",
-                      "text":  "我因治愈与王权之力而被反复呼唤。$(br2)"
+                      "title":  "Inscription 25: mother of thrones",
+                      "text":  "I am called upon repeatedly for the power of healing and kingship.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二十六 烈狮",
-                      "text":  "我兼具怒火与战意，牙锋像灼人的日光。$(br2)"
+                      "title":  "Inscription 26: fierce lion",
+                      "text":  "I have both anger and fighting spirit, and my teeth are like scorching sunlight.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二十七 记述之手",
-                      "text":  "文字、计算与记忆都愿意向我靠拢。$(br2)"
+                      "title":  "Inscription 27: hand of narration",
+                      "text":  "Words, calculations and memories are all willing to move closer to me.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二十八 吞日长影",
-                      "text":  "我潜伏深处，总想把高天之火吞掉。$(br2)"
+                      "title":  "Inscription 28: Swallowing the Sun and Changing Shadows",
+                      "text":  "I lurk deep down, always wanting to be swallowed up by the fire from the sky.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文二十九 同息之影",
-                      "text":  "我像另一个你，共享同一口气。$(br2)"
+                      "title":  "Inscription 29: Shadow of Same Interest",
+                      "text":  "I am like another you, sharing the same breath.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三十 翼魂",
-                      "text":  "我能暂离肉身，看起来像会飞的灵。$(br2)"
+                      "title":  "Inscription 30: Wing Soul",
+                      "text":  "I can temporarily leave my body and look like a flying spirit.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三十一 芦原",
-                      "text":  "亡者向往那里，因为田野总是青绿无边。$(br2)"
+                      "title":  "Inscription 31: Awara",
+                      "text":  "The dead long for it because the fields are always green and boundless.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三十二 芳涂",
-                      "text":  "我抹在皮肤之上，以香气盖过尘土。$(br2)"
+                      "title":  "Inscription 32: Fang Tu",
+                      "text":  "I apply it to my skin, covering the dust with its scent.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三十三 身前小护",
-                      "text":  "我常被挂在胸前，小而隐秘却让人安心。$(br2)"
+                      "title":  "Inscription 33: Little guard in front of you",
+                      "text":  "I am often hung on my chest, small and secret but reassuring.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三十四 行日之舟",
-                      "text":  "我承载光明越过天海，明明是舟却不靠水。$(br2)"
+                      "title":  "Inscription 34: sun boat",
+                      "text":  "I carry the light across the sky and the sea. It is obviously a boat but it does not rely on water.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三十五 归后之书",
-                      "text":  "我的页中写满亡者才能用上的言辞。$(br2)\n"
+                      "title":  "Inscription 35: book of return",
+                      "text":  "My pages are filled with words that only the dead can use.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三十六 覆面之辉",
-                      "text":  "我遮住王者的面容，却让他死后更明亮。$(br2)"
+                      "title":  "Inscription 36: Covering Glory",
+                      "text":  "I cover the king\u0027s face, but it makes him brighter after death.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三十七 柱火回声",
-                      "text":  "香烟、立柱与祈祷都在这里聚集。$(br2)"
+                      "title":  "Inscription 37: Pillar Fire Echo",
+                      "text":  "Cigarettes, pillars and prayers are gathered here.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三十八 诵词之人",
-                      "text":  "我知道何时点香，也知道何时开口。$(br2)"
+                      "title":  "Inscription 38: person who recites lyrics",
+                      "text":  "I know when to light incense and I know when to speak.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文三十九 献纳之前",
-                      "text":  "祭品、誓言与祈愿都要先经过我。$(br2)"
+                      "title":  "Inscription 39: before donation",
+                      "text":  "Sacrifice, vows and prayers all pass through me first.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四十 隐答",
-                      "text":  "有人发问之后，总会期待我给出看不见的回应。$(br2)"
+                      "title":  "Inscription 40: Hidden answer",
+                      "text":  "When someone asks a question, they always expect an invisible response from me.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四十一 深蓝之石",
-                      "text":  "我的颜色像王夜，越看越沉静。$(br2)"
+                      "title":  "Inscription 41: deep blue stone",
+                      "text":  "My color is like Wang Ye, the more I look at it, the calmer it becomes.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四十二 红色脉络",
-                      "text":  "细小如尘，却总能把力量送往别处。$(br2)"
+                      "title":  "Inscription 42: red veins",
+                      "text":  "It\u0027s as small as dust, but it can always send power elsewhere.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四十三 火记之黑",
-                      "text":  "我像玻璃，却记得烈火与重压。$(br2)"
+                      "title":  "Inscription 43: Black of Fire",
+                      "text":  "I am like glass, but I remember the fire and the pressure.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四十四 硬光",
-                      "text":  "人人都想拥有我，因为我明亮且难碎。$(br2)"
+                      "title":  "Inscription 44: hard light",
+                      "text":  "Everyone wants me because I\u0027m bright and hard to break.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四十五 交易之绿",
-                      "text":  "村人与我关系极近，而我总闪着温润的色泽。$(br2)"
+                      "title":  "Inscription 45: Trading green",
+                      "text":  "The villagers are very close to me, but I always have a warm and gentle look.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四十六 熔火之后",
-                      "text":  "我曾在炽热中沉没，回来时更沉更坚。$(br2)"
+                      "title":  "Inscription 46: after molten fire",
+                      "text":  "I sank in the heat and came back heavier and stronger.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四十七 折距之珠",
-                      "text":  "只要抛出我，距离便会被强行弯折。$(br2)"
+                      "title":  "Inscription 47: Pearl of Distance",
+                      "text":  "As long as I am thrown away, the distance will be forcibly bent.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四十八 世界尽头之影",
-                      "text":  "最后的大影常守在黑曜边界的高空。$(br2)"
+                      "title":  "Inscription 48: shadow at the end of the world",
+                      "text":  "The last big shadow always stands high in the sky at the edge of obsidian.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文四十九 绿响",
-                      "text":  "我先发出短促的警告，再让墙壁失去意义。$(br2)"
+                      "title":  "Inscription 49: green ring",
+                      "text":  "I give a brief warning before letting the wall lose its meaning.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五十 迟步饥影",
-                      "text":  "我走得不快，却总被空腹推动着前进。$(br2)"
+                      "title":  "Inscription 50: Chi Bu Hung Ying",
+                      "text":  "I don’t walk fast, but I’m always pushed forward by an empty stomach.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五十一 骨与弓",
-                      "text":  "黑暗里飞出的一箭，常由我先松手。$(br2)"
+                      "title":  "Inscription 51: Bones and Bow",
+                      "text":  "When an arrow flies out of the darkness, I am always the first to let go.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五十二 织网者",
-                      "text":  "我爬墙结丝，把空气也变成陷阱。$(br2)"
+                      "title":  "Inscription 52: web spinner",
+                      "text":  "I climb the walls and make silk threads, turning the air into a trap.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五十三 瓶药与笑",
-                      "text":  "我戴着尖帽，投来的从不是善意。$(br2)"
+                      "title":  "Inscription 53: Bottle of medicine and laughter",
+                      "text":  "I wear a pointed hat and never show kindness.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五十四 旗前之夺",
-                      "text":  "我举着旗帜靠近，从不懂敲门。$(br2)"
+                      "title":  "Inscription 54: Capture in front of the flag",
+                      "text":  "I approach with a flag and never know how to knock.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五十五 壳中之举",
-                      "text":  "我藏在硬壳内，却能把人直接托离地面。$(br2)"
+                      "title":  "Inscription 55: action in shell",
+                      "text":  "I am hidden in a hard shell, but I can lift people directly off the ground.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五十六 炎环",
-                      "text":  "我被火焰绕着旋转，守着堡垒的空气。$(br2)"
+                      "title":  "Inscription 56: Flame ring",
+                      "text":  "I was whirled around by flames, guarding the air of the fortress.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五十七 远哭",
-                      "text":  "我在下界长嚎，像漂浮在空中的悲声。$(br2)"
+                      "title":  "Inscription 57: cry far away",
+                      "text":  "I howled in the lower world, like a sad voice floating in the air.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五十八 深暗之听",
-                      "text":  "我看不见你，却几乎总能找到你。$(br2)"
+                      "title":  "Inscription 58: The sound of darkness",
+                      "text":  "I can\u0027t see you, but I can almost always find you.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文五十九 海下之息",
-                      "text":  "有我在时，海水也能容人久留。$(br2)"
+                      "title":  "Inscription 59: Breath of the sea",
+                      "text":  "When I am here, the sea water can accommodate people to stay for a long time.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六十 吞水之黄",
-                      "text":  "我能把整片水域喝干，让地面裸露出来。$(br2)"
+                      "title":  "Inscription 60: swallow water yellow",
+                      "text":  "I could drink entire bodies of water dry, leaving the ground bare.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六十一 翼布",
-                      "text":  "只要纵身一跃，天空就会化作道路。$(br2)"
+                      "title":  "Inscription 61: wing cloth",
+                      "text":  "Just jump up and the sky will turn into a road.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六十二 微光书页",
-                      "text":  "纸页合拢时无声，打开后却许诺更锋利的力量。$(br2)\n"
+                      "title":  "Inscription 62: shimmer pages",
+                      "text":  "The pages are silent when closed, but promise sharper power when opened.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六十三 重铁之台",
-                      "text":  "我修补、命名，也在每次敲击后越发疲惫。$(br2)"
+                      "title":  "Inscription 63: The platform of heavy iron",
+                      "text":  "I tinkered, named, and grew more exhausted with each stroke.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六十四 简火之箱",
-                      "text":  "我只靠热，就把生与熟分成前后。$(br2)"
+                      "title":  "Inscription 64: Simple Fire Box",
+                      "text":  "I only rely on heat to separate raw and cooked food.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六十五 再铸之处",
-                      "text":  "我让旧装备继续前进，又不忘原本的样子。$(br2)\n"
+                      "title":  "Inscription 65: The place of recasting",
+                      "text":  "I keep my old gear moving forward without forgetting the original look.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六十六 独眼远观",
-                      "text":  "我一次只借给一只眼，却能把远方拉近。$(br2)"
+                      "title":  "Inscription 66: one-eyed view",
+                      "text":  "I only lend you one eye at a time, but I can bring the distance closer.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六十七 归向",
-                      "text":  "我总记得某个位置，并执拗地朝它指去。$(br2)"
+                      "title":  "Inscription 67: return",
+                      "text":  "I always remember a certain location and point to it stubbornly.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六十八 夜间暂停",
-                      "text":  "只要周围足够安静，我便让黑夜直接略过。$(br2)"
+                      "title":  "Inscription 68: Night timeout",
+                      "text":  "As long as the surroundings are quiet enough, I let the night pass by.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文六十九 浮木之行",
-                      "text":  "当我碰到水，水面就成了道路。$(br2)"
+                      "title":  "Inscription 69: Driftwood trip",
+                      "text":  "When I touch water, the water becomes a road.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七十 宝藏之口",
-                      "text":  "我沉默地收着东西，直到有人来打开。$(br2)"
+                      "title":  "Inscription 70: mouth of treasure",
+                      "text":  "I kept my things in silence until someone came to open them.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七十一 小容万物",
-                      "text":  "我看似只盛液体，却常装得比外形更多。$(br2)"
+                      "title":  "Inscription 71: Xiao Rong Wan Wan",
+                      "text":  "I seem to only hold liquids, but I often hold more than meets the eye.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七十二 穴中之火",
-                      "text":  "我让洞穴不再显得那么孤独。$(br2)"
+                      "title":  "Inscription 72: Fire in the cave",
+                      "text":  "I made the cave feel less lonely.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七十三 未成之树",
-                      "text":  "我在长成参天之前，只是一点脆弱的开端。$(br2)"
+                      "title":  "Inscription 73: unfinished tree",
+                      "text":  "Before I grew into a towering figure, I was just a fragile beginning.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七十四 河边之线",
-                      "text":  "我把耐心垂进水里，等一个突然的回拽。$(br2)"
+                      "title":  "Inscription 74: river line",
+                      "text":  "I dropped my patience into the water, waiting for a sudden pull back.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七十五 先张后发",
-                      "text":  "我总是先蓄着力，再快速回答远处。$(br2)"
+                      "title":  "Inscription 75: Zhang first and then hair",
+                      "text":  "I always gather my strength first and then answer quickly from afar.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七十六 海暴之叉",
-                      "text":  "我属于风暴与深海，尖端一分为三。$(br2)"
+                      "title":  "Inscription 76: Sea Storm Fork",
+                      "text":  "I belong to the storm and the deep sea, the tip of which is divided into three.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七十七 直去之羽",
-                      "text":  "一旦被放手，我只想着朝前。$(br2)"
+                      "title":  "Inscription 77: straight feather",
+                      "text":  "Once I was let go, all I could think about was moving forward.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七十八 固名之片",
-                      "text":  "我能让生物的名字从此不再改变。$(br2)"
+                      "title":  "Inscription 78: Film with a solid reputation",
+                      "text":  "I can make the name of the creature never change again.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文七十九 不用笼子的束缚",
-                      "text":  "我不把谁关起来，却能让谁别走远。$(br2)"
+                      "title":  "Inscription 79: Not bound by a cage",
+                      "text":  "I don\u0027t lock anyone up, but I can keep anyone away.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八十 小焰",
-                      "text":  "我安静而微弱，却足以照亮一间房。$(br2)"
+                      "title":  "Inscription 80: Homura",
+                      "text":  "I am quiet and weak, but enough to light up a room.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八十一 水下之灯",
-                      "text":  "我在海里也能持续发亮，从不溺亡。$(br2)"
+                      "title":  "Inscription 81: underwater light",
+                      "text":  "I can continue to shine in the sea and never drown.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八十二 凝住的下界光",
-                      "text":  "我像一块被冻住的明亮火色。$(br2)"
+                      "title":  "Inscription 82: frozen nether light",
+                      "text":  "I am like a frozen piece of bright fire.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八十三 会老去的金属",
-                      "text":  "我先是温暖的橙，后来慢慢转绿。$(br2)"
+                      "title":  "Inscription 83: metal that ages",
+                      "text":  "I started with warm orange, then slowly turned to green.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八十四 奢侈一口",
-                      "text":  "只需咬下去，身体便会想起某种珍贵。$(br2)"
+                      "title":  "Inscription 84: A luxurious bite",
+                      "text":  "Just bite into it and your body will be reminded of something precious.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八十五 火后之食",
-                      "text":  "火把原本粗粝的东西变成了可安心吞下的晚餐。$(br2)"
+                      "title":  "Inscription 85: food after fire",
+                      "text":  "The fire turned the rough stuff into a dinner that could be swallowed safely.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八十六 最朴素的充饥",
-                      "text":  "我柔软简单，却足以让人继续上路。$(br2)"
+                      "title":  "Inscription 86: The simplest way to satisfy hunger",
+                      "text":  "I\u0027m soft and simple, but enough to keep people on the road.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八十七 六角甜壳",
-                      "text":  "我黏而明亮，甜味被分隔成整齐的格子。$(br2)"
+                      "title":  "Inscription 87: Hexagonal sweet shell",
+                      "text":  "I\u0027m sticky and bright, with sweetness separated into neat grids.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八十八 橙色切片",
-                      "text":  "外壳、香甜和秋意都被烤进了一块。$(br2)"
+                      "title":  "Inscription 88: orange slices",
+                      "text":  "The crust, sweetness and autumn flavor are all baked into one piece.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文八十九 快步",
-                      "text":  "我还没想完，脚就已经先动了。$(br2)"
+                      "title":  "Inscription 89: Quick pace",
+                      "text":  "Before I could finish thinking, my feet had already moved first.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九十 沉重一击",
-                      "text":  "当我降临时，每次命中都比先前更实。$(br2)"
+                      "title":  "Inscription 90: a heavy blow",
+                      "text":  "When I come, each hit is more real than the one before.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九十一 黑中可见",
-                      "text":  "我让黑暗变得像白昼一样可读。$(br2)"
+                      "title":  "Inscription 91: visible in black",
+                      "text":  "I make darkness as readable as day.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九十二 闭目之幕",
-                      "text":  "世界在我四周把眼睛全部合上。$(br2)"
+                      "title":  "Inscription 92: curtain of eyes",
+                      "text":  "The world closed its eyes around me.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九十三 倾斜之感",
-                      "text":  "地平线开始晃动，胃也跟着抱怨。$(br2)"
+                      "title":  "Inscription 93: Feeling of tilt",
+                      "text":  "The horizon began to shake and my stomach grumbled.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九十四 空腹驱策",
-                      "text":  "我先掏空你的食量，再催你去找更多。$(br2)"
+                      "title":  "Inscription 94: fasting drive",
+                      "text":  "I\u0027ll empty out your appetite first, then push you to find more.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九十五 偏爱",
-                      "text":  "掉落与概率在我面前会稍微温柔一点。$(br2)"
+                      "title":  "Inscription 95: Preference",
+                      "text":  "Drops and probability are a little gentler to me.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九十六 经耕之地",
-                      "text":  "水、锄与等待共同把泥土变成收成。$(br2)"
+                      "title":  "Inscription 96: cultivated land",
+                      "text":  "Water, hoeing and waiting work together to turn soil into harvest.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九十七 钟与门之聚",
-                      "text":  "钟声、房屋与交易把人们留在这里。$(br2)"
+                      "title":  "Inscription 97: Gathering of Bells and Doors",
+                      "text":  "The bells, the houses and the deals keep people here.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九十八 框中异界",
-                      "text":  "只要把边框立好，另一头的世界就会回应。$(br2)"
+                      "title":  "Inscription 98: Another world in the frame",
+                      "text":  "As long as the borders are set up, the world on the other side will respond.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文九十九 枯枝听亡",
-                      "flag":  "mod:goety",
-                      "text":  "我是一截听命于灵魂能量的黑枝，挥动时让诡术找到出口。$(br2)"
+                      "title":  "Inscription 99: Dead branches listen to death",
+                      "text":  "I am a black branch that obeys the command of soul energy. When I wave it, the tricks will find an outlet.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百 不署名者的权杖",
-                      "flag":  "mod:goety",
-                      "text":  "我的主人没有名字，我却能让更沉重的法术借身而行。$(br2)\n"
+                      "title":  "Inscription 100: The unsigned scepter",
+                      "text":  "My master has no name, but I can make heavier spells work through him.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百零一 袖中百相",
-                      "flag":  "mod:goety",
-                      "text":  "不同聚焦物在我腹中彼此沉默，施术者伸手便能换出所需。$(br2)"
+                      "title":  "Inscription 101: A hundred things on one\u0027s sleeve",
+                      "text":  "Different focused objects are silent to each other in my belly, and the operator can replace what is needed with just a hand.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百零二 亡者的算筹",
-                      "flag":  "mod:goety",
-                      "text":  "杀戮化作我腹中的数字，诡术又把那些数字逐一花掉。$(br2)"
+                      "title":  "Inscription 102: The plan of the dead",
+                      "text":  "Killing turned into numbers in my belly, and trickery spent those numbers one by one.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百零三 无声灯油",
-                      "flag":  "mod:goety",
-                      "text":  "我透明而封闭，空时只是一罐，满时却盛着无声燃料。$(br2)"
+                      "title":  "Inscription 103: Silent lamp oil",
+                      "text":  "I am transparent and closed, just a can when empty, but full of silent fuel.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百零四 不向北的针",
-                      "flag":  "mod:goety",
-                      "text":  "我不指向北方，只执意寻找施术者安放灵魂的归处。$(br2)"
+                      "title":  "Inscription 104: needle not pointing north",
+                      "text":  "I don\u0027t point to the north, I just insist on looking for the place where the caster\u0027s soul rests.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百零五 万物易名",
-                      "flag":  "mod:goety",
-                      "text":  "炼金者把不可能托付给我，连物质的身份也可能被改写。$(br2)\n"
+                      "title":  "Inscription 105: Everything changes its name",
+                      "text":  "The alchemist entrusts me with the impossible, even the identity of matter may be rewritten.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百零六 不可诵之叶",
-                      "flag":  "mod:goety",
-                      "text":  "我的文字不欢迎初学者，读懂之前先要承担窥秘的代价。$(br2)\n"
+                      "title":  "Inscription 106: The leaf that cannot be chanted",
+                      "text":  "Beginners are not welcome to my text. Before you can understand it, you must bear the price of peeking into it.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百零七 不肯宽恕的页",
-                      "flag":  "mod:goety",
-                      "text":  "每一页都不肯原谅，召来的仆从也带着旧怒。$(br2)\n"
+                      "title":  "Inscription 107: page of unforgiveness",
+                      "text":  "Every page refuses to forgive, and the servants summoned carry old anger.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百零八 刀锋相认",
-                      "flag":  "mod:goety",
-                      "text":  "我同样号令仆从，却让彼此的刀锋记得避开主人。$(br2)\n"
+                      "title":  "Inscription 108: Blade recognition",
+                      "text":  "I also ordered the servants, but let each other\u0027s blades remember to avoid the master.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百零九 远足止于此",
-                      "flag":  "mod:goety",
-                      "text":  "当召唤物躁动远行，我翻开一页便让它们重新守住脚下。$(br2)\n"
+                      "title":  "Inscription 109: The hike stops here",
+                      "text":  "When the summoned creatures are restless and travel far away, I turn the page and let them stay at their feet again.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百一十 铁栏之下",
-                      "flag":  "mod:goety",
-                      "text":  "我像牢笼，却把魂力与仪式锁在比铁栏更深的地方。$(br2)"
+                      "title":  "Inscription 110: under iron bars",
+                      "text":  "I am like a cage, but I lock my soul power and rituals deeper than the iron bars.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百一十一 群魂泊岸",
-                      "flag":  "mod:goety",
-                      "text":  "我扎根地面储藏灵魂，许多诡术都要回到我这里取火。$(br2)"
+                      "title":  "Inscription 111: The souls are anchored",
+                      "text":  "I am rooted in the ground to store my soul, and many tricks will come back to me to draw fire.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百一十二 午夜锤声",
-                      "flag":  "mod:goety",
-                      "text":  "普通铁砧修补刀剑，我却让诅咒与魔力在锤声中重新排列。$(br2)"
+                      "title":  "Inscription 112: midnight hammer",
+                      "text":  "Ordinary anvils repair swords, but I let curses and magic rearrange themselves in the sound of hammers.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百一十三 黎明缺席之塔",
-                      "flag":  "mod:goety",
-                      "text":  "我升起的不是晨光，而是一道让长夜聚拢的信标。$(br2)"
+                      "title":  "Inscription 113: Tower of Dawn\u0027s Absence",
+                      "text":  "What I raise is not the morning light, but a beacon for the long night to gather together.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百一十四 腐土的春天",
-                      "flag":  "mod:goety",
-                      "text":  "我的根爱腐朽胜过沃土，花瓣从死亡留下的养分里舒展。$(br2)\n"
+                      "title":  "Inscription 114: Spring of mulch",
+                      "text":  "My roots love decay more than fertile soil, and my petals stretch out of the nourishment left by death.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百一十五 不动的黑影",
-                      "flag":  "mod:goety",
-                      "text":  "我不会追逐敌人，只在主人身侧以高大黑影拒绝伤害。$(br2)\n"
+                      "title":  "Inscription 115: motionless shadow",
+                      "text":  "I will not chase the enemy, I will only refuse harm as a tall black shadow beside my master.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百一十六 烬冠双生",
-                      "flag":  "mod:goety",
-                      "text":  "火焰与亵渎为我加冕，战场常在我的第二形态中燃烧。$(br2)"
+                      "title":  "Inscription 116: Cindercrown Twins",
+                      "text":  "Fire and blasphemy crown me, and the battlefield burns in my second form.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百一十七 以魂付账者",
-                      "flag":  "mod:goety",
-                      "text":  "我把灵魂当作钱币，把手中诡法当作武器。$(br2)"
+                      "title":  "Inscription 117: One who pays with his soul",
+                      "text":  "I use my soul as money and my tricks as weapons.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百一十八 倒念祷词者",
-                      "flag":  "mod:goety",
-                      "text":  "我从旧信条中转身，留下的祷词全变成攻击。$(br2)"
+                      "title":  "Inscription 118: Those who recite prayers backwards",
+                      "text":  "I turned away from my old creeds, and the prayers I left behind became attacks.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百一十九 锅边残月",
-                      "flag":  "mod:goety",
-                      "text":  "年岁压弯我的背，却没让药锅与恶咒冷却。$(br2)"
+                      "title":  "Inscription 119: Waning moon beside the pot",
+                      "text":  "Age has bent my back, but it has not cooled the cauldron and the curse.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百二十 坟场点兵",
-                      "flag":  "mod:goety",
-                      "text":  "墓地在我眼中不是终点，而是一支尚未起身的军队。$(br2)"
+                      "title":  "Inscription 120: Graveyard troops",
+                      "text":  "The cemetery is not the end in my eyes, but an army that has not yet risen.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百二十一 最后一收",
-                      "flag":  "mod:goety",
-                      "text":  "我从亡者边缘掠过，镰刃替灵魂划下句点。$(br2)"
+                      "title":  "Inscription 121: The last harvest",
+                      "text":  "I passed over the edge of the dead, and the sickle blade marked the end of the soul.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百二十二 穿墙旧怨",
-                      "flag":  "mod:goety",
-                      "text":  "墙壁拦不住我的恨意，活物的温度会引我靠近。$(br2)"
+                      "title":  "Inscription 122: Old grudges through walls",
+                      "text":  "Walls cannot stop my hatred, the warmth of living things will draw me closer.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百二十三 棺下湿声",
-                      "flag":  "mod:goety",
-                      "text":  "我在墓穴湿暗处蠕动，软体中混着不肯安息的腐质。$(br2)"
+                      "title":  "Inscription 123: Wet sound under the coffin",
+                      "text":  "I squirmed in the damp darkness of the tomb, my soft body mixed with decay that refused to rest.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百二十四 无人披甲",
-                      "flag":  "mod:goety",
-                      "text":  "盔甲里面没有血肉，仍会举起武器替幽魂巡行。$(br2)"
+                      "title":  "Inscription 124: No one wearing armor",
+                      "text":  "There is no flesh and blood in the armor, but it still raises its weapons to patrol for the ghosts.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百二十五 暗铠受命",
-                      "flag":  "mod:goety",
-                      "text":  "我披着暗色重甲，被召来后只认施术者的号令。$(br2)"
+                      "title":  "Inscription 125: Dark Armor was ordered",
+                      "text":  "I was wearing dark heavy armor, and after being summoned, I only recognized the orders of the caster.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百二十六 机心震地",
-                      "flag":  "mod:goety",
-                      "text":  "机关、红石与巨躯合为一体，每一步都像活塞砸地。$(br2)\n"
+                      "title":  "Inscription 126: The heart is shaking",
+                      "text":  "The mechanism, red stone and giant body merge into one, and every step hits the ground like a piston.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百二十七 冬日塑像",
-                      "flag":  "mod:goety",
-                      "text":  "我由严寒塑成人形，拳头落下时连空气都会结霜。$(br2)"
+                      "title":  "Inscription 127: winter statue",
+                      "text":  "I was shaped into a human form by the severe cold, and even the air would be frosted when my fist fell.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百二十八 白骨戴冠",
-                      "flag":  "mod:goety",
-                      "text":  "普通白骨听令于我，空洞王冠下仍有统军的意志。$(br2)"
+                      "title":  "Inscription 128: White bones wearing crowns",
+                      "text":  "Ordinary bones obey my orders, but under the hollow crown there is still the will to lead the army.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百二十九 王座后的假面",
-                      "flag":  "mod:goety",
-                      "text":  "我以分身与幻象守住权位，真正的身影总藏在错误答案之后。$(br2)"
+                      "title":  "Inscription 129: The Mask Behind the Throne",
+                      "text":  "I maintain my position of power with clones and illusions, and my true figure is always hidden behind the wrong answers.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百三十 祭坛红痕",
-                      "flag":  "mod:goety",
-                      "text":  "我从不洁仪式中流出，是许多黑暗造物渴求的材料。$(br2)"
+                      "title":  "Inscription 130: altar red mark",
+                      "text":  "I flow from unclean rituals and am the material many dark creatures crave.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百三十一 大地迟来的拥抱",
-                      "flag":  "mod:goety",
-                      "text":  "穿上我以后，坠落会被风拖慢，地面不再急着迎来。$(br2)"
+                      "title":  "Inscription 131: belated embrace of the earth",
+                      "text":  "After wearing me, the fall will be slowed down by the wind, and the ground will no longer rush to meet you.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百三十二 镰刃未至",
-                      "flag":  "mod:goety",
-                      "text":  "我不是镰刀，却能让持镰的亡仆从咒语中现身。$(br2)"
+                      "title":  "Inscription 132: The sickle has not yet arrived",
+                      "text":  "I am not a scythe, but I can make the dead servant holding the scythe appear in the spell.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百三十三 墙后低语",
-                      "flag":  "mod:goety",
-                      "text":  "一点灵魂能量穿过我，便会叫来穿墙而行的幽影。$(br2)"
+                      "title":  "Inscription 133: Whispers behind the wall",
+                      "text":  "A little bit of soul energy passes through me, and it summons the shadow walking through the wall.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百三十四 咒语的行囊",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我的页数不只记录文字，还决定施术者能同时带走多少咒语。$(br2)"
+                      "title":  "Inscription 134: bag of spells",
+                      "text":  "My page count doesn\u0027t just record the words, it also determines how many spells the caster can take away at once.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百三十五 读后成灰",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "法术被墨封在我身上，展开并施放后纸页便完成使命。$(br2)"
+                      "title":  "Inscription 135: Turn into gray after reading",
+                      "text":  "The spell was sealed on me with ink, and when it was unfolded and cast, the page completed its mission.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百三十六 初学者的一滴",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我是最低阶的施法颜料，许多初学卷轴从我开始。$(br2)"
+                      "title":  "Inscription 136: A drop for beginners",
+                      "text":  "I am the lowest level caster paint and many beginner scrolls start with me.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百三十七 群星的一滴",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我的色泽属于最高稀有度，强大咒语才配消耗这一滴。$(br2)"
+                      "title":  "Inscription 137: a drop of stars",
+                      "text":  "My color is of the highest rarity, and only powerful spells are worthy of consuming this drop.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百三十八 法术的余烬",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我像魔法磨损后留下的矿尘，仍向外散发可用力量。$(br2)\n"
+                      "title":  "Inscription 138: Ember of Spell",
+                      "text":  "I am like the mineral dust left behind after the magic has worn away, still radiating usable power outwards.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百三十九 玻璃里的风暴",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "玻璃困住一道闪电，开瓶前仍能听见风暴躁动。$(br2)\n"
+                      "title":  "Inscription 139: storm in glass",
+                      "text":  "The glass trapped a bolt of lightning, and you could still hear the turbulence of the wind before you opened the bottle.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百四十 盛夏不化之骸",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "寒意钻进我的骨髓，即使离开雪地也不肯融化。$(br2)"
+                      "title":  "Inscription 140: The remains of midsummer",
+                      "text":  "The chill penetrated into my bones and refused to melt even if I left the snow.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百四十一 红色的代价",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "炼金者用玻璃收下鲜红材料，血系法术随后循味而来。$(br2)"
+                      "title":  "Inscription 141: price of red",
+                      "text":  "The alchemist used glass to collect the bright red material, and the blood spell followed the taste.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百四十二 无瑕祷光",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我圆润明亮，圣术与高阶制作都在寻找我的光。$(br2)"
+                      "title":  "Inscription 142: Immaculate Prayer Light",
+                      "text":  "I am round and bright, and holy arts and high-level productions are looking for my light.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百四十三 终末遗页",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "终末巨龙留下的坚韧表皮，被制成能承受传奇法术的书。$(br2)\n"
+                      "title":  "Inscription 143: last page",
+                      "text":  "The tough skin left behind by the Last Dragon was crafted into a book that could withstand legendary spells.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百四十四 指尖小日",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我从指间飞出，越过距离后用一次爆燃回答目标。$(br2)"
+                      "title":  "Inscription 144: Fingertip little day",
+                      "text":  "I flew out from my fingers, crossed the distance and answered the target with a blast.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百四十五 一步之外",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "空间只在我咏唱期间保持坚固，下一刻施术者已在别处。$(br2)"
+                      "title":  "Inscription 145: one step away",
+                      "text":  "The space only remained solid while I was chanting, and the next moment the caster was elsewhere.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百四十六 未完之言",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "敌人的咏唱尚未完成，我先让那段魔力失去意义。$(br2)"
+                      "title":  "Inscription 146: unfinished words",
+                      "text":  "The enemy\u0027s chant has not yet been completed, so I will make that magic meaningless first.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百四十七 无弦寻敌",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我不依靠弓弦，离手后仍会寻找该命中的方向。$(br2)"
+                      "title":  "Inscription 147: Searching for enemies without strings",
+                      "text":  "I don\u0027t rely on the bow string, and I still look for the direction of the hit after I leave my hand.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百四十八 夜穹落泪",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "夜空并未破裂，却有灼亮星体应召砸向战场。$(br2)"
+                      "title":  "Inscription 148: The night sky sheds tears",
+                      "text":  "The night sky was not broken, but bright stars were summoned to hit the battlefield.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百四十九 万物归暗",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我越黑越沉，附近的事物都被无形牵引拖向中心。$(br2)"
+                      "title":  "Inscription 149: Everything goes dark",
+                      "text":  "I get darker and darker, and everything nearby is dragged toward the center by invisible pulls.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百五十 墓园晨号",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "尸骨听见我的命令后，把死亡暂时当成一次休息。$(br2)"
+                      "title":  "Inscription 150: Cemetery Morning Bugle",
+                      "text":  "The bones heard my command and regarded death as a temporary rest.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百五十一 以血换路",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我用鲜血支付距离，让施术者从原地骤然消失。$(br2)"
+                      "title":  "Inscription 151: blood for road",
+                      "text":  "I paid for the distance with my blood, causing the caster to suddenly disappear from where he was.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百五十二 一枯一荣",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我连接敌我两端，一边枯萎时另一边重新充盈。$(br2)\n"
+                      "title":  "Inscription 152: One wither and one with glory",
+                      "text":  "I connect the two ends of the enemy and myself, and when one side withers, the other side replenishes.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百五十三 背生晨曦",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "光在背后展开成羽翼，地面的道路随即失去必要。$(br2)"
+                      "title":  "Inscription 153: Morning light behind my back",
+                      "text":  "The light spreads out into wings behind me, and the road on the ground becomes unnecessary.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百五十四 光圈内无伤",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "同伴站进我的圆周，伤口便在持续圣光中合拢。$(br2)\n"
+                      "title":  "Inscription 154: No damage within the aperture",
+                      "text":  "My companion stood in my circle, and the wound closed in the continuous holy light.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百五十五 白昼之矛",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我把高天亮光收束成束，让黑暗生物无处躲藏。$(br2)"
+                      "title":  "Inscription 155: Day Spear",
+                      "text":  "I gather the bright lights of high heaven into bundles so that the creatures of darkness have no place to hide.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百五十六 寒霜记步",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "每一步都让水面与地面记住寒冷，脚后留下短暂冰路。$(br2)"
+                      "title":  "Inscription 156: frost step",
+                      "text":  "Every step reminds the water and the ground of the cold, leaving a short icy path behind your feet.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百五十七 冬水成刃",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "水在半空被削成尖刃，随后沿直线刺入目标。$(br2)"
+                      "title":  "Inscription 157: winter water blade",
+                      "text":  "The water is sharpened in mid-air and then penetrates the target in a straight line.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百五十八 雷不止一人",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "第一个目标不是终点，电光会继续寻找附近的下一个身体。$(br2)\n"
+                      "title":  "Inscription 158: There is more than one person in thunder",
+                      "text":  "The first target is not the end point, the electric light will continue to search for the next body nearby.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百五十九 云随咒行",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "乌云听从咒语聚集，让一片战场连续承受天雷。$(br2)"
+                      "title":  "Inscription 159: Clouds follow the curse",
+                      "text":  "Dark clouds gathered in obedience to the spell, causing a battlefield to continuously bear thunder.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百六十 缓慢的腐蚀",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我缓慢飞行，破裂后留下会继续啃噬血肉的酸液。$(br2)"
+                      "title":  "Inscription 160: slow corrosion",
+                      "text":  "I flew slowly, leaving behind acid that continued to eat away at my flesh when it ruptured.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百六十一 伤口里的青意",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "无需药水涂抹，我在箭命中时直接把毒送入伤口。$(br2)"
+                      "title":  "Inscription 161: The greenness in the wound",
+                      "text":  "No need to apply potions, I deliver the poison directly into the wound when the arrow hits.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百六十二 大地攥住脚踝",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "土下植物突然认出敌人的脚踝，把逃跑变成徒劳。$(br2)"
+                      "title":  "Inscription 162: The earth clutches the ankle",
+                      "text":  "The plants under the soil suddenly recognized the enemy\u0027s ankles, turning their escape into futility.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百六十三 地下怒潮",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "咏唱结束后，大地自己成为武器，周围脚步全被掀乱。$(br2)"
+                      "title":  "Inscription 163: underground rage",
+                      "text":  "After the chant ended, the earth itself became a weapon, and the footsteps around him were disrupted.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百六十四 星外来客的一击",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我不是火也不是雷，陌生能量从掌前轰开道路。$(br2)\n"
+                      "title":  "Inscription 164: A blow from an extraterrestrial visitor",
+                      "text":  "I am neither fire nor thunder, strange energy blasts the way from my palm.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百六十五 岩壁也听见",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我把无形声浪压成直线，坚硬墙面也难挡住冲击。$(br2)"
+                      "title":  "Inscription 165: The rock wall heard it too",
+                      "text":  "I suppressed the invisible sound waves into a straight line, and even the hard wall could not block the impact.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百六十六 意念越过指尖",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我不触碰物体，却能让远处目标被意志拖动。$(br2)"
+                      "title":  "Inscription 166: Thoughts pass through the fingertips",
+                      "text":  "I don\u0027t touch the object, but I can make the distant target be dragged by my will.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百六十七 越界者燃烧",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "我不急着追击，只横在道路上让穿越者付出灼烧代价。$(br2)"
+                      "title":  "Inscription 167: Boundaries burn",
+                      "text":  "I am not in a hurry to pursue, I just stand on the road and make the travelers pay the burning price.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百六十八 旧坐标的呼唤",
-                      "flag":  "mod:irons_spellbooks",
-                      "text":  "无论旅途把人带得多远，我都记得最初标下的落脚处。$(br2)"
+                      "title":  "Inscription 168: The call of old coordinates",
+                      "text":  "No matter how far the journey takes me, I will always remember the first destination I marked.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百六十九 九罪同契",
-                      "text":  "九重代价都被压进我的金石，佩戴即意味着在王名前署名。$(br2)"
+                      "title":  "Inscription 169: nine sins",
+                      "text":  "Nine layers of price are pressed into my gold stone. Wearing it means signing in front of the king\u0027s name.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百七十 金焰宽恕",
-                      "text":  "撕开我时金光焚去一部分王罪，而纸页也随宽恕消失。$(br2)\n"
+                      "title":  "Inscription 170: golden flame forgiveness",
+                      "text":  "When I tore it apart, the golden light burned away part of the king\u0027s sin, and the pages disappeared with forgiveness.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百七十一 王朝的注视",
-                      "text":  "我入口像饮料，咽下后却让整个王朝更快注意到你。$(br2)\n"
+                      "title":  "Inscription 171: dynasty\u0027s gaze",
+                      "text":  "It\u0027s like a drink in your mouth, but after you swallow it, the whole dynasty will notice you faster.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百七十二 死亡留下的空腹",
-                      "text":  "每次死亡都可能留下我，三道碑文能让我归还欠下的饱食。$(br2)\n"
+                      "title":  "Inscription 172: The empty stomach left by death",
+                      "text":  "Every death may leave me behind, and one inscription can allow me to return the food I owe.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百七十三 黄沙下的搏动",
-                      "text":  "沙漠赐我幸运，群敌唤我战意，我在杜阿特仍像活物跳动。$(br2)"
+                      "title":  "Inscription 173: The pulsation under the yellow sand",
+                      "text":  "The desert gives me luck, the enemies call me to fight, and I still beat like a living creature in Duat.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百七十四 亡境未熄",
-                      "text":  "我极少从敌人身上留下，未解碑文时拒绝回应右手。$(br2)"
+                      "title":  "Inscription 174: Death is not over yet",
+                      "text":  "I rarely stay from the enemy, and refuse to respond to my right hand when I haven\u0027t solved the inscription.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百七十五 沉默的尘埃",
-                      "text":  "我是玄金成锭前最细小的一份沉默。$(br2)\n"
+                      "title":  "Inscription 175: silent dust",
+                      "text":  "I am the tiniest piece of silence before Xuanjin becomes an ingot.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百七十六 无声黑日",
-                      "text":  "我比下界合金更沉默，是王器与仪式偏爱的黑色金属。$(br2)\n"
+                      "title":  "Inscription 176: silent dark sun",
+                      "text":  "I am more silent than netherite, the black metal favored by royal weapons and rituals.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百七十七 法则的裂口",
-                      "text":  "我的结构极不稳定，后续每次锻造都在逼迫法则归位。$(br2)\n"
+                      "title":  "Inscription 177: crack in the law",
+                      "text":  "My structure is extremely unstable, and every subsequent forging forces the law back into place.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百七十八 腐蚀后的秩序",
-                      "text":  "裂相被侵蚀后稍稍收束，却仍远称不上恒定。$(br2)\n"
+                      "title":  "Inscription 178: order after corrosion",
+                      "text":  "The cracked phase has been slightly consolidated after being eroded, but it is still far from being constant.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百七十九 游相归笼",
-                      "text":  "无形束缚把游离相位拉回金属，使我趋向稳定。$(br2)\n"
+                      "title":  "Inscription 179: Traveling back to the cage",
+                      "text":  "The invisible restraint pulls the free phase back to the metal, making me tend to be stable.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百八十 混沌列队",
-                      "text":  "混乱在我内部排成次序，稳定终于不再只是偶然。$(br2)\n"
+                      "title":  "Inscription 180: Chaos formation",
+                      "text":  "Chaos was falling into order within me, and stability was finally no longer just an accident.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百八十一 不可改写之纹",
-                      "text":  "高度稳定的法则凝成我的纹理，寻常扰动难再改写。$(br2)\n"
+                      "title":  "Inscription 181: Unchangeable pattern",
+                      "text":  "Highly stable laws have condensed into my texture, and ordinary disturbances are difficult to rewrite.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百八十二 岁月不能移",
-                      "text":  "漫长时间也难使我偏移，但距离绝对稳定仍差一步。$(br2)\n"
+                      "title":  "Inscription 182: Time cannot be moved",
+                      "text":  "It is difficult for me to deviate over a long period of time, but I am still one step away from absolute stability.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百八十三 星辰校准",
-                      "text":  "星辉把金属推近完美，法则在表面如神谕般排列。$(br2)\n"
+                      "title":  "Inscription 183: Star Alignment",
+                      "text":  "Starlight pushes the metal closer to perfection, and laws line the surface like an oracle.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百八十四 龙言封律",
-                      "text":  "龙之权柄完成最后约束，我的稳定不再允许例外。$(br2)\n"
+                      "title":  "Inscription 184: Long Yan seal law",
+                      "text":  "The dragon\u0027s authority completes the final restraint, and my stability no longer allows exceptions.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百八十五 三声弦鸣",
-                      "text":  "我能三连发也能持续倾泻，穿甲之箭尤其懂得击碎王胄。$(br2)\n\n"
+                      "title":  "Inscription 185: three strings",
+                      "text":  "I can fire three consecutive shots and continue pouring. The armor-piercing arrows especially know how to crush the king\u0027s armor.$(br2)\n\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百八十六 铠甲的句点",
-                      "text":  "我命中时不与护盾争论，而是直接让整层王胄解除。$(br2)\n"
+                      "title":  "Inscription 186: The end of armor",
+                      "text":  "When I hit, I didn\u0027t argue with the shield, but just let the whole layer of King\u0027s Armor be lifted.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百八十七 沉默的指挥",
-                      "text":  "仪式需要有人指挥沉默，我便是划定步骤与方向的长杖。$(br2)\n\n"
+                      "title":  "Inscription 187: silent command",
+                      "text":  "The ritual requires someone to direct the silence, and I am the long staff that marks the steps and direction.$(br2)\n\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百八十八 后来者的亡卷",
-                      "text":  "我把咒印、余烬、反转与王器整理成后来者能翻阅的道路。$(br2)\n"
+                      "title":  "Inscription 188: The Death Scroll of the Latecomers",
+                      "text":  "I organized the curse seals, embers, reversals and royal weapons into a path that can be read by those who come after me.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百八十九 上下王冠之歌",
-                      "text":  "当我的旋律完整走完一轮，沉睡的音乐饰品会记起旧王朝。$(br2)\n"
+                      "title":  "Inscription 189: Song of Crowns Above and Below",
+                      "text":  "When my melody completes its cycle, the sleeping musical ornaments will remember the old dynasty.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百九十 旧歌唤醒之物",
-                      "text":  "我只在旧歌完整终结时苏醒，离身后又归于沉寂。$(br2)\n"
+                      "title":  "Inscription 190: old songs wake things up",
+                      "text":  "I only wake up when the old song ends completely, and fall into silence again after I leave.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百九十一 额前游蛇",
-                      "text":  "晴日让我放出流光，雷雨则令五芒星与碎光一同降临。$(br2)\n"
+                      "title":  "Inscription 191: Prefrontal snake",
+                      "text":  "Sunny days make me emit streams of light, and thunderstorms make pentagrams and broken lights come together.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百九十二 双冠宣判",
-                      "text":  "我以蓄力掀起群敌，也能展开矩阵向范围内一切生命宣判。$(br2)\n"
+                      "title":  "Inscription 192: Double Crown Sentence",
+                      "text":  "I can use my energy to stir up a group of enemies, and I can also deploy the matrix to pronounce judgment on all life within the range.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百九十三 狂意止于胫",
-                      "text":  "我来自胫骨，却让王胄词条中的狂躁与失控趋于平静。$(br2)"
+                      "title":  "Inscription 193: The madness stops at the shins",
+                      "text":  "I come from the tibia, but it calms down the mania and loss of control in Wang Zhou\u0027s entry.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百九十四 熔流中的冷光",
-                      "text":  "火焰凝进我的晶面，持有者因此能在熔岩与热浪间前行。$(br2)\n"
+                      "title":  "Inscription 194: Cold light in the melt flow",
+                      "text":  "Fire condenses into my crystal face, allowing the holder to walk through lava and heat waves.$(br2)\n"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百九十五 永不餍足",
-                      "text":  "空腹与掠夺在我内部压缩，像一颗永远吃不饱的心。$(br2)"
+                      "title":  "Inscription 195: Never satisfied",
+                      "text":  "Hungry and plunder compressed inside me, like a heart that was never full.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百九十六 绿毒窥伺",
-                      "text":  "绿色恶意在球体里回旋，等待王胄把它嵌进新的词条。$(br2)"
+                      "title":  "Inscription 196: green poison spying",
+                      "text":  "Green malice swirled in the sphere, waiting for Wang Zhou to embed it into a new entry.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百九十七 众问之后",
-                      "text":  "我不靠谜面遮掩，名字本身就是所有追问最后留下的答案。$(br2)"
+                      "title":  "Inscription 197: After many questions",
+                      "text":  "I don\u0027t rely on mysteries to cover me up. The name itself is the final answer to all questions.$(br2)"
                   },
                   {
                       "type":  "patchouli:text",
-                      "title":  "碑文一百九十八 触之必怒",
-                      "text":  "龙最不愿被触碰的鳞片脱落后，仍保存着反击权威的怒意。$(br2)"
+                      "title":  "Inscription 198: Will be angry if touched",
+                      "text":  "After the scales that the dragon least wanted to touch fell off, it still retained the anger to fight back against authority.$(br2)"
                   }
               ]
 }

@@ -1,0 +1,12 @@
+{
+  "structures": [
+    {
+      "structure": "ramesses_curse:grand_cathedral",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "ramesses_curse:fixed_grand_cathedral",
+    "salt": 1380275285
+  }
+}

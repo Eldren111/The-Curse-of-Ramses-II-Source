@@ -87,7 +87,7 @@ public class InscriptionBagMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return !bagStack.isEmpty()
+        return KadeshCurioAccess.isWearingSeal(player) && !bagStack.isEmpty()
                 && bagStack.is(ModItems.INSCRIPTION_BAG.get())
                 && player.getItemInHand(hand) == bagStack;
     }

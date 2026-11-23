@@ -1,0 +1,27 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.eldren.wutao.ramesses_requiem.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "ramesses_requiem.refmap.json",
+  "mixins": [
+    "RequiemBookCreatorMixin",
+    "WusheMovementMixin",
+    "CrimsonExecutionCreditAccessor",
+    "CrimsonRequiemOffhandAttackMixin",
+    "CrimsonRequiemMenuMixin",
+    "CrimsonRequiemSlotMixin",
+    "CrimsonRequiemCreativeSlotMixin",
+    "CrimsonWardAbsorptionMixin",
+    "CrimsonRequiemShieldMixin",
+    "CrimsonRequiemAbsorptionMixin",
+    "CrimsonRequiemPlayerAbsorptionMixin"
+  ],
+  "client": [
+    "WusheWeatherMixin",
+    "CrimsonRequiemInputMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

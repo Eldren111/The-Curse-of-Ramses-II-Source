@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /** 仅在客户端渲染线程使用的动画时钟、界面过滤、颜色工具和临时效果开关。 */
 public final class DynamicTextRuntime {
     private static final Map<Integer, Boolean> OVERRIDES = new ConcurrentHashMap<>();
+    private static final ThreadLocal<Boolean> EFFECT_RENDERER_ACTIVE = ThreadLocal.withInitial(() -> false);
     private static volatile Boolean masterOverride;
     private static long checkedFrame = Long.MIN_VALUE;
     private static boolean screenAllowed = true;
@@ -61,6 +62,18 @@ public final class DynamicTextRuntime {
         masterOverride = null;
         OVERRIDES.clear();
         invalidateScreenCache();
+    }
+
+    public static void beginEffectRender() {
+        EFFECT_RENDERER_ACTIVE.set(true);
+    }
+
+    public static void endEffectRender() {
+        EFFECT_RENDERER_ACTIVE.set(false);
+    }
+
+    public static boolean isEffectRendererActive() {
+        return EFFECT_RENDERER_ACTIVE.get();
     }
 
     public static long animationFrame() {

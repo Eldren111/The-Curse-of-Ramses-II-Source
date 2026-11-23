@@ -1,0 +1,32 @@
+{
+  "parent": "ramesses_curse:obtain_fractured_phase_ingot",
+  "display": {
+    "icon": {
+      "item": "ramesses_curse:eroded_law_ingot"
+    },
+    "title": {
+      "translate": "advancement.ramesses_curse.obtain_eroded_law_ingot.title"
+    },
+    "description": {
+      "translate": "advancement.ramesses_curse.obtain_eroded_law_ingot.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ramesses_curse:eroded_law_ingot"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

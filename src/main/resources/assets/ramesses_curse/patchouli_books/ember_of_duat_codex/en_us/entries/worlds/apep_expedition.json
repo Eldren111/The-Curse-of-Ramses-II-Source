@@ -1,0 +1,66 @@
+{
+  "name": "Apep and the Sun-Eater Isle",
+  "category": "ramesses_curse:worlds",
+  "icon": "ramesses_curse:sun_eater_beacon",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Begin the Expedition",
+      "text": "After the vanilla Ender Dragon dies, an expedition obelisk rises beside the exit fountain. Equip the Seal of Kadesh and right-click its Lodestone core with a Sun-Eater Beacon.$(br2)Use the remote obelisk to return. The beacon is not consumed."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Locating the Isle",
+      "text": "The isle lies deep in the End's outer ring and is registered as a structure. Administrators and testers may use:$(br)$(c)/locate structure ramesses_curse:ramesses_end_island$()$(br2)Survival progression should use the obelisks."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "ramesses_curse:duat_sun_eater",
+      "name": "Apep, Devourer of the End",
+      "text": "Apep is a distinct entity while retaining the vanilla dragon's flight phases and animation system. It never lands. Every island entity except crystals and guardian monoliths is a target, including Creative players."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Three Lives",
+      "text": "Stages I, II, and III have 330, 550, and 1,024 health by default, with 20 armor and 15%, 25%, and 35% damage reduction. Emptying a stage starts a rebuilding scene; Apep then returns in a redder form."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "ramesses_curse:ramesses_end_crystal",
+      "name": "Heka Radiant Crystal",
+      "text": "These crystals heal Apep rapidly and require two hits to destroy. Stage transitions rebuild cages and crystals. With Goety installed, linked Obsidian Monoliths protect them; destroy a monolith before its crystal can be harmed."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Royal Damage Limit",
+      "text": "Apep accepts only direct, main-hand weapon base damage from players. Enchantments, NBT bonuses, and Curios bonuses do not count. One hit is capped at 100 before stage reduction.$(br2)A valid hit grants two seconds of immunity and has a 25% chance to make Apep invisible for three seconds."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Curio Sealing",
+      "text": "Inside the combat area, equipped Curios lose attribute modifiers and standard ticking effects. They return after leaving, respawning outside, or defeating Apep. A same-place revival while Apep lives does not bypass the seal.$(br2)Servers may disable sealing or configure a whitelist."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Dive and Thunder Prison",
+      "text": "Apep tracks its target while climbing, then fixes the marked ground position when the dive begins. Leaving the roughly 4.5-block impact area avoids the 100 true damage and launch.$(br2)The later shockwaves and lightning remain at that fixed point instead of following the player."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Light-Eating Black Hole",
+      "text": "The default black-hole selection chances are 24%, 32%, and 40% by stage. It lasts 11 seconds: two seconds of warning, then pull and damage within 30 blocks, ending in a collapse burst.$(br2)Continuous pull stops as collapse begins, and residual inward velocity is removed when the effect ends."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Eclipse Breath & Shadow",
+      "text": "Eclipse Breath marks a fixed dark trajectory before releasing a burning beam; leave its path to evade it.$(br2)Shadow of Apep hides the true body and marks successive attack lines from different directions. Each shadow deals damage only when its warning path becomes a solid rush."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "ramesses_curse:duat_sun_eater_crown",
+      "title": "Death and the Crown",
+      "text": "After Apep's final death, the crown floats, glows red, and draws in End particles. It never despawns, cannot be harmed or cleared, and disappears only when a player collects it.$(br2)Pickup moves island survivors to the nearest obelisk and starts a ten-second destruction countdown."
+    }
+  ]
+}
